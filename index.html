@@ -638,7 +638,13 @@
     }
 
     /* ─── RESPONSIVE ───────────────────────────────────────────────── */
+    br.mob { display: none; }
+
     @media (max-width: 720px) {
+      br.mob { display: inline; }
+      .hero { min-height: auto; padding-bottom: 0; }
+      .hero-content { padding-top: 90px; padding-bottom: 48px; }
+      .hero-overlay-bottom { height: 80px; }
       .capture-form { flex-direction: column; align-items: stretch; }
       .capture-form input[type="email"] { max-width: 100%; }
       .btn-primary { width: 100%; text-align: center; }
@@ -649,7 +655,7 @@
       .benefit-icon { width: 90px; height: 90px; right: 12px; }
       .benefit-card:nth-child(4) .benefit-icon { width: 90px; height: 90px; right: 20px; }
       .tendencias { padding-top: 32px; }
-      section { padding: 64px 5vw; }
+      section { padding: 48px 5vw; }
       .scroll-arrow { display: none; }
     }
 
@@ -825,25 +831,25 @@
       <div class="benefit-card">
         <img src="icons/thunder.png" class="benefit-icon" alt="" />
         <h3>Aprende haciendo</h3>
-        <p>Guías paso a paso<br>para aplicar IA en casos reales.</p>
+        <p>Guías paso a paso<br>para aplicar IA<br class="mob">en casos reales.</p>
       </div>
 
       <div class="benefit-card">
         <img src="icons/padlock.png" class="benefit-icon" alt="" />
         <h3>Acceso inmediato</h3>
-        <p>Empieza gratis y avanza<br>a contenido más completo cuando quieras.</p>
+        <p>Empieza gratis y avanza<br>a contenido más completo<br class="mob">cuando quieras.</p>
       </div>
 
       <div class="benefit-card">
         <img src="icons/smart phone.png" class="benefit-icon" alt="" />
         <h3>Desde cualquier lugar</h3>
-        <p>Accede desde tu celular,<br>tablet o computador cuando lo necesites.</p>
+        <p>Accede desde tu celular,<br>tablet o computador<br class="mob">cuando lo necesites.</p>
       </div>
 
       <div class="benefit-card">
         <img src="icons/dartboard.png" class="benefit-icon" alt="" />
         <h3>Para todos los niveles</h3>
-        <p>Desde principiante hasta avanzado,<br>con rutas claras para avanzar.</p>
+        <p>Desde principiante hasta<br class="mob">avanzado, con rutas claras<br class="mob">para avanzar.</p>
       </div>
 
     </div>
