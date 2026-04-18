@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-deep: #0B1E6D; --blue-mid: #1E3A8A; --blue-elec: #2F6BFF;
+      --blue-dark: #050F3A; --black: #050505; --white: #FFFFFF;
+      --gray: #D1D5DB; --green: #00FF9C; --red: #ff4444;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #08101f; color: var(--white); min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+    input, textarea, select { font-family: inherit; }
+
+    /* ── NAVBAR ── */
+    .admin-nav {
+      background: rgba(5,15,58,0.98);
+      border-bottom: 1px solid rgba(47,107,255,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5vw; height: 64px; position: sticky; top: 0; z-index: 100;
+    }
+    .admin-nav-logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.08em; }
+    .admin-nav-logo span { color: var(--blue-elec); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-left: 8px; vertical-align: middle; }
+    .admin-nav-right { display: flex; align-items: center; gap: 14px; }
+    .btn-ghost { background: transparent; border: 1px solid rgba(47,107,255,0.35); color: var(--gray); padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+    .btn-ghost:hover { background: rgba(47,107,255,0.12); border-color: var(--blue-elec); color: var(--white); }
+
+    /* ── MAIN ── */
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 40px 5vw 80px; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .admin-title { font-size: 1.5rem; font-weight: 800; }
+    .btn-primary { background: var(--blue-elec); color: var(--white); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; transition: background 0.2s, transform 0.15s; }
+    .btn-primary:hover { background: #4d7fff; transform: translateY(-1px); }
+
+    /* ── TABLE ── */
+    .guides-table { width: 100%; border-collapse: collapse; }
+    .guides-table th { text-align: left; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #4a6080; padding: 10px 14px; border-bottom: 1px solid rgba(47,107,255,0.1); }
+    .guides-table td { padding: 14px; border-bottom: 1px solid rgba(47,107,255,0.07); font-size: 0.88rem; vertical-align: middle; }
+    .guides-table tr:hover td { background: rgba(47,107,255,0.04); }
+    .thumb { width: 52px; height: 36px; border-radius: 5px; object-fit: cover; background: #0e1f5c; display: block; }
+    .thumb-placeholder { width: 52px; height: 36px; border-radius: 5px; background: #0e1f5c; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .badge { display: inline-block; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; }
+    .badge-premium { background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.35); color: var(--blue-elec); }
+    .badge-gratis { background: rgba(0,255,156,0.1); border: 1px solid rgba(0,255,156,0.3); color: var(--green); }
+    .badge-publicada { background: rgba(0,255,156,0.1); border: 1px solid rgba(0,255,156,0.3); color: var(--green); }
+    .badge-borrador { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #637289; }
+    .cats-list { font-size: 0.75rem; color: #637289; max-width: 200px; }
+    .table-actions { display: flex; gap: 8px; }
+    .btn-edit { background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.3); color: var(--blue-elec); padding: 6px 14px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+    .btn-edit:hover { background: rgba(47,107,255,0.22); }
+    .btn-delete { background: rgba(255,68,68,0.08); border: 1px solid rgba(255,68,68,0.25); color: #ff6b6b; padding: 6px 14px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+    .btn-delete:hover { background: rgba(255,68,68,0.18); }
+    .empty-state { text-align: center; color: #3d5268; padding: 60px 0; font-size: 0.95rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(5,5,5,0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal { background: linear-gradient(160deg, #080f2e 0%, #0b1535 100%); border: 1px solid rgba(47,107,255,0.2); border-radius: 16px; padding: 36px 36px 32px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; transform: translateY(16px); transition: transform 0.25s; }
+    .modal-overlay.active .modal { transform: translateY(0); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .modal-title { font-size: 1.2rem; font-weight: 800; }
+    .modal-close { background: none; border: none; color: #4f637a; font-size: 1.6rem; line-height: 1; padding: 4px 8px; transition: color 0.2s; }
+    .modal-close:hover { color: var(--white); }
+
+    /* ── FORM ── */
+    .form-grid { display: flex; flex-direction: column; gap: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-field label { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #637289; margin-bottom: 7px; }
+    .form-field input[type="text"],
+    .form-field textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid rgba(47,107,255,0.22); background: rgba(5,5,5,0.6); color: var(--white); font-size: 0.92rem; outline: none; transition: border-color 0.2s; }
+    .form-field textarea { min-height: 90px; resize: vertical; }
+    .form-field input:focus, .form-field textarea:focus { border-color: var(--blue-elec); }
+    .form-field input::placeholder, .form-field textarea::placeholder { color: #3d5268; }
+
+    /* toggles */
+    .toggle-row { display: flex; gap: 20px; }
+    .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; color: var(--gray); user-select: none; }
+    .toggle-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue-elec); cursor: pointer; }
+
+    /* file upload */
+    .file-upload { border: 1.5px dashed rgba(47,107,255,0.3); border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
+    .file-upload:hover { border-color: var(--blue-elec); background: rgba(47,107,255,0.05); }
+    .file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .file-upload-icon { font-size: 1.5rem; margin-bottom: 6px; }
+    .file-upload-text { font-size: 0.82rem; color: #637289; }
+    .file-upload-name { font-size: 0.82rem; color: var(--blue-elec); margin-top: 4px; font-weight: 600; }
+    .portada-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 10px; display: none; }
+
+    /* categorias */
+    .cats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .cat-check { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--gray); cursor: pointer; }
+    .cat-check input { accent-color: var(--blue-elec); width: 15px; height: 15px; }
+
+    /* form actions */
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+    .btn-cancel { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--gray); padding: 11px 22px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .btn-cancel:hover { border-color: rgba(255,255,255,0.25); color: var(--white); }
+
+    /* loading / error */
+    .form-msg { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-top: 4px; }
+    .form-msg.error { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: #ff6b6b; }
+    .form-msg.success { background: rgba(0,255,156,0.08); border: 1px solid rgba(0,255,156,0.22); color: var(--green); }
+    .hidden { display: none !important; }
+
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+      .cats-grid { grid-template-columns: 1fr; }
+      .modal { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="admin-nav">
+    <div class="admin-nav-logo">
+      IA MASIVA <span>Admin</span>
+    </div>
+    <div class="admin-nav-right">
+      <a href="app.html" class="btn-ghost">Ver app</a>
+      <button class="btn-ghost" id="btnLogout">Salir</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1 class="admin-title">Panel de guías</h1>
+      <button class="btn-primary" id="btnNewGuide">+ Nueva guía</button>
+    </div>
+
+    <table class="guides-table" id="guidesTable">
+      <thead>
+        <tr>
+          <th>Portada</th>
+          <th>Título</th>
+          <th>Categorías</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="guidesBody">
+        <tr><td colspan="6" class="empty-state">Cargando guías...</td></tr>
+      </tbody>
+    </table>
+  </main>
+
+  <!-- MODAL FORMULARIO -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Nueva guía</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+
+      <form id="guideForm" class="form-grid">
+        <input type="hidden" id="fId" />
+
+        <!-- Título -->
+        <div class="form-field">
+          <label>Título</label>
+          <input type="text" id="fTitulo" placeholder="Ej: Prompts con ChatGPT" required />
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-field">
+          <label>Descripción corta</label>
+          <textarea id="fDesc" placeholder="Resumen breve de la guía..."></textarea>
+        </div>
+
+        <!-- Tipo y Estado -->
+        <div class="form-field">
+          <label>Opciones</label>
+          <div class="toggle-row">
+            <label class="toggle-label">
+              <input type="checkbox" id="fPremium" />
+              Premium
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="fPublicada" />
+              Publicada
+            </label>
+          </div>
+        </div>
+
+        <!-- Categorías -->
+        <div class="form-field">
+          <label>Categorías</label>
+          <div class="cats-grid" id="catsGrid"></div>
+        </div>
+
+        <!-- Portada -->
+        <div class="form-field">
+          <label>Imagen de portada</label>
+          <div class="file-upload" id="portadaZone">
+            <input type="file" id="fPortada" accept="image/*" />
+            <div class="file-upload-icon">🖼️</div>
+            <div class="file-upload-text">Haz clic o arrastra una imagen</div>
+            <div class="file-upload-name hidden" id="portadaName"></div>
+            <img class="portada-preview" id="portadaPreview" />
+          </div>
+          <div class="file-upload-name hidden" id="portadaActual" style="margin-top:6px;font-size:0.78rem;"></div>
+        </div>
+
+        <!-- HTML -->
+        <div class="form-field">
+          <label>Archivo HTML de la guía</label>
+          <div class="file-upload">
+            <input type="file" id="fHtml" accept=".html" />
+            <div class="file-upload-icon">📄</div>
+            <div class="file-upload-text">Haz clic o arrastra el archivo .html</div>
+            <div class="file-upload-name hidden" id="htmlName"></div>
+          </div>
+          <div class="file-upload-name hidden" id="htmlActual" style="margin-top:6px;font-size:0.78rem;"></div>
+        </div>
+
+        <!-- Mensaje -->
+        <div id="formMsg" class="form-msg hidden"></div>
+
+        <!-- Acciones -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="btnCancel">Cancelar</button>
+          <button type="submit" class="btn-primary" id="btnSave">Guardar guía</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ── SUPABASE ──────────────────────────────────────────────────
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+
+    const CATEGORIAS = [
+      'LLM', 'Imagen y diseño', 'Video y animación',
+      'Audio, voz y música', 'Investigación', 'Coding',
+      'Automatización', 'Marketing', 'Atención al cliente',
+      'Finanzas', 'Desarrollo', 'Análisis de datos', 'Creación de contenido'
+    ];
+
+    // ── AUTH GUARD (solo admins) ───────────────────────────────────
+    async function checkAdmin() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'index.html'; return; }
+      const { data: profile } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
+      if (!profile?.es_admin) { window.location.href = 'app.html'; return; }
+      loadGuides();
+    }
+    checkAdmin();
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.href = 'index.html';
+    });
+
+    // ── CATEGORÍAS CHECKBOXES ─────────────────────────────────────
+    const catsGrid = document.getElementById('catsGrid');
+    CATEGORIAS.forEach(cat => {
+      const label = document.createElement('label');
+      label.className = 'cat-check';
+      label.innerHTML = `<input type="checkbox" value="${cat}" class="cat-cb" /> ${cat}`;
+      catsGrid.appendChild(label);
+    });
+
+    // ── FILE INPUTS FEEDBACK ──────────────────────────────────────
+    document.getElementById('fPortada').addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      document.getElementById('portadaName').textContent = file.name;
+      document.getElementById('portadaName').classList.remove('hidden');
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('portadaPreview');
+        img.src = e.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('fHtml').addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      document.getElementById('htmlName').textContent = file.name;
+      document.getElementById('htmlName').classList.remove('hidden');
+    });
+
+    // ── CARGAR GUÍAS ──────────────────────────────────────────────
+    async function loadGuides() {
+      const { data: guides, error } = await sb
+        .from('guides')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const tbody = document.getElementById('guidesBody');
+      if (error || !guides?.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hay guías aún. ¡Crea la primera!</td></tr>';
+        return;
+      }
+      tbody.innerHTML = guides.map(g => `
+        <tr>
+          <td>
+            ${g.portada_url
+              ? `<img src="${g.portada_url}" class="thumb" />`
+              : `<div class="thumb-placeholder">📄</div>`}
+          </td>
+          <td><strong>${g.titulo}</strong></td>
+          <td><div class="cats-list">${(g.categorias || []).join(', ') || '—'}</div></td>
+          <td><span class="badge ${g.es_premium ? 'badge-premium' : 'badge-gratis'}">${g.es_premium ? 'Premium' : 'Gratis'}</span></td>
+          <td><span class="badge ${g.publicada ? 'badge-publicada' : 'badge-borrador'}">${g.publicada ? 'Publicada' : 'Borrador'}</span></td>
+          <td>
+            <div class="table-actions">
+              <button class="btn-edit" onclick="editGuide('${g.id}')">Editar</button>
+              <button class="btn-delete" onclick="deleteGuide('${g.id}', '${g.titulo.replace(/'/g, "\\'")}')">Eliminar</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ── MODAL ─────────────────────────────────────────────────────
+    const modalOverlay = document.getElementById('modalOverlay');
+
+    function openModal() {
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      resetForm();
+    }
+
+    document.getElementById('btnNewGuide').addEventListener('click', () => {
+      document.getElementById('modalTitle').textContent = 'Nueva guía';
+      openModal();
+    });
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('btnCancel').addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+    function resetForm() {
+      document.getElementById('guideForm').reset();
+      document.getElementById('fId').value = '';
+      document.getElementById('portadaPreview').style.display = 'none';
+      document.getElementById('portadaName').classList.add('hidden');
+      document.getElementById('htmlName').classList.add('hidden');
+      document.getElementById('portadaActual').classList.add('hidden');
+      document.getElementById('htmlActual').classList.add('hidden');
+      document.querySelectorAll('.cat-cb').forEach(cb => cb.checked = false);
+      hideMsg();
+    }
+
+    // ── EDITAR ────────────────────────────────────────────────────
+    async function editGuide(id) {
+      const { data: g } = await sb.from('guides').select('*').eq('id', id).single();
+      if (!g) return;
+      document.getElementById('modalTitle').textContent = 'Editar guía';
+      document.getElementById('fId').value = g.id;
+      document.getElementById('fTitulo').value = g.titulo || '';
+      document.getElementById('fDesc').value = g.descripcion || '';
+      document.getElementById('fPremium').checked = !!g.es_premium;
+      document.getElementById('fPublicada').checked = !!g.publicada;
+      document.querySelectorAll('.cat-cb').forEach(cb => {
+        cb.checked = (g.categorias || []).includes(cb.value);
+      });
+      if (g.portada_url) {
+        const el = document.getElementById('portadaActual');
+        el.textContent = 'Portada actual: ' + g.portada_url.split('/').pop();
+        el.classList.remove('hidden');
+      }
+      if (g.contenido_url) {
+        const el = document.getElementById('htmlActual');
+        el.textContent = 'HTML actual: ' + g.contenido_url.split('/').pop();
+        el.classList.remove('hidden');
+      }
+      openModal();
+    }
+
+    // ── ELIMINAR ──────────────────────────────────────────────────
+    async function deleteGuide(id, titulo) {
+      if (!confirm(`¿Eliminar "${titulo}"? Esta acción no se puede deshacer.`)) return;
+      const { error } = await sb.from('guides').delete().eq('id', id);
+      if (error) { alert('Error al eliminar: ' + error.message); return; }
+      loadGuides();
+    }
+
+    // ── UPLOAD ARCHIVO ────────────────────────────────────────────
+    async function uploadFile(bucket, file) {
+      const ext = file.name.split('.').pop();
+      const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true });
+      if (error) throw new Error('Error subiendo archivo: ' + error.message);
+      return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    }
+
+    // ── GUARDAR ───────────────────────────────────────────────────
+    function showMsg(msg, type = 'error') {
+      const el = document.getElementById('formMsg');
+      el.textContent = msg;
+      el.className = `form-msg ${type}`;
+      el.classList.remove('hidden');
+    }
+    function hideMsg() { document.getElementById('formMsg').classList.add('hidden'); }
+
+    document.getElementById('guideForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      hideMsg();
+      const btn = document.getElementById('btnSave');
+      btn.textContent = 'Guardando...';
+      btn.disabled = true;
+
+      try {
+        const id       = document.getElementById('fId').value;
+        const titulo   = document.getElementById('fTitulo').value.trim();
+        const desc     = document.getElementById('fDesc').value.trim();
+        const premium  = document.getElementById('fPremium').checked;
+        const pub      = document.getElementById('fPublicada').checked;
+        const cats     = [...document.querySelectorAll('.cat-cb:checked')].map(cb => cb.value);
+        const portFile = document.getElementById('fPortada').files[0];
+        const htmlFile = document.getElementById('fHtml').files[0];
+
+        const payload = {
+          titulo,
+          descripcion: desc,
+          es_premium: premium,
+          publicada: pub,
+          categorias: cats,
+        };
+
+        if (portFile) payload.portada_url   = await uploadFile('portadas', portFile);
+        if (htmlFile) payload.contenido_url = await uploadFile('contenido', htmlFile);
+
+        let error;
+        if (id) {
+          ({ error } = await sb.from('guides').update(payload).eq('id', id));
+        } else {
+          ({ error } = await sb.from('guides').insert(payload));
+        }
+
+        if (error) throw new Error(error.message);
+
+        showMsg(id ? 'Guía actualizada.' : 'Guía creada correctamente.', 'success');
+        setTimeout(() => { closeModal(); loadGuides(); }, 1200);
+
+      } catch (err) {
+        showMsg(err.message);
+      } finally {
+        btn.textContent = 'Guardar guía';
+        btn.disabled = false;
+      }
+    });
+
+    // hacer funciones accesibles globalmente
+    window.editGuide   = editGuide;
+    window.deleteGuide = deleteGuide;
+  </script>
+</body>
+</html>

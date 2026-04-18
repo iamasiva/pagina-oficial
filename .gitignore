@@ -1,4 +1,5 @@
 credenciales_privadas.txt
+sql_setup.sql
 .DS_Store
 node_modules/
 package.json
