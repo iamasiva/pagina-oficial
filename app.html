@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-deep:  #0B1E6D;
+      --blue-mid:   #1E3A8A;
+      --blue-elec:  #2F6BFF;
+      --blue-dark:  #050F3A;
+      --black:      #050505;
+      --white:      #FFFFFF;
+      --gray:       #D1D5DB;
+      --cyan:       #00E5FF;
+      --green:      #00FF9C;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ─── NAVBAR ───────────────────────────────────────────────── */
+    .app-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      height: 70px;
+      background: linear-gradient(to bottom, rgba(5,15,58,0.98) 0%, transparent 100%);
+      transition: background 0.3s;
+    }
+
+    .app-nav.scrolled {
+      background: rgba(5,15,58,0.98);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(47,107,255,0.12);
+    }
+
+    .app-nav-logo {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: var(--white);
+    }
+
+    .app-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .app-nav-name {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .app-nav-logout {
+      background: transparent;
+      border: 1px solid rgba(47,107,255,0.4);
+      color: var(--gray);
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .app-nav-logout:hover {
+      background: rgba(47,107,255,0.15);
+      border-color: var(--blue-elec);
+      color: var(--white);
+    }
+
+    /* ─── HERO ─────────────────────────────────────────────────── */
+    .app-hero {
+      position: relative;
+      width: 100%;
+      height: 72vh;
+      min-height: 460px;
+      display: flex;
+      align-items: flex-end;
+      padding: 0 5vw 64px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%);
+    }
+
+    .app-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 72% 40%, rgba(47,107,255,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(0,229,255,0.06) 0%, transparent 50%),
+        linear-gradient(to right, rgba(5,15,58,0.96) 0%, rgba(5,15,58,0.4) 55%, transparent 100%),
+        linear-gradient(to top, rgba(5,5,5,0.95) 0%, transparent 45%);
+    }
+
+    /* tech grid lines decoration */
+    .app-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%);
+    }
+
+    .app-hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 540px;
+    }
+
+    .app-hero-badge {
+      display: inline-block;
+      background: var(--blue-elec);
+      color: var(--white);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 18px;
+    }
+
+    .app-hero-title {
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+      text-shadow: 0 2px 30px rgba(0,0,0,0.5);
+    }
+
+    .app-hero-desc {
+      font-size: 1rem;
+      color: #9aacbf;
+      line-height: 1.65;
+      margin-bottom: 30px;
+      max-width: 420px;
+    }
+
+    .app-hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .app-btn-play {
+      background: var(--white);
+      color: #050F3A;
+      border: none;
+      padding: 13px 30px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .app-btn-play:hover {
+      background: var(--gray);
+      transform: translateY(-1px);
+    }
+
+    .app-btn-info {
+      background: rgba(255,255,255,0.12);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 13px 28px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s;
+    }
+
+    .app-btn-info:hover { background: rgba(255,255,255,0.22); }
+
+    /* ─── CONTENT ──────────────────────────────────────────────── */
+    .app-content {
+      background: var(--black);
+      padding: 36px 5vw 80px;
+    }
+
+    .app-row {
+      margin-bottom: 44px;
+    }
+
+    .app-row-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 16px;
+      letter-spacing: 0.01em;
+    }
+
+    .app-track {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      padding-top: 6px;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .app-track::-webkit-scrollbar { display: none; }
+
+    /* ─── CARDS ────────────────────────────────────────────────── */
+    .app-card {
+      flex: 0 0 175px;
+      height: 252px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid rgba(47,107,255,0.1);
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s;
+    }
+
+    .app-card:hover {
+      transform: scale(1.07) translateY(-7px);
+      box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5);
+      border-color: rgba(47,107,255,0.5);
+      z-index: 5;
+    }
+
+    /* gradient variants */
+    .app-card:nth-child(1)  { background: linear-gradient(160deg, #060c2a 0%, #0e1f5c 100%); }
+    .app-card:nth-child(2)  { background: linear-gradient(160deg, #050b26 0%, #091749 100%); }
+    .app-card:nth-child(3)  { background: linear-gradient(160deg, #07102e 0%, #101d5e 100%); }
+    .app-card:nth-child(4)  { background: linear-gradient(160deg, #060a25 0%, #0c1852 100%); }
+    .app-card:nth-child(5)  { background: linear-gradient(160deg, #07102f 0%, #111f62 100%); }
+    .app-card:nth-child(6)  { background: linear-gradient(160deg, #050d2a 0%, #0a1a55 100%); }
+    .app-card:nth-child(7)  { background: linear-gradient(160deg, #060f2e 0%, #0f1e5f 100%); }
+    .app-card:nth-child(8)  { background: linear-gradient(160deg, #050b26 0%, #0b1a50 100%); }
+    .app-card:nth-child(9)  { background: linear-gradient(160deg, #060e2c 0%, #101d5c 100%); }
+    .app-card:nth-child(10) { background: linear-gradient(160deg, #060c28 0%, #0e1c5a 100%); }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.2) 0%, transparent 65%),
+        linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%);
+    }
+
+    .app-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, var(--blue-elec), transparent);
+      opacity: 0.55;
+    }
+
+    .app-card-rank {
+      position: absolute;
+      bottom: -12px;
+      left: -2px;
+      font-size: 5.8rem;
+      font-weight: 900;
+      line-height: 1;
+      color: rgba(255,255,255,0.06);
+      letter-spacing: -0.06em;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .app-card-badge {
+      position: absolute;
+      top: 11px;
+      right: 11px;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 4px;
+    }
+
+    .badge-gratis {
+      background: rgba(0,255,156,0.12);
+      border: 1px solid rgba(0,255,156,0.35);
+      color: var(--green);
+    }
+
+    .badge-premium {
+      background: rgba(47,107,255,0.12);
+      border: 1px solid rgba(47,107,255,0.35);
+      color: var(--blue-elec);
+    }
+
+    .badge-tuya {
+      background: rgba(0,229,255,0.12);
+      border: 1px solid rgba(0,229,255,0.35);
+      color: var(--cyan);
+    }
+
+    .app-card-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 44px 13px 14px;
+    }
+
+    .app-card-title {
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.02em;
+    }
+
+    .app-card-tag {
+      font-size: 0.68rem;
+      color: #4a6080;
+      margin-top: 3px;
+    }
+
+    /* locked state */
+    .app-card.locked::before {
+      background:
+        rgba(5,5,5,0.38),
+        radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.1) 0%, transparent 65%),
+        linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%);
+    }
+
+    .app-card-lock {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -65%);
+      font-size: 1.4rem;
+      opacity: 0.45;
+      z-index: 1;
+    }
+
+    /* empty state */
+    .app-empty {
+      color: #3d5268;
+      font-size: 0.9rem;
+      padding: 24px 0;
+      font-style: italic;
+    }
+
+    /* ─── RESPONSIVE ───────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .app-hero { height: 58vh; padding-bottom: 44px; }
+      .app-hero-desc { display: none; }
+      .app-card { flex: 0 0 145px; height: 210px; }
+      .app-card-rank { font-size: 4.5rem; }
+      .app-nav-name { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
+  <nav class="app-nav" id="appNav">
+    <span class="app-nav-logo">IA MASIVA</span>
+    <div class="app-nav-right">
+      <span class="app-nav-name" id="appNavName"></span>
+      <button class="app-nav-logout" id="appLogout">Salir</button>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════════ -->
+  <div class="app-hero">
+    <div class="app-hero-content">
+      <div class="app-hero-badge">Destacada esta semana</div>
+      <h1 class="app-hero-title">Prompts con ChatGPT</h1>
+      <p class="app-hero-desc">Aprende a escribir prompts efectivos para obtener mejores resultados con cualquier modelo de IA. Desde básico hasta avanzado.</p>
+      <div class="app-hero-actions">
+        <button class="app-btn-play">&#9654; Ver guía</button>
+        <button class="app-btn-info">&#9432; Más info</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENIDO ════════════════════════════════════════════ -->
+  <div class="app-content">
+
+    <div class="app-row">
+      <h2 class="app-row-title">En tendencia</h2>
+      <div class="app-track" id="rowTendencias"></div>
+    </div>
+
+    <div class="app-row">
+      <h2 class="app-row-title">Gratis para ti</h2>
+      <div class="app-track" id="rowGratis"></div>
+    </div>
+
+    <div class="app-row">
+      <h2 class="app-row-title">Mis guías</h2>
+      <div class="app-track" id="rowMisGuias"></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ JS ══════════════════════════════════════════════════ -->
+  <script>
+    // ── SUPABASE ──────────────────────────────────────────────
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+
+    // ── AUTH GUARD ────────────────────────────────────────────
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        window.location.href = 'index.html';
+      } else {
+        initApp(session);
+      }
+    });
+
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        window.location.href = 'index.html';
+      }
+    });
+
+    document.getElementById('appLogout').addEventListener('click', () => sb.auth.signOut());
+
+    // ── NAVBAR SCROLL ─────────────────────────────────────────
+    const appNav = document.getElementById('appNav');
+    window.addEventListener('scroll', () => {
+      appNav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    // ── GUÍAS (placeholder hasta conectar DB) ─────────────────
+    const GUIDES = [
+      { id: 1, titulo: 'Prompts con ChatGPT',        tag: 'IA Generativa',   gratis: true  },
+      { id: 2, titulo: 'Automatización con Make',     tag: 'Automatización',  gratis: false },
+      { id: 3, titulo: 'Claude para el trabajo',      tag: 'Productividad',   gratis: true  },
+      { id: 4, titulo: 'Midjourney desde cero',       tag: 'Imágenes con IA', gratis: false },
+      { id: 5, titulo: 'Notion + IA',                 tag: 'Organización',    gratis: true  },
+      { id: 6, titulo: 'Copywriting con IA',          tag: 'Marketing',       gratis: false },
+      { id: 7, titulo: 'Videos con Runway',           tag: 'Video IA',        gratis: false },
+      { id: 8, titulo: 'Excel con IA',                tag: 'Productividad',   gratis: true  },
+      { id: 9, titulo: 'Agentes de IA',               tag: 'Avanzado',        gratis: false },
+      { id: 10, titulo: 'IA para negocios',           tag: 'Estrategia',      gratis: false },
+    ];
+
+    function makeCard(guide, rank, purchased = false) {
+      const locked = !guide.gratis && !purchased;
+      const badgeClass = purchased ? 'badge-tuya' : guide.gratis ? 'badge-gratis' : 'badge-premium';
+      const badgeText  = purchased ? '✓ Tuya'    : guide.gratis ? 'Gratis'       : 'Premium';
+      return `
+        <div class="app-card ${locked ? 'locked' : ''}">
+          ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
+          <div class="app-card-rank">${rank}</div>
+          <span class="app-card-badge ${badgeClass}">${badgeText}</span>
+          <div class="app-card-info">
+            <div class="app-card-title">${guide.titulo}</div>
+            <div class="app-card-tag">${guide.tag}</div>
+          </div>
+        </div>`;
+    }
+
+    function renderGuides(purchases = []) {
+      const purchasedIds = purchases.map(p => p.guide_id);
+
+      // En tendencia — todas
+      document.getElementById('rowTendencias').innerHTML =
+        GUIDES.map((g, i) => makeCard(g, i + 1, purchasedIds.includes(String(g.id)))).join('');
+
+      // Gratis
+      const gratis = GUIDES.filter(g => g.gratis);
+      document.getElementById('rowGratis').innerHTML =
+        gratis.map((g, i) => makeCard(g, i + 1, false)).join('');
+
+      // Mis guías
+      const mias = GUIDES.filter(g => purchasedIds.includes(String(g.id)));
+      document.getElementById('rowMisGuias').innerHTML = mias.length
+        ? mias.map((g, i) => makeCard(g, i + 1, true)).join('')
+        : '<p class="app-empty">Aún no tienes guías. Explora el catálogo para comenzar.</p>';
+    }
+
+    // ── INIT ──────────────────────────────────────────────────
+    async function initApp(session) {
+      // Nombre de usuario
+      const nombre =
+        session.user.user_metadata?.nombre ||
+        session.user.user_metadata?.full_name ||
+        session.user.email;
+      document.getElementById('appNavName').textContent = nombre;
+
+      // Compras del usuario (cuando haya data real en DB)
+      const { data: purchases } = await sb
+        .from('purchases')
+        .select('guide_id')
+        .eq('user_id', session.user.id);
+
+      renderGuides(purchases || []);
+    }
+  </script>
+
+</body>
+</html>

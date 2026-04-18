@@ -1534,13 +1534,16 @@
     }
 
     sb.auth.onAuthStateChange((event, session) => {
-      updateNavbar(session);
       if (event === 'PASSWORD_RECOVERY') {
         openModal('viewResetPass');
+      } else if (event === 'SIGNED_IN') {
+        window.location.href = 'app.html';
       }
     });
 
-    sb.auth.getSession().then(({ data: { session } }) => updateNavbar(session));
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = 'app.html';
+    });
 
     // ── LOGOUT ────────────────────────────────────────────────────
     document.getElementById('navbarLogout').addEventListener('click', () => sb.auth.signOut());
