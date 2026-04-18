@@ -16,99 +16,57 @@
     body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); line-height: 1.6; overflow-x: hidden; }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
+    .hidden { display: none !important; }
 
     /* ─── NAVBAR ─────────────────────────────────────────────── */
-    .app-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 5vw; height: 70px;
-      background: linear-gradient(to bottom, rgba(5,15,58,0.98) 0%, transparent 100%);
-      transition: background 0.3s;
-    }
+    .app-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 70px; background: linear-gradient(to bottom, rgba(5,15,58,0.98) 0%, transparent 100%); transition: background 0.3s; }
     .app-nav.scrolled { background: rgba(5,15,58,0.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(47,107,255,0.12); }
     .app-nav-logo { font-size: 1.6rem; font-weight: 900; letter-spacing: 0.1em; }
     .app-nav-right { display: flex; align-items: center; gap: 14px; }
     .app-nav-name { font-size: 0.85rem; color: var(--gray); }
-    .app-nav-logout { background: transparent; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
-    .app-nav-logout:hover { background: rgba(47,107,255,0.15); border-color: var(--blue-elec); color: var(--white); }
-    .app-nav-admin { background: rgba(47,107,255,0.1); border: 1px solid rgba(47,107,255,0.3); color: var(--blue-elec); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
-    .app-nav-admin:hover { background: rgba(47,107,255,0.2); }
-    .hidden { display: none !important; }
+    .btn-nav { background: transparent; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+    .btn-nav:hover { background: rgba(47,107,255,0.15); border-color: var(--blue-elec); color: var(--white); }
+    .btn-nav-primary { background: var(--blue-elec); border: none; color: var(--white); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; transition: background 0.2s; }
+    .btn-nav-primary:hover { background: #4d7fff; }
 
     /* ─── FILTER BAR ─────────────────────────────────────────── */
-    .filter-bar {
-      position: fixed; top: 70px; left: 0; right: 0; z-index: 90;
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 5vw;
-      background: linear-gradient(to bottom, rgba(5,15,58,0.96) 0%, transparent 100%);
-      backdrop-filter: blur(8px);
-    }
-    .filter-btn {
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
-      color: var(--gray); padding: 7px 18px; border-radius: 20px;
-      font-size: 0.82rem; font-weight: 600; transition: all 0.2s; white-space: nowrap;
-    }
+    .filter-bar { position: fixed; top: 70px; left: 0; right: 0; z-index: 90; display: flex; align-items: center; gap: 10px; padding: 12px 5vw; background: linear-gradient(to bottom, rgba(5,15,58,0.96) 0%, transparent 100%); backdrop-filter: blur(8px); }
+    .filter-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: var(--gray); padding: 7px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
     .filter-btn:hover { background: rgba(255,255,255,0.14); color: var(--white); }
     .filter-btn.active { background: var(--white); color: #050F3A; border-color: var(--white); }
     .cat-dropdown { position: relative; }
-    .cat-menu {
-      position: absolute; top: calc(100% + 8px); left: 0;
-      background: #0b1535; border: 1px solid rgba(47,107,255,0.22);
-      border-radius: 10px; padding: 8px 0; min-width: 220px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-      display: none; flex-direction: column; z-index: 200;
-    }
+    .cat-menu { position: absolute; top: calc(100% + 8px); left: 0; background: #0b1535; border: 1px solid rgba(47,107,255,0.22); border-radius: 10px; padding: 8px 0; min-width: 220px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; z-index: 200; max-height: 320px; overflow-y: auto; }
     .cat-menu.open { display: flex; }
     .cat-menu-item { padding: 10px 18px; font-size: 0.86rem; color: var(--gray); cursor: pointer; transition: background 0.15s, color 0.15s; }
     .cat-menu-item:hover { background: rgba(47,107,255,0.1); color: var(--white); }
     .cat-menu-item.active { color: var(--blue-elec); font-weight: 700; }
 
     /* ─── HERO ───────────────────────────────────────────────── */
-    .app-hero {
-      position: relative; width: 100%; height: 72vh; min-height: 460px;
-      display: flex; align-items: flex-end; padding: 0 5vw 64px; overflow: hidden;
-      background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%);
-      margin-top: 0;
-    }
-    .app-hero-bg { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; }
-    .app-hero::before {
-      content: ''; position: absolute; inset: 0; z-index: 1;
-      background:
-        radial-gradient(ellipse at 72% 40%, rgba(47,107,255,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 20% 80%, rgba(0,229,255,0.06) 0%, transparent 50%),
-        linear-gradient(to right, rgba(5,15,58,0.96) 0%, rgba(5,15,58,0.4) 55%, transparent 100%),
-        linear-gradient(to top, rgba(5,5,5,0.95) 0%, transparent 45%);
-    }
-    .app-hero::after {
-      content: ''; position: absolute; inset: 0; z-index: 0;
-      background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%);
-    }
+    .app-hero { position: relative; width: 100%; height: 72vh; min-height: 460px; display: flex; align-items: flex-end; padding: 0 5vw 64px; overflow: hidden; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%); padding-top: 130px; }
+    .app-hero-bg { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; opacity: 0.35; }
+    .app-hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 72% 40%, rgba(47,107,255,0.18) 0%, transparent 55%), radial-gradient(ellipse at 20% 80%, rgba(0,229,255,0.06) 0%, transparent 50%), linear-gradient(to right, rgba(5,15,58,0.96) 0%, rgba(5,15,58,0.4) 55%, transparent 100%), linear-gradient(to top, rgba(5,5,5,0.95) 0%, transparent 45%); }
+    .app-hero::after { content: ''; position: absolute; inset: 0; z-index: 0; background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%); }
     .app-hero-content { position: relative; z-index: 2; max-width: 540px; }
     .app-hero-badge { display: inline-block; background: var(--blue-elec); color: var(--white); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 18px; }
     .app-hero-title { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 14px; text-shadow: 0 2px 30px rgba(0,0,0,0.5); }
     .app-hero-desc { font-size: 1rem; color: #9aacbf; line-height: 1.65; margin-bottom: 30px; max-width: 420px; }
-    .app-hero-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .app-hero-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
     .hero-badge-type { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
     .hero-badge-gratis { background: rgba(0,255,156,0.12); border: 1px solid rgba(0,255,156,0.35); color: var(--green); }
     .hero-badge-premium { background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.35); color: var(--blue-elec); }
     .app-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .app-btn-play { background: var(--white); color: #050F3A; border: none; padding: 13px 30px; border-radius: 6px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.15s; }
     .app-btn-play:hover { background: var(--gray); transform: translateY(-1px); }
-    .app-btn-info { background: rgba(255,255,255,0.12); color: var(--white); border: 1px solid rgba(255,255,255,0.2); padding: 13px 28px; border-radius: 6px; font-size: 0.95rem; font-weight: 700; backdrop-filter: blur(8px); transition: background 0.2s; }
-    .app-btn-info:hover { background: rgba(255,255,255,0.22); }
 
     /* ─── CONTENT ────────────────────────────────────────────── */
     .app-content { background: var(--black); padding: 36px 5vw 80px; }
     .app-row { margin-bottom: 44px; }
-    .app-row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); letter-spacing: 0.01em; }
+    .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 16px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
     .app-track { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; padding-top: 6px; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
-    .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; opacity: 0.85; }
-    .scroll-arrow:hover { background: rgba(47,107,255,0.25); border-color: var(--blue-elec); box-shadow: 0 0 16px rgba(47,107,255,0.35); opacity: 1; }
+    .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
+    .scroll-arrow:hover { background: rgba(47,107,255,0.25); border-color: var(--blue-elec); box-shadow: 0 0 16px rgba(47,107,255,0.35); }
     .scroll-arrow.left { left: -20px; }
     .scroll-arrow.right { right: -20px; }
 
@@ -130,20 +88,67 @@
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
     .app-card-rank { position: absolute; bottom: -12px; left: -2px; font-size: 5.8rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,0.06); letter-spacing: -0.06em; user-select: none; pointer-events: none; z-index: 2; }
     .app-card-badge { position: absolute; top: 11px; right: 11px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; z-index: 3; }
-    .badge-gratis { background: rgba(0,255,156,0.12); border: 1px solid rgba(0,255,156,0.35); color: var(--green); }
+    .badge-gratis  { background: rgba(0,255,156,0.12); border: 1px solid rgba(0,255,156,0.35); color: var(--green); }
     .badge-premium { background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.35); color: var(--blue-elec); }
-    .badge-tuya { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
+    .badge-tuya    { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
     .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 44px 13px 14px; z-index: 3; }
     .app-card-title { font-size: 0.83rem; font-weight: 700; color: var(--white); letter-spacing: 0.02em; }
-    .app-card-tag { font-size: 0.68rem; color: #4a6080; margin-top: 3px; }
-    .app-card.locked::before { background: rgba(5,5,5,0.45), radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.1) 0%, transparent 65%), linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%); }
+    .app-card-tag   { font-size: 0.68rem; color: #4a6080; margin-top: 3px; }
+    .app-card.locked::before { background: rgba(5,5,5,0.4); }
     .app-card-lock { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -65%); font-size: 1.4rem; opacity: 0.45; z-index: 3; }
     .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; }
+
+    /* ─── ADMIN CARD CONTROLS ────────────────────────────────── */
+    .admin-card-controls { position: absolute; top: 8px; left: 8px; display: flex; gap: 5px; z-index: 10; opacity: 0; transition: opacity 0.2s; }
+    .app-card:hover .admin-card-controls { opacity: 1; }
+    .admin-card-btn { background: rgba(5,5,5,0.88); border: 1px solid rgba(47,107,255,0.3); border-radius: 5px; padding: 5px 8px; font-size: 0.75rem; font-weight: 700; backdrop-filter: blur(8px); transition: all 0.2s; }
+    .admin-card-btn.edit { color: var(--blue-elec); }
+    .admin-card-btn.edit:hover { background: rgba(47,107,255,0.2); }
+    .admin-card-btn.del  { color: #ff6b6b; border-color: rgba(255,68,68,0.3); }
+    .admin-card-btn.del:hover  { background: rgba(255,68,68,0.15); }
 
     /* ─── FILTERED VIEW ──────────────────────────────────────── */
     #filteredSection { display: none; }
     #filteredSection.active { display: block; }
     #mainSections.filtered { display: none; }
+
+    /* ─── ADMIN MODAL ────────────────────────────────────────── */
+    .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(5,5,5,0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal { background: linear-gradient(160deg, #080f2e 0%, #0b1535 100%); border: 1px solid rgba(47,107,255,0.2); border-radius: 16px; padding: 36px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; transform: translateY(16px); transition: transform 0.25s; }
+    .modal-overlay.active .modal { transform: translateY(0); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .modal-title { font-size: 1.2rem; font-weight: 800; }
+    .modal-close { background: none; border: none; color: #4f637a; font-size: 1.6rem; line-height: 1; padding: 4px 8px; transition: color 0.2s; }
+    .modal-close:hover { color: var(--white); }
+    .form-grid { display: flex; flex-direction: column; gap: 18px; }
+    .form-field label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #637289; margin-bottom: 7px; }
+    .form-field input[type="text"], .form-field textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid rgba(47,107,255,0.22); background: rgba(5,5,5,0.6); color: var(--white); font-size: 0.92rem; outline: none; transition: border-color 0.2s; font-family: inherit; }
+    .form-field textarea { min-height: 90px; resize: vertical; }
+    .form-field input:focus, .form-field textarea:focus { border-color: var(--blue-elec); }
+    .form-field input::placeholder, .form-field textarea::placeholder { color: #3d5268; }
+    .toggle-row { display: flex; gap: 20px; }
+    .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; color: var(--gray); user-select: none; }
+    .toggle-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue-elec); }
+    .file-upload { border: 1.5px dashed rgba(47,107,255,0.3); border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+    .file-upload:hover { border-color: var(--blue-elec); background: rgba(47,107,255,0.05); }
+    .file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .file-upload-icon { font-size: 1.4rem; margin-bottom: 5px; }
+    .file-upload-text { font-size: 0.8rem; color: #637289; }
+    .file-name { font-size: 0.8rem; color: var(--blue-elec); margin-top: 5px; font-weight: 600; }
+    .file-current { font-size: 0.75rem; color: #637289; margin-top: 5px; }
+    .portada-preview { width: 100%; max-height: 110px; object-fit: cover; border-radius: 6px; margin-top: 10px; display: none; }
+    .cats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .cat-check { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--gray); cursor: pointer; }
+    .cat-check input { accent-color: var(--blue-elec); width: 15px; height: 15px; }
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
+    .btn-primary { background: var(--blue-elec); color: var(--white); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; transition: background 0.2s; }
+    .btn-primary:hover { background: #4d7fff; }
+    .btn-cancel { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--gray); padding: 11px 22px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+    .form-msg { padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; }
+    .form-msg.error   { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: #ff6b6b; }
+    .form-msg.success { background: rgba(0,255,156,0.08); border: 1px solid rgba(0,255,156,0.22); color: var(--green); }
 
     /* ─── RESPONSIVE ─────────────────────────────────────────── */
     @media (max-width: 720px) {
@@ -154,6 +159,7 @@
       .app-nav-name { display: none; }
       .scroll-arrow { display: none; }
       .filter-bar { gap: 7px; padding: 10px 4vw; overflow-x: auto; }
+      .cats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -163,17 +169,17 @@
   <nav class="app-nav" id="appNav">
     <span class="app-nav-logo">IA MASIVA</span>
     <div class="app-nav-right">
-      <button class="app-nav-admin hidden" id="btnAdmin" onclick="window.location.href='admin.html'">Admin</button>
+      <button class="btn-nav-primary hidden" id="btnNewGuide">+ Nueva guía</button>
       <span class="app-nav-name" id="appNavName"></span>
-      <button class="app-nav-logout" id="appLogout">Salir</button>
+      <button class="btn-nav" id="appLogout">Salir</button>
     </div>
   </nav>
 
   <!-- ═══ FILTER BAR ═══════════════════════════════════════════ -->
-  <div class="filter-bar" id="filterBar">
-    <button class="filter-btn" id="filterAll" onclick="setFilter('all')">Todo</button>
-    <button class="filter-btn" id="filterGratis" onclick="setFilter('gratis')">Gratis</button>
-    <button class="filter-btn" id="filterPremium" onclick="setFilter('premium')">Premium</button>
+  <div class="filter-bar">
+    <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
+    <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
+    <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
     <div class="cat-dropdown">
       <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
       <div class="cat-menu" id="catMenu"></div>
@@ -181,12 +187,12 @@
   </div>
 
   <!-- ═══ HERO ═════════════════════════════════════════════════ -->
-  <div class="app-hero" id="appHero" style="padding-top: 130px;">
-    <div class="app-hero-content" id="heroContent">
+  <div class="app-hero" id="appHero">
+    <div class="app-hero-content">
       <div class="app-hero-badge">Destacada esta semana</div>
-      <h1 class="app-hero-title" id="heroTitle">Bienvenido a IA MASIVA</h1>
-      <p class="app-hero-desc" id="heroDesc">Explora las guías disponibles y aprende a usar inteligencia artificial de forma práctica y aplicada.</p>
-      <div class="app-hero-meta" id="heroMeta"></div>
+      <h1 class="app-hero-title"  id="heroTitle">Bienvenido a IA MASIVA</h1>
+      <p class="app-hero-desc"    id="heroDesc">Explora las guías disponibles y aprende a usar inteligencia artificial de forma práctica y aplicada.</p>
+      <div class="app-hero-meta"  id="heroMeta"></div>
       <div class="app-hero-actions">
         <button class="app-btn-play" id="heroBtn">&#9654; Ver guía</button>
       </div>
@@ -199,11 +205,9 @@
     <!-- Vista filtrada -->
     <div id="filteredSection">
       <div class="app-row">
-        <div class="app-row-header">
-          <h2 class="app-row-title" id="filteredTitle">Resultados</h2>
-        </div>
+        <h2 class="app-row-title" id="filteredTitle">Resultados</h2>
         <div class="scroll-wrapper">
-          <button class="scroll-arrow left" onclick="scrollRow('rowFiltered', -1)">&#8592;</button>
+          <button class="scroll-arrow left"  onclick="scrollRow('rowFiltered',-1)">&#8592;</button>
           <div class="app-track" id="rowFiltered"></div>
           <button class="scroll-arrow right" onclick="scrollRow('rowFiltered', 1)">&#8594;</button>
         </div>
@@ -213,42 +217,102 @@
     <!-- Secciones principales -->
     <div id="mainSections">
 
-      <div class="app-row" id="secNuevo">
-        <div class="app-row-header">
-          <h2 class="app-row-title">Nuevo en IA MASIVA</h2>
-        </div>
+      <div class="app-row">
+        <h2 class="app-row-title">Nuevo en IA MASIVA</h2>
         <div class="scroll-wrapper">
-          <button class="scroll-arrow left" onclick="scrollRow('rowNuevo', -1)">&#8592;</button>
+          <button class="scroll-arrow left"  onclick="scrollRow('rowNuevo',-1)">&#8592;</button>
           <div class="app-track" id="rowNuevo"></div>
           <button class="scroll-arrow right" onclick="scrollRow('rowNuevo', 1)">&#8594;</button>
         </div>
       </div>
 
-      <div class="app-row" id="secPremium">
-        <div class="app-row-header">
-          <h2 class="app-row-title">Guías Premium</h2>
-        </div>
+      <div class="app-row">
+        <h2 class="app-row-title">Guías Premium</h2>
         <div class="scroll-wrapper">
-          <button class="scroll-arrow left" onclick="scrollRow('rowPremium', -1)">&#8592;</button>
+          <button class="scroll-arrow left"  onclick="scrollRow('rowPremium',-1)">&#8592;</button>
           <div class="app-track" id="rowPremium"></div>
           <button class="scroll-arrow right" onclick="scrollRow('rowPremium', 1)">&#8594;</button>
         </div>
       </div>
 
-      <div class="app-row" id="secTendencias">
-        <div class="app-row-header">
-          <h2 class="app-row-title">Tendencias</h2>
-        </div>
+      <div class="app-row">
+        <h2 class="app-row-title">Tendencias</h2>
         <div class="scroll-wrapper">
-          <button class="scroll-arrow left" onclick="scrollRow('rowTendencias', -1)">&#8592;</button>
+          <button class="scroll-arrow left"  onclick="scrollRow('rowTendencias',-1)">&#8592;</button>
           <div class="app-track" id="rowTendencias"></div>
           <button class="scroll-arrow right" onclick="scrollRow('rowTendencias', 1)">&#8594;</button>
         </div>
       </div>
 
-      <!-- Filas de categorías (generadas dinámicamente) -->
+      <!-- Filas de categorías (dinámicas) -->
       <div id="catRows"></div>
 
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN MODAL ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Nueva guía</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <form id="guideForm" class="form-grid">
+        <input type="hidden" id="fId" />
+
+        <div class="form-field">
+          <label>Título</label>
+          <input type="text" id="fTitulo" placeholder="Ej: Prompts con ChatGPT" required />
+        </div>
+
+        <div class="form-field">
+          <label>Descripción corta</label>
+          <textarea id="fDesc" placeholder="Resumen breve de la guía..."></textarea>
+        </div>
+
+        <div class="form-field">
+          <label>Opciones</label>
+          <div class="toggle-row">
+            <label class="toggle-label"><input type="checkbox" id="fPremium" /> Premium</label>
+            <label class="toggle-label"><input type="checkbox" id="fPublicada" /> Publicada</label>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Categorías</label>
+          <div class="cats-grid" id="catsGrid"></div>
+        </div>
+
+        <div class="form-field">
+          <label>Imagen de portada</label>
+          <div class="file-upload">
+            <input type="file" id="fPortada" accept="image/*" />
+            <div class="file-upload-icon">🖼️</div>
+            <div class="file-upload-text">Haz clic o arrastra una imagen</div>
+            <div class="file-name hidden" id="portadaName"></div>
+            <img class="portada-preview" id="portadaPreview" />
+          </div>
+          <div class="file-current hidden" id="portadaActual"></div>
+        </div>
+
+        <div class="form-field">
+          <label>Archivo HTML de la guía</label>
+          <div class="file-upload">
+            <input type="file" id="fHtml" accept=".html" />
+            <div class="file-upload-icon">📄</div>
+            <div class="file-upload-text">Haz clic o arrastra el archivo .html</div>
+            <div class="file-name hidden" id="htmlName"></div>
+          </div>
+          <div class="file-current hidden" id="htmlActual"></div>
+        </div>
+
+        <div id="formMsg" class="form-msg hidden"></div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="btnCancel">Cancelar</button>
+          <button type="submit" class="btn-primary" id="btnSave">Guardar guía</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -266,10 +330,7 @@
       'Atención al cliente','Finanzas','Desarrollo','Análisis de datos','Creación de contenido'
     ];
 
-    let allGuides = [];
-    let userPurchases = [];
-    let activeFilter = 'all';
-    let activeCat = null;
+    let allGuides = [], userPurchases = [], isAdmin = false;
 
     // ── AUTH GUARD ────────────────────────────────────────────
     sb.auth.getSession().then(({ data: { session } }) => {
@@ -287,68 +348,71 @@
     }, { passive: true });
 
     // ── SCROLL ROWS ───────────────────────────────────────────
-    function scrollRow(trackId, dir) {
-      document.getElementById(trackId).scrollBy({ left: dir * 600, behavior: 'smooth' });
+    function scrollRow(id, dir) {
+      document.getElementById(id).scrollBy({ left: dir * 600, behavior: 'smooth' });
     }
 
-    // ── FILTER LOGIC ──────────────────────────────────────────
+    // ── FILTERS ───────────────────────────────────────────────
     function setFilter(type, cat = null) {
-      activeFilter = type;
-      activeCat = cat;
-
-      document.getElementById('filterAll').classList.toggle('active', type === 'all');
-      document.getElementById('filterGratis').classList.toggle('active', type === 'gratis');
-      document.getElementById('filterPremium').classList.toggle('active', type === 'premium');
-      document.getElementById('filterCatBtn').classList.toggle('active', type === 'cat');
-
+      ['filterAll','filterGratis','filterPremium','filterCatBtn'].forEach(id =>
+        document.getElementById(id).classList.remove('active')
+      );
       document.querySelectorAll('.cat-menu-item').forEach(el => el.classList.remove('active'));
-      if (cat) {
-        document.querySelectorAll('.cat-menu-item').forEach(el => {
-          if (el.dataset.cat === cat) el.classList.add('active');
-        });
-      }
-
-      closeCatMenu();
 
       if (type === 'all') {
+        document.getElementById('filterAll').classList.add('active');
         document.getElementById('filteredSection').classList.remove('active');
         document.getElementById('mainSections').classList.remove('filtered');
         return;
       }
 
+      if (type === 'gratis')  document.getElementById('filterGratis').classList.add('active');
+      if (type === 'premium') document.getElementById('filterPremium').classList.add('active');
+      if (type === 'cat')     { document.getElementById('filterCatBtn').classList.add('active'); }
+
       let filtered = [];
       if (type === 'gratis')  filtered = allGuides.filter(g => !g.es_premium);
       if (type === 'premium') filtered = allGuides.filter(g => g.es_premium);
-      if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias || []).includes(cat));
+      if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias||[]).includes(cat));
 
       document.getElementById('filteredTitle').textContent =
-        type === 'gratis'  ? 'Guías gratuitas' :
-        type === 'premium' ? 'Guías Premium' : cat;
+        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías Premium' : cat;
 
-      document.getElementById('rowFiltered').innerHTML =
-        filtered.length ? filtered.map((g, i) => makeCard(g, i + 1)).join('') :
-        '<p class="app-empty">No hay guías en esta categoría aún.</p>';
+      document.getElementById('rowFiltered').innerHTML = filtered.length
+        ? filtered.map((g,i) => makeCard(g,i+1,false)).join('')
+        : '<p class="app-empty">No hay guías aquí aún.</p>';
 
       document.getElementById('filteredSection').classList.add('active');
       document.getElementById('mainSections').classList.add('filtered');
+
+      if (cat) {
+        document.querySelectorAll('.cat-menu-item').forEach(el => {
+          if (el.dataset.cat === cat) el.classList.add('active');
+        });
+      }
+      closeCatMenu();
     }
 
     function toggleCatMenu() { document.getElementById('catMenu').classList.toggle('open'); }
     function closeCatMenu()  { document.getElementById('catMenu').classList.remove('open'); }
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.cat-dropdown')) closeCatMenu();
-    });
+    document.addEventListener('click', e => { if (!e.target.closest('.cat-dropdown')) closeCatMenu(); });
 
     // ── CARD BUILDER ──────────────────────────────────────────
     function makeCard(guide, rank, showRank = false) {
       const purchased = userPurchases.includes(guide.id);
-      const locked = guide.es_premium && !purchased;
+      const locked    = guide.es_premium && !purchased;
       const badgeClass = purchased ? 'badge-tuya' : guide.es_premium ? 'badge-premium' : 'badge-gratis';
       const badgeText  = purchased ? '✓ Tuya'    : guide.es_premium  ? 'Premium'       : 'Gratis';
-      const cats = (guide.categorias || []).slice(0, 2).join(' · ');
+      const cats = (guide.categorias || []).slice(0,2).join(' · ');
+      const adminControls = isAdmin ? `
+        <div class="admin-card-controls">
+          <button class="admin-card-btn edit" onclick="event.stopPropagation();editGuide('${guide.id}')">Editar</button>
+          <button class="admin-card-btn del"  onclick="event.stopPropagation();deleteGuide('${guide.id}','${guide.titulo.replace(/'/g,"\\'")}')">Eliminar</button>
+        </div>` : '';
       return `
-        <div class="app-card${locked ? ' locked' : ''}" onclick="openGuide('${guide.id}', ${locked})">
-          ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" />` : ''}
+        <div class="app-card${locked?' locked':''}" onclick="openGuide('${guide.id}',${locked})">
+          ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover"/>` : ''}
+          ${adminControls}
           ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
           ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
           <span class="app-card-badge ${badgeClass}">${badgeText}</span>
@@ -361,109 +425,204 @@
 
     function openGuide(id, locked) {
       if (locked) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
-      const guide = allGuides.find(g => g.id === id);
-      if (guide?.contenido_url) window.open(guide.contenido_url, '_blank');
+      const g = allGuides.find(g => g.id === id);
+      if (g?.contenido_url) window.open(g.contenido_url, '_blank');
     }
 
     // ── HERO ──────────────────────────────────────────────────
-    function setHero(guide) {
-      if (!guide) return;
-      document.getElementById('heroTitle').textContent = guide.titulo;
-      document.getElementById('heroDesc').textContent = guide.descripcion || '';
+    function setHero(g) {
+      if (!g) return;
+      document.getElementById('heroTitle').textContent = g.titulo;
+      document.getElementById('heroDesc').textContent  = g.descripcion || '';
       document.getElementById('heroMeta').innerHTML = `
-        <span class="hero-badge-type ${guide.es_premium ? 'hero-badge-premium' : 'hero-badge-gratis'}">
-          ${guide.es_premium ? 'Premium' : 'Gratis'}
-        </span>
-        ${(guide.categorias || []).slice(0, 2).map(c => `<span style="font-size:0.8rem;color:#637289;">${c}</span>`).join('<span style="color:#3d5268;">·</span>')}
-      `;
-      if (guide.portada_url) {
-        const hero = document.getElementById('appHero');
+        <span class="hero-badge-type ${g.es_premium?'hero-badge-premium':'hero-badge-gratis'}">${g.es_premium?'Premium':'Gratis'}</span>
+        ${(g.categorias||[]).slice(0,2).map(c=>`<span style="font-size:.8rem;color:#637289">${c}</span>`).join('<span style="color:#3d5268;margin:0 4px">·</span>')}`;
+      if (g.portada_url) {
         const img = document.createElement('img');
-        img.src = guide.portada_url;
-        img.className = 'app-hero-bg';
-        img.style.opacity = '0.35';
-        hero.insertBefore(img, hero.firstChild);
+        img.src = g.portada_url; img.className = 'app-hero-bg';
+        document.getElementById('appHero').insertBefore(img, document.getElementById('appHero').firstChild);
       }
-      document.getElementById('heroBtn').onclick = () => openGuide(guide.id, guide.es_premium && !userPurchases.includes(guide.id));
+      document.getElementById('heroBtn').onclick = () => openGuide(g.id, g.es_premium && !userPurchases.includes(g.id));
     }
 
     // ── RENDER SECCIONES ──────────────────────────────────────
     function renderAll() {
-      // Nuevo (orden cronológico inverso)
-      const nuevo = [...allGuides].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-      document.getElementById('rowNuevo').innerHTML = nuevo.length
-        ? nuevo.map((g, i) => makeCard(g, i + 1)).join('')
-        : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
+      const byNew = [...allGuides].sort((a,b) => new Date(b.created_at)-new Date(a.created_at));
+      const premium = allGuides.filter(g=>g.es_premium).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
-      // Premium
-      const premium = allGuides.filter(g => g.es_premium).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-      document.getElementById('rowPremium').innerHTML = premium.length
-        ? premium.map((g, i) => makeCard(g, i + 1)).join('')
-        : '<p class="app-empty">Próximamente guías Premium.</p>';
+      document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
+      document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías Premium.</p>';
+      document.getElementById('rowTendencias').innerHTML= allGuides.slice(0,10).length ? allGuides.slice(0,10).map((g,i)=>makeCard(g,i+1,true)).join('') : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
 
-      // Tendencias (top 10)
-      const tend = allGuides.slice(0, 10);
-      document.getElementById('rowTendencias').innerHTML = tend.length
-        ? tend.map((g, i) => makeCard(g, i + 1, true)).join('')
-        : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
-
-      // Categorías: contar guías por cat, tomar top 6
+      // Categorías: top 6 por cantidad de guías
       const catCount = {};
-      allGuides.forEach(g => (g.categorias || []).forEach(c => { catCount[c] = (catCount[c] || 0) + 1; }));
-      const topCats = Object.entries(catCount)
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-        .slice(0, 6)
-        .map(([cat]) => cat);
+      allGuides.forEach(g=>(g.categorias||[]).forEach(c=>{catCount[c]=(catCount[c]||0)+1;}));
+      const topCats = Object.entries(catCount).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,6).map(([c])=>c);
 
       const catRows = document.getElementById('catRows');
       catRows.innerHTML = '';
       topCats.forEach(cat => {
-        const guides = allGuides.filter(g => (g.categorias || []).includes(cat));
-        const rowId = 'row_' + cat.replace(/\s+/g, '_');
+        const rowId = 'row_'+cat.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+        const guides = allGuides.filter(g=>(g.categorias||[]).includes(cat));
         const div = document.createElement('div');
         div.className = 'app-row';
         div.innerHTML = `
-          <div class="app-row-header"><h2 class="app-row-title">${cat}</h2></div>
+          <h2 class="app-row-title">${cat}</h2>
           <div class="scroll-wrapper">
-            <button class="scroll-arrow left" onclick="scrollRow('${rowId}', -1)">&#8592;</button>
-            <div class="app-track" id="${rowId}">${guides.map((g, i) => makeCard(g, i + 1)).join('')}</div>
+            <button class="scroll-arrow left"  onclick="scrollRow('${rowId}',-1)">&#8592;</button>
+            <div class="app-track" id="${rowId}">${guides.map((g,i)=>makeCard(g,i+1)).join('')}</div>
             <button class="scroll-arrow right" onclick="scrollRow('${rowId}', 1)">&#8594;</button>
           </div>`;
         catRows.appendChild(div);
       });
 
-      // Menú de categorías (todas las que tienen guías)
+      // Menú categorías (todas con guías)
       const catMenu = document.getElementById('catMenu');
       catMenu.innerHTML = '';
-      Object.keys(catCount).sort().forEach(cat => {
+      Object.keys(catCount).sort().forEach(cat=>{
         const item = document.createElement('div');
-        item.className = 'cat-menu-item';
-        item.textContent = cat;
-        item.dataset.cat = cat;
-        item.onclick = () => setFilter('cat', cat);
+        item.className='cat-menu-item'; item.textContent=cat; item.dataset.cat=cat;
+        item.onclick=()=>setFilter('cat',cat);
         catMenu.appendChild(item);
       });
 
-      // Hero: guía más reciente
-      setHero(nuevo[0]);
+      setHero(byNew[0]);
+    }
+
+    // ── ADMIN MODAL ───────────────────────────────────────────
+    const adminModal = document.getElementById('adminModal');
+
+    // Generar checkboxes de categorías
+    const catsGrid = document.getElementById('catsGrid');
+    CATEGORIAS.forEach(cat=>{
+      const label = document.createElement('label');
+      label.className='cat-check';
+      label.innerHTML=`<input type="checkbox" value="${cat}" class="cat-cb"/> ${cat}`;
+      catsGrid.appendChild(label);
+    });
+
+    function openAdminModal() { adminModal.classList.add('active'); document.body.style.overflow='hidden'; }
+    function closeAdminModal() { adminModal.classList.remove('active'); document.body.style.overflow=''; resetForm(); }
+
+    document.getElementById('btnNewGuide').addEventListener('click', ()=>{ document.getElementById('modalTitle').textContent='Nueva guía'; openAdminModal(); });
+    document.getElementById('modalClose').addEventListener('click', closeAdminModal);
+    document.getElementById('btnCancel').addEventListener('click', closeAdminModal);
+    adminModal.addEventListener('click', e=>{ if(e.target===adminModal) closeAdminModal(); });
+
+    function resetForm() {
+      document.getElementById('guideForm').reset();
+      document.getElementById('fId').value='';
+      document.getElementById('portadaPreview').style.display='none';
+      ['portadaName','htmlName','portadaActual','htmlActual','formMsg'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      document.querySelectorAll('.cat-cb').forEach(cb=>cb.checked=false);
+    }
+
+    // File feedback
+    document.getElementById('fPortada').addEventListener('change', function(){
+      const f=this.files[0]; if(!f) return;
+      const nm=document.getElementById('portadaName'); nm.textContent=f.name; nm.classList.remove('hidden');
+      const reader=new FileReader(); reader.onload=e=>{ const img=document.getElementById('portadaPreview'); img.src=e.target.result; img.style.display='block'; }; reader.readAsDataURL(f);
+    });
+    document.getElementById('fHtml').addEventListener('change', function(){
+      const f=this.files[0]; if(!f) return;
+      const nm=document.getElementById('htmlName'); nm.textContent=f.name; nm.classList.remove('hidden');
+    });
+
+    // Upload a Storage
+    async function uploadFile(bucket, file) {
+      const ext=file.name.split('.').pop();
+      const path=`${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const {error}=await sb.storage.from(bucket).upload(path, file, {upsert:true});
+      if(error) throw new Error('Error subiendo archivo: '+error.message);
+      return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    }
+
+    function showFormMsg(msg,type='error'){ const el=document.getElementById('formMsg'); el.textContent=msg; el.className='form-msg '+type; el.classList.remove('hidden'); }
+
+    // Guardar guía
+    document.getElementById('guideForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const btn=document.getElementById('btnSave');
+      btn.textContent='Guardando...'; btn.disabled=true;
+      try {
+        const id      = document.getElementById('fId').value;
+        const titulo  = document.getElementById('fTitulo').value.trim();
+        const desc    = document.getElementById('fDesc').value.trim();
+        const premium = document.getElementById('fPremium').checked;
+        const pub     = document.getElementById('fPublicada').checked;
+        const cats    = [...document.querySelectorAll('.cat-cb:checked')].map(cb=>cb.value);
+        const portFile= document.getElementById('fPortada').files[0];
+        const htmlFile= document.getElementById('fHtml').files[0];
+
+        const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats };
+        if(portFile) payload.portada_url   = await uploadFile('portadas', portFile);
+        if(htmlFile) payload.contenido_url = await uploadFile('contenido', htmlFile);
+
+        const {error} = id
+          ? await sb.from('guides').update(payload).eq('id',id)
+          : await sb.from('guides').insert(payload);
+
+        if(error) throw new Error(error.message);
+        showFormMsg(id?'Guía actualizada.':'Guía creada correctamente.','success');
+        setTimeout(async()=>{ closeAdminModal(); await loadAndRender(); }, 1200);
+      } catch(err){ showFormMsg(err.message); }
+      finally { btn.textContent='Guardar guía'; btn.disabled=false; }
+    });
+
+    // Editar
+    async function editGuide(id) {
+      const {data:g}=await sb.from('guides').select('*').eq('id',id).single();
+      if(!g) return;
+      document.getElementById('modalTitle').textContent='Editar guía';
+      document.getElementById('fId').value=g.id;
+      document.getElementById('fTitulo').value=g.titulo||'';
+      document.getElementById('fDesc').value=g.descripcion||'';
+      document.getElementById('fPremium').checked=!!g.es_premium;
+      document.getElementById('fPublicada').checked=!!g.publicada;
+      document.querySelectorAll('.cat-cb').forEach(cb=>{ cb.checked=(g.categorias||[]).includes(cb.value); });
+      if(g.portada_url){ const el=document.getElementById('portadaActual'); el.textContent='Portada actual: '+g.portada_url.split('/').pop(); el.classList.remove('hidden'); }
+      if(g.contenido_url){ const el=document.getElementById('htmlActual'); el.textContent='HTML actual: '+g.contenido_url.split('/').pop(); el.classList.remove('hidden'); }
+      openAdminModal();
+    }
+
+    // Eliminar
+    async function deleteGuide(id, titulo) {
+      if(!confirm(`¿Eliminar "${titulo}"? Esta acción no se puede deshacer.`)) return;
+      const {error}=await sb.from('guides').delete().eq('id',id);
+      if(error){ alert('Error: '+error.message); return; }
+      await loadAndRender();
+    }
+
+    // Exponer funciones globalmente
+    window.editGuide=editGuide; window.deleteGuide=deleteGuide;
+
+    // ── CARGAR Y RENDERIZAR ───────────────────────────────────
+    async function loadAndRender() {
+      const {data}=await sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
+      allGuides=data||[];
+      renderAll();
     }
 
     // ── INIT ──────────────────────────────────────────────────
     async function initApp(session) {
-      const nombre = session.user.user_metadata?.nombre || session.user.user_metadata?.full_name || session.user.email;
-      document.getElementById('appNavName').textContent = nombre;
+      const nombre=session.user.user_metadata?.nombre||session.user.user_metadata?.full_name||session.user.email;
+      document.getElementById('appNavName').textContent=nombre;
 
-      // Verificar si es admin
-      const { data: profile } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
-      if (profile?.es_admin) document.getElementById('btnAdmin').classList.remove('hidden');
+      // Verificar admin
+      const {data:profile}=await sb.from('profiles').select('es_admin').eq('id',session.user.id).single();
+      isAdmin=!!profile?.es_admin;
+      if(isAdmin) document.getElementById('btnNewGuide').classList.remove('hidden');
 
-      // Cargar guías publicadas
-      const { data: guides } = await sb.from('guides').select('*').eq('publicada', true).order('created_at', { ascending: false });
-      allGuides = guides || [];
+      // Compras del usuario
+      const {data:purchases}=await sb.from('purchases').select('guide_id').eq('user_id',session.user.id);
+      userPurchases=(purchases||[]).map(p=>p.guide_id);
 
-      // Cargar compras del usuario
-      const { data: purchases } = await sb.from('purchases').select('guide_id').eq('user_id', session.user.id);
-      userPurchases = (purchases || []).map(p => p.guide_id);
+      // Si es admin, cargar todas (incluye no publicadas)
+      const query = isAdmin
+        ? sb.from('guides').select('*').order('created_at',{ascending:false})
+        : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
+      const {data}=await query;
+      allGuides=data||[];
 
       renderAll();
     }
