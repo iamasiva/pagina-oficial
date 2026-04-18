@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IA MASIVA: Guías y recursos IA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     /* ─── RESET & BASE ─────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -689,6 +690,190 @@
     .stagger.visible > *:nth-child(9) { opacity:1; transform:none; transition-delay:0.64s; }
     .stagger.visible > *:nth-child(10){ opacity:1; transform:none; transition-delay:0.72s; }
 
+
+    /* ─── UTILITIES ────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    /* ─── AUTH OVERLAY ─────────────────────────────────────────── */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(5,5,5,0.85);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .auth-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .auth-modal {
+      position: relative;
+      background: linear-gradient(160deg, #080f2e 0%, #0b1535 100%);
+      border: 1px solid rgba(47,107,255,0.22);
+      border-radius: 16px;
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(47,107,255,0.06);
+      transform: translateY(18px);
+      transition: transform 0.25s ease;
+    }
+
+    .auth-overlay.active .auth-modal {
+      transform: translateY(0);
+    }
+
+    .auth-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #4f637a;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: color 0.2s;
+    }
+
+    .auth-close:hover { color: var(--white); }
+
+    .auth-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      font-size: 0.88rem;
+      color: #637289;
+      margin-bottom: 28px;
+    }
+
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+
+    .auth-field input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(47,107,255,0.25);
+      background: rgba(5,5,5,0.6);
+      color: var(--white);
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .auth-field input::placeholder { color: #3d5268; }
+
+    .auth-field input:focus {
+      border-color: var(--blue-elec);
+      background: rgba(5,5,5,0.88);
+    }
+
+    .auth-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .auth-error {
+      background: rgba(255,60,60,0.1);
+      border: 1px solid rgba(255,60,60,0.3);
+      color: #ff6b6b;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .auth-success-msg {
+      background: rgba(0,255,156,0.08);
+      border: 1px solid rgba(0,255,156,0.22);
+      color: var(--green);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .auth-link {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #637289;
+      margin-top: 14px;
+    }
+
+    .auth-link a {
+      color: var(--blue-elec);
+      transition: color 0.2s;
+    }
+
+    .auth-link a:hover { color: #7da8ff; }
+
+    .auth-verify-icon {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    /* ─── NAVBAR USER STATE ────────────────────────────────────── */
+    .navbar-auth {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar-email {
+      font-size: 0.78rem;
+      color: #637289;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .navbar-logout {
+      background: transparent !important;
+      border: 1px solid rgba(47,107,255,0.35) !important;
+      color: var(--gray) !important;
+      padding: 8px 16px !important;
+      font-size: 0.8rem !important;
+      box-shadow: none !important;
+    }
+
+    .navbar-logout:hover {
+      background: rgba(47,107,255,0.1) !important;
+      border-color: var(--blue-elec) !important;
+      color: var(--white) !important;
+      transform: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .auth-modal { padding: 40px 22px 32px; }
+      .navbar-email { display: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -696,7 +881,13 @@
   <!-- ═══ NAVBAR ═══════════════════════════════════════════════════ -->
   <nav class="navbar" id="navbar">
     <span class="navbar-logo">IA MASIVA</span>
-    <button class="navbar-btn">Iniciar sesión</button>
+    <div class="navbar-auth">
+      <button class="navbar-btn" id="navbarAuthBtn">Iniciar sesión</button>
+      <div class="navbar-user hidden" id="navbarUser">
+        <span class="navbar-email" id="navbarEmail"></span>
+        <button class="navbar-btn navbar-logout" id="navbarLogout">Salir</button>
+      </div>
+    </div>
   </nav>
 
   <!-- ═══ HERO ═════════════════════════════════════════════════════ -->
@@ -717,7 +908,7 @@
       <h1>Guías y recursos<br>para aprender IA<br>y más</h1>
       <h2>Aprende a usar inteligencia artificial con guías prácticas, claras y accionables.</h2>
       <p>Descubre guías gratuitas y premium para crear, automatizar y crecer con IA. Ingresa tu email para empezar.</p>
-      <form class="capture-form" onsubmit="return false;">
+      <form class="capture-form">
         <input type="email" placeholder="Email" autocomplete="email" />
         <button type="submit" class="btn-primary">Comenzar</button>
       </form>
@@ -944,7 +1135,7 @@
   <section class="cta-bottom">
     <h2 class="reveal">Empieza hoy con IA MASIVA</h2>
     <p class="reveal">Ingresa tu email para descubrir las guías disponibles.</p>
-    <form class="capture-form reveal" style="justify-content:center;" onsubmit="return false;">
+    <form class="capture-form reveal" style="justify-content:center;">
       <input type="email" placeholder="Email" autocomplete="email" />
       <button type="submit" class="btn-primary">Comenzar</button>
     </form>
@@ -964,6 +1155,84 @@
       &copy; 2025 IA MASIVA. Todos los derechos reservados.
     </div>
   </footer>
+
+  <!-- ═══ AUTH MODAL ══════════════════════════════════════════════ -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-modal">
+      <button class="auth-close" id="authClose" aria-label="Cerrar">&times;</button>
+
+      <!-- LOGIN -->
+      <div class="auth-view" id="viewLogin">
+        <h2 class="auth-title">Iniciar sesión</h2>
+        <p class="auth-subtitle">Bienvenido de nuevo a IA MASIVA</p>
+        <form id="formLogin" class="auth-form">
+          <div class="auth-field">
+            <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required />
+          </div>
+          <div class="auth-field">
+            <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password" required />
+          </div>
+          <div id="loginError" class="auth-error hidden"></div>
+          <button type="submit" class="btn-primary auth-submit" id="btnLogin">Entrar</button>
+        </form>
+        <p class="auth-link"><a href="#" id="goForgot">¿Olvidaste tu contraseña?</a></p>
+        <p class="auth-link">¿No tienes cuenta? <a href="#" id="goRegisterFromLogin">Regístrate gratis</a></p>
+      </div>
+
+      <!-- REGISTRO -->
+      <div class="auth-view hidden" id="viewRegister">
+        <h2 class="auth-title">Crear cuenta</h2>
+        <p class="auth-subtitle">Empieza gratis — sin tarjeta</p>
+        <form id="formRegister" class="auth-form">
+          <div class="auth-field">
+            <input type="email" id="registerEmail" placeholder="Email" autocomplete="email" required />
+          </div>
+          <div class="auth-field">
+            <input type="password" id="registerPassword" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password" required minlength="6" />
+          </div>
+          <div class="auth-field">
+            <input type="password" id="registerPassword2" placeholder="Confirmar contraseña" autocomplete="new-password" required />
+          </div>
+          <div id="registerError" class="auth-error hidden"></div>
+          <button type="submit" class="btn-primary auth-submit" id="btnRegister">Crear cuenta</button>
+        </form>
+        <p class="auth-link">¿Ya tienes cuenta? <a href="#" id="goLoginFromRegister">Inicia sesión</a></p>
+      </div>
+
+      <!-- RECUPERAR CONTRASEÑA -->
+      <div class="auth-view hidden" id="viewForgot">
+        <h2 class="auth-title">Recuperar contraseña</h2>
+        <p class="auth-subtitle">Te enviamos un enlace a tu email</p>
+        <form id="formForgot" class="auth-form">
+          <div class="auth-field">
+            <input type="email" id="forgotEmail" placeholder="Email" autocomplete="email" required />
+          </div>
+          <div id="forgotError" class="auth-error hidden"></div>
+          <div id="forgotSuccess" class="auth-success-msg hidden"></div>
+          <button type="submit" class="btn-primary auth-submit" id="btnForgot">Enviar enlace</button>
+        </form>
+        <p class="auth-link"><a href="#" id="backToLogin">← Volver al inicio de sesión</a></p>
+      </div>
+
+      <!-- NUEVA CONTRASEÑA (desde enlace de recuperación) -->
+      <div class="auth-view hidden" id="viewResetPass">
+        <h2 class="auth-title">Nueva contraseña</h2>
+        <p class="auth-subtitle">Elige una contraseña segura</p>
+        <form id="formResetPass" class="auth-form">
+          <div class="auth-field">
+            <input type="password" id="resetPassword" placeholder="Nueva contraseña (mín. 6 caracteres)" autocomplete="new-password" required minlength="6" />
+          </div>
+          <div class="auth-field">
+            <input type="password" id="resetPassword2" placeholder="Confirmar nueva contraseña" autocomplete="new-password" required />
+          </div>
+          <div id="resetError" class="auth-error hidden"></div>
+          <div id="resetSuccess" class="auth-success-msg hidden"></div>
+          <button type="submit" class="btn-primary auth-submit" id="btnResetPass">Guardar contraseña</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
 
   <!-- ═══ JS ════════════════════════════════════════════════════════ -->
   <script>
@@ -1018,6 +1287,178 @@
 
     track.addEventListener('scroll', updateArrows, { passive: true });
     updateArrows();
+
+    // ── SUPABASE AUTH ─────────────────────────────────────────────
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+
+    // ── MODAL HELPERS ─────────────────────────────────────────────
+    const authOverlay = document.getElementById('authOverlay');
+    const VIEW_IDS = ['viewLogin','viewRegister','viewForgot','viewResetPass'];
+
+    function openModal(view) {
+      VIEW_IDS.forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById(view).classList.remove('hidden');
+      authOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      authOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function showErr(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function hideErr(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      if (loading) {
+        btn.dataset.label = btn.textContent;
+        btn.textContent = 'Cargando...';
+        btn.disabled = true;
+      } else {
+        btn.textContent = btn.dataset.label || btn.textContent;
+        btn.disabled = false;
+      }
+    }
+
+    // ── ABRIR / CERRAR ────────────────────────────────────────────
+    document.getElementById('navbarAuthBtn').addEventListener('click', () => openModal('viewLogin'));
+    document.getElementById('authClose').addEventListener('click', closeModal);
+    authOverlay.addEventListener('click', e => { if (e.target === authOverlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // ── NAVEGACIÓN ENTRE VISTAS ───────────────────────────────────
+    document.getElementById('goForgot').addEventListener('click', e => { e.preventDefault(); openModal('viewForgot'); });
+    document.getElementById('goRegisterFromLogin').addEventListener('click', e => { e.preventDefault(); openModal('viewRegister'); });
+    document.getElementById('goLoginFromRegister').addEventListener('click', e => { e.preventDefault(); openModal('viewLogin'); });
+    document.getElementById('backToLogin').addEventListener('click', e => { e.preventDefault(); openModal('viewLogin'); });
+    // ── FORMULARIOS DE CAPTURA → abren registro con email pre-cargado
+    document.querySelectorAll('.capture-form').forEach(form => {
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const email = form.querySelector('input[type="email"]').value.trim();
+        if (email) document.getElementById('registerEmail').value = email;
+        openModal('viewRegister');
+      });
+    });
+
+    // ── LOGIN ─────────────────────────────────────────────────────
+    document.getElementById('formLogin').addEventListener('submit', async e => {
+      e.preventDefault();
+      hideErr('loginError');
+      setLoading('btnLogin', true);
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      setLoading('btnLogin', false);
+      if (error) {
+        const msg = error.message === 'Invalid login credentials'
+          ? 'Email o contraseña incorrectos.'
+          : error.message;
+        showErr('loginError', msg);
+      } else {
+        closeModal();
+      }
+    });
+
+    // ── REGISTRO ──────────────────────────────────────────────────
+    document.getElementById('formRegister').addEventListener('submit', async e => {
+      e.preventDefault();
+      hideErr('registerError');
+      const email = document.getElementById('registerEmail').value.trim();
+      const pass1 = document.getElementById('registerPassword').value;
+      const pass2 = document.getElementById('registerPassword2').value;
+      if (pass1 !== pass2) { showErr('registerError', 'Las contraseñas no coinciden.'); return; }
+      setLoading('btnRegister', true);
+      const { error } = await sb.auth.signUp({ email, password: pass1 });
+      setLoading('btnRegister', false);
+      if (error) {
+        showErr('registerError', error.message);
+      } else {
+        closeModal();
+      }
+    });
+
+    // ── RECUPERAR CONTRASEÑA ──────────────────────────────────────
+    document.getElementById('formForgot').addEventListener('submit', async e => {
+      e.preventDefault();
+      hideErr('forgotError');
+      document.getElementById('forgotSuccess').classList.add('hidden');
+      const email = document.getElementById('forgotEmail').value.trim();
+      setLoading('btnForgot', true);
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+      setLoading('btnForgot', false);
+      if (error) {
+        showErr('forgotError', error.message);
+      } else {
+        const ok = document.getElementById('forgotSuccess');
+        ok.textContent = 'Enlace enviado. Revisa tu bandeja de entrada.';
+        ok.classList.remove('hidden');
+        document.getElementById('btnForgot').disabled = true;
+      }
+    });
+
+    // ── NUEVA CONTRASEÑA ──────────────────────────────────────────
+    document.getElementById('formResetPass').addEventListener('submit', async e => {
+      e.preventDefault();
+      hideErr('resetError');
+      const pass1 = document.getElementById('resetPassword').value;
+      const pass2 = document.getElementById('resetPassword2').value;
+      if (pass1 !== pass2) { showErr('resetError', 'Las contraseñas no coinciden.'); return; }
+      setLoading('btnResetPass', true);
+      const { error } = await sb.auth.updateUser({ password: pass1 });
+      setLoading('btnResetPass', false);
+      if (error) {
+        showErr('resetError', error.message);
+      } else {
+        const ok = document.getElementById('resetSuccess');
+        ok.textContent = '¡Contraseña actualizada correctamente!';
+        ok.classList.remove('hidden');
+        setTimeout(closeModal, 1800);
+      }
+    });
+
+    // ── ESTADO DE SESIÓN (navbar) ─────────────────────────────────
+    const navbarAuthBtn = document.getElementById('navbarAuthBtn');
+    const navbarUser    = document.getElementById('navbarUser');
+    const navbarEmail   = document.getElementById('navbarEmail');
+
+    function updateNavbar(session) {
+      if (session?.user) {
+        navbarAuthBtn.classList.add('hidden');
+        navbarUser.classList.remove('hidden');
+        navbarEmail.textContent = session.user.email;
+      } else {
+        navbarAuthBtn.classList.remove('hidden');
+        navbarUser.classList.add('hidden');
+      }
+    }
+
+    sb.auth.onAuthStateChange((event, session) => {
+      updateNavbar(session);
+      if (event === 'PASSWORD_RECOVERY') {
+        openModal('viewResetPass');
+      }
+    });
+
+    sb.auth.getSession().then(({ data: { session } }) => updateNavbar(session));
+
+    // ── LOGOUT ────────────────────────────────────────────────────
+    document.getElementById('navbarLogout').addEventListener('click', () => sb.auth.signOut());
   </script>
 
 </body>
