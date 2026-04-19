@@ -532,7 +532,8 @@
     async function uploadFile(bucket, file) {
       const ext=file.name.split('.').pop();
       const path=`${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const {error}=await sb.storage.from(bucket).upload(path, file, {upsert:true});
+      const contentType = bucket === 'contenido' ? 'text/html' : file.type;
+      const {error}=await sb.storage.from(bucket).upload(path, file, {upsert:true, contentType});
       if(error) throw new Error('Error subiendo archivo: '+error.message);
       return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
     }
