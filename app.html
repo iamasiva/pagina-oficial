@@ -423,10 +423,18 @@
         </div>`;
     }
 
-    function openGuide(id, locked) {
+    async function openGuide(id, locked) {
       if (locked) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
       const g = allGuides.find(g => g.id === id);
-      if (g?.contenido_url) window.open(g.contenido_url, '_blank');
+      if (!g?.contenido_url) return;
+      try {
+        const res  = await fetch(g.contenido_url);
+        const html = await res.text();
+        const blob = new Blob([html], { type: 'text/html' });
+        window.open(URL.createObjectURL(blob), '_blank');
+      } catch {
+        window.open(g.contenido_url, '_blank');
+      }
     }
 
     // ── HERO ──────────────────────────────────────────────────
