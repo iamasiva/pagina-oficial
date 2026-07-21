@@ -73,6 +73,7 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-field label { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #637289; margin-bottom: 7px; }
     .form-field input[type="text"],
+    .form-field input[type="number"],
     .form-field textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid rgba(47,107,255,0.22); background: rgba(5,5,5,0.6); color: var(--white); font-size: 0.92rem; outline: none; transition: border-color 0.2s; }
     .form-field textarea { min-height: 90px; resize: vertical; }
     .form-field input:focus, .form-field textarea:focus { border-color: var(--blue-elec); }
@@ -187,7 +188,17 @@
               <input type="checkbox" id="fPublicada" />
               Publicada
             </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="fEnHero" />
+              Mostrar en el hero
+            </label>
           </div>
+        </div>
+
+        <!-- Orden en el hero -->
+        <div class="form-field hidden" id="ordenHeroField">
+          <label>Orden en el hero</label>
+          <input type="number" id="fOrdenHero" min="1" placeholder="Ej: 1 (más bajo = aparece primero)" />
         </div>
 
         <!-- Categorías -->
@@ -287,6 +298,10 @@
       reader.readAsDataURL(file);
     });
 
+    document.getElementById('fEnHero').addEventListener('change', function() {
+      document.getElementById('ordenHeroField').classList.toggle('hidden', !this.checked);
+    });
+
     document.getElementById('fHtml').addEventListener('change', function() {
       const file = this.files[0];
       if (!file) return;
@@ -316,7 +331,10 @@
           <td><strong>${g.titulo}</strong></td>
           <td><div class="cats-list">${(g.categorias || []).join(', ') || '—'}</div></td>
           <td><span class="badge ${g.es_premium ? 'badge-premium' : 'badge-gratis'}">${g.es_premium ? 'Premium' : 'Gratis'}</span></td>
-          <td><span class="badge ${g.publicada ? 'badge-publicada' : 'badge-borrador'}">${g.publicada ? 'Publicada' : 'Borrador'}</span></td>
+          <td>
+            <span class="badge ${g.publicada ? 'badge-publicada' : 'badge-borrador'}">${g.publicada ? 'Publicada' : 'Borrador'}</span>
+            ${g.en_hero ? `<span class="badge badge-premium" style="margin-left:4px;">Hero${g.orden_hero ? ' #'+g.orden_hero : ''}</span>` : ''}
+          </td>
           <td>
             <div class="table-actions">
               <button class="btn-edit" onclick="editGuide('${g.id}')">Editar</button>
@@ -357,6 +375,7 @@
       document.getElementById('htmlName').classList.add('hidden');
       document.getElementById('portadaActual').classList.add('hidden');
       document.getElementById('htmlActual').classList.add('hidden');
+      document.getElementById('ordenHeroField').classList.add('hidden');
       document.querySelectorAll('.cat-cb').forEach(cb => cb.checked = false);
       hideMsg();
     }
@@ -371,6 +390,9 @@
       document.getElementById('fDesc').value = g.descripcion || '';
       document.getElementById('fPremium').checked = !!g.es_premium;
       document.getElementById('fPublicada').checked = !!g.publicada;
+      document.getElementById('fEnHero').checked = !!g.en_hero;
+      document.getElementById('fOrdenHero').value = g.orden_hero ?? '';
+      document.getElementById('ordenHeroField').classList.toggle('hidden', !g.en_hero);
       document.querySelectorAll('.cat-cb').forEach(cb => {
         cb.checked = (g.categorias || []).includes(cb.value);
       });
@@ -426,6 +448,8 @@
         const desc     = document.getElementById('fDesc').value.trim();
         const premium  = document.getElementById('fPremium').checked;
         const pub      = document.getElementById('fPublicada').checked;
+        const enHero   = document.getElementById('fEnHero').checked;
+        const ordenHeroRaw = document.getElementById('fOrdenHero').value;
         const cats     = [...document.querySelectorAll('.cat-cb:checked')].map(cb => cb.value);
         const portFile = document.getElementById('fPortada').files[0];
         const htmlFile = document.getElementById('fHtml').files[0];
@@ -436,6 +460,8 @@
           es_premium: premium,
           publicada: pub,
           categorias: cats,
+          en_hero: enHero,
+          orden_hero: enHero && ordenHeroRaw !== '' ? parseInt(ordenHeroRaw, 10) : null,
         };
 
         if (portFile) payload.portada_url   = await uploadFile('portadas', portFile);
