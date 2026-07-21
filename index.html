@@ -1534,16 +1534,18 @@
       }
     }
 
+    const isRecoveryFlow = window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery');
+
     sb.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         openModal('viewResetPass');
-      } else if (event === 'SIGNED_IN') {
+      } else if (event === 'SIGNED_IN' && !isRecoveryFlow) {
         window.location.href = 'app.html';
       }
     });
 
     sb.auth.getSession().then(({ data: { session } }) => {
-      if (session) window.location.href = 'app.html';
+      if (session && !isRecoveryFlow) window.location.href = 'app.html';
     });
 
     // ── LOGOUT ────────────────────────────────────────────────────
