@@ -57,6 +57,8 @@
     .app-hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(5,15,58,0.6) 0%, rgba(5,15,58,0.1) 40%, transparent 65%), linear-gradient(to top, rgba(5,5,5,0.9) 0%, transparent 32%); }
     .app-hero::after { content: ''; position: absolute; inset: 0; z-index: 0; background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%); }
     .app-hero-content { position: relative; z-index: 2; max-width: 540px; }
+    .app-hero.clickable { cursor: pointer; }
+    .app-hero-empty { position: relative; z-index: 2; color: #9aacbf; font-size: 1rem; margin-bottom: 20px; }
     .app-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .app-btn-play { background: var(--white); color: #050F3A; border: none; padding: 13px 30px; border-radius: 6px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.15s; }
     .app-btn-play:hover { background: var(--gray); transform: translateY(-1px); }
@@ -214,9 +216,10 @@
   <!-- ═══ HERO ═════════════════════════════════════════════════ -->
   <div class="app-hero" id="appHero">
     <button class="hero-edit-btn hidden" id="heroEditBtn" title="Editar imágenes del hero">&#9998;</button>
+    <p class="app-hero-empty hidden" id="heroEmptyMsg">Muy pronto vas a ver aquí nuestros productos destacados.</p>
     <div class="app-hero-content">
       <div class="app-hero-actions">
-        <button class="app-btn-play" id="heroBtn">&#9654; Ver guía</button>
+        <button class="app-btn-play" id="heroBtn">Comprar ahora</button>
       </div>
       <div class="app-hero-dots" id="heroDots"></div>
     </div>
@@ -362,11 +365,6 @@
         <input type="hidden" id="fHeroId" />
 
         <div class="form-field">
-          <label>Guía que representa esta imagen</label>
-          <select id="fHeroGuide" required></select>
-        </div>
-
-        <div class="form-field">
           <label>Imagen (escritorio / tablet)</label>
           <div class="file-upload">
             <input type="file" id="fHeroDesktop" accept="image/*" />
@@ -386,6 +384,17 @@
             <div class="file-name hidden" id="heroMobileName"></div>
           </div>
           <div class="file-current hidden" id="heroMobileActual"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Texto del botón</label>
+            <input type="text" id="fHeroCtaTexto" placeholder="Ej: COMPRAR AHORA" value="Comprar ahora" required />
+          </div>
+          <div class="form-field">
+            <label>Link de destino (landing de pago)</label>
+            <input type="text" id="fHeroCtaUrl" placeholder="https://..." required />
+          </div>
         </div>
 
         <div class="form-row">
@@ -541,13 +550,17 @@
     }
 
     // ── HERO (carrusel, independiente de las guías) ────────────
+    function goToUrl(url) {
+      if (url) window.location.href = url;
+    }
+
     function renderHeroSlide(i) {
       const s = heroSlides[i];
       if (!s) return;
       heroIndex = i;
 
-      const locked = s.esPremium && !userPurchases.includes(s.guideId);
-      document.getElementById('heroBtn').onclick = () => openGuide(s.guideId, locked);
+      document.getElementById('heroBtn').textContent = s.ctaTexto || 'Comprar ahora';
+      document.getElementById('heroBtn').onclick = e => { e.stopPropagation(); goToUrl(s.ctaUrl); };
 
       const hero = document.getElementById('appHero');
       hero.querySelectorAll('.app-hero-bg').forEach(el => el.remove());
@@ -577,27 +590,39 @@
       }
     }
 
-    function goToHeroSlide(i) {
+    function goToHeroSlide(i, e) {
+      if (e) e.stopPropagation();
       renderHeroSlide(i);
       restartHeroTimer();
     }
     window.goToHeroSlide = goToHeroSlide;
 
     function buildHeroCarousel() {
-      const curated = heroSlidesRaw
-        .filter(s => s.activo && s.guides)
-        .map(s => ({ imgDesktop: s.imagen_desktop_url, imgMobile: s.imagen_mobile_url, guideId: s.guide_id, esPremium: s.guides.es_premium }));
+      heroSlides = heroSlidesRaw
+        .filter(s => s.activo)
+        .map(s => ({ imgDesktop: s.imagen_desktop_url, imgMobile: s.imagen_mobile_url, ctaTexto: s.cta_texto, ctaUrl: s.cta_url }));
 
-      const byNew = [...allGuides].sort((a,b) => new Date(b.created_at)-new Date(a.created_at));
-      const fallback = byNew[0] ? [{ imgDesktop: byNew[0].portada_url, imgMobile: null, guideId: byNew[0].id, esPremium: byNew[0].es_premium }] : [];
+      const hero = document.getElementById('appHero');
+      const heroContent = hero.querySelector('.app-hero-content');
+      const emptyMsg = document.getElementById('heroEmptyMsg');
 
-      heroSlides = curated.length ? curated : fallback;
+      if (!heroSlides.length) {
+        heroContent.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        hero.classList.remove('clickable');
+        hero.querySelectorAll('.app-hero-bg').forEach(el => el.remove());
+        if (heroTimer) clearInterval(heroTimer);
+        return;
+      }
+      heroContent.classList.remove('hidden');
+      hero.classList.add('clickable');
+      emptyMsg.classList.add('hidden');
 
       document.getElementById('heroDots').innerHTML = heroSlides.length > 1
-        ? heroSlides.map((_,i) => `<button class="hero-dot" onclick="goToHeroSlide(${i})"></button>`).join('')
+        ? heroSlides.map((_,i) => `<button class="hero-dot" onclick="goToHeroSlide(${i}, event)"></button>`).join('')
         : '';
 
-      if (heroSlides.length) renderHeroSlide(0);
+      renderHeroSlide(0);
       restartHeroTimer();
     }
 
@@ -757,7 +782,6 @@
     const heroAdminModal = document.getElementById('heroAdminModal');
 
     function openHeroAdminModal() {
-      populateHeroGuidePicker();
       renderHeroSlidesList();
       heroAdminModal.classList.add('active');
       document.body.style.overflow='hidden';
@@ -767,17 +791,11 @@
       document.body.style.overflow='';
       resetHeroForm();
     }
-    document.getElementById('heroEditBtn').addEventListener('click', openHeroAdminModal);
+    document.getElementById('heroEditBtn').addEventListener('click', e => { e.stopPropagation(); openHeroAdminModal(); });
+    document.getElementById('appHero').addEventListener('click', () => goToUrl(heroSlides[heroIndex]?.ctaUrl));
     document.getElementById('heroModalClose').addEventListener('click', closeHeroAdminModal);
     document.getElementById('heroBtnCancel').addEventListener('click', closeHeroAdminModal);
     heroAdminModal.addEventListener('click', e=>{ if(e.target===heroAdminModal) closeHeroAdminModal(); });
-
-    function populateHeroGuidePicker() {
-      const sel = document.getElementById('fHeroGuide');
-      sel.innerHTML = allGuides.map(g =>
-        `<option value="${g.id}">${g.titulo}${g.es_premium?' (Premium)':' (Gratis)'}${!g.publicada?' — Borrador':''}</option>`
-      ).join('') || '<option value="">No hay guías creadas aún</option>';
-    }
 
     function renderHeroSlidesList() {
       const list = document.getElementById('heroSlidesList');
@@ -789,8 +807,8 @@
         <div class="hero-slide-row">
           <img class="hero-slide-thumb" src="${s.imagen_desktop_url}" />
           <div class="hero-slide-info">
-            <div class="hero-slide-title">${s.guides?.titulo || '(guía eliminada)'}</div>
-            <div class="hero-slide-meta">Orden ${s.orden} · ${s.activo ? 'Activa' : 'Inactiva'}</div>
+            <div class="hero-slide-title">${s.cta_texto || 'Comprar ahora'}</div>
+            <div class="hero-slide-meta">Orden ${s.orden} · ${s.activo ? 'Activa' : 'Inactiva'} · ${s.cta_url}</div>
           </div>
           <div class="table-actions">
             <button class="admin-card-btn edit" type="button" onclick="editHeroSlide('${s.id}')">Editar</button>
@@ -803,6 +821,7 @@
     function resetHeroForm() {
       document.getElementById('heroSlideForm').reset();
       document.getElementById('fHeroId').value='';
+      document.getElementById('fHeroCtaTexto').value='Comprar ahora';
       document.getElementById('fHeroOrden').value='0';
       document.getElementById('fHeroActivo').checked=true;
       ['heroDesktopName','heroMobileName','heroDesktopActual','heroMobileActual','heroFormMsg'].forEach(id=>document.getElementById(id).classList.add('hidden'));
@@ -825,16 +844,17 @@
       btn.textContent='Guardando...'; btn.disabled=true;
       try {
         const id       = document.getElementById('fHeroId').value;
-        const guideId  = document.getElementById('fHeroGuide').value;
+        const ctaTexto = document.getElementById('fHeroCtaTexto').value.trim();
+        const ctaUrl   = document.getElementById('fHeroCtaUrl').value.trim();
         const orden    = parseInt(document.getElementById('fHeroOrden').value,10) || 0;
         const activo   = document.getElementById('fHeroActivo').checked;
         const deskFile = document.getElementById('fHeroDesktop').files[0];
         const mobFile  = document.getElementById('fHeroMobile').files[0];
 
-        if (!guideId) throw new Error('Elige a qué guía representa esta imagen.');
+        if (!ctaUrl) throw new Error('Falta el link de destino (landing de pago).');
         if (!id && !deskFile) throw new Error('La imagen de escritorio es obligatoria.');
 
-        const payload = { guide_id: guideId, orden, activo };
+        const payload = { cta_texto: ctaTexto || 'Comprar ahora', cta_url: ctaUrl, orden, activo };
         if (deskFile) payload.imagen_desktop_url = await uploadFile('portadas', deskFile);
         if (mobFile)  payload.imagen_mobile_url  = await uploadFile('portadas', mobFile);
 
@@ -853,7 +873,8 @@
       const s = heroSlidesRaw.find(x=>x.id===id);
       if(!s) return;
       document.getElementById('fHeroId').value=s.id;
-      document.getElementById('fHeroGuide').value=s.guide_id;
+      document.getElementById('fHeroCtaTexto').value=s.cta_texto || 'Comprar ahora';
+      document.getElementById('fHeroCtaUrl').value=s.cta_url || '';
       document.getElementById('fHeroOrden').value=s.orden ?? 0;
       document.getElementById('fHeroActivo').checked=!!s.activo;
       if(s.imagen_desktop_url){ const el=document.getElementById('heroDesktopActual'); el.textContent='Actual: '+s.imagen_desktop_url.split('/').pop(); el.classList.remove('hidden'); }
@@ -877,7 +898,7 @@
         : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
       const [{data:guides}, {data:slides}] = await Promise.all([
         guidesQuery,
-        sb.from('hero_slides').select('*, guides(titulo, es_premium)').order('orden',{ascending:true})
+        sb.from('hero_slides').select('*').order('orden',{ascending:true})
       ]);
       allGuides=guides||[];
       heroSlidesRaw=slides||[];
@@ -907,7 +928,7 @@
         : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
       const [{data:guides}, {data:slides}] = await Promise.all([
         guidesQuery,
-        sb.from('hero_slides').select('*, guides(titulo, es_premium)').order('orden',{ascending:true})
+        sb.from('hero_slides').select('*').order('orden',{ascending:true})
       ]);
       allGuides=guides||[];
       heroSlidesRaw=slides||[];
