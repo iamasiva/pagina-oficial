@@ -62,9 +62,9 @@
     /* ─── CONTENT ────────────────────────────────────────────── */
     .app-content { background: var(--black); padding: 36px 5vw 80px; }
     .app-row { margin-bottom: 44px; }
-    .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 16px; letter-spacing: 0.01em; }
+    .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
-    .app-track { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; padding-top: 6px; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 24px; padding-top: 36px; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     .scroll-arrow:hover { background: rgba(47,107,255,0.25); border-color: var(--blue-elec); box-shadow: 0 0 16px rgba(47,107,255,0.35); }
@@ -89,12 +89,10 @@
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
     .app-card-rank { position: absolute; bottom: -12px; left: -2px; font-size: 5.8rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,0.06); letter-spacing: -0.06em; user-select: none; pointer-events: none; z-index: 2; }
     .app-card-badge { position: absolute; top: 11px; right: 11px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; z-index: 3; }
-    .badge-gratis  { background: rgba(0,255,156,0.12); border: 1px solid rgba(0,255,156,0.35); color: var(--green); }
-    .badge-premium { background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.35); color: var(--blue-elec); }
+    .badge-premium { background: rgba(47,107,255,0.14); border: 1px solid rgba(47,107,255,0.35); font-size: 0.85rem; letter-spacing: normal; text-transform: none; padding: 2px 6px; line-height: 1; }
     .badge-tuya    { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
-    .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 44px 13px 14px; z-index: 3; }
-    .app-card-title { font-size: 0.83rem; font-weight: 700; color: var(--white); letter-spacing: 0.02em; }
-    .app-card-tag   { font-size: 0.68rem; color: #4a6080; margin-top: 3px; }
+    .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 13px 14px; z-index: 3; }
+    .app-card-tag  { font-size: 0.68rem; color: #4a6080; }
     .app-card.locked::before { background: rgba(5,5,5,0.4); }
     .app-card-lock { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -65%); font-size: 1.4rem; opacity: 0.45; z-index: 3; }
     .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; }
@@ -420,8 +418,11 @@
     function makeCard(guide, rank, showRank = false) {
       const purchased = userPurchases.includes(guide.id);
       const locked    = guide.es_premium && !purchased;
-      const badgeClass = purchased ? 'badge-tuya' : guide.es_premium ? 'badge-premium' : 'badge-gratis';
-      const badgeText  = purchased ? '✓ Tuya'    : guide.es_premium  ? 'Premium'       : 'Gratis';
+      const badgeHtml = purchased
+        ? '<span class="app-card-badge badge-tuya">✓ Tuya</span>'
+        : guide.es_premium
+          ? '<span class="app-card-badge badge-premium" title="Premium">👑</span>'
+          : '';
       const cats = (guide.categorias || []).slice(0,2).join(' · ');
       const adminControls = isAdmin ? `
         <div class="admin-card-controls">
@@ -434,9 +435,8 @@
           ${adminControls}
           ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
           ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
-          <span class="app-card-badge ${badgeClass}">${badgeText}</span>
+          ${badgeHtml}
           <div class="app-card-info">
-            <div class="app-card-title">${guide.titulo}</div>
             <div class="app-card-tag">${cats}</div>
           </div>
         </div>`;
