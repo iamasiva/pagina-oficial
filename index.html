@@ -1512,9 +1512,9 @@
         showErr('resetError', error.message);
       } else {
         const ok = document.getElementById('resetSuccess');
-        ok.textContent = '¡Contraseña actualizada correctamente!';
+        ok.textContent = '¡Contraseña actualizada correctamente! Entrando...';
         ok.classList.remove('hidden');
-        setTimeout(closeModal, 1800);
+        setTimeout(() => { window.location.href = 'app.html'; }, 1800);
       }
     });
 
