@@ -19,19 +19,20 @@
     button { cursor: pointer; font-family: inherit; }
     .hidden { display: none !important; }
 
-    /* ─── NAVBAR ─────────────────────────────────────────────── */
-    .app-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 70px; background: linear-gradient(to bottom, rgba(5,15,58,0.98) 0%, transparent 100%); transition: background 0.3s; }
-    .app-nav.scrolled { background: rgba(5,15,58,0.98); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(47,107,255,0.12); }
-    .app-nav-logo { font-size: 1.6rem; font-weight: 900; letter-spacing: 0.1em; }
-    .app-nav-right { display: flex; align-items: center; gap: 14px; }
+    /* ─── NAVBAR (incluye filtros) ───────────────────────────── */
+    .app-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 70px; background: rgba(5,15,58,0.98); border-bottom: 1px solid rgba(47,107,255,0.12); transition: background 0.3s; }
+    .app-nav.scrolled { background: rgba(5,15,58,0.98); }
+    .app-nav-left { display: flex; align-items: center; gap: 32px; min-width: 0; }
+    .app-nav-logo { font-size: 1.6rem; font-weight: 900; letter-spacing: 0.1em; flex-shrink: 0; }
+    .app-nav-filters { display: flex; align-items: center; gap: 10px; }
+    .app-nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
     .app-nav-name { font-size: 0.85rem; color: var(--gray); }
     .btn-nav { background: transparent; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
     .btn-nav:hover { background: rgba(47,107,255,0.15); border-color: var(--blue-elec); color: var(--white); }
     .btn-nav-primary { background: var(--blue-elec); border: none; color: var(--white); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; transition: background 0.2s; }
     .btn-nav-primary:hover { background: #4d7fff; }
 
-    /* ─── FILTER BAR ─────────────────────────────────────────── */
-    .filter-bar { position: fixed; top: 70px; left: 0; right: 0; z-index: 90; display: flex; align-items: center; gap: 10px; padding: 12px 5vw; background: linear-gradient(to bottom, rgba(5,15,58,0.96) 0%, transparent 100%); backdrop-filter: blur(8px); }
+    /* ─── FILTER PILLS ───────────────────────────────────────── */
     .filter-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: var(--gray); padding: 7px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
     .filter-btn:hover { background: rgba(255,255,255,0.14); color: var(--white); }
     .filter-btn.active { background: var(--white); color: #050F3A; border-color: var(--white); }
@@ -43,7 +44,7 @@
     .cat-menu-item.active { color: var(--blue-elec); font-weight: 700; }
 
     /* ─── HERO ───────────────────────────────────────────────── */
-    .app-hero { position: relative; width: 100%; height: 72vh; min-height: 460px; display: flex; align-items: flex-end; padding: 0 5vw 64px; overflow: hidden; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%); padding-top: 172px; }
+    .app-hero { position: relative; width: 100%; min-height: max(72vh, 460px); display: flex; align-items: flex-end; padding: 0 5vw 64px; overflow: hidden; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%); padding-top: 104px; }
     .app-hero-bg { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; opacity: 0; transition: opacity 0.7s ease; }
     .app-hero-bg.visible { opacity: 0.35; }
     .app-hero-dots { display: flex; gap: 8px; margin-top: 26px; }
@@ -165,39 +166,43 @@
 
     /* ─── RESPONSIVE ─────────────────────────────────────────── */
     @media (max-width: 720px) {
-      .app-hero { height: 58vh; padding-bottom: 44px; }
+      .app-hero { min-height: max(58vh, 400px); padding-bottom: 44px; padding-top: 168px; }
       .app-hero-desc { display: none; }
       .app-card { flex: 0 0 145px; height: 210px; }
       .app-card-rank { font-size: 4.5rem; }
       .app-nav-name { display: none; }
       .scroll-arrow { display: none; }
-      .filter-bar { gap: 7px; padding: 10px 4vw; overflow-x: auto; }
+      .app-nav { flex-wrap: wrap; height: auto; padding: 14px 4vw 10px; row-gap: 10px; }
+      .app-nav-left { width: 100%; flex-wrap: wrap; row-gap: 10px; }
+      .app-nav-filters { flex-basis: 100%; overflow-x: auto; }
+      .app-nav-filters::-webkit-scrollbar { display: none; }
+      .app-nav-right { width: 100%; justify-content: flex-end; }
       .cats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
+  <!-- ═══ NAVBAR (logo + filtros) ═════════════════════════════ -->
   <nav class="app-nav" id="appNav">
-    <span class="app-nav-logo">IA MASIVA</span>
+    <div class="app-nav-left">
+      <span class="app-nav-logo">IA MASIVA</span>
+      <div class="app-nav-filters">
+        <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
+        <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
+        <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
+        <div class="cat-dropdown">
+          <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
+          <div class="cat-menu" id="catMenu"></div>
+        </div>
+      </div>
+    </div>
     <div class="app-nav-right">
       <button class="btn-nav-primary hidden" id="btnNewGuide">+ Nueva guía</button>
       <span class="app-nav-name" id="appNavName"></span>
       <button class="btn-nav" id="appLogout">Salir</button>
     </div>
   </nav>
-
-  <!-- ═══ FILTER BAR ═══════════════════════════════════════════ -->
-  <div class="filter-bar">
-    <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
-    <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
-    <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
-    <div class="cat-dropdown">
-      <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
-      <div class="cat-menu" id="catMenu"></div>
-    </div>
-  </div>
 
   <!-- ═══ HERO ═════════════════════════════════════════════════ -->
   <div class="app-hero" id="appHero">
