@@ -45,22 +45,18 @@
 
     /* ─── HERO ───────────────────────────────────────────────── */
     .app-hero { position: relative; width: 100%; min-height: max(72vh, 460px); display: flex; align-items: flex-end; padding: 0 5vw 64px; overflow: hidden; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%); padding-top: 104px; }
-    .app-hero-bg { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; opacity: 0; transition: opacity 0.7s ease; }
-    .app-hero-bg.visible { opacity: 0.35; }
+    .app-hero-bg { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s ease; }
+    .app-hero-bg.visible { opacity: 1; }
+    .app-hero-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-edit-btn { position: absolute; top: 86px; right: 5vw; z-index: 4; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(5,5,5,0.55); backdrop-filter: blur(6px); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .hero-edit-btn:hover { background: rgba(47,107,255,0.35); border-color: var(--blue-elec); }
     .app-hero-dots { display: flex; gap: 8px; margin-top: 26px; }
     .hero-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); border: none; padding: 0; cursor: pointer; transition: background 0.2s, transform 0.2s; }
     .hero-dot:hover { background: rgba(255,255,255,0.5); }
     .hero-dot.active { background: var(--blue-elec); transform: scale(1.3); }
-    .app-hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 72% 40%, rgba(47,107,255,0.18) 0%, transparent 55%), radial-gradient(ellipse at 20% 80%, rgba(0,229,255,0.06) 0%, transparent 50%), linear-gradient(to right, rgba(5,15,58,0.96) 0%, rgba(5,15,58,0.4) 55%, transparent 100%), linear-gradient(to top, rgba(5,5,5,0.95) 0%, transparent 45%); }
+    .app-hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(5,15,58,0.6) 0%, rgba(5,15,58,0.1) 40%, transparent 65%), linear-gradient(to top, rgba(5,5,5,0.9) 0%, transparent 32%); }
     .app-hero::after { content: ''; position: absolute; inset: 0; z-index: 0; background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%); }
     .app-hero-content { position: relative; z-index: 2; max-width: 540px; }
-    .app-hero-badge { display: inline-block; background: var(--blue-elec); color: var(--white); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; margin-bottom: 18px; }
-    .app-hero-title { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 14px; text-shadow: 0 2px 30px rgba(0,0,0,0.5); }
-    .app-hero-desc { font-size: 1rem; color: #9aacbf; line-height: 1.65; margin-bottom: 30px; max-width: 420px; }
-    .app-hero-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
-    .hero-badge-type { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
-    .hero-badge-gratis { background: rgba(0,255,156,0.12); border: 1px solid rgba(0,255,156,0.35); color: var(--green); }
-    .hero-badge-premium { background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.35); color: var(--blue-elec); }
     .app-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .app-btn-play { background: var(--white); color: #050F3A; border: none; padding: 13px 30px; border-radius: 6px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.15s; }
     .app-btn-play:hover { background: var(--gray); transform: translateY(-1px); }
@@ -136,10 +132,11 @@
     .modal-close { background: none; border: none; color: #4f637a; font-size: 1.6rem; line-height: 1; padding: 4px 8px; transition: color 0.2s; }
     .modal-close:hover { color: var(--white); }
     .form-grid { display: flex; flex-direction: column; gap: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-field label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #637289; margin-bottom: 7px; }
-    .form-field input[type="text"], .form-field textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid rgba(47,107,255,0.22); background: rgba(5,5,5,0.6); color: var(--white); font-size: 0.92rem; outline: none; transition: border-color 0.2s; font-family: inherit; }
+    .form-field input[type="text"], .form-field input[type="number"], .form-field select, .form-field textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid rgba(47,107,255,0.22); background: rgba(5,5,5,0.6); color: var(--white); font-size: 0.92rem; outline: none; transition: border-color 0.2s; font-family: inherit; }
     .form-field textarea { min-height: 90px; resize: vertical; }
-    .form-field input:focus, .form-field textarea:focus { border-color: var(--blue-elec); }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--blue-elec); }
     .form-field input::placeholder, .form-field textarea::placeholder { color: #3d5268; }
     .toggle-row { display: flex; gap: 20px; }
     .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; color: var(--gray); user-select: none; }
@@ -164,10 +161,19 @@
     .form-msg.error   { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: #ff6b6b; }
     .form-msg.success { background: rgba(0,255,156,0.08); border: 1px solid rgba(0,255,156,0.22); color: var(--green); }
 
+    /* ─── HERO SLIDES LIST (modal) ───────────────────────────── */
+    .hero-slides-list { display: flex; flex-direction: column; gap: 8px; }
+    .hero-slide-row { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; border: 1px solid rgba(47,107,255,0.12); }
+    .hero-slide-thumb { width: 72px; height: 40px; border-radius: 5px; object-fit: cover; background: #0e1f5c; flex-shrink: 0; }
+    .hero-slide-info { flex: 1; min-width: 0; }
+    .hero-slide-title { font-size: 0.86rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hero-slide-meta { font-size: 0.72rem; color: #637289; margin-top: 2px; }
+    .hero-slide-empty { color: #3d5268; font-size: 0.85rem; padding: 12px 0; font-style: italic; }
+
     /* ─── RESPONSIVE ─────────────────────────────────────────── */
     @media (max-width: 720px) {
       .app-hero { min-height: max(58vh, 400px); padding-bottom: 44px; padding-top: 168px; }
-      .app-hero-desc { display: none; }
+      .hero-edit-btn { top: auto; bottom: 44px; right: 4vw; }
       .app-card { flex: 0 0 145px; height: 210px; }
       .app-card-rank { font-size: 4.5rem; }
       .app-nav-name { display: none; }
@@ -178,6 +184,7 @@
       .app-nav-filters::-webkit-scrollbar { display: none; }
       .app-nav-right { width: 100%; justify-content: flex-end; }
       .cats-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -206,11 +213,8 @@
 
   <!-- ═══ HERO ═════════════════════════════════════════════════ -->
   <div class="app-hero" id="appHero">
+    <button class="hero-edit-btn hidden" id="heroEditBtn" title="Editar imágenes del hero">&#9998;</button>
     <div class="app-hero-content">
-      <div class="app-hero-badge">Destacada esta semana</div>
-      <h1 class="app-hero-title"  id="heroTitle">Bienvenido a IA MASIVA</h1>
-      <p class="app-hero-desc"    id="heroDesc">Explora las guías disponibles y aprende a usar inteligencia artificial de forma práctica y aplicada.</p>
-      <div class="app-hero-meta"  id="heroMeta"></div>
       <div class="app-hero-actions">
         <button class="app-btn-play" id="heroBtn">&#9654; Ver guía</button>
       </div>
@@ -344,6 +348,66 @@
     </div>
   </div>
 
+  <!-- ═══ MODAL: IMÁGENES DEL HERO ════════════════════════════ -->
+  <div class="modal-overlay" id="heroAdminModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Imágenes del hero</h2>
+        <button class="modal-close" id="heroModalClose">&times;</button>
+      </div>
+
+      <div id="heroSlidesList" class="hero-slides-list"></div>
+
+      <form id="heroSlideForm" class="form-grid" style="margin-top:22px;border-top:1px solid rgba(47,107,255,0.15);padding-top:22px;">
+        <input type="hidden" id="fHeroId" />
+
+        <div class="form-field">
+          <label>Guía que representa esta imagen</label>
+          <select id="fHeroGuide" required></select>
+        </div>
+
+        <div class="form-field">
+          <label>Imagen (escritorio / tablet)</label>
+          <div class="file-upload">
+            <input type="file" id="fHeroDesktop" accept="image/*" />
+            <div class="file-upload-icon">🖥️</div>
+            <div class="file-upload-text">Haz clic o arrastra una imagen</div>
+            <div class="file-name hidden" id="heroDesktopName"></div>
+          </div>
+          <div class="file-current hidden" id="heroDesktopActual"></div>
+        </div>
+
+        <div class="form-field">
+          <label>Imagen para celular (opcional)</label>
+          <div class="file-upload">
+            <input type="file" id="fHeroMobile" accept="image/*" />
+            <div class="file-upload-icon">📱</div>
+            <div class="file-upload-text">Haz clic o arrastra una imagen</div>
+            <div class="file-name hidden" id="heroMobileName"></div>
+          </div>
+          <div class="file-current hidden" id="heroMobileActual"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Orden</label>
+            <input type="number" id="fHeroOrden" min="0" value="0" />
+          </div>
+          <div class="form-field" style="justify-content:flex-end;display:flex;flex-direction:column;">
+            <label class="toggle-label"><input type="checkbox" id="fHeroActivo" checked /> Activa</label>
+          </div>
+        </div>
+
+        <div id="heroFormMsg" class="form-msg hidden"></div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="heroBtnCancel">Cancelar</button>
+          <button type="submit" class="btn-primary" id="heroBtnSave">Guardar imagen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ── SUPABASE ──────────────────────────────────────────────
     const { createClient } = supabase;
@@ -359,7 +423,7 @@
     ];
 
     let allGuides = [], userPurchases = [], isAdmin = false;
-    let heroSlides = [], heroIndex = 0, heroTimer = null;
+    let heroSlides = [], heroIndex = 0, heroTimer = null, heroSlidesRaw = [];
 
     // ── AUTH GUARD ────────────────────────────────────────────
     sb.auth.getSession().then(({ data: { session } }) => {
@@ -476,26 +540,31 @@
       document.body.style.overflow = '';
     }
 
-    // ── HERO (carrusel) ────────────────────────────────────────
+    // ── HERO (carrusel, independiente de las guías) ────────────
     function renderHeroSlide(i) {
-      const g = heroSlides[i];
-      if (!g) return;
+      const s = heroSlides[i];
+      if (!s) return;
       heroIndex = i;
 
-      document.getElementById('heroTitle').textContent = g.titulo;
-      document.getElementById('heroDesc').textContent  = g.descripcion || '';
-      document.getElementById('heroMeta').innerHTML = `
-        <span class="hero-badge-type ${g.es_premium?'hero-badge-premium':'hero-badge-gratis'}">${g.es_premium?'Premium':'Gratis'}</span>
-        ${(g.categorias||[]).slice(0,2).map(c=>`<span style="font-size:.8rem;color:#637289">${c}</span>`).join('<span style="color:#3d5268;margin:0 4px">·</span>')}`;
-      document.getElementById('heroBtn').onclick = () => openGuide(g.id, g.es_premium && !userPurchases.includes(g.id));
+      const locked = s.esPremium && !userPurchases.includes(s.guideId);
+      document.getElementById('heroBtn').onclick = () => openGuide(s.guideId, locked);
 
       const hero = document.getElementById('appHero');
       hero.querySelectorAll('.app-hero-bg').forEach(el => el.remove());
-      if (g.portada_url) {
+      if (s.imgDesktop) {
+        const picture = document.createElement('picture');
+        picture.className = 'app-hero-bg';
+        if (s.imgMobile) {
+          const source = document.createElement('source');
+          source.media = '(max-width: 720px)';
+          source.srcset = s.imgMobile;
+          picture.appendChild(source);
+        }
         const img = document.createElement('img');
-        img.src = g.portada_url; img.className = 'app-hero-bg';
-        hero.insertBefore(img, hero.firstChild);
-        requestAnimationFrame(() => requestAnimationFrame(() => img.classList.add('visible')));
+        img.src = s.imgDesktop;
+        picture.appendChild(img);
+        hero.insertBefore(picture, hero.firstChild);
+        requestAnimationFrame(() => requestAnimationFrame(() => picture.classList.add('visible')));
       }
 
       document.querySelectorAll('#heroDots .hero-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
@@ -515,12 +584,14 @@
     window.goToHeroSlide = goToHeroSlide;
 
     function buildHeroCarousel() {
-      const byNew = [...allGuides].sort((a,b) => new Date(b.created_at)-new Date(a.created_at));
-      const curated = allGuides
-        .filter(g => g.en_hero)
-        .sort((a,b) => (a.orden_hero ?? 999) - (b.orden_hero ?? 999));
+      const curated = heroSlidesRaw
+        .filter(s => s.activo && s.guides)
+        .map(s => ({ imgDesktop: s.imagen_desktop_url, imgMobile: s.imagen_mobile_url, guideId: s.guide_id, esPremium: s.guides.es_premium }));
 
-      heroSlides = curated.length ? curated : (byNew[0] ? [byNew[0]] : []);
+      const byNew = [...allGuides].sort((a,b) => new Date(b.created_at)-new Date(a.created_at));
+      const fallback = byNew[0] ? [{ imgDesktop: byNew[0].portada_url, imgMobile: null, guideId: byNew[0].id, esPremium: byNew[0].es_premium }] : [];
+
+      heroSlides = curated.length ? curated : fallback;
 
       document.getElementById('heroDots').innerHTML = heroSlides.length > 1
         ? heroSlides.map((_,i) => `<button class="hero-dot" onclick="goToHeroSlide(${i})"></button>`).join('')
@@ -682,10 +753,134 @@
     // Exponer funciones globalmente
     window.editGuide=editGuide; window.deleteGuide=deleteGuide;
 
+    // ── HERO SLIDES ADMIN ──────────────────────────────────────
+    const heroAdminModal = document.getElementById('heroAdminModal');
+
+    function openHeroAdminModal() {
+      populateHeroGuidePicker();
+      renderHeroSlidesList();
+      heroAdminModal.classList.add('active');
+      document.body.style.overflow='hidden';
+    }
+    function closeHeroAdminModal() {
+      heroAdminModal.classList.remove('active');
+      document.body.style.overflow='';
+      resetHeroForm();
+    }
+    document.getElementById('heroEditBtn').addEventListener('click', openHeroAdminModal);
+    document.getElementById('heroModalClose').addEventListener('click', closeHeroAdminModal);
+    document.getElementById('heroBtnCancel').addEventListener('click', closeHeroAdminModal);
+    heroAdminModal.addEventListener('click', e=>{ if(e.target===heroAdminModal) closeHeroAdminModal(); });
+
+    function populateHeroGuidePicker() {
+      const sel = document.getElementById('fHeroGuide');
+      sel.innerHTML = allGuides.map(g =>
+        `<option value="${g.id}">${g.titulo}${g.es_premium?' (Premium)':' (Gratis)'}${!g.publicada?' — Borrador':''}</option>`
+      ).join('') || '<option value="">No hay guías creadas aún</option>';
+    }
+
+    function renderHeroSlidesList() {
+      const list = document.getElementById('heroSlidesList');
+      if (!heroSlidesRaw.length) {
+        list.innerHTML = '<p class="hero-slide-empty">No hay imágenes en el hero todavía.</p>';
+        return;
+      }
+      list.innerHTML = heroSlidesRaw.map(s => `
+        <div class="hero-slide-row">
+          <img class="hero-slide-thumb" src="${s.imagen_desktop_url}" />
+          <div class="hero-slide-info">
+            <div class="hero-slide-title">${s.guides?.titulo || '(guía eliminada)'}</div>
+            <div class="hero-slide-meta">Orden ${s.orden} · ${s.activo ? 'Activa' : 'Inactiva'}</div>
+          </div>
+          <div class="table-actions">
+            <button class="admin-card-btn edit" type="button" onclick="editHeroSlide('${s.id}')">Editar</button>
+            <button class="admin-card-btn del" type="button" onclick="deleteHeroSlide('${s.id}')">Eliminar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function resetHeroForm() {
+      document.getElementById('heroSlideForm').reset();
+      document.getElementById('fHeroId').value='';
+      document.getElementById('fHeroOrden').value='0';
+      document.getElementById('fHeroActivo').checked=true;
+      ['heroDesktopName','heroMobileName','heroDesktopActual','heroMobileActual','heroFormMsg'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    }
+
+    document.getElementById('fHeroDesktop').addEventListener('change', function(){
+      const f=this.files[0]; if(!f) return;
+      const nm=document.getElementById('heroDesktopName'); nm.textContent=f.name; nm.classList.remove('hidden');
+    });
+    document.getElementById('fHeroMobile').addEventListener('change', function(){
+      const f=this.files[0]; if(!f) return;
+      const nm=document.getElementById('heroMobileName'); nm.textContent=f.name; nm.classList.remove('hidden');
+    });
+
+    function showHeroFormMsg(msg,type='error'){ const el=document.getElementById('heroFormMsg'); el.textContent=msg; el.className='form-msg '+type; el.classList.remove('hidden'); }
+
+    document.getElementById('heroSlideForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const btn=document.getElementById('heroBtnSave');
+      btn.textContent='Guardando...'; btn.disabled=true;
+      try {
+        const id       = document.getElementById('fHeroId').value;
+        const guideId  = document.getElementById('fHeroGuide').value;
+        const orden    = parseInt(document.getElementById('fHeroOrden').value,10) || 0;
+        const activo   = document.getElementById('fHeroActivo').checked;
+        const deskFile = document.getElementById('fHeroDesktop').files[0];
+        const mobFile  = document.getElementById('fHeroMobile').files[0];
+
+        if (!guideId) throw new Error('Elige a qué guía representa esta imagen.');
+        if (!id && !deskFile) throw new Error('La imagen de escritorio es obligatoria.');
+
+        const payload = { guide_id: guideId, orden, activo };
+        if (deskFile) payload.imagen_desktop_url = await uploadFile('portadas', deskFile);
+        if (mobFile)  payload.imagen_mobile_url  = await uploadFile('portadas', mobFile);
+
+        const {error} = id
+          ? await sb.from('hero_slides').update(payload).eq('id',id)
+          : await sb.from('hero_slides').insert(payload);
+
+        if(error) throw new Error(error.message);
+        showHeroFormMsg(id?'Imagen actualizada.':'Imagen agregada al hero.','success');
+        setTimeout(async()=>{ resetHeroForm(); await loadAndRender(); renderHeroSlidesList(); }, 1000);
+      } catch(err){ showHeroFormMsg(err.message); }
+      finally { btn.textContent='Guardar imagen'; btn.disabled=false; }
+    });
+
+    async function editHeroSlide(id) {
+      const s = heroSlidesRaw.find(x=>x.id===id);
+      if(!s) return;
+      document.getElementById('fHeroId').value=s.id;
+      document.getElementById('fHeroGuide').value=s.guide_id;
+      document.getElementById('fHeroOrden').value=s.orden ?? 0;
+      document.getElementById('fHeroActivo').checked=!!s.activo;
+      if(s.imagen_desktop_url){ const el=document.getElementById('heroDesktopActual'); el.textContent='Actual: '+s.imagen_desktop_url.split('/').pop(); el.classList.remove('hidden'); }
+      if(s.imagen_mobile_url){ const el=document.getElementById('heroMobileActual'); el.textContent='Actual: '+s.imagen_mobile_url.split('/').pop(); el.classList.remove('hidden'); }
+    }
+
+    async function deleteHeroSlide(id) {
+      if(!confirm('¿Eliminar esta imagen del hero?')) return;
+      const {error}=await sb.from('hero_slides').delete().eq('id',id);
+      if(error){ alert('Error: '+error.message); return; }
+      await loadAndRender();
+      renderHeroSlidesList();
+    }
+
+    window.editHeroSlide=editHeroSlide; window.deleteHeroSlide=deleteHeroSlide;
+
     // ── CARGAR Y RENDERIZAR ───────────────────────────────────
     async function loadAndRender() {
-      const {data}=await sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
-      allGuides=data||[];
+      const guidesQuery = isAdmin
+        ? sb.from('guides').select('*').order('created_at',{ascending:false})
+        : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
+      const [{data:guides}, {data:slides}] = await Promise.all([
+        guidesQuery,
+        sb.from('hero_slides').select('*, guides(titulo, es_premium)').order('orden',{ascending:true})
+      ]);
+      allGuides=guides||[];
+      heroSlidesRaw=slides||[];
       renderAll();
     }
 
@@ -697,18 +892,25 @@
       // Verificar admin
       const {data:profile}=await sb.from('profiles').select('es_admin').eq('id',session.user.id).single();
       isAdmin=!!profile?.es_admin;
-      if(isAdmin) document.getElementById('btnNewGuide').classList.remove('hidden');
+      if(isAdmin) {
+        document.getElementById('btnNewGuide').classList.remove('hidden');
+        document.getElementById('heroEditBtn').classList.remove('hidden');
+      }
 
       // Compras del usuario
       const {data:purchases}=await sb.from('purchases').select('guide_id').eq('user_id',session.user.id);
       userPurchases=(purchases||[]).map(p=>p.guide_id);
 
       // Si es admin, cargar todas (incluye no publicadas)
-      const query = isAdmin
+      const guidesQuery = isAdmin
         ? sb.from('guides').select('*').order('created_at',{ascending:false})
         : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
-      const {data}=await query;
-      allGuides=data||[];
+      const [{data:guides}, {data:slides}] = await Promise.all([
+        guidesQuery,
+        sb.from('hero_slides').select('*, guides(titulo, es_premium)').order('orden',{ascending:true})
+      ]);
+      allGuides=guides||[];
+      heroSlidesRaw=slides||[];
 
       renderAll();
     }
