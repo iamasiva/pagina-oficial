@@ -758,6 +758,13 @@
         const portFile= document.getElementById('fPortada').files[0];
         const htmlFile= document.getElementById('fHtml').files[0];
 
+        let oldPortada = null, oldContenido = null;
+        if (id && (portFile || htmlFile)) {
+          const { data: old } = await sb.from('guides').select('portada_url,contenido_url').eq('id',id).single();
+          oldPortada = old?.portada_url;
+          oldContenido = old?.contenido_url;
+        }
+
         const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats };
         if(portFile) payload.portada_url   = await uploadFile('portadas', portFile);
         if(htmlFile) payload.contenido_url = await uploadFile('contenido', htmlFile);
@@ -767,6 +774,8 @@
           : await sb.from('guides').insert(payload);
 
         if(error) throw new Error(error.message);
+        if (portFile && oldPortada)   await removeStorageFile('portadas', oldPortada);
+        if (htmlFile && oldContenido) await removeStorageFile('contenido', oldContenido);
         showFormMsg(id?'Guía actualizada.':'Guía creada correctamente.','success');
         setTimeout(async()=>{ closeAdminModal(); await loadAndRender(); }, 1200);
       } catch(err){ showFormMsg(err.message); }
@@ -884,6 +893,8 @@
         if (!ctaUrl) throw new Error('Falta el link de destino (landing de pago).');
         if (!id && !deskFile) throw new Error('La imagen de escritorio es obligatoria.');
 
+        const old = id ? heroSlidesRaw.find(x=>x.id===id) : null;
+
         const payload = { cta_texto: ctaTexto || 'Comprar ahora', cta_url: ctaUrl, orden, activo };
         if (deskFile) payload.imagen_desktop_url = await uploadFile('portadas', deskFile);
         if (tabFile)  payload.imagen_tablet_url  = await uploadFile('portadas', tabFile);
@@ -894,6 +905,9 @@
           : await sb.from('hero_slides').insert(payload);
 
         if(error) throw new Error(error.message);
+        if (deskFile && old?.imagen_desktop_url) await removeStorageFile('portadas', old.imagen_desktop_url);
+        if (tabFile  && old?.imagen_tablet_url)  await removeStorageFile('portadas', old.imagen_tablet_url);
+        if (mobFile  && old?.imagen_mobile_url)  await removeStorageFile('portadas', old.imagen_mobile_url);
         showHeroFormMsg(id?'Imagen actualizada.':'Imagen agregada al hero.','success');
         setTimeout(async()=>{ closeHeroAdminModal(); await loadAndRender(); }, 1000);
       } catch(err){ showHeroFormMsg(err.message); }

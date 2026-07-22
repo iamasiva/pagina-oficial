@@ -439,6 +439,13 @@
         const portFile = document.getElementById('fPortada').files[0];
         const htmlFile = document.getElementById('fHtml').files[0];
 
+        let oldPortada = null, oldContenido = null;
+        if (id && (portFile || htmlFile)) {
+          const { data: old } = await sb.from('guides').select('portada_url,contenido_url').eq('id', id).single();
+          oldPortada = old?.portada_url;
+          oldContenido = old?.contenido_url;
+        }
+
         const payload = {
           titulo,
           descripcion: desc,
@@ -458,6 +465,9 @@
         }
 
         if (error) throw new Error(error.message);
+
+        if (portFile && oldPortada)   await removeStorageFile('portadas', oldPortada);
+        if (htmlFile && oldContenido) await removeStorageFile('contenido', oldContenido);
 
         showMsg(id ? 'Guía actualizada.' : 'Guía creada correctamente.', 'success');
         setTimeout(() => { closeModal(); loadGuides(); }, 1200);
