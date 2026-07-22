@@ -56,12 +56,12 @@
     .hero-dot.active { background: var(--blue-elec); transform: scale(1.3); }
     .app-hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(5,15,58,0.6) 0%, rgba(5,15,58,0.1) 40%, transparent 65%), linear-gradient(to top, rgba(5,5,5,0.9) 0%, transparent 32%); }
     .app-hero::after { content: ''; position: absolute; inset: 0; z-index: 0; background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%); }
-    .app-hero-content { position: relative; z-index: 2; max-width: 540px; }
+    .app-hero-content { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; }
     .app-hero.clickable { cursor: pointer; }
-    .app-hero-empty { position: relative; z-index: 2; color: #9aacbf; font-size: 1rem; margin-bottom: 20px; }
-    .app-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .app-btn-play { background: var(--white); color: #050F3A; border: none; padding: 13px 30px; border-radius: 6px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.15s; }
-    .app-btn-play:hover { background: var(--gray); transform: translateY(-1px); }
+    .app-hero-empty { position: relative; z-index: 2; width: 100%; text-align: center; color: #9aacbf; font-size: 1rem; margin-bottom: 20px; }
+    .app-hero-actions { display: flex; justify-content: center; width: 100%; }
+    .app-btn-play { background: var(--blue-elec); color: var(--white); border: none; padding: 20px 56px; border-radius: 8px; font-size: 1.15rem; font-weight: 800; letter-spacing: 0.02em; display: flex; align-items: center; gap: 10px; transition: background 0.2s, transform 0.15s; box-shadow: 0 10px 30px rgba(47,107,255,0.4); }
+    .app-btn-play:hover { background: #4d7fff; transform: translateY(-2px); }
 
     /* ─── CONTENT ────────────────────────────────────────────── */
     .app-content { background: var(--black); padding: 36px 5vw 80px; }
@@ -864,7 +864,7 @@
 
         if(error) throw new Error(error.message);
         showHeroFormMsg(id?'Imagen actualizada.':'Imagen agregada al hero.','success');
-        setTimeout(async()=>{ resetHeroForm(); await loadAndRender(); renderHeroSlidesList(); }, 1000);
+        setTimeout(async()=>{ closeHeroAdminModal(); await loadAndRender(); }, 1000);
       } catch(err){ showHeroFormMsg(err.message); }
       finally { btn.textContent='Guardar imagen'; btn.disabled=false; }
     });
