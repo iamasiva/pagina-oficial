@@ -47,7 +47,7 @@
 
     /* ─── HERO ───────────────────────────────────────────────── */
     .app-hero { position: relative; width: 100%; min-height: max(72vh, 460px); display: flex; align-items: flex-end; padding: 0 5vw 64px; overflow: hidden; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%); padding-top: 24px; }
-    .app-hero-bg { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s ease; }
+    .app-hero-bg { position: absolute; inset: 0; top: -12%; height: 112%; bottom: auto; opacity: 0; transition: opacity 0.7s ease; }
     .app-hero-bg.visible { opacity: 1; }
     .app-hero-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .hero-edit-btn { position: absolute; top: 16px; right: 5vw; z-index: 4; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(5,5,5,0.55); backdrop-filter: blur(6px); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
@@ -197,7 +197,6 @@
       .app-nav-filters::-webkit-scrollbar { display: none; }
       .app-hero { min-height: max(58vh, 400px); padding-bottom: 10px; padding-top: 16px; }
       .app-hero-dots { margin-top: 10px; }
-      .app-hero-bg { top: -12%; height: 112%; bottom: auto; }
       .hero-edit-btn { top: 12px; right: 4vw; }
       .app-card { flex: 0 0 106px; height: 153px; }
       .app-card:hover { transform: none; }
