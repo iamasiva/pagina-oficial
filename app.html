@@ -195,7 +195,8 @@
       .filter-btn { padding: 6px 12px; font-size: 0.78rem; }
       .cat-menu { left: auto; right: 0; }
       .app-nav-filters::-webkit-scrollbar { display: none; }
-      .app-hero { min-height: max(58vh, 400px); padding-bottom: 18px; padding-top: 16px; }
+      .app-hero { min-height: max(58vh, 400px); padding-bottom: 10px; padding-top: 16px; }
+      .app-hero-dots { margin-top: 10px; }
       .hero-edit-btn { top: 12px; right: 4vw; }
       .app-card { flex: 0 0 106px; height: 153px; }
       .app-card:hover { transform: none; }
@@ -852,6 +853,22 @@
     }
     document.getElementById('heroEditBtn').addEventListener('click', e => { e.stopPropagation(); openHeroAdminModal(); });
     document.getElementById('appHero').addEventListener('click', () => goToUrl(heroSlides[heroIndex]?.ctaUrl));
+
+    // Swipe horizontal entre slides (táctil)
+    let heroTouchX = 0, heroTouchY = 0;
+    const appHeroEl = document.getElementById('appHero');
+    appHeroEl.addEventListener('touchstart', e => {
+      heroTouchX = e.touches[0].clientX;
+      heroTouchY = e.touches[0].clientY;
+    }, { passive: true });
+    appHeroEl.addEventListener('touchend', e => {
+      if (heroSlides.length < 2) return;
+      const dx = e.changedTouches[0].clientX - heroTouchX;
+      const dy = e.changedTouches[0].clientY - heroTouchY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        goToHeroSlide(dx < 0 ? (heroIndex + 1) % heroSlides.length : (heroIndex - 1 + heroSlides.length) % heroSlides.length);
+      }
+    }, { passive: true });
     document.getElementById('heroModalClose').addEventListener('click', closeHeroAdminModal);
     document.getElementById('heroBtnCancel').addEventListener('click', closeHeroAdminModal);
     heroAdminModal.addEventListener('click', e=>{ if(e.target===heroAdminModal) closeHeroAdminModal(); });
