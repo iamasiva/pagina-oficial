@@ -376,6 +376,17 @@
         </div>
 
         <div class="form-field">
+          <label>Imagen para tablet (opcional)</label>
+          <div class="file-upload">
+            <input type="file" id="fHeroTablet" accept="image/*" />
+            <div class="file-upload-icon">💻</div>
+            <div class="file-upload-text">Haz clic o arrastra una imagen</div>
+            <div class="file-name hidden" id="heroTabletName"></div>
+          </div>
+          <div class="file-current hidden" id="heroTabletActual"></div>
+        </div>
+
+        <div class="form-field">
           <label>Imagen para celular (opcional)</label>
           <div class="file-upload">
             <input type="file" id="fHeroMobile" accept="image/*" />
@@ -573,6 +584,12 @@
           source.srcset = s.imgMobile;
           picture.appendChild(source);
         }
+        if (s.imgTablet) {
+          const source = document.createElement('source');
+          source.media = '(max-width: 1200px)';
+          source.srcset = s.imgTablet;
+          picture.appendChild(source);
+        }
         const img = document.createElement('img');
         img.src = s.imgDesktop;
         picture.appendChild(img);
@@ -600,7 +617,7 @@
     function buildHeroCarousel() {
       heroSlides = heroSlidesRaw
         .filter(s => s.activo)
-        .map(s => ({ imgDesktop: s.imagen_desktop_url, imgMobile: s.imagen_mobile_url, ctaTexto: s.cta_texto, ctaUrl: s.cta_url }));
+        .map(s => ({ imgDesktop: s.imagen_desktop_url, imgTablet: s.imagen_tablet_url, imgMobile: s.imagen_mobile_url, ctaTexto: s.cta_texto, ctaUrl: s.cta_url }));
 
       const hero = document.getElementById('appHero');
       const heroContent = hero.querySelector('.app-hero-content');
@@ -824,12 +841,16 @@
       document.getElementById('fHeroCtaTexto').value='Comprar ahora';
       document.getElementById('fHeroOrden').value='0';
       document.getElementById('fHeroActivo').checked=true;
-      ['heroDesktopName','heroMobileName','heroDesktopActual','heroMobileActual','heroFormMsg'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      ['heroDesktopName','heroTabletName','heroMobileName','heroDesktopActual','heroTabletActual','heroMobileActual','heroFormMsg'].forEach(id=>document.getElementById(id).classList.add('hidden'));
     }
 
     document.getElementById('fHeroDesktop').addEventListener('change', function(){
       const f=this.files[0]; if(!f) return;
       const nm=document.getElementById('heroDesktopName'); nm.textContent=f.name; nm.classList.remove('hidden');
+    });
+    document.getElementById('fHeroTablet').addEventListener('change', function(){
+      const f=this.files[0]; if(!f) return;
+      const nm=document.getElementById('heroTabletName'); nm.textContent=f.name; nm.classList.remove('hidden');
     });
     document.getElementById('fHeroMobile').addEventListener('change', function(){
       const f=this.files[0]; if(!f) return;
@@ -849,6 +870,7 @@
         const orden    = parseInt(document.getElementById('fHeroOrden').value,10) || 0;
         const activo   = document.getElementById('fHeroActivo').checked;
         const deskFile = document.getElementById('fHeroDesktop').files[0];
+        const tabFile  = document.getElementById('fHeroTablet').files[0];
         const mobFile  = document.getElementById('fHeroMobile').files[0];
 
         if (!ctaUrl) throw new Error('Falta el link de destino (landing de pago).');
@@ -856,6 +878,7 @@
 
         const payload = { cta_texto: ctaTexto || 'Comprar ahora', cta_url: ctaUrl, orden, activo };
         if (deskFile) payload.imagen_desktop_url = await uploadFile('portadas', deskFile);
+        if (tabFile)  payload.imagen_tablet_url  = await uploadFile('portadas', tabFile);
         if (mobFile)  payload.imagen_mobile_url  = await uploadFile('portadas', mobFile);
 
         const {error} = id
@@ -878,6 +901,7 @@
       document.getElementById('fHeroOrden').value=s.orden ?? 0;
       document.getElementById('fHeroActivo').checked=!!s.activo;
       if(s.imagen_desktop_url){ const el=document.getElementById('heroDesktopActual'); el.textContent='Actual: '+s.imagen_desktop_url.split('/').pop(); el.classList.remove('hidden'); }
+      if(s.imagen_tablet_url){ const el=document.getElementById('heroTabletActual'); el.textContent='Actual: '+s.imagen_tablet_url.split('/').pop(); el.classList.remove('hidden'); }
       if(s.imagen_mobile_url){ const el=document.getElementById('heroMobileActual'); el.textContent='Actual: '+s.imagen_mobile_url.split('/').pop(); el.classList.remove('hidden'); }
     }
 
