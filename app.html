@@ -20,14 +20,14 @@
     .hidden { display: none !important; }
 
     /* ─── NAVBAR (incluye filtros) ───────────────────────────── */
-    .app-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 70px; background: rgba(5,15,58,0.98); border-bottom: 1px solid rgba(47,107,255,0.12); transition: background 0.3s; }
+    .app-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; padding: 0 5vw; height: 70px; background: rgba(5,15,58,0.98); border-bottom: 1px solid rgba(47,107,255,0.12); transition: background 0.3s; }
     .app-nav.scrolled { background: rgba(5,15,58,0.98); }
     .app-nav-logo { font-size: 1.6rem; font-weight: 900; letter-spacing: 0.1em; flex-shrink: 0; }
-    .app-nav-collapse { display: flex; align-items: center; gap: 32px; min-width: 0; }
-    .app-nav-filters { display: flex; align-items: center; gap: 10px; }
+    .app-nav-filters { display: flex; align-items: center; gap: 10px; margin-left: 32px; min-width: 0; }
+    .app-nav-collapse { display: flex; margin-left: auto; }
     .app-nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
     .app-nav-name { font-size: 0.85rem; color: var(--gray); }
-    .hamburger-btn { display: none; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--white); width: 38px; height: 38px; border-radius: 6px; font-size: 1.2rem; align-items: center; justify-content: center; }
+    .hamburger-btn { display: none; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--white); width: 38px; height: 38px; border-radius: 6px; font-size: 1.2rem; align-items: center; justify-content: center; flex-shrink: 0; margin-left: auto; }
     .hamburger-btn:hover { background: rgba(47,107,255,0.15); border-color: var(--blue-elec); }
     .btn-nav { background: transparent; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
     .btn-nav:hover { background: rgba(47,107,255,0.15); border-color: var(--blue-elec); color: var(--white); }
@@ -179,19 +179,21 @@
       .hamburger-btn { display: flex; }
       .app-nav-collapse {
         display: none;
-        position: absolute; top: 70px; left: 0; right: 0; z-index: 99;
-        flex-direction: column; align-items: stretch; gap: 18px;
-        background: rgba(5,15,58,0.98); border-bottom: 1px solid rgba(47,107,255,0.15);
-        padding: 18px 5vw; max-height: calc(100vh - 70px); overflow-y: auto;
+        position: absolute; top: 100%; right: 4vw; z-index: 99;
+        background: rgba(5,15,58,0.98); border: 1px solid rgba(47,107,255,0.22);
+        border-radius: 10px; padding: 14px; min-width: 200px;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.6); margin-top: 6px;
       }
       .app-nav-collapse.open { display: flex; }
-      .app-nav-filters { flex-wrap: wrap; }
       .app-nav-right { flex-direction: column; align-items: stretch; gap: 10px; }
-      .cat-menu { position: static; margin-top: 8px; width: 100%; }
+      .app-nav-name { text-align: center; }
     }
 
     @media (max-width: 720px) {
-      .app-hero { min-height: max(58vh, 400px); padding-bottom: 44px; padding-top: 90px; }
+      .app-nav { flex-wrap: wrap; height: auto; padding: 12px 4vw 10px; row-gap: 10px; }
+      .app-nav-filters { margin-left: 0; order: 3; flex-basis: 100%; overflow-x: auto; }
+      .app-nav-filters::-webkit-scrollbar { display: none; }
+      .app-hero { min-height: max(58vh, 400px); padding-bottom: 44px; padding-top: 140px; }
       .hero-edit-btn { top: auto; bottom: 44px; right: 4vw; }
       .app-card { flex: 0 0 106px; height: 153px; }
       .app-card-rank { font-size: 3.2rem; }
@@ -207,17 +209,17 @@
   <!-- ═══ NAVBAR (logo + filtros) ═════════════════════════════ -->
   <nav class="app-nav" id="appNav">
     <span class="app-nav-logo">IA MASIVA</span>
+    <div class="app-nav-filters">
+      <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
+      <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
+      <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
+      <div class="cat-dropdown">
+        <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
+        <div class="cat-menu" id="catMenu"></div>
+      </div>
+    </div>
     <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menú">&#9776;</button>
     <div class="app-nav-collapse" id="navCollapse">
-      <div class="app-nav-filters">
-        <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
-        <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
-        <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
-        <div class="cat-dropdown">
-          <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
-          <div class="cat-menu" id="catMenu"></div>
-        </div>
-      </div>
       <div class="app-nav-right">
         <button class="btn-nav-primary hidden" id="btnNewGuide">+ Nueva guía</button>
         <span class="app-nav-name" id="appNavName"></span>
