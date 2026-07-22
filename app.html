@@ -736,6 +736,11 @@
       return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
     }
 
+    async function removeStorageFile(bucket, url) {
+      if (!url) return;
+      await sb.storage.from(bucket).remove([url.split('/').pop()]);
+    }
+
     function showFormMsg(msg,type='error'){ const el=document.getElementById('formMsg'); el.textContent=msg; el.className='form-msg '+type; el.classList.remove('hidden'); }
 
     // Guardar guía
@@ -787,8 +792,11 @@
     // Eliminar
     async function deleteGuide(id, titulo) {
       if(!confirm(`¿Eliminar "${titulo}"? Esta acción no se puede deshacer.`)) return;
+      const g = allGuides.find(x=>x.id===id);
       const {error}=await sb.from('guides').delete().eq('id',id);
       if(error){ alert('Error: '+error.message); return; }
+      await removeStorageFile('portadas', g?.portada_url);
+      await removeStorageFile('contenido', g?.contenido_url);
       await loadAndRender();
     }
 
@@ -907,8 +915,12 @@
 
     async function deleteHeroSlide(id) {
       if(!confirm('¿Eliminar esta imagen del hero?')) return;
+      const s = heroSlidesRaw.find(x=>x.id===id);
       const {error}=await sb.from('hero_slides').delete().eq('id',id);
       if(error){ alert('Error: '+error.message); return; }
+      await removeStorageFile('portadas', s?.imagen_desktop_url);
+      await removeStorageFile('portadas', s?.imagen_tablet_url);
+      await removeStorageFile('portadas', s?.imagen_mobile_url);
       await loadAndRender();
       renderHeroSlidesList();
     }

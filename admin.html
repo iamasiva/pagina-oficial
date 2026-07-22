@@ -391,8 +391,11 @@
     // ── ELIMINAR ──────────────────────────────────────────────────
     async function deleteGuide(id, titulo) {
       if (!confirm(`¿Eliminar "${titulo}"? Esta acción no se puede deshacer.`)) return;
+      const { data: g } = await sb.from('guides').select('portada_url,contenido_url').eq('id', id).single();
       const { error } = await sb.from('guides').delete().eq('id', id);
       if (error) { alert('Error al eliminar: ' + error.message); return; }
+      await removeStorageFile('portadas', g?.portada_url);
+      await removeStorageFile('contenido', g?.contenido_url);
       loadGuides();
     }
 
@@ -403,6 +406,11 @@
       const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true });
       if (error) throw new Error('Error subiendo archivo: ' + error.message);
       return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    }
+
+    async function removeStorageFile(bucket, url) {
+      if (!url) return;
+      await sb.storage.from(bucket).remove([url.split('/').pop()]);
     }
 
     // ── GUARDAR ───────────────────────────────────────────────────
