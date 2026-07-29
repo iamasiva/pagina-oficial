@@ -2,7 +2,6 @@ credenciales_privadas.txt
 sql_setup.sql
 .DS_Store
 node_modules/
-package.json
-package-lock.json
 www_netflix_com.html
 Plan_IA_MASIVA.docx
+.vercel
