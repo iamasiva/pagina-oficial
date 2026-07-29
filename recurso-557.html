@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>557 Configuraciones — IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #15786c; --teal-dark: #0f5f55; --teal-soft: #d9f0ef;
+      --bg: #f7f7f4; --surface: #ffffff; --ink: #202320; --muted: #62685f;
+      --line: #dfe3db; --accent: #0f8b8d; --gold: #b8872d;
+      --radius: 8px; --shadow: 0 18px 60px rgba(29,35,31,0.16);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, Menlo, monospace;
+    }
+    body { font-family: var(--sans); color: var(--ink); background: var(--bg); min-height: 100vh; }
+    button { cursor: pointer; font: inherit; }
+    input, select, textarea { font: inherit; }
+    .hidden { display: none !important; }
+
+    .app { min-height: 100vh; display: flex; }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────── */
+    .sidebar {
+      width: 280px; flex: 0 0 280px; position: sticky; top: 0; height: 100vh;
+      overflow-y: auto; background: var(--teal); color: #fff;
+      display: flex; flex-direction: column; padding: 22px 0 18px;
+    }
+    .sb-brand { padding: 0 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .sb-brand .marca { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; opacity: 0.85; }
+    .sb-brand .producto { font-size: 1.05rem; font-weight: 800; margin-top: 4px; line-height: 1.3; }
+    .sb-nav { padding: 14px 10px; flex: 1; }
+    .sb-item {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      background: none; border: none; color: #fff; text-align: left;
+      padding: 10px 12px; border-radius: 7px; font-size: 0.92rem; font-weight: 600;
+    }
+    .sb-item:hover { background: rgba(255,255,255,0.1); }
+    .sb-item.activo { background: rgba(255,255,255,0.18); }
+    .sb-item .flecha { margin-left: auto; font-size: 0.7rem; opacity: 0.7; transition: transform 0.15s; }
+    .sb-item .flecha.abierta { transform: rotate(90deg); }
+    .sb-sub { margin-left: 10px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 6px; }
+    .sb-sub .sb-item { font-weight: 500; font-size: 0.86rem; padding: 8px 10px; }
+    .sb-conteo { margin-left: auto; font-size: 0.72rem; opacity: 0.65; }
+    .sb-sub .sb-item .sb-conteo { margin-left: auto; }
+    .sb-pie { padding: 12px 20px 0; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.78rem; opacity: 0.75; }
+    .sb-pie a { color: #fff; }
+
+    /* ── HAMBURGUESA / MÓVIL ─────────────────────────────────── */
+    .hamburguesa {
+      display: none; position: fixed; top: 14px; left: 14px; z-index: 60;
+      width: 42px; height: 42px; border-radius: 8px; border: none;
+      background: var(--teal); color: #fff; font-size: 1.2rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    .backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 40; }
+    .backdrop.activo { display: block; }
+
+    /* ── CONTENIDO ───────────────────────────────────────────── */
+    .contenido { flex: 1; min-width: 0; padding: 36px 42px 80px; max-width: 1080px; }
+    .volver {
+      background: none; border: 1px solid var(--line); border-radius: 7px;
+      padding: 7px 16px; font-size: 0.85rem; font-weight: 600; color: var(--muted);
+      margin-bottom: 22px;
+    }
+    .volver:hover { border-color: var(--teal); color: var(--teal); }
+    .hero-vista h1 { font-size: 1.7rem; font-weight: 800; line-height: 1.25; }
+    .hero-vista p { color: var(--muted); margin-top: 8px; max-width: 640px; line-height: 1.6; }
+
+    .buscador { position: relative; margin: 26px 0 8px; max-width: 560px; }
+    .buscador input {
+      width: 100%; padding: 13px 16px 13px 42px; border-radius: 9px;
+      border: 1.5px solid var(--line); background: var(--surface); font-size: 0.95rem; outline: none;
+    }
+    .buscador input:focus { border-color: var(--accent); }
+    .buscador .lupa { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 26px; }
+    .card-cat {
+      background: var(--card-bg, var(--teal-soft)); color: var(--card-ink, var(--teal-dark));
+      border: none; border-radius: 12px; padding: 20px; text-align: left;
+      display: flex; flex-direction: column; gap: 8px; min-height: 120px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card-cat:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .card-cat .icono { font-size: 1.5rem; }
+    .card-cat .nombre { font-weight: 800; font-size: 1rem; line-height: 1.3; }
+    .card-cat .conteo { font-size: 0.8rem; opacity: 0.75; margin-top: auto; }
+
+    .lista { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+    .item-grupo {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+      padding: 18px 20px; text-align: left; width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .item-grupo:hover { border-color: var(--accent); box-shadow: 0 6px 20px rgba(15,139,141,0.12); }
+    .item-grupo .titulo { font-weight: 700; font-size: 0.98rem; }
+    .item-grupo .desc { color: var(--muted); font-size: 0.86rem; margin-top: 5px; line-height: 1.5; }
+    .item-grupo .meta { font-size: 0.75rem; color: var(--accent); font-weight: 700; margin-top: 8px; }
+    .seccion-titulo { font-size: 1.05rem; font-weight: 800; margin-top: 34px; }
+    .vacio { color: var(--muted); padding: 26px 0; }
+    .vacio button { background: none; border: none; color: var(--accent); font-weight: 700; text-decoration: underline; }
+
+    /* ── DETALLE ─────────────────────────────────────────────── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .chip {
+      border: 1.5px solid var(--line); background: var(--surface); border-radius: 20px;
+      padding: 7px 15px; font-size: 0.84rem; font-weight: 600; color: var(--muted);
+    }
+    .chip.activo { border-color: var(--teal); background: var(--teal-soft); color: var(--teal-dark); }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+      padding: 26px; margin-top: 22px;
+    }
+    .panel h3 { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
+    .panel .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+    .form-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px; }
+    .campo label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .campo select, .campo input[type="text"] {
+      width: 100%; padding: 11px 12px; border-radius: 8px; border: 1.5px solid var(--line);
+      background: var(--bg); outline: none;
+    }
+    .campo select:focus, .campo input:focus { border-color: var(--accent); }
+    .acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .btn { border: none; border-radius: 8px; padding: 12px 22px; font-weight: 800; font-size: 0.9rem; }
+    .btn-primario { background: var(--teal); color: #fff; }
+    .btn-primario:hover { background: var(--teal-dark); }
+    .btn-secundario { background: none; border: 1.5px solid var(--line); color: var(--muted); }
+    .btn-secundario:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-link { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 0.85rem; text-decoration: underline; }
+    .salida { margin-top: 18px; }
+    .salida textarea {
+      width: 100%; min-height: 260px; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55;
+      border: 1.5px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfbf9; resize: vertical;
+    }
+    .salida-vacia { color: var(--muted); font-style: italic; padding: 18px 0; }
+    .aviso-copiado { color: var(--accent); font-weight: 700; font-size: 0.85rem; }
+
+    /* ── MODAL AVANZADAS ─────────────────────────────────────── */
+    .modal-fondo { position: fixed; inset: 0; background: rgba(32,35,32,0.5); z-index: 80; display: none; align-items: center; justify-content: center; padding: 18px; }
+    .modal-fondo.activo { display: flex; }
+    .modal-caja { background: var(--surface); border-radius: 14px; padding: 28px; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; }
+    .modal-caja h3 { margin-bottom: 16px; }
+
+    /* ── CANDADO / ESTADOS GLOBALES ──────────────────────────── */
+    .pantalla-centro {
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; padding: 24px; gap: 14px;
+    }
+    .pantalla-centro h1 { font-size: 1.5rem; }
+    .pantalla-centro p { color: var(--muted); max-width: 460px; line-height: 1.6; }
+
+    @media (max-width: 860px) {
+      .hamburguesa { display: block; }
+      .sidebar { position: fixed; left: -290px; z-index: 50; transition: left 0.25s; height: 100vh; }
+      .sidebar.abierta { left: 0; }
+      .hamburguesa.oculta { display: none; }
+      .contenido { padding: 74px 18px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Estados globales -->
+  <div id="cargando" class="pantalla-centro"><p>Cargando…</p></div>
+
+  <div id="sinAcceso" class="pantalla-centro hidden">
+    <h1>557 Configuraciones Expertas</h1>
+    <p>Este es un recurso premium de IA MASIVA. Configuraciones expertas listas para usar en NotebookLM, Gemini, ChatGPT y Claude, con variantes por audiencia, generador personalizado y espacio propio para tus favoritos y creaciones.</p>
+    <button class="btn btn-primario" id="btnComprarRecurso">Comprar ahora</button>
+    <p id="msjCompra" class="hidden"></p>
+    <a href="app.html" class="btn-link">Volver a IA MASIVA</a>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="app hidden">
+    <button class="hamburguesa" id="btnHamburguesa">&#9776;</button>
+    <div class="backdrop" id="backdrop"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-brand">
+        <div class="marca">IA MASIVA</div>
+        <div class="producto">557 Configuraciones Expertas</div>
+      </div>
+      <nav class="sb-nav" id="sbNav"></nav>
+      <div class="sb-pie"><a href="app.html">← Volver a IA MASIVA</a></div>
+    </aside>
+
+    <main class="contenido" id="contenido"></main>
+  </div>
+
+  <!-- Modal opciones avanzadas -->
+  <div class="modal-fondo" id="modalAvanzadas">
+    <div class="modal-caja">
+      <h3>Opciones avanzadas</h3>
+      <div class="campo" style="margin-bottom:14px;">
+        <label>Nivel de detalle</label>
+        <select id="avDetalle">
+          <option>Balanceado - contexto + recomendación</option>
+          <option>Breve y directo</option>
+          <option>Profundo y exhaustivo</option>
+          <option value="__otro__">Otro…</option>
+        </select>
+        <input type="text" id="avDetalleOtro" class="hidden" placeholder="Escribe tu nivel de detalle" style="margin-top:8px;" />
+      </div>
+      <div class="campo" style="margin-bottom:14px;">
+        <label>Máximo de preguntas aclaratorias</label>
+        <select id="avPreguntas">
+          <option>3</option><option selected>5</option><option>7</option>
+          <option value="__otro__">Otro…</option>
+        </select>
+        <input type="text" id="avPreguntasOtro" class="hidden" placeholder="Ej: 10" style="margin-top:8px;" />
+      </div>
+      <div class="campo" style="margin-bottom:18px;">
+        <label>Foco o contexto adicional (opcional)</label>
+        <input type="text" id="avFoco" placeholder="Ej: enfócate en el mercado colombiano" />
+      </div>
+      <div class="acciones">
+        <button class="btn btn-primario" id="avCerrarGuardar">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+
+    const PRODUCT_ID = '656f61d7-37b2-4e9c-8cf3-67065484493c';
+
+    // Paleta pastel por categoría (2-3 familias, texto oscuro del mismo tono)
+    const PALETA = [
+      { bg: '#d9f0ef', ink: '#0f5f55' },  // teal
+      { bg: '#fdeadd', ink: '#8a4a1f' },  // durazno
+      { bg: '#e9e4f5', ink: '#4a3a75' },  // lila
+    ];
+    const ICONOS = {
+      briefcase: '💼', chart: '📊', book: '📚', pencil: '✏️', globe: '🌎',
+      money: '💰', heart: '❤️', tools: '🛠️', bulb: '💡', target: '🎯',
+      megaphone: '📣', users: '👥', laptop: '💻', leaf: '🌱', scale: '⚖️',
+    };
+
+    let items = [];          // 1000 variantes (sin plantillas)
+    let grupos = new Map();  // grupo_num → { rol_base, categoria, subcategoria, familia, icono, variantes[] }
+    let arbol = new Map();   // categoria → Map(subcategoria → [grupo_num])
+    let colorCat = new Map();
+    let vista = { tipo: 'home' };     // home | cat | subcat | detalle | busqueda | guia
+    let pila = [];                    // historial para "Volver" (un nivel)
+    let expandido = { configs: false, cats: new Set() };
+    let varianteActiva = null;
+    let avanzadas = { detalle: null, preguntas: null, foco: '' };
+
+    // ── ARRANQUE ──────────────────────────────────────────────
+    async function main() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'index.html'; return; }
+
+      // El RLS decide: si no hay compra aprobada (ni admin), no llegan filas.
+      const { data, error } = await sb.from('premium_items')
+        .select('id,item_num,nombre,categoria,subcategoria,familia,icono,descripcion,grupo_num,rol_base,audiencia')
+        .eq('product_id', PRODUCT_ID)
+        .order('item_num');
+
+      document.getElementById('cargando').classList.add('hidden');
+
+      if (error || !data?.length) {
+        document.getElementById('sinAcceso').classList.remove('hidden');
+        return;
+      }
+
+      items = data;
+      construirEstructura();
+      document.getElementById('app').classList.remove('hidden');
+      renderSidebar();
+      irA({ tipo: 'home' }, false);
+    }
+
+    function construirEstructura() {
+      for (const it of items) {
+        if (!grupos.has(it.grupo_num)) {
+          grupos.set(it.grupo_num, {
+            rol_base: it.rol_base, categoria: it.categoria, subcategoria: it.subcategoria,
+            familia: it.familia, icono: it.icono, variantes: [],
+          });
+        }
+        grupos.get(it.grupo_num).variantes.push(it);
+      }
+      for (const [num, g] of grupos) {
+        if (!arbol.has(g.categoria)) arbol.set(g.categoria, new Map());
+        const sub = arbol.get(g.categoria);
+        if (!sub.has(g.subcategoria)) sub.set(g.subcategoria, []);
+        sub.get(g.subcategoria).push(num);
+      }
+      [...arbol.keys()].forEach((cat, i) => colorCat.set(cat, PALETA[i % PALETA.length]));
+    }
+
+    // ── NAVEGACIÓN ────────────────────────────────────────────
+    function irA(nueva, apilar = true) {
+      if (apilar) pila.push(vista);
+      vista = nueva;
+      varianteActiva = null;
+      render();
+      cerrarSidebarMovil();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function volver() {
+      const previa = pila.pop();
+      if (previa) { vista = previa; varianteActiva = null; render(); window.scrollTo({ top: 0, behavior: 'instant' }); }
+      else irA({ tipo: 'home' }, false);
+    }
+
+    // ── SIDEBAR ───────────────────────────────────────────────
+    function renderSidebar() {
+      const nav = document.getElementById('sbNav');
+      let html = `
+        <button class="sb-item ${vista.tipo === 'home' ? 'activo' : ''}" onclick="irA({tipo:'home'})">🏠 Inicio</button>
+        <button class="sb-item" onclick="toggleConfigs()">📂 Configuraciones
+          <span class="flecha ${expandido.configs ? 'abierta' : ''}">▶</span>
+        </button>`;
+      if (expandido.configs) {
+        html += '<div class="sb-sub">';
+        for (const [cat, subs] of arbol) {
+          const nGrupos = [...subs.values()].reduce((a, l) => a + l.length, 0);
+          const abierta = expandido.cats.has(cat);
+          html += `
+            <button class="sb-item" onclick='toggleCat(${JSON.stringify(cat)})'>${escapar(cat)}
+              <span class="sb-conteo">${nGrupos}</span>
+              <span class="flecha ${abierta ? 'abierta' : ''}">▶</span>
+            </button>`;
+          if (abierta) {
+            html += '<div class="sb-sub">';
+            for (const [sub, lista] of subs) {
+              html += `<button class="sb-item" onclick='irA({tipo:"subcat", cat:${JSON.stringify(cat)}, subcat:${JSON.stringify(sub)}})'>${escapar(sub)}<span class="sb-conteo">${lista.length}</span></button>`;
+            }
+            html += '</div>';
+          }
+        }
+        html += '</div>';
+      }
+      html += `<button class="sb-item ${vista.tipo === 'guia' ? 'activo' : ''}" onclick="irA({tipo:'guia'})">📖 Guía de uso</button>`;
+      nav.innerHTML = html;
+    }
+
+    function toggleConfigs() { expandido.configs = !expandido.configs; renderSidebar(); }
+    function toggleCat(cat) {
+      expandido.cats.has(cat) ? expandido.cats.delete(cat) : expandido.cats.add(cat);
+      renderSidebar();
+    }
+
+    // ── VISTAS ────────────────────────────────────────────────
+    function render() {
+      renderSidebar();
+      const c = document.getElementById('contenido');
+      if (vista.tipo === 'home')     c.innerHTML = vHome();
+      if (vista.tipo === 'cat')      c.innerHTML = vCategoria(vista.cat);
+      if (vista.tipo === 'subcat')   c.innerHTML = vSubcategoria(vista.cat, vista.subcat);
+      if (vista.tipo === 'detalle')  { c.innerHTML = vDetalle(vista.grupo); cargarPlantilla(); }
+      if (vista.tipo === 'busqueda') c.innerHTML = vBusqueda(vista.q);
+      if (vista.tipo === 'guia')     c.innerHTML = vGuia();
+      const buscador = document.getElementById('inputBusqueda');
+      if (buscador) {
+        buscador.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && buscador.value.trim()) irA({ tipo: 'busqueda', q: buscador.value.trim() });
+        });
+      }
+    }
+
+    const htmlBuscador = (valor = '') => `
+      <div class="buscador">
+        <span class="lupa">🔍</span>
+        <input id="inputBusqueda" type="text" placeholder="Busca entre las 557 configuraciones… (Enter)" value="${escapar(valor)}" />
+      </div>`;
+
+    function vHome() {
+      let cards = '';
+      for (const [cat, subs] of arbol) {
+        const n = [...subs.values()].reduce((a, l) => a + l.length, 0);
+        const col = colorCat.get(cat);
+        const icono = ICONOS[grupos.get([...subs.values()][0][0])?.icono] ?? '📁';
+        cards += `
+          <button class="card-cat" style="--card-bg:${col.bg};--card-ink:${col.ink}" onclick='irA({tipo:"cat", cat:${JSON.stringify(cat)}})'>
+            <span class="icono">${icono}</span>
+            <span class="nombre">${escapar(cat)}</span>
+            <span class="conteo">${n} configuraciones · ${subs.size} subcategorías</span>
+          </button>`;
+      }
+      return `
+        <div class="hero-vista">
+          <h1>557 configuraciones expertas, listas para usar</h1>
+          <p>Roles expertos para tus cuadernos de NotebookLM y Gemini, y tus proyectos de ChatGPT y Claude. Explora por categoría o busca directamente lo que necesitas.</p>
+        </div>
+        ${htmlBuscador()}
+        <div class="grid-cards">${cards}</div>`;
+    }
+
+    function vCategoria(cat) {
+      const subs = arbol.get(cat);
+      if (!subs) return vHome();
+      const col = colorCat.get(cat);
+      let cards = '';
+      for (const [sub, lista] of subs) {
+        cards += `
+          <button class="card-cat" style="--card-bg:${col.bg};--card-ink:${col.ink}" onclick='irA({tipo:"subcat", cat:${JSON.stringify(cat)}, subcat:${JSON.stringify(sub)}})'>
+            <span class="nombre">${escapar(sub)}</span>
+            <span class="conteo">${lista.length} configuraciones</span>
+          </button>`;
+      }
+      const todas = [...subs.values()].flat();
+      return `
+        <button class="volver" onclick="volver()">← Volver</button>
+        <div class="hero-vista">
+          <h1>${escapar(cat)}</h1>
+          <p>${todas.length} configuraciones en ${subs.size} subcategorías.</p>
+        </div>
+        ${htmlBuscador()}
+        <div class="grid-cards">${cards}</div>
+        <h2 class="seccion-titulo">Configuraciones</h2>
+        <div class="lista">${todas.map(htmlGrupo).join('')}</div>`;
+    }
+
+    function vSubcategoria(cat, sub) {
+      const lista = arbol.get(cat)?.get(sub);
+      if (!lista) return vHome();
+      return `
+        <button class="volver" onclick="volver()">← Volver</button>
+        <div class="hero-vista">
+          <h1>${escapar(sub)}</h1>
+          <p>${escapar(cat)} · ${lista.length} configuraciones.</p>
+        </div>
+        ${htmlBuscador()}
+        <div class="lista">${lista.map(htmlGrupo).join('')}</div>`;
+    }
+
+    function htmlGrupo(num) {
+      const g = grupos.get(num);
+      const desc = g.variantes[0]?.descripcion ?? '';
+      const nVar = g.variantes.length;
+      return `
+        <button class="item-grupo" onclick="irA({tipo:'detalle', grupo:${num}})">
+          <div class="titulo">${escapar(g.rol_base)}</div>
+          <div class="desc">${escapar(desc)}</div>
+          <div class="meta">${nVar > 1 ? nVar + ' variantes por audiencia' : 'Para ' + escapar(g.variantes[0]?.audiencia ?? '')}</div>
+        </button>`;
+    }
+
+    function vBusqueda(q) {
+      const t = normalizar(q);
+      const encontrados = [...grupos.entries()].filter(([num, g]) =>
+        normalizar(g.rol_base).includes(t) ||
+        g.variantes.some(v => normalizar(v.nombre + ' ' + (v.descripcion ?? '') + ' ' + (v.audiencia ?? '')).includes(t))
+      ).map(([num]) => num);
+      return `
+        <button class="volver" onclick="volver()">← Volver</button>
+        <div class="hero-vista">
+          <h1>Resultados para "${escapar(q)}"</h1>
+          <p>${encontrados.length} configuraciones encontradas en todo el catálogo.</p>
+        </div>
+        ${htmlBuscador(q)}
+        ${encontrados.length
+          ? `<div class="lista">${encontrados.map(htmlGrupo).join('')}</div>`
+          : `<div class="vacio">No encontramos nada con ese término. Prueba con otra palabra, o <button onclick="irA({tipo:'home'})">explora por categorías</button>.</div>`}`;
+    }
+
+    function vDetalle(num) {
+      const g = grupos.get(num);
+      if (!g) return vHome();
+      if (!varianteActiva) varianteActiva = g.variantes[0];
+      const chips = g.variantes.map(v => `
+        <button class="chip ${v.id === varianteActiva.id ? 'activo' : ''}" onclick="elegirVariante(${num}, '${v.id}')">${escapar(v.audiencia ?? 'General')}</button>`).join('');
+      return `
+        <button class="volver" onclick="volver()">← Volver</button>
+        <div class="hero-vista">
+          <h1>${escapar(g.rol_base)}</h1>
+          <p>${escapar(varianteActiva.descripcion ?? '')}</p>
+        </div>
+        ${g.variantes.length > 1 ? `<div class="chips">${chips}</div>` : ''}
+        <div class="panel">
+          <h3>Genera tu configuración</h3>
+          <div class="sub">Elige la plataforma y el estilo — la configuración se arma personalizada para ti.</div>
+          <div class="form-fila">
+            <div class="campo">
+              <label>Plataforma</label>
+              <select id="fPlataforma">
+                <option>NotebookLM</option><option>Gemini</option>
+                <option>ChatGPT</option><option>Claude</option>
+                <option value="__otro__">Otra…</option>
+              </select>
+              <input type="text" id="fPlataformaOtro" class="hidden" placeholder="Escribe tu plataforma" style="margin-top:8px;" />
+            </div>
+            <div class="campo">
+              <label>Idioma de respuesta</label>
+              <select id="fIdioma">
+                <option>Español</option><option>Inglés</option><option>Portugués</option>
+                <option value="__otro__">Otro…</option>
+              </select>
+              <input type="text" id="fIdiomaOtro" class="hidden" placeholder="Escribe tu idioma" style="margin-top:8px;" />
+            </div>
+            <div class="campo">
+              <label>Tono</label>
+              <select id="fTono">
+                <option>Profesional y directo</option>
+                <option>Cercano y motivador</option>
+                <option>Técnico y riguroso</option>
+                <option value="__otro__">Otro…</option>
+              </select>
+              <input type="text" id="fTonoOtro" class="hidden" placeholder="Escribe tu tono" style="margin-top:8px;" />
+            </div>
+          </div>
+          <div class="acciones">
+            <button class="btn btn-primario" onclick="generar()">Generar configuración</button>
+            <button class="btn btn-secundario" onclick="limpiarTodo()">Limpiar todo</button>
+            <button class="btn-link" onclick="abrirAvanzadas()">Opciones avanzadas</button>
+          </div>
+          <div class="salida" id="salida">
+            <div class="salida-vacia">Aún no generaste nada. Completa el formulario y presiona "Generar configuración".</div>
+          </div>
+        </div>`;
+    }
+
+    function vGuia() {
+      return `
+        <button class="volver" onclick="volver()">← Volver</button>
+        <div class="hero-vista">
+          <h1>Guía de uso</h1>
+          <p>Estamos preparando la guía paso a paso por plataforma (NotebookLM, Gemini, ChatGPT y Claude) con capturas de pantalla. Muy pronto la verás aquí.</p>
+        </div>`;
+    }
+
+    // ── DETALLE: datos y generador ────────────────────────────
+    let plantillaActual = null;
+
+    window.elegirVariante = (num, id) => {
+      varianteActiva = grupos.get(num).variantes.find(v => v.id === id);
+      render();
+    };
+
+    async function cargarPlantilla() {
+      plantillaActual = null;
+      const { data } = await sb.from('premium_items').select('data').eq('id', varianteActiva.id).single();
+      plantillaActual = data?.data ?? null;
+    }
+
+    function valorCampo(idSelect, idOtro) {
+      const sel = document.getElementById(idSelect);
+      if (!sel) return '';
+      return sel.value === '__otro__' ? document.getElementById(idOtro).value.trim() : sel.value;
+    }
+
+    window.generar = () => {
+      const salida = document.getElementById('salida');
+      if (!plantillaActual?.config_template) {
+        salida.innerHTML = '<div class="salida-vacia">Cargando la plantilla… intenta de nuevo en unos segundos.</div>';
+        return;
+      }
+      const d = plantillaActual.defaults ?? {};
+      const valores = {
+        PLATFORM: valorCampo('fPlataforma', 'fPlataformaOtro') || 'NotebookLM',
+        LANGUAGE: valorCampo('fIdioma', 'fIdiomaOtro') || d.LANGUAGE || 'Español',
+        TONE: valorCampo('fTono', 'fTonoOtro') || d.TONE || 'Profesional y directo',
+        DETAIL_LEVEL: avanzadas.detalle || d.DETAIL_LEVEL || 'Balanceado - contexto + recomendación',
+        MAX_QUESTIONS: avanzadas.preguntas || d.MAX_QUESTIONS || '5',
+      };
+      let texto = plantillaActual.config_template;
+      for (const [k, v] of Object.entries(valores)) texto = texto.split(`{{${k}}}`).join(v);
+      if (avanzadas.foco) texto += `\n\nADDITIONAL FOCUS\n- ${avanzadas.foco}`;
+      salida.innerHTML = `
+        <textarea readonly id="textoGenerado">${escapar(texto)}</textarea>
+        <div class="acciones" style="margin-top:12px;">
+          <button class="btn btn-primario" onclick="copiarGenerado(this)">Copiar configuración</button>
+        </div>`;
+    };
+
+    window.copiarGenerado = (btn) => {
+      const texto = document.getElementById('textoGenerado').value;
+      navigator.clipboard.writeText(texto).then(() => {
+        btn.textContent = '¡Copiada!';
+        setTimeout(() => { btn.textContent = 'Copiar configuración'; }, 1800);
+      });
+    };
+
+    window.limpiarTodo = () => {
+      avanzadas = { detalle: null, preguntas: null, foco: '' };
+      render();
+    };
+
+    // ── MODAL AVANZADAS ───────────────────────────────────────
+    window.abrirAvanzadas = () => document.getElementById('modalAvanzadas').classList.add('activo');
+    document.getElementById('avCerrarGuardar').addEventListener('click', () => {
+      avanzadas.detalle = valorCampo('avDetalle', 'avDetalleOtro') || null;
+      avanzadas.preguntas = valorCampo('avPreguntas', 'avPreguntasOtro') || null;
+      avanzadas.foco = document.getElementById('avFoco').value.trim();
+      document.getElementById('modalAvanzadas').classList.remove('activo');
+    });
+    document.getElementById('modalAvanzadas').addEventListener('click', e => {
+      if (e.target.id === 'modalAvanzadas') e.target.classList.remove('activo');
+    });
+
+    // Selects con "Otro…": mostrar input libre
+    document.addEventListener('change', e => {
+      if (e.target.tagName !== 'SELECT') return;
+      const mapa = {
+        fPlataforma: 'fPlataformaOtro', fIdioma: 'fIdiomaOtro', fTono: 'fTonoOtro',
+        avDetalle: 'avDetalleOtro', avPreguntas: 'avPreguntasOtro',
+      };
+      const otro = mapa[e.target.id];
+      if (otro) document.getElementById(otro).classList.toggle('hidden', e.target.value !== '__otro__');
+    });
+
+    // ── COMPRA (pantalla de candado) ──────────────────────────
+    document.getElementById('btnComprarRecurso').addEventListener('click', async () => {
+      const msj = document.getElementById('msjCompra');
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch(`/api/checkout?product=${PRODUCT_ID}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        const body = await res.json();
+        if (!res.ok) { msj.textContent = body.error || 'Muy pronto disponible.'; msj.classList.remove('hidden'); return; }
+        sessionStorage.setItem('compra_ref', body.reference);
+        window.location.href = body.url;
+      } catch {
+        msj.textContent = 'Muy pronto disponible.'; msj.classList.remove('hidden');
+      }
+    });
+
+    // ── MÓVIL ─────────────────────────────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('backdrop');
+    const btnHamb = document.getElementById('btnHamburguesa');
+    btnHamb.addEventListener('click', () => { sidebar.classList.add('abierta'); backdrop.classList.add('activo'); btnHamb.classList.add('oculta'); });
+    backdrop.addEventListener('click', cerrarSidebarMovil);
+    function cerrarSidebarMovil() {
+      sidebar.classList.remove('abierta'); backdrop.classList.remove('activo'); btnHamb.classList.remove('oculta');
+    }
+
+    // ── UTILIDADES ────────────────────────────────────────────
+    function escapar(s) {
+      return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function normalizar(s) {
+      return String(s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    window.irA = irA; window.volver = volver;
+    window.toggleConfigs = toggleConfigs; window.toggleCat = toggleCat;
+
+    main();
+  </script>
+</body>
+</html>
