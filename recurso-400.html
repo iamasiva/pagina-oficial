@@ -396,6 +396,10 @@
     .im-gate .im-btn:hover { background: #58328a; }
     .im-gate a { color: #8e5cc4; font-weight: 700; }
     .im-oculto { display: none !important; }
+    /* El hamburguesa (fijo arriba-izquierda en móvil) no debe tapar los botones de volver */
+    @media (max-width: 860px) {
+      .config-detail-back { margin-left: 52px; }
+    }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -1167,6 +1171,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       renderToolTree();
       renderToolFilters();
       syncView();
+      // El árbol es visible desde cualquier sección: al elegir una categoría
+      // hay que llevar al usuario a la biblioteca (si no, "no pasa nada").
+      showSection("library");
     }
 
     function applyToolFilter(tool) {

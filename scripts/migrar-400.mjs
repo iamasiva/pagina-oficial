@@ -38,6 +38,19 @@ function extraerGems() {
   return gems;
 }
 
+// Corrección editorial (pedida por Sergio): los incisos con guiones
+// " -texto- " se escriben con paréntesis " (texto) " — en LATAM no se
+// escribe con guiones. El patrón exige espacio fuera y letra pegada al
+// guion por dentro, para no tocar viñetas ("\n- item"), rangos (10-20)
+// ni palabras compuestas (e-commerce).
+const RE_GUION = / -(\S[^-\n]*?\S)- /g;
+function arreglarGuiones(v) {
+  if (typeof v === 'string') return v.replace(RE_GUION, ' ($1) ');
+  if (Array.isArray(v)) return v.map(arreglarGuiones);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, arreglarGuiones(x)]));
+  return v;
+}
+
 const db = createClient(SUPABASE_URL, serviceKey(), { auth: { persistSession: false } });
 
 async function ensureProduct() {
@@ -54,7 +67,7 @@ async function ensureProduct() {
 }
 
 async function main() {
-  const gems = extraerGems();
+  const gems = extraerGems().map(arreglarGuiones);
   console.log(`Gemas extraídas del HTML: ${gems.length}`);
   const campos = new Set();
   gems.forEach((g) => Object.keys(g).forEach((k) => campos.add(k)));
