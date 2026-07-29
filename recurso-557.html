@@ -462,6 +462,27 @@
     .im-gate .im-btn:hover { background: #0f5f55; }
     .im-gate a { color: #0f8b8d; font-weight: 700; }
     .im-oculto { display: none !important; }
+    /* Etapa 2: favoritos, mis configuraciones, mis cuadernos */
+    .im-star { background: none; border: none; font-size: 1.7rem; line-height: 1; color: #b8872d; cursor: pointer; padding: 2px 6px; }
+    .im-star:hover { transform: scale(1.15); }
+    .im-form-caja { background: #fff; border: 1px solid #dfe3db; border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+    .im-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .im-form-caja .primary-btn { margin-top: 14px; }
+    .im-row { background: #fff; border: 1px solid #dfe3db; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+    .im-row h3 { font-size: 0.98rem; margin: 0 0 4px; }
+    .im-row p { color: #62685f; font-size: 0.85rem; margin: 0 0 10px; line-height: 1.5; }
+    .im-row .im-meta { font-size: 0.75rem; color: #0f8b8d; font-weight: 700; margin-bottom: 10px; }
+    .im-row-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+    .im-row-acciones button, .im-row-acciones a { font-size: 0.8rem; padding: 7px 14px; }
+    .im-pre { display: none; white-space: pre-wrap; font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 0.75rem; background: #fbfbf9; border: 1px solid #dfe3db; border-radius: 8px; padding: 12px; margin: 10px 0; max-height: 280px; overflow-y: auto; }
+    .im-cat-heading { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #62685f; margin: 22px 0 10px; }
+    .im-modal { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(32,35,32,0.5); align-items: center; justify-content: center; padding: 18px; }
+    .im-modal.abierto { display: flex; }
+    .im-modal-caja { background: #fff; border-radius: 14px; padding: 26px; width: 100%; max-width: 440px; }
+    .im-modal-caja h3 { margin: 0 0 14px; font-size: 1.05rem; }
+    .im-modal-caja input { width: 100%; padding: 12px 14px; border: 1.5px solid #dfe3db; border-radius: 8px; font: inherit; outline: none; }
+    .im-modal-caja input:focus { border-color: #0f8b8d; }
+    .im-modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -503,6 +524,18 @@
           <button class="sidebar-link" data-tab="guide" type="button">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5Z"></path></svg>
             <span>Guía de uso</span>
+          </button>
+          <button class="sidebar-link" data-tab="favoritos" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"></path></svg>
+            <span id="imTabFav">Favoritos</span>
+          </button>
+          <button class="sidebar-link" data-tab="misconfigs" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            <span id="imTabMis">Mis configuraciones</span>
+          </button>
+          <button class="sidebar-link" data-tab="cuadernos" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            <span id="imTabCuad">Mis cuadernos</span>
           </button>
         </div>
       </div>
@@ -552,6 +585,7 @@
             <div class="drawer-title">
               <span id="drawerBadge" class="badge"></span>
               <h2 id="drawerTitle"></h2>
+              <button id="imFavStar" class="im-star" type="button" title="Guardar en favoritos">☆</button>
               <p id="drawerDescription"></p>
             </div>
           </div>
@@ -602,6 +636,7 @@
                   <div class="output-head">
                     <strong>Configuración final</strong>
                     <button id="copyConfig" class="primary-btn" type="button"><span>Copiar configuración</span></button>
+                    <button id="imSaveConfig" class="secondary-btn" type="button"><span>Guardar en mis configuraciones</span></button>
                   </div>
                   <textarea id="configOutput" class="textarea-output" spellcheck="false"></textarea>
                   <div class="how-use">
@@ -681,6 +716,7 @@
             <div class="output-head">
               <strong>Configuración personalizada</strong>
               <button id="copyCustom" class="primary-btn" type="button"><span>Copiar</span></button>
+              <button id="imSaveCustom" class="secondary-btn" type="button"><span>Guardar en mis configuraciones</span></button>
             </div>
             <textarea id="customOutput" class="textarea-output" spellcheck="false" placeholder="Completa los campos para generar tu configuración personalizada."></textarea>
           </div>
@@ -858,6 +894,58 @@
           </article>
         </div>
       </section>
+
+      <section id="favoritos" class="section">
+        <div class="hero"><div class="intro">
+          <p class="eyebrow" id="imFavEyebrow">Tu espacio</p>
+          <h2 id="imFavTitulo">Tus configuraciones favoritas.</h2>
+          <p id="imFavCopy">Márcalas con la estrella dentro de cualquier configuración y quedan siempre a la mano aquí.</p>
+        </div></div>
+        <div id="imFavList" class="config-list-rich"></div>
+        <div id="imFavVacio" class="empty" style="display:none"></div>
+      </section>
+
+      <section id="misconfigs" class="section">
+        <div class="hero"><div class="intro">
+          <p class="eyebrow" id="imMisEyebrow">Tu espacio</p>
+          <h2 id="imMisTitulo">Tus configuraciones guardadas.</h2>
+          <p id="imMisCopy">Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.</p>
+        </div></div>
+        <div id="imMisList" class="config-list-rich"></div>
+        <div id="imMisVacio" class="empty" style="display:none"></div>
+      </section>
+
+      <section id="cuadernos" class="section">
+        <div class="hero"><div class="intro">
+          <p class="eyebrow" id="imCuadEyebrow">Tu espacio</p>
+          <h2 id="imCuadTitulo">Tus cuadernos, siempre a la mano.</h2>
+          <p id="imCuadCopy">Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.</p>
+        </div></div>
+        <div class="im-form-caja">
+          <div class="im-form-grid">
+            <div class="field"><label for="imCuadInTitulo" id="imLblTitulo">Título</label><input id="imCuadInTitulo" type="text" placeholder="Ej: Investigación mercado panadería" /></div>
+            <div class="field"><label for="imCuadInUrl" id="imLblUrl">Link del cuaderno</label><input id="imCuadInUrl" type="text" placeholder="https://notebooklm.google.com/…" /></div>
+            <div class="field"><label for="imCuadInCat" id="imLblCat">Categoría</label><input id="imCuadInCat" type="text" placeholder="Ej: IA MASIVA" list="imCatsPrevias" /><datalist id="imCatsPrevias"></datalist></div>
+            <div class="field"><label for="imCuadInSub" id="imLblSub">Subcategoría (opcional)</label><input id="imCuadInSub" type="text" placeholder="Ej: creación de contenido" /></div>
+          </div>
+          <div class="field"><label for="imCuadInDesc" id="imLblDesc">¿Para qué es? (opcional)</label><input id="imCuadInDesc" type="text" placeholder="Nota corta para acordarte de para qué creaste este cuaderno" /></div>
+          <button id="imCuadGuardar" class="primary-btn" type="button"><span>Guardar cuaderno</span></button>
+        </div>
+        <div id="imCuadList"></div>
+        <div id="imCuadVacio" class="empty" style="display:none"></div>
+      </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: nombre para guardar configuración -->
+  <div id="imModalNombre" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imModalTitulo">Ponle un nombre para recordarla</h3>
+      <input id="imModalInput" type="text" placeholder="Ej: Mi validador para la pastelería" />
+      <div class="im-modal-acciones">
+        <button id="imModalCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imModalGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
       </div>
     </div>
   </div>
@@ -1790,6 +1878,271 @@ ${clean}`;
     updateInterfaceText();
     updateCustomOutput();
     bindEvents();
+
+    // ═══ IA MASIVA · Etapa 2: Favoritos, Mis configuraciones, Mis cuadernos ═══
+    (function imEspacioPersonal() {
+      const IM = window.__IM;
+      if (!IM) return;
+      const db = IM.sb;
+
+      const IM_TEXT = {
+        es: {
+          tabFav: 'Favoritos', tabMis: 'Mis configuraciones', tabCuad: 'Mis cuadernos', espacio: 'Tu espacio',
+          favTitulo: 'Tus configuraciones favoritas.', favCopy: 'Márcalas con la estrella dentro de cualquier configuración y quedan siempre a la mano aquí.', favVacio: 'Aún no tienes favoritos. Abre una configuración y tócale la estrella.',
+          misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
+          cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
+          lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: '¿Para qué es? (opcional)',
+          modalTitulo: 'Ponle un nombre para recordarla', btnGuardarCuad: 'Guardar cuaderno', btnGuardarCfg: 'Guardar en mis configuraciones', btnCancelar: 'Cancelar', btnGuardar: 'Guardar',
+          ver: 'Ver', copiar: 'Copiar', eliminar: 'Eliminar', abrir: 'Abrir cuaderno', variantes: 'variantes',
+          guardadoCfg: 'Guardada en mis configuraciones', favOn: 'Agregada a favoritos', favOff: 'Quitada de favoritos', eliminado: 'Eliminado', cuadGuardado: 'Cuaderno guardado',
+          datosFaltan: 'El título y el link son obligatorios', generaPrimero: 'Primero genera una configuración', nombreVacio: 'Escribe un nombre', confirmaEliminar: '¿Eliminar definitivamente?', sinCategoria: 'Sin categoría',
+        },
+        en: {
+          tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space',
+          favTitulo: 'Your favorite configurations.', favCopy: 'Star them inside any configuration and they stay one tap away here.', favVacio: 'No favorites yet. Open a configuration and tap the star.',
+          misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
+          cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
+          lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'What is it for? (optional)',
+          modalTitulo: 'Name it so you remember it', btnGuardarCuad: 'Save notebook', btnGuardarCfg: 'Save to my configurations', btnCancelar: 'Cancel', btnGuardar: 'Save',
+          ver: 'View', copiar: 'Copy', eliminar: 'Delete', abrir: 'Open notebook', variantes: 'variants',
+          guardadoCfg: 'Saved to my configurations', favOn: 'Added to favorites', favOff: 'Removed from favorites', eliminado: 'Deleted', cuadGuardado: 'Notebook saved',
+          datosFaltan: 'Title and link are required', generaPrimero: 'Generate a configuration first', nombreVacio: 'Write a name', confirmaEliminar: 'Delete permanently?', sinCategoria: 'Uncategorized',
+        },
+      };
+      const tt = () => IM_TEXT[state.interfaceLanguage] || IM_TEXT.es;
+      const fecha = (iso) => new Date(iso).toLocaleDateString(state.interfaceLanguage === 'en' ? 'en-US' : 'es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+      const $ = (id) => document.getElementById(id);
+
+      // ── Favoritos (a nivel de configuración/grupo; se guarda la variante canónica) ──
+      let favoritos = new Set();
+      let imGrupoActualId = null;
+      const uuidDeGrupo = (g) => IM.uuidByNum.get(g.variants[0].config.id);
+      const numByUuid = new Map([...IM.uuidByNum].map(([n, u]) => [u, n]));
+      const grupoDeUuid = (uuid) => {
+        const num = numByUuid.get(uuid);
+        return GROUPS.find(g => g.variants.some(v => v.config.id === num));
+      };
+
+      const imOpenDrawerOrig = openDrawer;
+      openDrawer = function (groupId) {
+        imOpenDrawerOrig(groupId);
+        imGrupoActualId = groupId;
+        pintarEstrella();
+      };
+
+      function pintarEstrella() {
+        const g = GROUPS.find(x => x.groupId === imGrupoActualId);
+        if (!g) return;
+        const activo = favoritos.has(uuidDeGrupo(g));
+        const star = $('imFavStar');
+        star.textContent = activo ? '★' : '☆';
+        star.title = activo ? tt().favOff : tt().favOn;
+      }
+
+      $('imFavStar').addEventListener('click', async () => {
+        const g = GROUPS.find(x => x.groupId === imGrupoActualId);
+        if (!g) return;
+        const uuid = uuidDeGrupo(g);
+        if (favoritos.has(uuid)) {
+          favoritos.delete(uuid);
+          await db.from('user_favorites').delete().eq('user_id', IM.userId).eq('item_id', uuid);
+          showToast(tt().favOff);
+        } else {
+          favoritos.add(uuid);
+          await db.from('user_favorites').insert({ user_id: IM.userId, item_id: uuid });
+          showToast(tt().favOn);
+        }
+        pintarEstrella(); renderFavoritos();
+      });
+
+      async function cargarFavoritos() {
+        const { data } = await db.from('user_favorites').select('item_id');
+        favoritos = new Set((data ?? []).map(f => f.item_id));
+        renderFavoritos();
+      }
+
+      function renderFavoritos() {
+        const grupos = [...favoritos].map(grupoDeUuid).filter(Boolean);
+        $('imFavVacio').style.display = grupos.length ? 'none' : 'block';
+        $('imFavVacio').textContent = tt().favVacio;
+        $('imFavList').innerHTML = grupos.map(g => `
+          <button class="config-row-rich" type="button" data-imfav="${g.groupId}">
+            <h3>${escapeHtml(groupDisplayName(g))}</h3>
+            <p>${escapeHtml(groupDisplayDescription(g))}</p>
+            <div class="row-meta">${escapeHtml(categoryLabel(g.category))} · ${g.variants.length} ${escapeHtml(tt().variantes)}</div>
+          </button>`).join('');
+      }
+
+      $('imFavList').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-imfav]');
+        if (!btn) return;
+        switchTab('library');
+        openDrawer(btn.dataset.imfav);
+      });
+
+      // ── Mis configuraciones ──
+      let misConfigs = [];
+      let pendienteGuardar = null;
+
+      async function cargarMisConfigs() {
+        const { data } = await db.from('user_configs').select('id,nombre,contenido,created_at').order('created_at', { ascending: false });
+        misConfigs = data ?? [];
+        renderMisConfigs();
+      }
+
+      function renderMisConfigs() {
+        $('imMisVacio').style.display = misConfigs.length ? 'none' : 'block';
+        $('imMisVacio').textContent = tt().misVacio;
+        $('imMisList').innerHTML = misConfigs.map(c => `
+          <div class="im-row" data-imcfg="${c.id}">
+            <h3>${escapeHtml(c.nombre)}</h3>
+            <div class="im-meta">${fecha(c.created_at)}</div>
+            <pre class="im-pre"></pre>
+            <div class="im-row-acciones">
+              <button class="secondary-btn" type="button" data-accion="ver"><span>${escapeHtml(tt().ver)}</span></button>
+              <button class="secondary-btn" type="button" data-accion="copiar"><span>${escapeHtml(tt().copiar)}</span></button>
+              <button class="secondary-btn" type="button" data-accion="eliminar"><span>${escapeHtml(tt().eliminar)}</span></button>
+            </div>
+          </div>`).join('');
+      }
+
+      $('imMisList').addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-accion]');
+        if (!btn) return;
+        const fila = btn.closest('[data-imcfg]');
+        const cfg = misConfigs.find(c => String(c.id) === fila.dataset.imcfg);
+        if (!cfg) return;
+        if (btn.dataset.accion === 'ver') {
+          const pre = fila.querySelector('.im-pre');
+          pre.textContent = cfg.contenido;
+          pre.style.display = pre.style.display === 'block' ? 'none' : 'block';
+        }
+        if (btn.dataset.accion === 'copiar') copyText(cfg.contenido, tt().copiar + ' ✓');
+        if (btn.dataset.accion === 'eliminar') {
+          if (!confirm(tt().confirmaEliminar)) return;
+          await db.from('user_configs').delete().eq('id', cfg.id);
+          misConfigs = misConfigs.filter(c => c.id !== cfg.id);
+          renderMisConfigs(); showToast(tt().eliminado);
+        }
+      });
+
+      function abrirModalNombre(contenido, itemUuid) {
+        if (!contenido || !contenido.trim()) { showToast(tt().generaPrimero); return; }
+        pendienteGuardar = { contenido, itemUuid };
+        $('imModalInput').value = '';
+        $('imModalNombre').classList.add('abierto');
+        $('imModalInput').focus();
+      }
+
+      async function confirmarGuardado() {
+        const nombre = $('imModalInput').value.trim();
+        if (!nombre) { showToast(tt().nombreVacio); return; }
+        await db.from('user_configs').insert({
+          user_id: IM.userId, product_id: IM.productId,
+          item_id: pendienteGuardar.itemUuid, nombre, contenido: pendienteGuardar.contenido,
+        });
+        $('imModalNombre').classList.remove('abierto');
+        pendienteGuardar = null;
+        showToast(tt().guardadoCfg);
+        cargarMisConfigs();
+      }
+
+      $('imSaveConfig').addEventListener('click', () => {
+        const itemUuid = state.selected ? (IM.uuidByNum.get(state.selected.id) ?? null) : null;
+        abrirModalNombre(el.configOutput.value, itemUuid);
+      });
+      $('imSaveCustom').addEventListener('click', () => abrirModalNombre(document.getElementById('customOutput').value, null));
+      $('imModalGuardar').addEventListener('click', confirmarGuardado);
+      $('imModalInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmarGuardado(); });
+      $('imModalCancelar').addEventListener('click', () => $('imModalNombre').classList.remove('abierto'));
+      $('imModalNombre').addEventListener('click', (e) => { if (e.target.id === 'imModalNombre') e.target.classList.remove('abierto'); });
+
+      // ── Mis cuadernos ──
+      let cuadernos = [];
+
+      async function cargarCuadernos() {
+        const { data } = await db.from('user_cuadernos').select('*').order('created_at', { ascending: false });
+        cuadernos = data ?? [];
+        renderCuadernos();
+      }
+
+      function renderCuadernos() {
+        $('imCuadVacio').style.display = cuadernos.length ? 'none' : 'block';
+        $('imCuadVacio').textContent = tt().cuadVacio;
+        const porCat = new Map();
+        for (const c of cuadernos) {
+          const cat = (c.categoria || '').trim() || tt().sinCategoria;
+          if (!porCat.has(cat)) porCat.set(cat, []);
+          porCat.get(cat).push(c);
+        }
+        $('imCatsPrevias').innerHTML = [...porCat.keys()].map(c => `<option value="${escapeHtml(c)}">`).join('');
+        $('imCuadList').innerHTML = [...porCat.entries()].map(([cat, lista]) => `
+          <div class="im-cat-heading">${escapeHtml(cat)}</div>
+          ${lista.map(c => `
+            <div class="im-row" data-imcuad="${c.id}">
+              <h3>${escapeHtml(c.titulo)}</h3>
+              ${c.subcategoria ? `<div class="im-meta">${escapeHtml(c.subcategoria)}</div>` : ''}
+              ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
+              <div class="im-row-acciones">
+                <a class="primary-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener"><span>${escapeHtml(tt().abrir)}</span></a>
+                <button class="secondary-btn" type="button" data-accion="eliminar"><span>${escapeHtml(tt().eliminar)}</span></button>
+              </div>
+            </div>`).join('')}`).join('');
+      }
+
+      $('imCuadGuardar').addEventListener('click', async () => {
+        const titulo = $('imCuadInTitulo').value.trim();
+        let url = $('imCuadInUrl').value.trim();
+        if (!titulo || !url) { showToast(tt().datosFaltan); return; }
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        await db.from('user_cuadernos').insert({
+          user_id: IM.userId, titulo, url,
+          categoria: $('imCuadInCat').value.trim() || null,
+          subcategoria: $('imCuadInSub').value.trim() || null,
+          descripcion: $('imCuadInDesc').value.trim() || null,
+        });
+        ['imCuadInTitulo','imCuadInUrl','imCuadInCat','imCuadInSub','imCuadInDesc'].forEach(id => { $(id).value = ''; });
+        showToast(tt().cuadGuardado);
+        cargarCuadernos();
+      });
+
+      $('imCuadList').addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-accion="eliminar"]');
+        if (!btn) return;
+        if (!confirm(tt().confirmaEliminar)) return;
+        const id = btn.closest('[data-imcuad]').dataset.imcuad;
+        await db.from('user_cuadernos').delete().eq('id', id);
+        cuadernos = cuadernos.filter(c => String(c.id) !== id);
+        renderCuadernos();
+        showToast(tt().eliminado);
+      });
+
+      // ── Idioma: textos propios sincronizados con el selector de la app ──
+      function actualizarTextosIM() {
+        const x = tt();
+        $('imTabFav').textContent = x.tabFav;
+        $('imTabMis').textContent = x.tabMis;
+        $('imTabCuad').textContent = x.tabCuad;
+        $('imFavEyebrow').textContent = x.espacio; $('imMisEyebrow').textContent = x.espacio; $('imCuadEyebrow').textContent = x.espacio;
+        $('imFavTitulo').textContent = x.favTitulo; $('imFavCopy').textContent = x.favCopy;
+        $('imMisTitulo').textContent = x.misTitulo; $('imMisCopy').textContent = x.misCopy;
+        $('imCuadTitulo').textContent = x.cuadTitulo; $('imCuadCopy').textContent = x.cuadCopy;
+        $('imLblTitulo').textContent = x.lblTitulo; $('imLblUrl').textContent = x.lblUrl;
+        $('imLblCat').textContent = x.lblCat; $('imLblSub').textContent = x.lblSub; $('imLblDesc').textContent = x.lblDesc;
+        $('imModalTitulo').textContent = x.modalTitulo;
+        $('imCuadGuardar').querySelector('span').textContent = x.btnGuardarCuad;
+        $('imSaveConfig').querySelector('span').textContent = x.btnGuardarCfg;
+        $('imSaveCustom').querySelector('span').textContent = x.btnGuardarCfg;
+        $('imModalCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imModalGuardar').querySelector('span').textContent = x.btnGuardar;
+        renderFavoritos(); renderMisConfigs(); renderCuadernos();
+        if (imGrupoActualId) pintarEstrella();
+      }
+      document.getElementById('interfaceLanguage').addEventListener('change', () => setTimeout(actualizarTextosIM));
+
+      actualizarTextosIM();
+      cargarFavoritos(); cargarMisConfigs(); cargarCuadernos();
+    })();
   }
   </script>
   <script>
@@ -1851,6 +2204,13 @@ ${clean}`;
       defaults: f.data?.defaults ?? {},
       config_template: f.data?.config_template ?? '',
     }));
+
+    window.__IM = {
+      sb,
+      userId: session.user.id,
+      productId: PRODUCT_ID,
+      uuidByNum: new Map(filas.map(f => [f.item_num, f.id])),
+    };
 
     document.getElementById('imCargando').classList.add('im-oculto');
     __initApp();
