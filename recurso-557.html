@@ -483,6 +483,32 @@
     .im-modal-caja input { width: 100%; padding: 12px 14px; border: 1.5px solid #dfe3db; border-radius: 8px; font: inherit; outline: none; }
     .im-modal-caja input:focus { border-color: #0f8b8d; }
     .im-modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+    .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid #dfe3db; border-radius: 8px; font: inherit; outline: none; background: #fff; }
+    .im-modal-caja select:focus { border-color: #0f8b8d; }
+    .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #62685f; margin: 14px 0 6px; }
+    /* respiro entre botones de salida y el bloque generado */
+    .output-head { flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    #imSaveConfig, #imSaveCustom { font-size: 0.85rem; }
+    /* chips de categorías en Mis configuraciones */
+    .im-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .im-chip { border: 1.5px solid #dfe3db; background: #fff; border-radius: 20px; padding: 7px 15px; font-size: 0.84rem; font-weight: 600; color: #62685f; cursor: pointer; }
+    .im-chip.activo { border-color: #15786c; background: #d9f0ef; color: #0f5f55; }
+    /* navegador de cuadernos */
+    .im-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .im-toolbar .im-ubicacion { font-weight: 800; font-size: 0.95rem; color: #202320; }
+    .im-toolbar-acciones { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+    .im-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 22px; }
+    .im-cat-card { position: relative; background: #d9f0ef; color: #0f5f55; border-radius: 12px; padding: 18px; cursor: pointer; min-height: 104px; display: flex; flex-direction: column; }
+    .im-cat-card:hover { box-shadow: 0 10px 30px rgba(15,139,141,0.18); }
+    .im-cat-card h3 { font-size: 0.98rem; margin: 0 24px 4px 0; }
+    .im-cat-card p { font-size: 0.8rem; opacity: 0.8; margin: 0; line-height: 1.45; }
+    .im-cat-card .im-count { margin-top: auto; padding-top: 8px; font-size: 0.75rem; font-weight: 700; opacity: 0.7; }
+    .im-menu-btn { position: absolute; top: 10px; right: 8px; background: none; border: none; font-size: 1.1rem; line-height: 1; color: inherit; opacity: 0.7; padding: 4px 8px; border-radius: 6px; }
+    .im-menu-btn:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+    .im-menu { position: absolute; top: 34px; right: 8px; z-index: 30; background: #fff; border: 1px solid #dfe3db; border-radius: 8px; box-shadow: 0 10px 30px rgba(29,35,31,0.18); min-width: 130px; overflow: hidden; }
+    .im-menu button { display: block; width: 100%; text-align: left; background: none; border: none; padding: 10px 14px; font-size: 0.85rem; color: #202320; }
+    .im-menu button:hover { background: #f0f2ee; }
+    .im-row { position: relative; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -921,16 +947,15 @@
           <h2 id="imCuadTitulo">Tus cuadernos, siempre a la mano.</h2>
           <p id="imCuadCopy">Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.</p>
         </div></div>
-        <div class="im-form-caja">
-          <div class="im-form-grid">
-            <div class="field"><label for="imCuadInTitulo" id="imLblTitulo">Título</label><input id="imCuadInTitulo" type="text" placeholder="Ej: Investigación mercado panadería" /></div>
-            <div class="field"><label for="imCuadInUrl" id="imLblUrl">Link del cuaderno</label><input id="imCuadInUrl" type="text" placeholder="https://notebooklm.google.com/…" /></div>
-            <div class="field"><label for="imCuadInCat" id="imLblCat">Categoría</label><input id="imCuadInCat" type="text" placeholder="Ej: IA MASIVA" list="imCatsPrevias" /><datalist id="imCatsPrevias"></datalist></div>
-            <div class="field"><label for="imCuadInSub" id="imLblSub">Subcategoría (opcional)</label><input id="imCuadInSub" type="text" placeholder="Ej: creación de contenido" /></div>
+        <div class="im-toolbar">
+          <button id="imCuadVolver" class="secondary-btn" type="button" style="display:none"><span>← Volver</span></button>
+          <span class="im-ubicacion" id="imCuadUbicacion"></span>
+          <div class="im-toolbar-acciones">
+            <button id="imBtnNuevaCat" class="secondary-btn" type="button"><span>Crear categoría</span></button>
+            <button id="imBtnNuevoCuad" class="primary-btn" type="button"><span>Agregar cuaderno</span></button>
           </div>
-          <div class="field"><label for="imCuadInDesc" id="imLblDesc">¿Para qué es? (opcional)</label><input id="imCuadInDesc" type="text" placeholder="Nota corta para acordarte de para qué creaste este cuaderno" /></div>
-          <button id="imCuadGuardar" class="primary-btn" type="button"><span>Guardar cuaderno</span></button>
         </div>
+        <div id="imCuadCards" class="im-cards-grid"></div>
         <div id="imCuadList"></div>
         <div id="imCuadVacio" class="empty" style="display:none"></div>
       </section>
@@ -943,9 +968,52 @@
     <div class="im-modal-caja">
       <h3 id="imModalTitulo">Ponle un nombre para recordarla</h3>
       <input id="imModalInput" type="text" placeholder="Ej: Mi validador para la pastelería" />
+      <label class="im-modal-label" id="imModalCatLabel">Categoría (opcional)</label>
+      <select id="imModalCat"></select>
+      <input id="imModalCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
       <div class="im-modal-acciones">
         <button id="imModalCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imModalGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: crear/editar categoría o subcategoría de cuadernos -->
+  <div id="imModalNodo" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imModalNodoTitulo">Crear categoría</h3>
+      <label class="im-modal-label" id="imNodoLblNombre">Nombre</label>
+      <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
+      <label class="im-modal-label" id="imNodoLblDesc">Descripción (opcional)</label>
+      <input id="imNodoDesc" type="text" placeholder="Ej: Todo lo relacionado con la marca" />
+      <div class="im-modal-acciones">
+        <button id="imNodoCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imNodoGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: crear/editar/mover cuaderno -->
+  <div id="imModalCuad" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imModalCuadTitulo">Agregar cuaderno</h3>
+      <div id="imCuadCampos">
+        <label class="im-modal-label" id="imCuadLblTitulo">Título</label>
+        <input id="imCuadTitInput" type="text" placeholder="Ej: Investigación mercado panadería" />
+        <label class="im-modal-label" id="imCuadLblUrl">Link del cuaderno</label>
+        <input id="imCuadUrlInput" type="text" placeholder="https://notebooklm.google.com/…" />
+        <label class="im-modal-label" id="imCuadLblDesc">¿Para qué es? (opcional)</label>
+        <input id="imCuadDescInput" type="text" placeholder="Nota corta para acordarte" />
+      </div>
+      <label class="im-modal-label" id="imCuadLblCat">Categoría (opcional)</label>
+      <select id="imCuadSelCat"></select>
+      <input id="imCuadCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
+      <label class="im-modal-label" id="imCuadLblSub">Subcategoría (opcional)</label>
+      <select id="imCuadSelSub"></select>
+      <input id="imCuadSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+      <div class="im-modal-acciones">
+        <button id="imCuadCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imCuadOk" class="primary-btn" type="button"><span>Guardar</span></button>
       </div>
     </div>
   </div>
@@ -1804,7 +1872,12 @@ ${clean}`;
         const famBtn = event.target.closest('.tree-fam');
         if (famBtn) { selectFamilyNav(famBtn.dataset.category, famBtn.dataset.family); return; }
         const catBtn = event.target.closest('.tree-cat');
-        if (catBtn) selectCategoryNav(catBtn.dataset.category);
+        if (catBtn) {
+          // Solo expande/colapsa — la navegación a la categoría es desde las cards del home
+          const cat = catBtn.dataset.category;
+          state.expandedCats.has(cat) ? state.expandedCats.delete(cat) : state.expandedCats.add(cat);
+          renderSidebarTree();
+        }
       });
       el.interfaceLanguage.addEventListener('change', event => {
         state.interfaceLanguage = event.target.value;
@@ -1931,8 +2004,8 @@ ${clean}`;
       };
 
       function pintarEstrella() {
-        const g = GROUPS.find(x => x.groupId === imGrupoActualId);
-        if (!g) return;
+        const g = GROUPS.find(x => String(x.groupId) === String(imGrupoActualId));
+        if (!g) { return; }
         const activo = favoritos.has(uuidDeGrupo(g));
         const star = $('imFavStar');
         star.textContent = activo ? '★' : '☆';
@@ -1940,7 +2013,7 @@ ${clean}`;
       }
 
       $('imFavStar').addEventListener('click', async () => {
-        const g = GROUPS.find(x => x.groupId === imGrupoActualId);
+        const g = GROUPS.find(x => String(x.groupId) === String(imGrupoActualId));
         if (!g) return;
         const uuid = uuidDeGrupo(g);
         if (favoritos.has(uuid)) {
@@ -1983,9 +2056,12 @@ ${clean}`;
       // ── Mis configuraciones ──
       let misConfigs = [];
       let pendienteGuardar = null;
+      let imMisFiltro = null;
+
+      const catsDeConfigs = () => [...new Set(misConfigs.map(c => (c.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
       async function cargarMisConfigs() {
-        const { data } = await db.from('user_configs').select('id,nombre,contenido,created_at').order('created_at', { ascending: false });
+        const { data } = await db.from('user_configs').select('id,nombre,contenido,categoria,created_at').order('created_at', { ascending: false });
         misConfigs = data ?? [];
         renderMisConfigs();
       }
@@ -1993,10 +2069,19 @@ ${clean}`;
       function renderMisConfigs() {
         $('imMisVacio').style.display = misConfigs.length ? 'none' : 'block';
         $('imMisVacio').textContent = tt().misVacio;
-        $('imMisList').innerHTML = misConfigs.map(c => `
+        const cats = catsDeConfigs();
+        if (imMisFiltro && !cats.includes(imMisFiltro)) imMisFiltro = null;
+        const todas = state.interfaceLanguage === 'en' ? 'All' : 'Todas';
+        const chips = cats.length ? `
+          <div class="im-chips">
+            <button class="im-chip ${!imMisFiltro ? 'activo' : ''}" type="button" data-imfiltro="">${todas} (${misConfigs.length})</button>
+            ${cats.map(c => `<button class="im-chip ${imMisFiltro === c ? 'activo' : ''}" type="button" data-imfiltro="${escapeHtml(c)}">${escapeHtml(c)} (${misConfigs.filter(k => (k.categoria || '').trim() === c).length})</button>`).join('')}
+          </div>` : '';
+        const visibles = imMisFiltro ? misConfigs.filter(c => (c.categoria || '').trim() === imMisFiltro) : misConfigs;
+        $('imMisList').innerHTML = chips + visibles.map(c => `
           <div class="im-row" data-imcfg="${c.id}">
             <h3>${escapeHtml(c.nombre)}</h3>
-            <div class="im-meta">${fecha(c.created_at)}</div>
+            <div class="im-meta">${c.categoria ? escapeHtml(c.categoria) + ' · ' : ''}${fecha(c.created_at)}</div>
             <pre class="im-pre"></pre>
             <div class="im-row-acciones">
               <button class="secondary-btn" type="button" data-accion="ver"><span>${escapeHtml(tt().ver)}</span></button>
@@ -2007,6 +2092,8 @@ ${clean}`;
       }
 
       $('imMisList').addEventListener('click', async (e) => {
+        const chip = e.target.closest('[data-imfiltro]');
+        if (chip) { imMisFiltro = chip.dataset.imfiltro || null; renderMisConfigs(); return; }
         const btn = e.target.closest('[data-accion]');
         if (!btn) return;
         const fila = btn.closest('[data-imcfg]');
@@ -2030,16 +2117,29 @@ ${clean}`;
         if (!contenido || !contenido.trim()) { showToast(tt().generaPrimero); return; }
         pendienteGuardar = { contenido, itemUuid };
         $('imModalInput').value = '';
+        const x = tt();
+        $('imModalCat').innerHTML =
+          `<option value="">${escapeHtml(x.sinCatOpt)}</option>` +
+          catsDeConfigs().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('') +
+          `<option value="__nueva__">${escapeHtml(x.nuevaCatOpt)}</option>`;
+        $('imModalCatNueva').style.display = 'none'; $('imModalCatNueva').value = '';
         $('imModalNombre').classList.add('abierto');
         $('imModalInput').focus();
       }
 
+      $('imModalCat').addEventListener('change', () => {
+        $('imModalCatNueva').style.display = $('imModalCat').value === '__nueva__' ? '' : 'none';
+      });
+
       async function confirmarGuardado() {
         const nombre = $('imModalInput').value.trim();
         if (!nombre) { showToast(tt().nombreVacio); return; }
+        let categoria = $('imModalCat').value;
+        if (categoria === '__nueva__') categoria = $('imModalCatNueva').value.trim();
+        categoria = categoria || null;
         await db.from('user_configs').insert({
           user_id: IM.userId, product_id: IM.productId,
-          item_id: pendienteGuardar.itemUuid, nombre, contenido: pendienteGuardar.contenido,
+          item_id: pendienteGuardar.itemUuid, nombre, contenido: pendienteGuardar.contenido, categoria,
         });
         $('imModalNombre').classList.remove('abierto');
         pendienteGuardar = null;
@@ -2057,65 +2157,345 @@ ${clean}`;
       $('imModalCancelar').addEventListener('click', () => $('imModalNombre').classList.remove('abierto'));
       $('imModalNombre').addEventListener('click', (e) => { if (e.target.id === 'imModalNombre') e.target.classList.remove('abierto'); });
 
-      // ── Mis cuadernos ──
-      let cuadernos = [];
+      // ── Mis cuadernos: navegador jerárquico (categorías → subcategorías → cuadernos) ──
+      Object.assign(IM_TEXT.es, {
+        crearCat: 'Crear categoría', crearSub: 'Crear subcategoría', agregarCuad: 'Agregar cuaderno',
+        tEditarCat: 'Editar categoría', tCrearSub: 'Crear subcategoría', tEditarSub: 'Editar subcategoría',
+        tNuevoCuad: 'Agregar cuaderno', tEditarCuad: 'Editar cuaderno', tMoverCuad: 'Mover cuaderno',
+        lblNombre: 'Nombre', lblDescOpc: 'Descripción (opcional)', lblTituloC: 'Título', lblUrlC: 'Link del cuaderno',
+        lblParaQue: '¿Para qué es? (opcional)', lblCatOpc: 'Categoría (opcional)', lblSubOpc: 'Subcategoría (opcional)',
+        nuevaCatOpt: '➕ Nueva categoría…', nuevaSubOpt: '➕ Nueva subcategoría…', sinCatOpt: '— Sin categoría', sinSubOpt: '— Sin subcategoría',
+        editar: 'Editar', mover: 'Mover', catGuardada: 'Guardado', movido: 'Cuaderno movido',
+        confirmaNodo: '¿Eliminar? Los cuadernos que contiene quedarán sin categoría.', nCuad: 'cuadernos', raizTitulo: '',
+      });
+      Object.assign(IM_TEXT.en, {
+        crearCat: 'New category', crearSub: 'New subcategory', agregarCuad: 'Add notebook',
+        tEditarCat: 'Edit category', tCrearSub: 'New subcategory', tEditarSub: 'Edit subcategory',
+        tNuevoCuad: 'Add notebook', tEditarCuad: 'Edit notebook', tMoverCuad: 'Move notebook',
+        lblNombre: 'Name', lblDescOpc: 'Description (optional)', lblTituloC: 'Title', lblUrlC: 'Notebook link',
+        lblParaQue: 'What is it for? (optional)', lblCatOpc: 'Category (optional)', lblSubOpc: 'Subcategory (optional)',
+        nuevaCatOpt: '➕ New category…', nuevaSubOpt: '➕ New subcategory…', sinCatOpt: '— No category', sinSubOpt: '— No subcategory',
+        editar: 'Edit', mover: 'Move', catGuardada: 'Saved', movido: 'Notebook moved',
+        confirmaNodo: 'Delete? Its notebooks will become uncategorized.', nCuad: 'notebooks', raizTitulo: '',
+      });
+
+      let cuadernos = [], nodos = [];
+      let cuadVista = { t: 'root' };   // root | cat | sub
+      let menuAbierto = null;
+      let nodoCtx = null, cuadCtx = null;
+
+      const catsRaiz = () => nodos.filter(n => !n.parent_id).sort((a, b) => a.nombre.localeCompare(b.nombre));
+      const subsDe = (catId) => nodos.filter(n => n.parent_id === catId).sort((a, b) => a.nombre.localeCompare(b.nombre));
+      const nodoDe = (id) => nodos.find(n => n.id === id) || null;
+      const cuadEn = (nodoId) => cuadernos.filter(c => (c.nodo_id ?? null) === nodoId);
+      const totalEnCat = (catId) => cuadEn(catId).length + subsDe(catId).reduce((a, s) => a + cuadEn(s.id).length, 0);
 
       async function cargarCuadernos() {
-        const { data } = await db.from('user_cuadernos').select('*').order('created_at', { ascending: false });
-        cuadernos = data ?? [];
+        const [cu, no] = await Promise.all([
+          db.from('user_cuadernos').select('*').order('created_at', { ascending: false }),
+          db.from('user_cuaderno_categorias').select('*'),
+        ]);
+        cuadernos = cu.data ?? [];
+        nodos = no.data ?? [];
         renderCuadernos();
+      }
+
+      function filaCuaderno(c) {
+        return `
+          <div class="im-row" data-imcuad="${c.id}">
+            <button class="im-menu-btn" type="button" data-menucuad="${c.id}">⋮</button>
+            ${menuAbierto === 'cuad-' + c.id ? `
+              <div class="im-menu">
+                <button type="button" data-accion="editar">${escapeHtml(tt().editar)}</button>
+                <button type="button" data-accion="mover">${escapeHtml(tt().mover)}</button>
+                <button type="button" data-accion="eliminar">${escapeHtml(tt().eliminar)}</button>
+              </div>` : ''}
+            <h3>${escapeHtml(c.titulo)}</h3>
+            ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
+            <div class="im-row-acciones">
+              <a class="primary-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener"><span>${escapeHtml(tt().abrir)}</span></a>
+            </div>
+          </div>`;
+      }
+
+      function cardNodo(n, count) {
+        return `
+          <div class="im-cat-card" data-navnodo="${n.id}">
+            <button class="im-menu-btn" type="button" data-menunodo="${n.id}">⋮</button>
+            ${menuAbierto === 'nodo-' + n.id ? `
+              <div class="im-menu">
+                <button type="button" data-accion="editar">${escapeHtml(tt().editar)}</button>
+                <button type="button" data-accion="eliminar">${escapeHtml(tt().eliminar)}</button>
+              </div>` : ''}
+            <h3>${escapeHtml(n.nombre)}</h3>
+            ${n.descripcion ? `<p>${escapeHtml(n.descripcion)}</p>` : ''}
+            <div class="im-count">${count} ${escapeHtml(tt().nCuad)}</div>
+          </div>`;
       }
 
       function renderCuadernos() {
-        $('imCuadVacio').style.display = cuadernos.length ? 'none' : 'block';
-        $('imCuadVacio').textContent = tt().cuadVacio;
-        const porCat = new Map();
-        for (const c of cuadernos) {
-          const cat = (c.categoria || '').trim() || tt().sinCategoria;
-          if (!porCat.has(cat)) porCat.set(cat, []);
-          porCat.get(cat).push(c);
+        const x = tt();
+        let cards = '', lista = [], ubicacion = '', btnCatLabel = x.crearCat, mostrarBtnCat = true;
+
+        if (cuadVista.t === 'root') {
+          $('imCuadVolver').style.display = 'none';
+          ubicacion = '';
+          cards = catsRaiz().map(n => cardNodo(n, totalEnCat(n.id))).join('');
+          lista = cuadEn(null);
+        } else if (cuadVista.t === 'cat') {
+          const cat = nodoDe(cuadVista.id);
+          if (!cat) { cuadVista = { t: 'root' }; return renderCuadernos(); }
+          $('imCuadVolver').style.display = '';
+          ubicacion = cat.nombre;
+          btnCatLabel = x.crearSub;
+          cards = subsDe(cat.id).map(n => cardNodo(n, cuadEn(n.id).length)).join('');
+          lista = cuadEn(cat.id);
+        } else {
+          const sub = nodoDe(cuadVista.id);
+          if (!sub) { cuadVista = { t: 'root' }; return renderCuadernos(); }
+          $('imCuadVolver').style.display = '';
+          ubicacion = `${nodoDe(sub.parent_id)?.nombre ?? ''} › ${sub.nombre}`;
+          mostrarBtnCat = false;
+          lista = cuadEn(sub.id);
         }
-        $('imCatsPrevias').innerHTML = [...porCat.keys()].map(c => `<option value="${escapeHtml(c)}">`).join('');
-        $('imCuadList').innerHTML = [...porCat.entries()].map(([cat, lista]) => `
-          <div class="im-cat-heading">${escapeHtml(cat)}</div>
-          ${lista.map(c => `
-            <div class="im-row" data-imcuad="${c.id}">
-              <h3>${escapeHtml(c.titulo)}</h3>
-              ${c.subcategoria ? `<div class="im-meta">${escapeHtml(c.subcategoria)}</div>` : ''}
-              ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
-              <div class="im-row-acciones">
-                <a class="primary-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener"><span>${escapeHtml(tt().abrir)}</span></a>
-                <button class="secondary-btn" type="button" data-accion="eliminar"><span>${escapeHtml(tt().eliminar)}</span></button>
-              </div>
-            </div>`).join('')}`).join('');
+
+        $('imCuadUbicacion').textContent = ubicacion;
+        $('imBtnNuevaCat').style.display = mostrarBtnCat ? '' : 'none';
+        $('imBtnNuevaCat').querySelector('span').textContent = btnCatLabel;
+        $('imBtnNuevoCuad').querySelector('span').textContent = x.agregarCuad;
+        $('imCuadVolver').querySelector('span').textContent = '← ' + (state.interfaceLanguage === 'en' ? 'Back' : 'Volver');
+        $('imCuadCards').innerHTML = cards;
+        $('imCuadList').innerHTML = lista.map(filaCuaderno).join('');
+        const vacio = !cards && !lista.length;
+        $('imCuadVacio').style.display = vacio ? 'block' : 'none';
+        $('imCuadVacio').textContent = x.cuadVacio;
       }
 
-      $('imCuadGuardar').addEventListener('click', async () => {
-        const titulo = $('imCuadInTitulo').value.trim();
-        let url = $('imCuadInUrl').value.trim();
-        if (!titulo || !url) { showToast(tt().datosFaltan); return; }
-        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-        await db.from('user_cuadernos').insert({
-          user_id: IM.userId, titulo, url,
-          categoria: $('imCuadInCat').value.trim() || null,
-          subcategoria: $('imCuadInSub').value.trim() || null,
-          descripcion: $('imCuadInDesc').value.trim() || null,
-        });
-        ['imCuadInTitulo','imCuadInUrl','imCuadInCat','imCuadInSub','imCuadInDesc'].forEach(id => { $(id).value = ''; });
-        showToast(tt().cuadGuardado);
-        cargarCuadernos();
+      // Navegación por cards y menús ⋮
+      $('imCuadCards').addEventListener('click', (e) => {
+        const menuBtn = e.target.closest('[data-menunodo]');
+        if (menuBtn) {
+          const clave = 'nodo-' + menuBtn.dataset.menunodo;
+          menuAbierto = menuAbierto === clave ? null : clave;
+          renderCuadernos(); e.stopPropagation(); return;
+        }
+        const accion = e.target.closest('[data-accion]');
+        if (accion) {
+          const card = accion.closest('[data-navnodo]');
+          const n = nodoDe(card.dataset.navnodo);
+          menuAbierto = null;
+          if (accion.dataset.accion === 'editar') abrirModalNodo({ modo: 'editar', nodo: n });
+          if (accion.dataset.accion === 'eliminar') eliminarNodo(n);
+          e.stopPropagation(); return;
+        }
+        const card = e.target.closest('[data-navnodo]');
+        if (card) {
+          const n = nodoDe(card.dataset.navnodo);
+          cuadVista = n.parent_id ? { t: 'sub', id: n.id } : { t: 'cat', id: n.id };
+          menuAbierto = null;
+          renderCuadernos();
+        }
       });
 
-      $('imCuadList').addEventListener('click', async (e) => {
-        const btn = e.target.closest('[data-accion="eliminar"]');
-        if (!btn) return;
-        if (!confirm(tt().confirmaEliminar)) return;
-        const id = btn.closest('[data-imcuad]').dataset.imcuad;
-        await db.from('user_cuadernos').delete().eq('id', id);
-        cuadernos = cuadernos.filter(c => String(c.id) !== id);
-        renderCuadernos();
-        showToast(tt().eliminado);
+      $('imCuadList').addEventListener('click', (e) => {
+        const menuBtn = e.target.closest('[data-menucuad]');
+        if (menuBtn) {
+          const clave = 'cuad-' + menuBtn.dataset.menucuad;
+          menuAbierto = menuAbierto === clave ? null : clave;
+          renderCuadernos(); e.stopPropagation(); return;
+        }
+        const accion = e.target.closest('[data-accion]');
+        if (!accion) return;
+        const fila = accion.closest('[data-imcuad]');
+        const c = cuadernos.find(x => String(x.id) === fila.dataset.imcuad);
+        menuAbierto = null;
+        if (accion.dataset.accion === 'editar') abrirModalCuad({ modo: 'editar', cuaderno: c });
+        if (accion.dataset.accion === 'mover')  abrirModalCuad({ modo: 'mover', cuaderno: c });
+        if (accion.dataset.accion === 'eliminar') eliminarCuaderno(c);
       });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn') && menuAbierto) {
+          menuAbierto = null; renderCuadernos();
+        }
+      });
+
+      $('imCuadVolver').addEventListener('click', () => {
+        if (cuadVista.t === 'sub') {
+          const sub = nodoDe(cuadVista.id);
+          cuadVista = sub?.parent_id ? { t: 'cat', id: sub.parent_id } : { t: 'root' };
+        } else cuadVista = { t: 'root' };
+        menuAbierto = null;
+        renderCuadernos();
+      });
+
+      $('imBtnNuevaCat').addEventListener('click', () => {
+        const parentId = cuadVista.t === 'cat' ? cuadVista.id : null;
+        abrirModalNodo({ modo: 'crear', parentId });
+      });
+
+      $('imBtnNuevoCuad').addEventListener('click', () => {
+        const prefCatId = cuadVista.t === 'cat' ? cuadVista.id : (cuadVista.t === 'sub' ? nodoDe(cuadVista.id)?.parent_id : null);
+        const prefSubId = cuadVista.t === 'sub' ? cuadVista.id : null;
+        abrirModalCuad({ modo: 'crear', prefCatId, prefSubId });
+      });
+
+      async function eliminarNodo(n) {
+        if (!confirm(tt().confirmaNodo)) return;
+        await db.from('user_cuaderno_categorias').delete().eq('id', n.id);
+        if ((cuadVista.t === 'cat' || cuadVista.t === 'sub') && (cuadVista.id === n.id || nodoDe(cuadVista.id)?.parent_id === n.id)) {
+          cuadVista = { t: 'root' };
+        }
+        showToast(tt().eliminado);
+        cargarCuadernos();
+      }
+
+      async function eliminarCuaderno(c) {
+        if (!confirm(tt().confirmaEliminar)) return;
+        await db.from('user_cuadernos').delete().eq('id', c.id);
+        showToast(tt().eliminado);
+        cargarCuadernos();
+      }
+
+      // Modal categoría/subcategoría
+      function abrirModalNodo(ctx) {
+        nodoCtx = ctx;
+        const x = tt();
+        const esSub = !!(ctx.parentId || (ctx.nodo && ctx.nodo.parent_id));
+        $('imModalNodoTitulo').textContent = ctx.modo === 'crear' ? (esSub ? x.tCrearSub : x.crearCat) : (esSub ? x.tEditarSub : x.tEditarCat);
+        $('imNodoLblNombre').textContent = x.lblNombre;
+        $('imNodoLblDesc').textContent = x.lblDescOpc;
+        $('imNodoNombre').value = ctx.nodo?.nombre ?? '';
+        $('imNodoDesc').value = ctx.nodo?.descripcion ?? '';
+        $('imNodoCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imNodoGuardar').querySelector('span').textContent = x.btnGuardar;
+        $('imModalNodo').classList.add('abierto');
+        $('imNodoNombre').focus();
+      }
+
+      $('imNodoGuardar').addEventListener('click', async () => {
+        const nombre = $('imNodoNombre').value.trim();
+        if (!nombre) { showToast(tt().nombreVacio); return; }
+        const descripcion = $('imNodoDesc').value.trim() || null;
+        if (nodoCtx.modo === 'crear') {
+          await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: nodoCtx.parentId ?? null, nombre, descripcion });
+        } else {
+          await db.from('user_cuaderno_categorias').update({ nombre, descripcion }).eq('id', nodoCtx.nodo.id);
+        }
+        $('imModalNodo').classList.remove('abierto');
+        showToast(tt().catGuardada);
+        cargarCuadernos();
+      });
+      $('imNodoCancelar').addEventListener('click', () => $('imModalNodo').classList.remove('abierto'));
+      $('imModalNodo').addEventListener('click', (e) => { if (e.target.id === 'imModalNodo') e.target.classList.remove('abierto'); });
+
+      // Modal cuaderno (crear / editar / mover)
+      function llenarSelectCat(catIdSel) {
+        const x = tt();
+        $('imCuadSelCat').innerHTML =
+          `<option value="">${escapeHtml(x.sinCatOpt)}</option>` +
+          catsRaiz().map(n => `<option value="${n.id}" ${n.id === catIdSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
+          `<option value="__nueva__">${escapeHtml(x.nuevaCatOpt)}</option>`;
+        $('imCuadCatNueva').style.display = 'none'; $('imCuadCatNueva').value = '';
+        llenarSelectSub(catIdSel, null);
+      }
+
+      function llenarSelectSub(catId, subIdSel) {
+        const x = tt();
+        const sel = $('imCuadSelSub');
+        if (!catId || catId === '__nueva__') {
+          sel.innerHTML = `<option value="">${escapeHtml(x.sinSubOpt)}</option>` + (catId === '__nueva__' ? `<option value="__nueva__">${escapeHtml(x.nuevaSubOpt)}</option>` : '');
+        } else {
+          sel.innerHTML =
+            `<option value="">${escapeHtml(x.sinSubOpt)}</option>` +
+            subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subIdSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
+            `<option value="__nueva__">${escapeHtml(x.nuevaSubOpt)}</option>`;
+        }
+        $('imCuadSubNueva').style.display = 'none'; $('imCuadSubNueva').value = '';
+      }
+
+      function abrirModalCuad(ctx) {
+        cuadCtx = ctx;
+        const x = tt();
+        const c = ctx.cuaderno;
+        $('imModalCuadTitulo').textContent = ctx.modo === 'crear' ? x.tNuevoCuad : (ctx.modo === 'editar' ? x.tEditarCuad : x.tMoverCuad);
+        $('imCuadCampos').style.display = ctx.modo === 'mover' ? 'none' : '';
+        $('imCuadLblTitulo').textContent = x.lblTituloC;
+        $('imCuadLblUrl').textContent = x.lblUrlC;
+        $('imCuadLblDesc').textContent = x.lblParaQue;
+        $('imCuadLblCat').textContent = x.lblCatOpc;
+        $('imCuadLblSub').textContent = x.lblSubOpc;
+        $('imCuadTitInput').value = c?.titulo ?? '';
+        $('imCuadUrlInput').value = c?.url ?? '';
+        $('imCuadDescInput').value = c?.descripcion ?? '';
+        let catId = ctx.prefCatId ?? null, subId = ctx.prefSubId ?? null;
+        if (c?.nodo_id) {
+          const n = nodoDe(c.nodo_id);
+          if (n?.parent_id) { catId = n.parent_id; subId = n.id; } else if (n) { catId = n.id; }
+        }
+        llenarSelectCat(catId);
+        if (subId) llenarSelectSub(catId, subId);
+        $('imCuadCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imCuadOk').querySelector('span').textContent = x.btnGuardar;
+        $('imModalCuad').classList.add('abierto');
+      }
+
+      $('imCuadSelCat').addEventListener('change', () => {
+        const v = $('imCuadSelCat').value;
+        $('imCuadCatNueva').style.display = v === '__nueva__' ? '' : 'none';
+        llenarSelectSub(v, null);
+      });
+      $('imCuadSelSub').addEventListener('change', () => {
+        $('imCuadSubNueva').style.display = $('imCuadSelSub').value === '__nueva__' ? '' : 'none';
+      });
+
+      $('imCuadOk').addEventListener('click', async () => {
+        const x = tt();
+        const modo = cuadCtx.modo;
+        let titulo = null, url = null, descripcion = null;
+        if (modo !== 'mover') {
+          titulo = $('imCuadTitInput').value.trim();
+          url = $('imCuadUrlInput').value.trim();
+          descripcion = $('imCuadDescInput').value.trim() || null;
+          if (!titulo || !url) { showToast(x.datosFaltan); return; }
+          if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        }
+
+        // Resolver destino (creando categoría/subcategoría si hace falta)
+        let catId = $('imCuadSelCat').value || null;
+        let subId = $('imCuadSelSub').value || null;
+        if (catId === '__nueva__') {
+          const nombre = $('imCuadCatNueva').value.trim();
+          if (!nombre) { showToast(x.nombreVacio); return; }
+          const { data } = await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: null, nombre }).select('id').single();
+          catId = data.id;
+        }
+        if (subId === '__nueva__') {
+          if (!catId) { subId = null; }
+          else {
+            const nombre = $('imCuadSubNueva').value.trim();
+            if (!nombre) { showToast(x.nombreVacio); return; }
+            const { data } = await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
+            subId = data.id;
+          }
+        }
+        const nodoId = subId || catId || null;
+
+        if (modo === 'crear') {
+          await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId });
+          showToast(x.cuadGuardado);
+        } else if (modo === 'editar') {
+          await db.from('user_cuadernos').update({ titulo, url, descripcion, nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id);
+          showToast(x.catGuardada);
+        } else {
+          await db.from('user_cuadernos').update({ nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id);
+          showToast(x.movido);
+        }
+        $('imModalCuad').classList.remove('abierto');
+        cargarCuadernos();
+      });
+      $('imCuadCancelar').addEventListener('click', () => $('imModalCuad').classList.remove('abierto'));
+      $('imModalCuad').addEventListener('click', (e) => { if (e.target.id === 'imModalCuad') e.target.classList.remove('abierto'); });
 
       // ── Idioma: textos propios sincronizados con el selector de la app ──
       function actualizarTextosIM() {
@@ -2127,10 +2507,8 @@ ${clean}`;
         $('imFavTitulo').textContent = x.favTitulo; $('imFavCopy').textContent = x.favCopy;
         $('imMisTitulo').textContent = x.misTitulo; $('imMisCopy').textContent = x.misCopy;
         $('imCuadTitulo').textContent = x.cuadTitulo; $('imCuadCopy').textContent = x.cuadCopy;
-        $('imLblTitulo').textContent = x.lblTitulo; $('imLblUrl').textContent = x.lblUrl;
-        $('imLblCat').textContent = x.lblCat; $('imLblSub').textContent = x.lblSub; $('imLblDesc').textContent = x.lblDesc;
         $('imModalTitulo').textContent = x.modalTitulo;
-        $('imCuadGuardar').querySelector('span').textContent = x.btnGuardarCuad;
+        $('imModalCatLabel').textContent = x.lblCatOpc;
         $('imSaveConfig').querySelector('span').textContent = x.btnGuardarCfg;
         $('imSaveCustom').querySelector('span').textContent = x.btnGuardarCfg;
         $('imModalCancelar').querySelector('span').textContent = x.btnCancelar;
