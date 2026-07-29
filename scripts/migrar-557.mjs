@@ -6,9 +6,46 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'node:fs';
 
 const SUPABASE_URL = 'https://iyiygnfaxiejtlgkkivs.supabase.co';
-const JSON_PATH =
-  '/Users/sergiolizcano/Desktop/PROYECTOS/PROYECTOS IA MASIVA/VERSIONES FINALES RECURSOS/1000 configuraciones cuadernos notebooklm y gemini/configs_updated.json';
+const CARPETA =
+  '/Users/sergiolizcano/Desktop/PROYECTOS/PROYECTOS IA MASIVA/VERSIONES FINALES RECURSOS/1000 configuraciones cuadernos notebooklm y gemini';
+const JSON_PATH = `${CARPETA}/configs_updated.json`;
+const GRUPOS_CSV = `${CARPETA}/grupos_configuraciones_base.csv`;
 const PRODUCT_NOMBRE = '557 Configuraciones para NotebookLM y Gemini';
+
+// Parser CSV mínimo con soporte de campos entre comillas.
+function parseCsv(texto) {
+  const filas = [];
+  let fila = [], campo = '', entreComillas = false;
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i];
+    if (entreComillas) {
+      if (c === '"' && texto[i + 1] === '"') { campo += '"'; i++; }
+      else if (c === '"') entreComillas = false;
+      else campo += c;
+    } else if (c === '"') entreComillas = true;
+    else if (c === ',') { fila.push(campo); campo = ''; }
+    else if (c === '\n') { fila.push(campo); filas.push(fila); fila = []; campo = ''; }
+    else if (c !== '\r') campo += c;
+  }
+  if (campo !== '' || fila.length) { fila.push(campo); filas.push(fila); }
+  const [encabezado, ...datos] = filas;
+  return datos.filter(f => f.length === encabezado.length)
+    .map(f => Object.fromEntries(encabezado.map((h, i) => [h, f[i]])));
+}
+
+// config_id → { grupo, rol base, audiencia } según la curaduría (1000 → 557 grupos)
+function mapaGrupos() {
+  const filas = parseCsv(readFileSync(GRUPOS_CSV, 'utf8'));
+  const mapa = new Map();
+  for (const f of filas) {
+    mapa.set(Number(f.config_id), {
+      grupo_num: Number(f.grupo_id),
+      rol_base: f.rol_base,
+      audiencia: f.audiencia_nicho,
+    });
+  }
+  return mapa;
+}
 
 function serviceKey() {
   if (process.env.SUPABASE_SERVICE_ROLE_KEY) return process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -36,26 +73,37 @@ async function ensureProduct() {
   return data.id;
 }
 
-// 2. Transformar el JSON a filas de premium_items.
+// 2. Transformar el JSON a filas de premium_items, cruzando la curaduría.
 function filas(productId) {
   const raw = JSON.parse(readFileSync(JSON_PATH, 'utf8'));
-  return Object.values(raw).map((c) => ({
-    product_id: productId,
-    item_num: c.id,
-    code: c.code ?? null,
-    nombre: c.name,
-    categoria: c.category_es ?? c.category ?? null,
-    subcategoria: c.subcategory_es ?? c.subcategory ?? null,
-    familia: c.family ?? null,
-    icono: c.icon ?? null,
-    descripcion: c.description_es ?? c.description ?? null,
-    data: {
-      config_template: c.config_template ?? null,
-      defaults: c.defaults ?? null,
-      description_en: c.description_en ?? null,
-      sensitivity: c.sensitivity ?? null,
-    },
-  }));
+  const grupos = mapaGrupos();
+  let sinGrupo = 0;
+  const resultado = Object.values(raw).map((c) => {
+    const g = grupos.get(c.id);
+    if (!g) sinGrupo++;
+    return {
+      product_id: productId,
+      item_num: c.id,
+      code: c.code ?? null,
+      nombre: c.name,
+      categoria: c.category_es ?? c.category ?? null,
+      subcategoria: c.subcategory_es ?? c.subcategory ?? null,
+      familia: c.family ?? null,
+      icono: c.icon ?? null,
+      descripcion: c.description_es ?? c.description ?? null,
+      grupo_num: g?.grupo_num ?? null,
+      rol_base: g?.rol_base ?? null,
+      audiencia: g?.audiencia ?? null,
+      data: {
+        config_template: c.config_template ?? null,
+        defaults: c.defaults ?? null,
+        description_en: c.description_en ?? null,
+        sensitivity: c.sensitivity ?? null,
+      },
+    };
+  });
+  if (sinGrupo) console.warn(`⚠ ${sinGrupo} configuraciones sin grupo en el CSV de curaduría`);
+  return resultado;
 }
 
 // 3. Upsert por lotes (reejecutable sin duplicar: choca en product_id+item_num).
