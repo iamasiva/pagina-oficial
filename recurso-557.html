@@ -1417,11 +1417,9 @@ NEVER:
     }
 
     function toggleTreeRoot() {
-      const wasDetailOpen = el.configDetailView.style.display !== 'none';
-      const wasLibrary = state.activeTab === 'library' && !wasDetailOpen;
-      if (wasDetailOpen) closeDrawer();
-      switchTab('library');
-      state.treeOpen = wasLibrary ? !state.treeOpen : true;
+      // Solo expande/colapsa el árbol — nunca navega. La navegación vive
+      // únicamente en las subcategorías del árbol y en las cards del home.
+      state.treeOpen = !state.treeOpen;
       renderSidebarTree();
     }
 
@@ -2298,6 +2296,8 @@ ${clean}`;
       });
 
       $('imCuadList').addEventListener('click', (e) => {
+        const abrir = e.target.closest('a.primary-btn');
+        if (abrir) { e.preventDefault(); window.open(abrir.href, '_blank', 'noopener'); return; }
         const menuBtn = e.target.closest('[data-menucuad]');
         if (menuBtn) {
           const clave = 'cuad-' + menuBtn.dataset.menucuad;
