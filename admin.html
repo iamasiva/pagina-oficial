@@ -391,11 +391,11 @@
     // ── ELIMINAR ──────────────────────────────────────────────────
     async function deleteGuide(id, titulo) {
       if (!confirm(`¿Eliminar "${titulo}"? Esta acción no se puede deshacer.`)) return;
-      const { data: g } = await sb.from('guides').select('portada_url,contenido_url').eq('id', id).single();
+      const { data: g } = await sb.from('guides').select('portada_url,contenido_url,es_premium').eq('id', id).single();
       const { error } = await sb.from('guides').delete().eq('id', id);
       if (error) { alert('Error al eliminar: ' + error.message); return; }
       await removeStorageFile('portadas', g?.portada_url);
-      await removeStorageFile('contenido', g?.contenido_url);
+      await removeStorageFile(g?.es_premium ? 'contenido-premium' : 'contenido', g?.contenido_url);
       loadGuides();
     }
 
@@ -403,8 +403,11 @@
     async function uploadFile(bucket, file) {
       const ext = file.name.split('.').pop();
       const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true });
+      const contentType = file.name.endsWith('.html') ? 'text/html' : file.type;
+      const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true, contentType });
       if (error) throw new Error('Error subiendo archivo: ' + error.message);
+      // Bucket privado: se guarda la ruta; /api/contenido firma la URL al servir.
+      if (bucket === 'contenido-premium') return path;
       return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
     }
 
@@ -439,11 +442,12 @@
         const portFile = document.getElementById('fPortada').files[0];
         const htmlFile = document.getElementById('fHtml').files[0];
 
-        let oldPortada = null, oldContenido = null;
+        let oldPortada = null, oldContenido = null, oldPremium = false;
         if (id && (portFile || htmlFile)) {
-          const { data: old } = await sb.from('guides').select('portada_url,contenido_url').eq('id', id).single();
+          const { data: old } = await sb.from('guides').select('portada_url,contenido_url,es_premium').eq('id', id).single();
           oldPortada = old?.portada_url;
           oldContenido = old?.contenido_url;
+          oldPremium = !!old?.es_premium;
         }
 
         const payload = {
@@ -455,7 +459,7 @@
         };
 
         if (portFile) payload.portada_url   = await uploadFile('portadas', portFile);
-        if (htmlFile) payload.contenido_url = await uploadFile('contenido', htmlFile);
+        if (htmlFile) payload.contenido_url = await uploadFile(premium ? 'contenido-premium' : 'contenido', htmlFile);
 
         let error;
         if (id) {
@@ -467,7 +471,7 @@
         if (error) throw new Error(error.message);
 
         if (portFile && oldPortada)   await removeStorageFile('portadas', oldPortada);
-        if (htmlFile && oldContenido) await removeStorageFile('contenido', oldContenido);
+        if (htmlFile && oldContenido) await removeStorageFile(oldPremium ? 'contenido-premium' : 'contenido', oldContenido);
 
         showMsg(id ? 'Guía actualizada.' : 'Guía creada correctamente.', 'success');
         setTimeout(() => { closeModal(); loadGuides(); }, 1200);

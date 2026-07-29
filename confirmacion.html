@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Confirmación de compra — IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-deep: #0B1E6D; --blue-elec: #2F6BFF; --blue-dark: #050F3A;
+      --black: #050505; --white: #FFFFFF; --gray: #D1D5DB;
+      --green: #00FF9C; --red: #ff6b6b;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%);
+      color: var(--white); min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
+    }
+    .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.1em; margin-bottom: 40px; }
+    .card {
+      background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.25);
+      border-radius: 16px; padding: 44px 32px; max-width: 460px; width: 100%;
+      backdrop-filter: blur(10px);
+    }
+    .icono { font-size: 3rem; margin-bottom: 18px; line-height: 1; }
+    h1 { font-size: 1.35rem; font-weight: 800; margin-bottom: 10px; }
+    p  { font-size: 0.95rem; color: #9aacbf; line-height: 1.6; margin-bottom: 6px; }
+    .spinner {
+      width: 44px; height: 44px; margin: 0 auto 18px;
+      border: 4px solid rgba(47,107,255,0.25); border-top-color: var(--blue-elec);
+      border-radius: 50%; animation: girar 0.9s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    .btn {
+      display: inline-block; margin-top: 26px; background: var(--blue-elec); color: var(--white);
+      border: none; padding: 15px 38px; border-radius: 8px; font-size: 1rem; font-weight: 800;
+      cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 10px 30px rgba(47,107,255,0.4);
+    }
+    .btn:hover { background: #4d7fff; transform: translateY(-2px); }
+    .ok    { color: var(--green); }
+    .error { color: var(--red); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="logo">IA MASIVA</div>
+
+  <div class="card">
+    <!-- Estado: procesando -->
+    <div id="vistaProcesando">
+      <div class="spinner"></div>
+      <h1>Procesando tu pago…</h1>
+      <p>Estamos confirmando la transacción con el banco.</p>
+      <p>Si pagaste con PSE esto puede tardar unos minutos. No cierres esta página.</p>
+    </div>
+
+    <!-- Estado: aprobada -->
+    <div id="vistaAprobada" class="hidden">
+      <div class="icono">🎉</div>
+      <h1 class="ok">¡Compra confirmada!</h1>
+      <p>Tu recurso ya está disponible en tu cuenta.</p>
+      <a class="btn" href="app.html">Abrir mi recurso</a>
+    </div>
+
+    <!-- Estado: rechazada / error -->
+    <div id="vistaRechazada" class="hidden">
+      <div class="icono">😕</div>
+      <h1 class="error">El pago no se completó</h1>
+      <p id="motivoRechazo">La transacción fue rechazada o cancelada. No se realizó ningún cobro definitivo.</p>
+      <a class="btn" href="app.html">Volver e intentar de nuevo</a>
+    </div>
+
+    <!-- Estado: sin referencia / demora -->
+    <div id="vistaSinRef" class="hidden">
+      <div class="icono">⏳</div>
+      <h1>Tu pago sigue en proceso</h1>
+      <p>La confirmación está tardando más de lo normal (frecuente con PSE).</p>
+      <p>Tranquilo: cuando el banco confirme, el recurso aparecerá automáticamente en tu cuenta.</p>
+      <a class="btn" href="app.html">Ir a IA MASIVA</a>
+    </div>
+  </div>
+
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+
+    const vistas = ['vistaProcesando','vistaAprobada','vistaRechazada','vistaSinRef'];
+    function mostrar(id) {
+      vistas.forEach(v => document.getElementById(v).classList.toggle('hidden', v !== id));
+    }
+
+    async function main() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'index.html'; return; }
+
+      const ref = sessionStorage.getItem('compra_ref');
+      if (!ref) { mostrar('vistaSinRef'); return; }
+
+      // Consulta el estado de la compra (RLS: el usuario solo ve las suyas).
+      // El webhook de Wompi es quien la actualiza; aquí solo observamos.
+      const INTENTOS = 40, ESPERA_MS = 3000; // ~2 minutos
+      for (let i = 0; i < INTENTOS; i++) {
+        const { data: compra } = await sb.from('purchases')
+          .select('estado').eq('referencia', ref).maybeSingle();
+
+        if (compra?.estado === 'APROBADA') {
+          sessionStorage.removeItem('compra_ref');
+          mostrar('vistaAprobada');
+          return;
+        }
+        if (compra && ['DECLINADA','ANULADA','ERROR'].includes(compra.estado)) {
+          sessionStorage.removeItem('compra_ref');
+          mostrar('vistaRechazada');
+          return;
+        }
+        await new Promise(r => setTimeout(r, ESPERA_MS));
+      }
+      mostrar('vistaSinRef'); // sigue PENDIENTE tras ~2 min (típico PSE lento)
+    }
+
+    main();
+  </script>
+</body>
+</html>

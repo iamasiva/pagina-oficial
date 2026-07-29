@@ -462,7 +462,7 @@
       'Atención al cliente','Finanzas','Desarrollo','Análisis de datos','Creación de contenido'
     ];
 
-    let allGuides = [], userPurchases = [], isAdmin = false;
+    let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
     let heroSlides = [], heroIndex = 0, heroTimer = null, heroSlidesRaw = [];
 
     // ── AUTH GUARD ────────────────────────────────────────────
@@ -564,12 +564,41 @@
         </div>`;
     }
 
+    // ── COMPRA ────────────────────────────────────────────────
+    async function comprarGuia(guideId) {
+      const product = allProducts.find(p => p.guide_id === guideId && p.activo);
+      if (!product) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch(`/api/checkout?product=${product.id}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        const body = await res.json();
+        if (!res.ok) { alert(body.error || 'No se pudo iniciar la compra.'); return; }
+        sessionStorage.setItem('compra_ref', body.reference);
+        window.location.href = body.url;
+      } catch(e) {
+        alert('No se pudo iniciar la compra. Intenta de nuevo.');
+      }
+    }
+
     async function openGuide(id, locked) {
-      if (locked) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
+      if (locked) { await comprarGuia(id); return; }
       const g = allGuides.find(g => g.id === id);
       if (!g?.contenido_url) return;
       try {
-        const res  = await fetch(g.contenido_url);
+        let contentUrl = g.contenido_url;
+        if (g.es_premium) {
+          // Entrega verificada server-side: URL firmada temporal
+          const { data: { session } } = await sb.auth.getSession();
+          const res = await fetch(`/api/contenido?guide=${g.id}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` }
+          });
+          const body = await res.json();
+          if (!res.ok) { alert(body.error || 'No se pudo verificar tu acceso.'); return; }
+          contentUrl = body.url;
+        }
+        const res  = await fetch(contentUrl);
         const html = await res.text();
         document.getElementById('guideViewerTitle').textContent = g.titulo;
         document.getElementById('guideFrame').srcdoc = html;
@@ -756,9 +785,12 @@
     async function uploadFile(bucket, file) {
       const ext=file.name.split('.').pop();
       const path=`${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const contentType = bucket === 'contenido' ? 'text/html' : file.type;
+      const contentType = file.name.endsWith('.html') ? 'text/html' : file.type;
       const {error}=await sb.storage.from(bucket).upload(path, file, {upsert:true, contentType});
       if(error) throw new Error('Error subiendo archivo: '+error.message);
+      // El bucket privado no tiene URL pública: se guarda la RUTA y
+      // /api/contenido genera la URL firmada al momento de servirla.
+      if (bucket === 'contenido-premium') return path;
       return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
     }
 
@@ -784,16 +816,17 @@
         const portFile= document.getElementById('fPortada').files[0];
         const htmlFile= document.getElementById('fHtml').files[0];
 
-        let oldPortada = null, oldContenido = null;
+        let oldPortada = null, oldContenido = null, oldPremium = false;
         if (id && (portFile || htmlFile)) {
-          const { data: old } = await sb.from('guides').select('portada_url,contenido_url').eq('id',id).single();
+          const { data: old } = await sb.from('guides').select('portada_url,contenido_url,es_premium').eq('id',id).single();
           oldPortada = old?.portada_url;
           oldContenido = old?.contenido_url;
+          oldPremium = !!old?.es_premium;
         }
 
         const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats };
         if(portFile) payload.portada_url   = await uploadFile('portadas', portFile);
-        if(htmlFile) payload.contenido_url = await uploadFile('contenido', htmlFile);
+        if(htmlFile) payload.contenido_url = await uploadFile(premium ? 'contenido-premium' : 'contenido', htmlFile);
 
         const {error} = id
           ? await sb.from('guides').update(payload).eq('id',id)
@@ -801,7 +834,7 @@
 
         if(error) throw new Error(error.message);
         if (portFile && oldPortada)   await removeStorageFile('portadas', oldPortada);
-        if (htmlFile && oldContenido) await removeStorageFile('contenido', oldContenido);
+        if (htmlFile && oldContenido) await removeStorageFile(oldPremium ? 'contenido-premium' : 'contenido', oldContenido);
         showFormMsg(id?'Guía actualizada.':'Guía creada correctamente.','success');
         setTimeout(async()=>{ closeAdminModal(); await loadAndRender(); }, 1200);
       } catch(err){ showFormMsg(err.message); }
@@ -831,7 +864,7 @@
       const {error}=await sb.from('guides').delete().eq('id',id);
       if(error){ alert('Error: '+error.message); return; }
       await removeStorageFile('portadas', g?.portada_url);
-      await removeStorageFile('contenido', g?.contenido_url);
+      await removeStorageFile(g?.es_premium ? 'contenido-premium' : 'contenido', g?.contenido_url);
       await loadAndRender();
     }
 
@@ -988,12 +1021,14 @@
       const guidesQuery = isAdmin
         ? sb.from('guides').select('*').order('created_at',{ascending:false})
         : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
-      const [{data:guides}, {data:slides}] = await Promise.all([
+      const [{data:guides}, {data:slides}, {data:products}] = await Promise.all([
         guidesQuery,
-        sb.from('hero_slides').select('*').order('orden',{ascending:true})
+        sb.from('hero_slides').select('*').order('orden',{ascending:true}),
+        sb.from('products').select('*').eq('activo',true)
       ]);
       allGuides=guides||[];
       heroSlidesRaw=slides||[];
+      allProducts=products||[];
       renderAll();
     }
 
@@ -1010,22 +1045,11 @@
         document.getElementById('heroEditBtn').classList.remove('hidden');
       }
 
-      // Compras del usuario
-      const {data:purchases}=await sb.from('purchases').select('guide_id').eq('user_id',session.user.id);
-      userPurchases=(purchases||[]).map(p=>p.guide_id);
+      // Compras del usuario (solo las aprobadas dan acceso)
+      const {data:purchases}=await sb.from('purchases').select('guide_id').eq('user_id',session.user.id).eq('estado','APROBADA');
+      userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
 
-      // Si es admin, cargar todas (incluye no publicadas)
-      const guidesQuery = isAdmin
-        ? sb.from('guides').select('*').order('created_at',{ascending:false})
-        : sb.from('guides').select('*').eq('publicada',true).order('created_at',{ascending:false});
-      const [{data:guides}, {data:slides}] = await Promise.all([
-        guidesQuery,
-        sb.from('hero_slides').select('*').order('orden',{ascending:true})
-      ]);
-      allGuides=guides||[];
-      heroSlidesRaw=slides||[];
-
-      renderAll();
+      await loadAndRender();
     }
   </script>
 </body>
