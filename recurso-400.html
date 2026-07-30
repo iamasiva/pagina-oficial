@@ -2458,15 +2458,10 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imGuardarPrompt').addEventListener('click', () => {
         if (!activeGem) return;
         ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
-        // Sugerencia de nombre para el prompt: el primer campo diligenciado
-        const primerInput = (activeGem.inputs || [])[0];
-        let detalle = primerInput ? String(formState[primerInput.id] ?? '').trim() : '';
-        if (detalle === 'Otro') detalle = String(formState[primerInput.id + '__otro'] ?? '').trim();
-        if (detalle.length > 48) detalle = detalle.slice(0, 48) + '…';
         $('imMetaNombre').value = activeGem.nombre;
         $('imMetaUrl').value = '';
         $('imMetaConPrompt').checked = true;
-        $('imMetaPromptNombre').value = detalle;
+        $('imMetaPromptNombre').value = '';
         $('imMetaPromptCampo').style.display = '';
         llenarSelCat(IDS_META, null, null);
         $('imModalMeta').classList.add('abierto');
