@@ -1081,6 +1081,19 @@
           </div>
         </div>
 
+        <!-- Modal: mover subcategoría a otra categoría -->
+        <div id="imModalMoverSub" class="im-modal">
+          <div class="im-modal-caja">
+            <h3>Mover subcategoría</h3>
+            <label class="im-modal-label">Categoría destino</label>
+            <select id="imMoverSubSel"></select>
+            <div class="im-modal-acciones">
+              <button id="imMoverSubCancelar" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imMoverSubOk" class="im-btn-primario" type="button">Mover</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Modal: confirmación (reemplaza el confirm() nativo) -->
         <div id="imModalConfirmar" class="im-modal">
           <div class="im-modal-caja">
@@ -1908,6 +1921,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             ${menu === 'nodo-' + n.id ? `
               <div class="im-menu">
                 <button type="button" data-nodoaccion="editar" data-nid="${n.id}">Editar</button>
+                ${n.parent_id ? `<button type="button" data-nodoaccion="mover" data-nid="${n.id}">Mover</button>` : ''}
                 <button type="button" data-nodoaccion="eliminar" data-nid="${n.id}">Eliminar</button>
               </div>` : ''}
             <h3>${escapeHtml(n.nombre)}</h3>
@@ -2060,6 +2074,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (na) {
           const n = nodoDe(na.dataset.nid); menu = null; render();
           if (na.dataset.nodoaccion === 'editar') abrirModalNodo({ modo: 'editar', nodo: n });
+          if (na.dataset.nodoaccion === 'mover') abrirModalMoverSub(n);
           if (na.dataset.nodoaccion === 'eliminar') eliminarNodo(n);
           return;
         }
@@ -2141,6 +2156,26 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imModalTipoGema').addEventListener('click', (e) => { if (e.target.id === 'imModalTipoGema') e.target.classList.remove('abierto'); });
 
+      // ── Mover subcategoría entre categorías (sus gemas viajan con ella) ──
+      let ctxMoverSub = null;
+      function abrirModalMoverSub(n) {
+        const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
+        if (!destinos.length) { showToast('No hay otra categoría a dónde moverla — crea una primero'); return; }
+        ctxMoverSub = n;
+        $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
+        $('imModalMoverSub').classList.add('abierto');
+      }
+      $('imMoverSubOk').addEventListener('click', async () => {
+        const destino = $('imMoverSubSel').value;
+        if (!ctxMoverSub || !destino) return;
+        const { error } = await db.from('user_gema_categorias').update({ parent_id: destino }).eq('id', ctxMoverSub.id);
+        if (error) { showToast('No se pudo mover: ' + error.message); return; }
+        $('imModalMoverSub').classList.remove('abierto');
+        showToast('Subcategoría movida'); cargarTodo();
+      });
+      $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSub').classList.remove('abierto'));
+      $('imModalMoverSub').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSub') e.target.classList.remove('abierto'); });
+
       // ── Confirmación propia (el confirm() nativo se puede suprimir y se ve ajeno al sitio) ──
       let confResolve = null;
       function confirmar(texto, titulo, textoSi) {
@@ -2167,7 +2202,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
       async function eliminarNodo(n) {
         const esSub = !!n.parent_id;
-        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'subcategorías, ') + 'gemas, chats y prompts guardados.', esSub ? '¿Eliminar la subcategoría?' : '¿Eliminar la categoría?', 'Sí, eliminar todo')) return;
+        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'subcategorías, ') + 'gemas, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'gema' : 'subcategoría o gema') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar la subcategoría?' : '¿Eliminar la categoría?', 'Sí, eliminar todo')) return;
         const err = await borrarFila('user_gema_categorias', n.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
