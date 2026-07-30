@@ -509,6 +509,15 @@
     .im-menu button { display: block; width: 100%; text-align: left; background: none; border: none; padding: 10px 14px; font-size: 0.85rem; color: #202320; }
     .im-menu button:hover { background: #f0f2ee; }
     .im-row { position: relative; }
+    .im-mg-enc { margin: 4px 0 16px; }
+    .im-mg-enc h2 { font-size: 1.55rem; margin: 0; line-height: 1.2; }
+    .im-mg-enc-sub { font-size: 0.98rem; font-weight: 700; color: #62685f; margin-top: 4px; }
+    .im-lista-titulo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #62685f; margin: 18px 0 10px; }
+    .im-cuad-chats { margin-top: 12px; border-top: 1px dashed #dfe3db; padding-top: 12px; display: grid; gap: 10px; justify-items: start; }
+    .im-chat-sub { position: relative; width: 100%; background: #f6faf7; border: 1px solid #dfe3db; border-radius: 10px; padding: 12px 44px 12px 14px; }
+    .im-chat-sub h4 { margin: 0 0 2px; font-size: 0.9rem; }
+    .im-chat-sub .nota { color: #62685f; font-size: 0.8rem; margin: 0 0 8px; }
+    .im-modal-nota { font-size: 0.8rem; color: #62685f; line-height: 1.5; margin: 14px 0 0; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -949,13 +958,18 @@
         </div></div>
         <div class="im-toolbar">
           <button id="imCuadVolver" class="secondary-btn" type="button" style="display:none"><span>← Volver</span></button>
-          <span class="im-ubicacion" id="imCuadUbicacion"></span>
           <div class="im-toolbar-acciones">
             <button id="imBtnNuevaCat" class="secondary-btn" type="button"><span>Crear categoría</span></button>
             <button id="imBtnNuevoCuad" class="primary-btn" type="button"><span>Agregar cuaderno</span></button>
           </div>
         </div>
+        <div id="imCuadEncabezado" class="im-mg-enc" style="display:none">
+          <h2 id="imCuadEncCat"></h2>
+          <div id="imCuadEncSub" class="im-mg-enc-sub"></div>
+        </div>
+        <h4 id="imCuadCardsTitulo" class="im-lista-titulo" style="display:none"></h4>
         <div id="imCuadCards" class="im-cards-grid"></div>
+        <h4 id="imCuadListaTitulo" class="im-lista-titulo" style="display:none"></h4>
         <div id="imCuadList"></div>
         <div id="imCuadVacio" class="empty" style="display:none"></div>
       </section>
@@ -1000,8 +1014,10 @@
       <div id="imCuadCampos">
         <label class="im-modal-label" id="imCuadLblTitulo">Título</label>
         <input id="imCuadTitInput" type="text" placeholder="Ej: Investigación mercado panadería" />
-        <label class="im-modal-label" id="imCuadLblUrl">Link del cuaderno</label>
-        <input id="imCuadUrlInput" type="text" placeholder="https://notebooklm.google.com/…" />
+        <label class="im-modal-label" id="imCuadLblUrlGem">Link del cuaderno en Gemini</label>
+        <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…" />
+        <label class="im-modal-label" id="imCuadLblUrlNb">Link del cuaderno en NotebookLM</label>
+        <input id="imCuadUrlNbInput" type="text" placeholder="https://notebooklm.google.com/…" />
         <label class="im-modal-label" id="imCuadLblDesc">¿Para qué es? (opcional)</label>
         <input id="imCuadDescInput" type="text" placeholder="Nota corta para acordarte" />
       </div>
@@ -1014,6 +1030,48 @@
       <div class="im-modal-acciones">
         <button id="imCuadCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imCuadOk" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: guardar/editar chat de un cuaderno -->
+  <div id="imModalChatC" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imChatCTitulo">Guardar chat</h3>
+      <label class="im-modal-label" id="imChatCLblTit">Título</label>
+      <input id="imChatCTit" type="text" placeholder="Ej: Guion semana 22" />
+      <label class="im-modal-label" id="imChatCLblUrl">Link del chat</label>
+      <input id="imChatCUrl" type="text" placeholder="https://gemini.google.com/app/…" />
+      <label class="im-modal-label" id="imChatCLblNota">Nota (opcional)</label>
+      <input id="imChatCNota" type="text" placeholder="De qué trató" />
+      <div class="im-modal-acciones">
+        <button id="imChatCCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imChatCOk" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: mover subcategoría a otra categoría -->
+  <div id="imModalMoverSubC" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imMoverSubTitulo">Mover subcategoría</h3>
+      <label class="im-modal-label" id="imMoverSubLbl">Categoría destino</label>
+      <select id="imMoverSubSel"></select>
+      <div class="im-modal-acciones">
+        <button id="imMoverSubCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imMoverSubOk" class="primary-btn" type="button"><span>Mover</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: confirmación (reemplaza el confirm() nativo) -->
+  <div id="imModalConfirmarC" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imConfCTitulo">¿Estás seguro?</h3>
+      <p class="im-modal-nota" id="imConfCTexto" style="margin-top:10px;"></p>
+      <div class="im-modal-acciones">
+        <button id="imConfCNo" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imConfCSi" class="primary-btn" type="button"><span>Sí, continuar</span></button>
       </div>
     </div>
   </div>
@@ -2160,27 +2218,50 @@ ${clean}`;
         crearCat: 'Crear categoría', crearSub: 'Crear subcategoría', agregarCuad: 'Agregar cuaderno',
         tEditarCat: 'Editar categoría', tCrearSub: 'Crear subcategoría', tEditarSub: 'Editar subcategoría',
         tNuevoCuad: 'Agregar cuaderno', tEditarCuad: 'Editar cuaderno', tMoverCuad: 'Mover cuaderno',
-        lblNombre: 'Nombre', lblDescOpc: 'Descripción (opcional)', lblTituloC: 'Título', lblUrlC: 'Link del cuaderno',
+        lblNombre: 'Nombre', lblDescOpc: 'Descripción (opcional)', lblTituloC: 'Título',
+        lblUrlGem: 'Link del cuaderno en Gemini', lblUrlNb: 'Link del cuaderno en NotebookLM', unLink: 'Pega al menos uno de los dos links',
         lblParaQue: '¿Para qué es? (opcional)', lblCatOpc: 'Categoría (opcional)', lblSubOpc: 'Subcategoría (opcional)',
         nuevaCatOpt: '➕ Nueva categoría…', nuevaSubOpt: '➕ Nueva subcategoría…', sinCatOpt: '— Sin categoría', sinSubOpt: '— Sin subcategoría',
-        editar: 'Editar', mover: 'Mover', catGuardada: 'Guardado', movido: 'Cuaderno movido',
-        confirmaNodo: '¿Eliminar? Los cuadernos que contiene quedarán sin categoría.', nCuad: 'cuadernos', raizTitulo: '',
+        editar: 'Editar', mover: 'Mover', catGuardada: 'Guardado', movido: 'Cuaderno movido', nCuad: 'cuadernos', raizTitulo: '',
+        tituloCats: 'Categorías', tituloSubs: 'Subcategorías', sinCatTitulo: 'Cuadernos sin categoría', sinSubTitulo: 'Cuadernos sin subcategoría',
+        abrirGemini: 'Abrir en Gemini', abrirNotebook: 'Abrir en NotebookLM',
+        chats: 'Chats', guardarChat: '＋ Guardar chat', tNuevoChat: 'Guardar chat', tEditarChat: 'Editar chat',
+        lblTituloChat: 'Título', lblUrlChat: 'Link del chat', lblNotaChat: 'Nota (opcional)', chatGuardado: 'Chat guardado', abrirChat: 'Abrir chat',
+        tMoverSub: 'Mover subcategoría', lblCatDestino: 'Categoría destino', subMovida: 'Subcategoría movida', sinDestino: 'No hay otra categoría a dónde moverla — crea una primero',
+        confTitCat: '¿Eliminar la categoría?', confTitSub: '¿Eliminar la subcategoría?',
+        confTexCat: 'Se eliminará todo lo que contiene: subcategorías, cuadernos y chats guardados. Si quieres conservar alguna subcategoría o cuaderno, muévelo a otro lugar antes de eliminar.',
+        confTexSub: 'Se eliminará todo lo que contiene: cuadernos y chats guardados. Si quieres conservar algún cuaderno, muévelo a otro lugar antes de eliminar.',
+        confTitCuad: '¿Eliminar el cuaderno?', confTexCuad: 'Se eliminará con sus chats guardados.',
+        confTitChat: '¿Eliminar el chat?', confTexChat: 'Se eliminará este chat guardado (el chat real no se toca).',
+        confSiTodo: 'Sí, eliminar todo', confSi: 'Sí, eliminar', noBorro: 'No se pudo eliminar', noGuardo: 'No se pudo guardar', errCargar: 'No se pudo cargar tu espacio',
       });
       Object.assign(IM_TEXT.en, {
         crearCat: 'New category', crearSub: 'New subcategory', agregarCuad: 'Add notebook',
         tEditarCat: 'Edit category', tCrearSub: 'New subcategory', tEditarSub: 'Edit subcategory',
         tNuevoCuad: 'Add notebook', tEditarCuad: 'Edit notebook', tMoverCuad: 'Move notebook',
-        lblNombre: 'Name', lblDescOpc: 'Description (optional)', lblTituloC: 'Title', lblUrlC: 'Notebook link',
+        lblNombre: 'Name', lblDescOpc: 'Description (optional)', lblTituloC: 'Title',
+        lblUrlGem: 'Notebook link in Gemini', lblUrlNb: 'Notebook link in NotebookLM', unLink: 'Paste at least one of the two links',
         lblParaQue: 'What is it for? (optional)', lblCatOpc: 'Category (optional)', lblSubOpc: 'Subcategory (optional)',
         nuevaCatOpt: '➕ New category…', nuevaSubOpt: '➕ New subcategory…', sinCatOpt: '— No category', sinSubOpt: '— No subcategory',
-        editar: 'Edit', mover: 'Move', catGuardada: 'Saved', movido: 'Notebook moved',
-        confirmaNodo: 'Delete? Its notebooks will become uncategorized.', nCuad: 'notebooks', raizTitulo: '',
+        editar: 'Edit', mover: 'Move', catGuardada: 'Saved', movido: 'Notebook moved', nCuad: 'notebooks', raizTitulo: '',
+        tituloCats: 'Categories', tituloSubs: 'Subcategories', sinCatTitulo: 'Uncategorized notebooks', sinSubTitulo: 'Notebooks without subcategory',
+        abrirGemini: 'Open in Gemini', abrirNotebook: 'Open in NotebookLM',
+        chats: 'Chats', guardarChat: '＋ Save chat', tNuevoChat: 'Save chat', tEditarChat: 'Edit chat',
+        lblTituloChat: 'Title', lblUrlChat: 'Chat link', lblNotaChat: 'Note (optional)', chatGuardado: 'Chat saved', abrirChat: 'Open chat',
+        tMoverSub: 'Move subcategory', lblCatDestino: 'Destination category', subMovida: 'Subcategory moved', sinDestino: 'No other category to move it to — create one first',
+        confTitCat: 'Delete this category?', confTitSub: 'Delete this subcategory?',
+        confTexCat: 'Everything inside will be deleted: subcategories, notebooks and saved chats. Move anything you want to keep before deleting.',
+        confTexSub: 'Everything inside will be deleted: notebooks and saved chats. Move any notebook you want to keep before deleting.',
+        confTitCuad: 'Delete this notebook?', confTexCuad: 'It will be deleted along with its saved chats.',
+        confTitChat: 'Delete this chat?', confTexChat: 'This saved chat will be deleted (the real chat is untouched).',
+        confSiTodo: 'Yes, delete everything', confSi: 'Yes, delete', noBorro: 'Could not delete', noGuardo: 'Could not save', errCargar: 'Could not load your space',
       });
 
-      let cuadernos = [], nodos = [];
+      let cuadernos = [], nodos = [], chatsC = [];
       let cuadVista = { t: 'root' };   // root | cat | sub
       let menuAbierto = null;
-      let nodoCtx = null, cuadCtx = null;
+      const chatsAbiertos = new Set();
+      let nodoCtx = null, cuadCtx = null, chatCtx = null, moverSubCtx = null;
 
       const catsRaiz = () => nodos.filter(n => !n.parent_id).sort((a, b) => a.nombre.localeCompare(b.nombre));
       const subsDe = (catId) => nodos.filter(n => n.parent_id === catId).sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -2188,31 +2269,64 @@ ${clean}`;
       const cuadEn = (nodoId) => cuadernos.filter(c => (c.nodo_id ?? null) === nodoId);
       const totalEnCat = (catId) => cuadEn(catId).length + subsDe(catId).reduce((a, s) => a + cuadEn(s.id).length, 0);
 
+      const chatsDe = (cuadernoId) => chatsC.filter(ch => ch.cuaderno_id === cuadernoId);
+
       async function cargarCuadernos() {
-        const [cu, no] = await Promise.all([
+        const [cu, no, ch] = await Promise.all([
           db.from('user_cuadernos').select('*').order('created_at', { ascending: false }),
           db.from('user_cuaderno_categorias').select('*'),
+          db.from('user_cuaderno_chats').select('*').order('created_at'),
         ]);
+        if (cu.error || no.error || ch.error) { showToast(tt().errCargar); return; }
         cuadernos = cu.data ?? [];
         nodos = no.data ?? [];
+        chatsC = ch.data ?? [];
         renderCuadernos();
       }
 
+      function filaChatC(ch) {
+        const x = tt();
+        return `
+          <div class="im-chat-sub">
+            <button class="im-menu-btn" type="button" data-menuchat="${ch.id}">⋮</button>
+            ${menuAbierto === 'chat-' + ch.id ? `
+              <div class="im-menu">
+                <button type="button" data-chataccion="editar" data-chid="${ch.id}">${escapeHtml(x.editar)}</button>
+                <button type="button" data-chataccion="eliminar" data-chid="${ch.id}">${escapeHtml(x.eliminar)}</button>
+              </div>` : ''}
+            <h4>${escapeHtml(ch.titulo)}</h4>
+            ${ch.nota ? `<p class="nota">${escapeHtml(ch.nota)}</p>` : ''}
+            <a class="primary-btn" href="${escapeHtml(ch.url)}" target="_blank" rel="noopener" style="font-size:0.8rem; padding:7px 14px;"><span>${escapeHtml(x.abrirChat)}</span></a>
+          </div>`;
+      }
+
       function filaCuaderno(c) {
+        const x = tt();
+        const cs = chatsDe(c.id);
+        const abierto = chatsAbiertos.has(c.id);
+        const uGem = c.url_gemini;
+        const uNb = c.url_notebook ?? c.url;   // filas viejas: el link único era de NotebookLM
         return `
           <div class="im-row" data-imcuad="${c.id}">
             <button class="im-menu-btn" type="button" data-menucuad="${c.id}">⋮</button>
             ${menuAbierto === 'cuad-' + c.id ? `
               <div class="im-menu">
-                <button type="button" data-accion="editar">${escapeHtml(tt().editar)}</button>
-                <button type="button" data-accion="mover">${escapeHtml(tt().mover)}</button>
-                <button type="button" data-accion="eliminar">${escapeHtml(tt().eliminar)}</button>
+                <button type="button" data-accion="editar">${escapeHtml(x.editar)}</button>
+                <button type="button" data-accion="mover">${escapeHtml(x.mover)}</button>
+                <button type="button" data-accion="eliminar">${escapeHtml(x.eliminar)}</button>
               </div>` : ''}
             <h3>${escapeHtml(c.titulo)}</h3>
             ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
             <div class="im-row-acciones">
-              <a class="primary-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener"><span>${escapeHtml(tt().abrir)}</span></a>
+              ${uGem ? `<a class="primary-btn" href="${escapeHtml(uGem)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirGemini)}</span></a>` : ''}
+              ${uNb ? `<a class="primary-btn" href="${escapeHtml(uNb)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirNotebook)}</span></a>` : ''}
+              <button class="secondary-btn" type="button" data-togglechats="${c.id}"><span>💬 ${escapeHtml(x.chats)} (${cs.length}) ${abierto ? '▴' : '▾'}</span></button>
             </div>
+            ${abierto ? `
+              <div class="im-cuad-chats">
+                ${cs.map(filaChatC).join('')}
+                <button class="secondary-btn" type="button" data-nuevochat="${c.id}"><span>${escapeHtml(x.guardarChat)}</span></button>
+              </div>` : ''}
           </div>`;
       }
 
@@ -2223,6 +2337,7 @@ ${clean}`;
             ${menuAbierto === 'nodo-' + n.id ? `
               <div class="im-menu">
                 <button type="button" data-accion="editar">${escapeHtml(tt().editar)}</button>
+                ${n.parent_id ? `<button type="button" data-accion="mover">${escapeHtml(tt().mover)}</button>` : ''}
                 <button type="button" data-accion="eliminar">${escapeHtml(tt().eliminar)}</button>
               </div>` : ''}
             <h3>${escapeHtml(n.nombre)}</h3>
@@ -2233,18 +2348,17 @@ ${clean}`;
 
       function renderCuadernos() {
         const x = tt();
-        let cards = '', lista = [], ubicacion = '', btnCatLabel = x.crearCat, mostrarBtnCat = true;
+        let cards = '', lista = [], encCat = '', encSub = '', btnCatLabel = x.crearCat, mostrarBtnCat = true;
 
         if (cuadVista.t === 'root') {
           $('imCuadVolver').style.display = 'none';
-          ubicacion = '';
           cards = catsRaiz().map(n => cardNodo(n, totalEnCat(n.id))).join('');
           lista = cuadEn(null);
         } else if (cuadVista.t === 'cat') {
           const cat = nodoDe(cuadVista.id);
           if (!cat) { cuadVista = { t: 'root' }; return renderCuadernos(); }
           $('imCuadVolver').style.display = '';
-          ubicacion = cat.nombre;
+          encCat = cat.nombre;
           btnCatLabel = x.crearSub;
           cards = subsDe(cat.id).map(n => cardNodo(n, cuadEn(n.id).length)).join('');
           lista = cuadEn(cat.id);
@@ -2252,12 +2366,26 @@ ${clean}`;
           const sub = nodoDe(cuadVista.id);
           if (!sub) { cuadVista = { t: 'root' }; return renderCuadernos(); }
           $('imCuadVolver').style.display = '';
-          ubicacion = `${nodoDe(sub.parent_id)?.nombre ?? ''} › ${sub.nombre}`;
+          encCat = nodoDe(sub.parent_id)?.nombre ?? '';
+          encSub = sub.nombre;
           mostrarBtnCat = false;
           lista = cuadEn(sub.id);
         }
 
-        $('imCuadUbicacion').textContent = ubicacion;
+        // Encabezado grande: dónde estoy parado
+        $('imCuadEncabezado').style.display = encCat ? '' : 'none';
+        $('imCuadEncCat').textContent = encCat;
+        $('imCuadEncSub').textContent = encSub;
+        $('imCuadEncSub').style.display = encSub ? '' : 'none';
+        // Título de las cards y de los cuadernos sueltos que conviven con ellas
+        const titCards = $('imCuadCardsTitulo');
+        if (cards) { titCards.textContent = cuadVista.t === 'root' ? x.tituloCats : x.tituloSubs; titCards.style.display = ''; }
+        else titCards.style.display = 'none';
+        const titLista = $('imCuadListaTitulo');
+        if (cards && lista.length && cuadVista.t !== 'sub') {
+          titLista.textContent = cuadVista.t === 'root' ? x.sinCatTitulo : x.sinSubTitulo;
+          titLista.style.display = '';
+        } else titLista.style.display = 'none';
         $('imBtnNuevaCat').style.display = mostrarBtnCat ? '' : 'none';
         $('imBtnNuevaCat').querySelector('span').textContent = btnCatLabel;
         $('imBtnNuevoCuad').querySelector('span').textContent = x.agregarCuad;
@@ -2281,8 +2409,9 @@ ${clean}`;
         if (accion) {
           const card = accion.closest('[data-navnodo]');
           const n = nodoDe(card.dataset.navnodo);
-          menuAbierto = null;
+          menuAbierto = null; renderCuadernos();
           if (accion.dataset.accion === 'editar') abrirModalNodo({ modo: 'editar', nodo: n });
+          if (accion.dataset.accion === 'mover') abrirModalMoverSubC(n);
           if (accion.dataset.accion === 'eliminar') eliminarNodo(n);
           e.stopPropagation(); return;
         }
@@ -2298,6 +2427,28 @@ ${clean}`;
       $('imCuadList').addEventListener('click', (e) => {
         const abrir = e.target.closest('a.primary-btn');
         if (abrir) { e.preventDefault(); window.open(abrir.href, '_blank', 'noopener'); return; }
+        const menuChat = e.target.closest('[data-menuchat]');
+        if (menuChat) {
+          const clave = 'chat-' + menuChat.dataset.menuchat;
+          menuAbierto = menuAbierto === clave ? null : clave;
+          renderCuadernos(); e.stopPropagation(); return;
+        }
+        const chAcc = e.target.closest('[data-chataccion]');
+        if (chAcc) {
+          const ch = chatsC.find(x => x.id === chAcc.dataset.chid);
+          menuAbierto = null; renderCuadernos();
+          if (chAcc.dataset.chataccion === 'editar') abrirModalChatC({ modo: 'editar', chat: ch });
+          if (chAcc.dataset.chataccion === 'eliminar') eliminarChatC(ch);
+          e.stopPropagation(); return;
+        }
+        const tgl = e.target.closest('[data-togglechats]');
+        if (tgl) {
+          const id = tgl.dataset.togglechats;
+          chatsAbiertos.has(id) ? chatsAbiertos.delete(id) : chatsAbiertos.add(id);
+          renderCuadernos(); return;
+        }
+        const nvo = e.target.closest('[data-nuevochat]');
+        if (nvo) { abrirModalChatC({ modo: 'crear', cuadernoId: nvo.dataset.nuevochat }); return; }
         const menuBtn = e.target.closest('[data-menucuad]');
         if (menuBtn) {
           const clave = 'cuad-' + menuBtn.dataset.menucuad;
@@ -2308,7 +2459,7 @@ ${clean}`;
         if (!accion) return;
         const fila = accion.closest('[data-imcuad]');
         const c = cuadernos.find(x => String(x.id) === fila.dataset.imcuad);
-        menuAbierto = null;
+        menuAbierto = null; renderCuadernos();
         if (accion.dataset.accion === 'editar') abrirModalCuad({ modo: 'editar', cuaderno: c });
         if (accion.dataset.accion === 'mover')  abrirModalCuad({ modo: 'mover', cuaderno: c });
         if (accion.dataset.accion === 'eliminar') eliminarCuaderno(c);
@@ -2340,20 +2491,56 @@ ${clean}`;
         abrirModalCuad({ modo: 'crear', prefCatId, prefSubId });
       });
 
+      // Confirmación propia (el confirm() nativo se puede suprimir y se ve ajeno al sitio)
+      let confResolveC = null;
+      function confirmarC(texto, titulo, textoSi) {
+        $('imConfCTitulo').textContent = titulo;
+        $('imConfCTexto').textContent = texto;
+        $('imConfCSi').querySelector('span').textContent = textoSi;
+        $('imConfCNo').querySelector('span').textContent = tt().btnCancelar;
+        $('imModalConfirmarC').classList.add('abierto');
+        return new Promise((res) => { confResolveC = res; });
+      }
+      function cerrarConfirmarC(v) {
+        $('imModalConfirmarC').classList.remove('abierto');
+        if (confResolveC) { confResolveC(v); confResolveC = null; }
+      }
+      $('imConfCSi').addEventListener('click', () => cerrarConfirmarC(true));
+      $('imConfCNo').addEventListener('click', () => cerrarConfirmarC(false));
+      $('imModalConfirmarC').addEventListener('click', (e) => { if (e.target.id === 'imModalConfirmarC') cerrarConfirmarC(false); });
+
+      // Borrado verificado: si la base no borró nada, se avisa
+      async function borrarFilaC(tabla, id) {
+        const { data, error } = await db.from(tabla).delete().eq('id', id).select('id');
+        if (error || !data?.length) return true;
+        return false;
+      }
+
       async function eliminarNodo(n) {
-        if (!confirm(tt().confirmaNodo)) return;
-        await db.from('user_cuaderno_categorias').delete().eq('id', n.id);
+        const x = tt();
+        const esSub = !!n.parent_id;
+        if (!await confirmarC(esSub ? x.confTexSub : x.confTexCat, esSub ? x.confTitSub : x.confTitCat, x.confSiTodo)) return;
+        if (await borrarFilaC('user_cuaderno_categorias', n.id)) { showToast(x.noBorro); return; }
         if ((cuadVista.t === 'cat' || cuadVista.t === 'sub') && (cuadVista.id === n.id || nodoDe(cuadVista.id)?.parent_id === n.id)) {
           cuadVista = { t: 'root' };
         }
-        showToast(tt().eliminado);
+        showToast(x.eliminado);
         cargarCuadernos();
       }
 
       async function eliminarCuaderno(c) {
-        if (!confirm(tt().confirmaEliminar)) return;
-        await db.from('user_cuadernos').delete().eq('id', c.id);
-        showToast(tt().eliminado);
+        const x = tt();
+        if (!await confirmarC(x.confTexCuad, x.confTitCuad, x.confSi)) return;
+        if (await borrarFilaC('user_cuadernos', c.id)) { showToast(x.noBorro); return; }
+        showToast(x.eliminado);
+        cargarCuadernos();
+      }
+
+      async function eliminarChatC(ch) {
+        const x = tt();
+        if (!await confirmarC(x.confTexChat, x.confTitChat, x.confSi)) return;
+        if (await borrarFilaC('user_cuaderno_chats', ch.id)) { showToast(x.noBorro); return; }
+        showToast(x.eliminado);
         cargarCuadernos();
       }
 
@@ -2421,12 +2608,14 @@ ${clean}`;
         $('imModalCuadTitulo').textContent = ctx.modo === 'crear' ? x.tNuevoCuad : (ctx.modo === 'editar' ? x.tEditarCuad : x.tMoverCuad);
         $('imCuadCampos').style.display = ctx.modo === 'mover' ? 'none' : '';
         $('imCuadLblTitulo').textContent = x.lblTituloC;
-        $('imCuadLblUrl').textContent = x.lblUrlC;
+        $('imCuadLblUrlGem').textContent = x.lblUrlGem;
+        $('imCuadLblUrlNb').textContent = x.lblUrlNb;
         $('imCuadLblDesc').textContent = x.lblParaQue;
         $('imCuadLblCat').textContent = x.lblCatOpc;
         $('imCuadLblSub').textContent = x.lblSubOpc;
         $('imCuadTitInput').value = c?.titulo ?? '';
-        $('imCuadUrlInput').value = c?.url ?? '';
+        $('imCuadUrlGemInput').value = c?.url_gemini ?? '';
+        $('imCuadUrlNbInput').value = c?.url_notebook ?? c?.url ?? '';
         $('imCuadDescInput').value = c?.descripcion ?? '';
         let catId = ctx.prefCatId ?? null, subId = ctx.prefSubId ?? null;
         if (c?.nodo_id) {
@@ -2452,13 +2641,16 @@ ${clean}`;
       $('imCuadOk').addEventListener('click', async () => {
         const x = tt();
         const modo = cuadCtx.modo;
-        let titulo = null, url = null, descripcion = null;
+        let titulo = null, urlGem = null, urlNb = null, descripcion = null;
         if (modo !== 'mover') {
           titulo = $('imCuadTitInput').value.trim();
-          url = $('imCuadUrlInput').value.trim();
+          urlGem = $('imCuadUrlGemInput').value.trim() || null;
+          urlNb = $('imCuadUrlNbInput').value.trim() || null;
           descripcion = $('imCuadDescInput').value.trim() || null;
-          if (!titulo || !url) { showToast(x.datosFaltan); return; }
-          if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+          if (!titulo) { showToast(x.nombreVacio); return; }
+          if (!urlGem && !urlNb) { showToast(x.unLink); return; }
+          if (urlGem && !/^https?:\/\//i.test(urlGem)) urlGem = 'https://' + urlGem;
+          if (urlNb && !/^https?:\/\//i.test(urlNb)) urlNb = 'https://' + urlNb;
         }
 
         // Resolver destino (creando categoría/subcategoría si hace falta)
@@ -2481,21 +2673,83 @@ ${clean}`;
         }
         const nodoId = subId || catId || null;
 
+        let error;
         if (modo === 'crear') {
-          await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId });
-          showToast(x.cuadGuardado);
+          ({ error } = await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId }));
         } else if (modo === 'editar') {
-          await db.from('user_cuadernos').update({ titulo, url, descripcion, nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id);
-          showToast(x.catGuardada);
+          ({ error } = await db.from('user_cuadernos').update({ titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id));
         } else {
-          await db.from('user_cuadernos').update({ nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id);
-          showToast(x.movido);
+          ({ error } = await db.from('user_cuadernos').update({ nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id));
         }
+        if (error) { showToast(x.noGuardo + ': ' + error.message); return; }
+        showToast(modo === 'crear' ? x.cuadGuardado : (modo === 'editar' ? x.catGuardada : x.movido));
         $('imModalCuad').classList.remove('abierto');
         cargarCuadernos();
       });
       $('imCuadCancelar').addEventListener('click', () => $('imModalCuad').classList.remove('abierto'));
       $('imModalCuad').addEventListener('click', (e) => { if (e.target.id === 'imModalCuad') e.target.classList.remove('abierto'); });
+
+      // ── Chats por cuaderno ──
+      function abrirModalChatC(ctx) {
+        chatCtx = ctx;
+        const x = tt();
+        $('imChatCTitulo').textContent = ctx.modo === 'crear' ? x.tNuevoChat : x.tEditarChat;
+        $('imChatCLblTit').textContent = x.lblTituloChat;
+        $('imChatCLblUrl').textContent = x.lblUrlChat;
+        $('imChatCLblNota').textContent = x.lblNotaChat;
+        $('imChatCCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imChatCOk').querySelector('span').textContent = x.btnGuardar;
+        $('imChatCTit').value = ctx.chat?.titulo ?? '';
+        $('imChatCUrl').value = ctx.chat?.url ?? '';
+        $('imChatCNota').value = ctx.chat?.nota ?? '';
+        $('imModalChatC').classList.add('abierto');
+        $('imChatCTit').focus();
+      }
+      $('imChatCOk').addEventListener('click', async () => {
+        const x = tt();
+        const titulo = $('imChatCTit').value.trim();
+        let url = $('imChatCUrl').value.trim();
+        if (!titulo || !url) { showToast(x.datosFaltan); return; }
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        const nota = $('imChatCNota').value.trim() || null;
+        const q = chatCtx.modo === 'crear'
+          ? db.from('user_cuaderno_chats').insert({ user_id: IM.userId, cuaderno_id: chatCtx.cuadernoId, titulo, url, nota })
+          : db.from('user_cuaderno_chats').update({ titulo, url, nota }).eq('id', chatCtx.chat.id);
+        const { error } = await q;
+        if (error) { showToast(x.noGuardo + ': ' + error.message); return; }
+        if (chatCtx.modo === 'crear') chatsAbiertos.add(chatCtx.cuadernoId);
+        $('imModalChatC').classList.remove('abierto');
+        showToast(x.chatGuardado);
+        cargarCuadernos();
+      });
+      $('imChatCCancelar').addEventListener('click', () => $('imModalChatC').classList.remove('abierto'));
+      $('imModalChatC').addEventListener('click', (e) => { if (e.target.id === 'imModalChatC') e.target.classList.remove('abierto'); });
+
+      // ── Mover subcategoría entre categorías (sus cuadernos viajan con ella) ──
+      function abrirModalMoverSubC(n) {
+        const x = tt();
+        const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
+        if (!destinos.length) { showToast(x.sinDestino); return; }
+        moverSubCtx = n;
+        $('imMoverSubTitulo').textContent = x.tMoverSub;
+        $('imMoverSubLbl').textContent = x.lblCatDestino;
+        $('imMoverSubCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imMoverSubOk').querySelector('span').textContent = x.mover;
+        $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
+        $('imModalMoverSubC').classList.add('abierto');
+      }
+      $('imMoverSubOk').addEventListener('click', async () => {
+        const x = tt();
+        const destino = $('imMoverSubSel').value;
+        if (!moverSubCtx || !destino) return;
+        const { error } = await db.from('user_cuaderno_categorias').update({ parent_id: destino }).eq('id', moverSubCtx.id);
+        if (error) { showToast(x.noGuardo + ': ' + error.message); return; }
+        $('imModalMoverSubC').classList.remove('abierto');
+        showToast(x.subMovida);
+        cargarCuadernos();
+      });
+      $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSubC').classList.remove('abierto'));
+      $('imModalMoverSubC').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSubC') e.target.classList.remove('abierto'); });
 
       // ── Idioma: textos propios sincronizados con el selector de la app ──
       function actualizarTextosIM() {
@@ -2517,6 +2771,16 @@ ${clean}`;
         if (imGrupoActualId) pintarEstrella();
       }
       document.getElementById('interfaceLanguage').addEventListener('change', () => setTimeout(actualizarTextosIM));
+
+      // Regla de la casa: al entrar a la sección, todo colapsado y en la raíz
+      const imSwitchTabOrig = switchTab;
+      switchTab = function (tab) {
+        if (tab === 'cuadernos') {
+          chatsAbiertos.clear(); menuAbierto = null; cuadVista = { t: 'root' };
+          renderCuadernos();
+        }
+        imSwitchTabOrig(tab);
+      };
 
       actualizarTextosIM();
       cargarFavoritos(); cargarMisConfigs(); cargarCuadernos();
