@@ -509,6 +509,21 @@
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
             Biblioteca de gemas
           </button>
+        </div>
+        <button class="tree-root" id="treeRootBtn" type="button">
+          <svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <span>Herramientas predeterminadas</span>
+        </button>
+        <div id="toolTree" class="sidebar-tree-list"></div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-links">
+          <button class="sidebar-link sidebar-link-special" data-nav="builder">
+            <svg viewBox="0 0 24 24"><path d="M12 3c.6 3.3 2.4 5.1 5.7 5.7-3.3.6-5.1 2.4-5.7 5.7-.6-3.3-2.4-5.1-5.7-5.7C9.6 8.1 11.4 6.3 12 3Z"></path><path d="M18.5 15c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z"></path></svg>
+            Gema para crear gemas
+          </button>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-links">
           <button class="sidebar-link" data-nav="misgemas">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9z"></path><path d="M2 9h20"></path></svg>
             <span>Mis gemas</span>
@@ -518,19 +533,6 @@
             Guía de uso
           </button>
         </div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-links">
-          <button class="sidebar-link sidebar-link-special" data-nav="builder">
-            <svg viewBox="0 0 24 24"><path d="M12 3c.6 3.3 2.4 5.1 5.7 5.7-3.3.6-5.1 2.4-5.7 5.7-.6-3.3-2.4-5.1-5.7-5.7C9.6 8.1 11.4 6.3 12 3Z"></path><path d="M18.5 15c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z"></path></svg>
-            Gema para crear gemas
-          </button>
-        </div>
-        <div class="sidebar-divider"></div>
-        <button class="tree-root" id="treeRootBtn" type="button">
-          <svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          <span>Herramientas predeterminadas</span>
-        </button>
-        <div id="toolTree" class="sidebar-tree-list"></div>
       </div>
       <div class="sidebar-footer">400 gemas · 20 categorías · exclusivo Gemini</div>
     </aside>
@@ -2056,14 +2058,14 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
         const na = e.target.closest('[data-nodoaccion]');
         if (na) {
-          const n = nodoDe(na.dataset.nid); menu = null;
+          const n = nodoDe(na.dataset.nid); menu = null; render();
           if (na.dataset.nodoaccion === 'editar') abrirModalNodo({ modo: 'editar', nodo: n });
           if (na.dataset.nodoaccion === 'eliminar') eliminarNodo(n);
           return;
         }
         const ga = e.target.closest('[data-gemaaccion]');
         if (ga) {
-          const g = misGemas.find(x => x.id === ga.dataset.gid); menu = null;
+          const g = misGemas.find(x => x.id === ga.dataset.gid); menu = null; render();
           if (ga.dataset.gemaaccion === 'editar') abrirModalGema({ modo: 'editar', gema: g });
           if (ga.dataset.gemaaccion === 'mover')  abrirModalGema({ modo: 'mover', gema: g });
           if (ga.dataset.gemaaccion === 'eliminar') eliminarGema(g);
@@ -2071,14 +2073,14 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         }
         const ca = e.target.closest('[data-chataccion]');
         if (ca) {
-          const c = chats.find(x => x.id === ca.dataset.cid); menu = null;
+          const c = chats.find(x => x.id === ca.dataset.cid); menu = null; render();
           if (ca.dataset.chataccion === 'editar') abrirModalChat({ modo: 'editar', chat: c });
           if (ca.dataset.chataccion === 'eliminar') eliminarChat(c);
           return;
         }
         const pa = e.target.closest('[data-promptaccion]');
         if (pa) {
-          const p = prompts.find(x => x.id === pa.dataset.pid); menu = null;
+          const p = prompts.find(x => x.id === pa.dataset.pid); menu = null; render();
           if (pa.dataset.promptaccion === 'eliminar') eliminarPrompt(p);
           if (pa.dataset.promptaccion === 'editar') {
             if (p.item_id) {
@@ -2164,7 +2166,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         return null;
       }
       async function eliminarNodo(n) {
-        if (!await confirmar('Las gemas que contiene quedarán sin categoría.', '¿Eliminar la categoría?', 'Sí, eliminar')) return;
+        const esSub = !!n.parent_id;
+        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'subcategorías, ') + 'gemas, chats y prompts guardados.', esSub ? '¿Eliminar la subcategoría?' : '¿Eliminar la categoría?', 'Sí, eliminar todo')) return;
         const err = await borrarFila('user_gema_categorias', n.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
