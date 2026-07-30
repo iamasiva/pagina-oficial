@@ -396,6 +396,39 @@
     .im-gate .im-btn:hover { background: #58328a; }
     .im-gate a { color: #8e5cc4; font-weight: 700; }
     .im-oculto { display: none !important; }
+    /* Espacio personal (favoritos + colecciones) */
+    .im-det-acciones { display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; }
+    .im-star { background: none; border: none; font-size: 1.6rem; line-height: 1; color: #b8872d; cursor: pointer; padding: 2px 6px; }
+    .im-star:hover { transform: scale(1.15); }
+    .im-mini-btn { background: none; border: 1.5px solid #e3dcee; border-radius: 8px; color: #6b6178; padding: 8px 14px; font-size: 0.83rem; font-weight: 700; cursor: pointer; }
+    .im-mini-btn:hover { border-color: #6b3fa0; color: #6b3fa0; }
+    .im-btn-primario { background: #6b3fa0; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.88rem; font-weight: 800; cursor: pointer; }
+    .im-btn-primario:hover { background: #58328a; }
+    .im-vacio { color: #6b6178; font-style: italic; padding: 20px 0; }
+    .im-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .im-toolbar .im-ubicacion { font-weight: 800; font-size: 0.95rem; }
+    .im-toolbar-acciones { margin-left: auto; display: flex; gap: 8px; }
+    .im-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 22px; }
+    .im-cat-card { position: relative; background: #ece3f7; color: #4a3a75; border-radius: 12px; padding: 18px; cursor: pointer; min-height: 104px; display: flex; flex-direction: column; }
+    .im-cat-card:hover { box-shadow: 0 10px 30px rgba(107,63,160,0.2); }
+    .im-cat-card h3 { font-size: 0.98rem; margin: 0 24px 4px 0; }
+    .im-cat-card p { font-size: 0.8rem; opacity: 0.8; margin: 0; line-height: 1.45; }
+    .im-cat-card .im-count { margin-top: auto; padding-top: 8px; font-size: 0.75rem; font-weight: 700; opacity: 0.7; }
+    .im-menu-btn { position: absolute; top: 10px; right: 8px; background: none; border: none; font-size: 1.1rem; line-height: 1; color: inherit; opacity: 0.7; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+    .im-menu-btn:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+    .im-menu { position: absolute; top: 34px; right: 8px; z-index: 30; background: #fff; border: 1px solid #e3dcee; border-radius: 8px; box-shadow: 0 10px 30px rgba(45,24,66,0.18); min-width: 130px; overflow: hidden; }
+    .im-menu button { display: block; width: 100%; text-align: left; background: none; border: none; padding: 10px 14px; font-size: 0.85rem; color: #241b2e; cursor: pointer; }
+    .im-menu button:hover { background: #f1ecf9; }
+    .im-fila-col { position: relative; }
+    .im-fila-col .im-quitar { position: absolute; top: 12px; right: 12px; }
+    .im-modal { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(36,27,46,0.5); align-items: center; justify-content: center; padding: 18px; }
+    .im-modal.abierto { display: flex; }
+    .im-modal-caja { background: #fff; border-radius: 14px; padding: 26px; width: 100%; max-width: 440px; }
+    .im-modal-caja h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .im-modal-caja input, .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid #e3dcee; border-radius: 8px; font: inherit; outline: none; background: #fff; }
+    .im-modal-caja input:focus, .im-modal-caja select:focus { border-color: #6b3fa0; }
+    .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #6b6178; margin: 14px 0 6px; }
+    .im-modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
     /* El hamburguesa (fijo arriba-izquierda en móvil) no debe tapar los botones de volver */
     @media (max-width: 860px) {
       .config-detail-back { margin-left: 52px; }
@@ -433,6 +466,14 @@
           <button class="sidebar-link active" data-nav="library">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
             Biblioteca de gemas
+          </button>
+          <button class="sidebar-link" data-nav="colecciones">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+            <span>Mis colecciones</span>
+          </button>
+          <button class="sidebar-link" data-nav="favoritos">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"></path></svg>
+            <span>Favoritos</span>
           </button>
           <button class="sidebar-link" data-nav="guide">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -506,6 +547,10 @@
             </div>
             <div class="drawer-title">
               <h2 id="detailTitle">Nombre de la gema</h2>
+              <div class="im-det-acciones">
+                <button id="imFavStar" class="im-star" type="button" title="Guardar en favoritos">☆</button>
+                <button id="imAddColeccion" class="im-mini-btn" type="button">＋ Agregar a colección</button>
+              </div>
               <p id="detailDesc">Descripción corta.</p>
             </div>
             <div class="drawer-meta" id="detailMeta"></div>
@@ -829,6 +874,63 @@
             </div>
           </div>
         </section>
+
+        <section class="section" id="section-favoritos">
+          <div class="hero"><div class="intro">
+            <p class="eyebrow">Tu espacio</p>
+            <h2>Tus gemas favoritas.</h2>
+            <p>Márcalas con la estrella dentro de cualquier gema y quedan siempre a la mano aquí.</p>
+          </div></div>
+          <div id="imFavList"></div>
+          <div id="imFavVacio" class="im-vacio" style="display:none">Aún no tienes favoritos. Abre una gema y tócale la estrella.</div>
+        </section>
+
+        <section class="section" id="section-colecciones">
+          <div class="hero"><div class="intro">
+            <p class="eyebrow">Tu espacio</p>
+            <h2>Tus gemas, organizadas a tu manera.</h2>
+            <p>Crea colecciones con tus propias categorías y agrupa las gemas que usas para cada frente de tu vida o tu negocio.</p>
+          </div></div>
+          <div class="im-toolbar">
+            <button id="imColVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
+            <span class="im-ubicacion" id="imColUbicacion"></span>
+            <div class="im-toolbar-acciones">
+              <button id="imBtnNuevaCol" class="im-btn-primario" type="button">Crear colección</button>
+            </div>
+          </div>
+          <div id="imColCards" class="im-cards-grid"></div>
+          <div id="imColList"></div>
+          <div id="imColVacio" class="im-vacio" style="display:none">Aún no tienes colecciones. Crea la primera y empieza a organizar tus gemas.</div>
+        </section>
+
+        <!-- Modal: crear/editar colección -->
+        <div id="imModalCol" class="im-modal">
+          <div class="im-modal-caja">
+            <h3 id="imModalColTitulo">Crear colección</h3>
+            <label class="im-modal-label">Nombre</label>
+            <input id="imColNombre" type="text" placeholder="Ej: Contenido para IA MASIVA" />
+            <label class="im-modal-label">Descripción (opcional)</label>
+            <input id="imColDesc" type="text" placeholder="Ej: Las gemas que uso cada semana para crear contenido" />
+            <div class="im-modal-acciones">
+              <button id="imColCancelar" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imColGuardar" class="im-btn-primario" type="button">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: agregar gema a colección -->
+        <div id="imModalAgregar" class="im-modal">
+          <div class="im-modal-caja">
+            <h3>Agregar a colección</h3>
+            <label class="im-modal-label">Colección</label>
+            <select id="imAgregarSel"></select>
+            <input id="imAgregarNueva" type="text" placeholder="Nombre de la nueva colección" style="display:none; margin-top:8px;" />
+            <div class="im-modal-acciones">
+              <button id="imAgregarCancelar" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imAgregarOk" class="im-btn-primario" type="button">Agregar</button>
+            </div>
+          </div>
+        </div>
 
       </div>
     </main>
@@ -1591,6 +1693,237 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     bindEvents();
     showExplore();
 
+
+    // ═══ IA MASIVA · Espacio personal: Favoritos y Mis colecciones ═══
+    (function imEspacioGemas() {
+      const IM = window.__IM;
+      if (!IM) return;
+      const db = IM.sb;
+      const $ = (id) => document.getElementById(id);
+      const uuidDeGema = (id) => IM.uuidByNum.get(id);
+      const numByUuid = new Map([...IM.uuidByNum].map(([n, u]) => [u, n]));
+
+      const filaGema = (g) => `
+        <button class="config-row-rich" data-id="${g.id}">
+          <div class="row-top"><h3>${escapeHtml(g.nombre)}</h3></div>
+          <p>${escapeHtml(g.descripcion_corta)}</p>
+          <div class="row-meta">
+            <span class="tool-badge">${escapeHtml(toolLabel(g.herramienta))}</span>
+            <span>${escapeHtml(g.categoria)}</span>
+          </div>
+        </button>`;
+
+      // ── Favoritos ──
+      let favoritos = new Set();
+      let gemaActualId = null;
+
+      const imOpenGemOrig = openGem;
+      openGem = function (id) {
+        imOpenGemOrig(id);
+        gemaActualId = id;
+        pintarEstrella();
+      };
+
+      function pintarEstrella() {
+        if (gemaActualId == null) return;
+        const activo = favoritos.has(uuidDeGema(gemaActualId));
+        const star = $('imFavStar');
+        star.textContent = activo ? '★' : '☆';
+        star.title = activo ? 'Quitar de favoritos' : 'Guardar en favoritos';
+      }
+
+      $('imFavStar').addEventListener('click', async () => {
+        if (gemaActualId == null) return;
+        const uuid = uuidDeGema(gemaActualId);
+        if (favoritos.has(uuid)) {
+          favoritos.delete(uuid);
+          await db.from('user_favorites').delete().eq('user_id', IM.userId).eq('item_id', uuid);
+          showToast('Quitada de favoritos');
+        } else {
+          favoritos.add(uuid);
+          await db.from('user_favorites').insert({ user_id: IM.userId, item_id: uuid });
+          showToast('Agregada a favoritos');
+        }
+        pintarEstrella(); renderFavoritos();
+      });
+
+      async function cargarFavoritos() {
+        const { data } = await db.from('user_favorites').select('item_id');
+        // user_favorites es compartida entre productos: filtrar a este producto
+        favoritos = new Set((data ?? []).map(f => f.item_id).filter(u => numByUuid.has(u)));
+        renderFavoritos();
+      }
+
+      function renderFavoritos() {
+        const lista = [...favoritos].map(u => gems.find(g => g.id === numByUuid.get(u))).filter(Boolean);
+        $('imFavVacio').style.display = lista.length ? 'none' : '';
+        $('imFavList').innerHTML = lista.map(filaGema).join('');
+      }
+
+      $('imFavList').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-id]');
+        if (btn) openGem(Number(btn.dataset.id));
+      });
+
+      // ── Mis colecciones ──
+      let colecciones = [], colItems = [];
+      let colVista = null;          // null = cards | id de colección abierta
+      let colMenuAbierto = null, colCtx = null;
+
+      const itemsDe = (colId) => colItems.filter(x => x.coleccion_id === colId);
+
+      async function cargarColecciones() {
+        const [c, i] = await Promise.all([
+          db.from('user_colecciones').select('*').eq('product_id', IM.productId).order('created_at'),
+          db.from('user_coleccion_items').select('coleccion_id,item_id'),
+        ]);
+        colecciones = c.data ?? [];
+        colItems = (i.data ?? []).filter(x => numByUuid.has(x.item_id));
+        renderColecciones();
+      }
+
+      function renderColecciones() {
+        if (colVista && !colecciones.find(c => c.id === colVista)) colVista = null;
+
+        if (!colVista) {
+          $('imColVolver').style.display = 'none';
+          $('imColUbicacion').textContent = '';
+          $('imBtnNuevaCol').style.display = '';
+          $('imColCards').innerHTML = colecciones.map(c => `
+            <div class="im-cat-card" data-col="${c.id}">
+              <button class="im-menu-btn" type="button" data-menucol="${c.id}">⋮</button>
+              ${colMenuAbierto === c.id ? `
+                <div class="im-menu">
+                  <button type="button" data-accion="editar">Editar</button>
+                  <button type="button" data-accion="eliminar">Eliminar</button>
+                </div>` : ''}
+              <h3>${escapeHtml(c.nombre)}</h3>
+              ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
+              <div class="im-count">${itemsDe(c.id).length} gemas</div>
+            </div>`).join('');
+          $('imColList').innerHTML = '';
+          $('imColVacio').style.display = colecciones.length ? 'none' : '';
+        } else {
+          const col = colecciones.find(c => c.id === colVista);
+          $('imColVolver').style.display = '';
+          $('imColUbicacion').textContent = col.nombre;
+          $('imBtnNuevaCol').style.display = 'none';
+          $('imColCards').innerHTML = '';
+          const lista = itemsDe(col.id).map(x => gems.find(g => g.id === numByUuid.get(x.item_id))).filter(Boolean);
+          $('imColList').innerHTML = lista.map(g => `
+            <div class="im-fila-col">
+              ${filaGema(g)}
+              <button class="im-mini-btn im-quitar" type="button" data-quitar="${uuidDeGema(g.id)}">Quitar</button>
+            </div>`).join('');
+          $('imColVacio').style.display = lista.length ? 'none' : '';
+        }
+      }
+
+      $('imColCards').addEventListener('click', (e) => {
+        const menuBtn = e.target.closest('[data-menucol]');
+        if (menuBtn) {
+          colMenuAbierto = colMenuAbierto === menuBtn.dataset.menucol ? null : menuBtn.dataset.menucol;
+          renderColecciones(); e.stopPropagation(); return;
+        }
+        const accion = e.target.closest('[data-accion]');
+        if (accion) {
+          const col = colecciones.find(c => c.id === accion.closest('[data-col]').dataset.col);
+          colMenuAbierto = null;
+          if (accion.dataset.accion === 'editar') abrirModalCol({ modo: 'editar', col });
+          if (accion.dataset.accion === 'eliminar') eliminarColeccion(col);
+          e.stopPropagation(); return;
+        }
+        const card = e.target.closest('[data-col]');
+        if (card) { colVista = card.dataset.col; colMenuAbierto = null; renderColecciones(); }
+      });
+
+      $('imColList').addEventListener('click', async (e) => {
+        const quitar = e.target.closest('[data-quitar]');
+        if (quitar) {
+          await db.from('user_coleccion_items').delete().eq('coleccion_id', colVista).eq('item_id', quitar.dataset.quitar);
+          colItems = colItems.filter(x => !(x.coleccion_id === colVista && x.item_id === quitar.dataset.quitar));
+          renderColecciones(); showToast('Quitada de la colección');
+          return;
+        }
+        const btn = e.target.closest('[data-id]');
+        if (btn) openGem(Number(btn.dataset.id));
+      });
+
+      document.addEventListener('click', (e) => {
+        if (colMenuAbierto && !e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn')) {
+          colMenuAbierto = null; renderColecciones();
+        }
+      });
+
+      $('imColVolver').addEventListener('click', () => { colVista = null; renderColecciones(); });
+      $('imBtnNuevaCol').addEventListener('click', () => abrirModalCol({ modo: 'crear' }));
+
+      async function eliminarColeccion(col) {
+        if (!confirm('¿Eliminar la colección? Las gemas no se pierden, solo la agrupación.')) return;
+        await db.from('user_colecciones').delete().eq('id', col.id);
+        showToast('Eliminada');
+        cargarColecciones();
+      }
+
+      function abrirModalCol(ctx) {
+        colCtx = ctx;
+        $('imModalColTitulo').textContent = ctx.modo === 'crear' ? 'Crear colección' : 'Editar colección';
+        $('imColNombre').value = ctx.col?.nombre ?? '';
+        $('imColDesc').value = ctx.col?.descripcion ?? '';
+        $('imModalCol').classList.add('abierto');
+        $('imColNombre').focus();
+      }
+
+      $('imColGuardar').addEventListener('click', async () => {
+        const nombre = $('imColNombre').value.trim();
+        if (!nombre) { showToast('Escribe un nombre'); return; }
+        const descripcion = $('imColDesc').value.trim() || null;
+        if (colCtx.modo === 'crear') {
+          await db.from('user_colecciones').insert({ user_id: IM.userId, product_id: IM.productId, nombre, descripcion });
+        } else {
+          await db.from('user_colecciones').update({ nombre, descripcion }).eq('id', colCtx.col.id);
+        }
+        $('imModalCol').classList.remove('abierto');
+        showToast('Guardado');
+        cargarColecciones();
+      });
+      $('imColCancelar').addEventListener('click', () => $('imModalCol').classList.remove('abierto'));
+      $('imModalCol').addEventListener('click', (e) => { if (e.target.id === 'imModalCol') e.target.classList.remove('abierto'); });
+
+      // ── Agregar gema a colección (desde el detalle) ──
+      $('imAddColeccion').addEventListener('click', () => {
+        if (gemaActualId == null) return;
+        $('imAgregarSel').innerHTML =
+          colecciones.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('') +
+          '<option value="__nueva__">➕ Nueva colección…</option>';
+        $('imAgregarNueva').style.display = colecciones.length ? 'none' : '';
+        if (!colecciones.length) $('imAgregarSel').value = '__nueva__';
+        $('imModalAgregar').classList.add('abierto');
+      });
+
+      $('imAgregarSel').addEventListener('change', () => {
+        $('imAgregarNueva').style.display = $('imAgregarSel').value === '__nueva__' ? '' : 'none';
+      });
+
+      $('imAgregarOk').addEventListener('click', async () => {
+        let colId = $('imAgregarSel').value;
+        if (colId === '__nueva__') {
+          const nombre = $('imAgregarNueva').value.trim();
+          if (!nombre) { showToast('Escribe un nombre'); return; }
+          const { data } = await db.from('user_colecciones').insert({ user_id: IM.userId, product_id: IM.productId, nombre }).select('id').single();
+          colId = data.id;
+        }
+        const itemUuid = uuidDeGema(gemaActualId);
+        const { error } = await db.from('user_coleccion_items').insert({ coleccion_id: colId, item_id: itemUuid, user_id: IM.userId });
+        showToast(error ? 'Ya estaba en esa colección' : 'Agregada a la colección');
+        $('imModalAgregar').classList.remove('abierto');
+        cargarColecciones();
+      });
+      $('imAgregarCancelar').addEventListener('click', () => $('imModalAgregar').classList.remove('abierto'));
+      $('imModalAgregar').addEventListener('click', (e) => { if (e.target.id === 'imModalAgregar') e.target.classList.remove('abierto'); });
+
+      cargarFavoritos(); cargarColecciones();
+    })();
   }
   </script>
   <script>
