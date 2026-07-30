@@ -952,6 +952,10 @@
             <select id="imMetaSelSub"></select>
             <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
             <label class="im-check"><input type="checkbox" id="imMetaConPrompt" checked /> Guardar el prompt</label>
+            <div id="imMetaPromptCampo">
+              <label class="im-modal-label">Nombre del prompt</label>
+              <input id="imMetaPromptNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
+            </div>
             <div class="im-modal-acciones">
               <button id="imMetaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imMetaGuardar" class="im-btn-primario" type="button">Guardar</button>
@@ -2454,23 +2458,30 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imGuardarPrompt').addEventListener('click', () => {
         if (!activeGem) return;
         ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
-        // Nombre interno del prompt: gema + primer campo diligenciado
+        // Sugerencia de nombre para el prompt: el primer campo diligenciado
         const primerInput = (activeGem.inputs || [])[0];
         let detalle = primerInput ? String(formState[primerInput.id] ?? '').trim() : '';
         if (detalle === 'Otro') detalle = String(formState[primerInput.id + '__otro'] ?? '').trim();
         if (detalle.length > 48) detalle = detalle.slice(0, 48) + '…';
-        ctxMeta.nombrePrompt = detalle ? `${activeGem.nombre}: ${detalle}` : activeGem.nombre;
         $('imMetaNombre').value = activeGem.nombre;
         $('imMetaUrl').value = '';
         $('imMetaConPrompt').checked = true;
+        $('imMetaPromptNombre').value = detalle;
+        $('imMetaPromptCampo').style.display = '';
         llenarSelCat(IDS_META, null, null);
         $('imModalMeta').classList.add('abierto');
         $('imMetaUrl').focus();
       });
 
+      $('imMetaConPrompt').addEventListener('change', () => {
+        $('imMetaPromptCampo').style.display = $('imMetaConPrompt').checked ? '' : 'none';
+      });
+
       $('imMetaGuardar').addEventListener('click', async () => {
         const conPrompt = $('imMetaConPrompt').checked;
         if (conPrompt && !ctxMeta.contenido.trim()) { showToast('Llena el formulario o desmarca "Guardar el prompt"'); return; }
+        const nombrePrompt = $('imMetaPromptNombre').value.trim();
+        if (conPrompt && !nombrePrompt) { showToast('Ponle nombre al prompt'); return; }
         const itemUuid = uuidDeCatalogo(ctxMeta.gem.id);
         let url = $('imMetaUrl').value.trim();
         if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
@@ -2504,7 +2515,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (conPrompt) {
           const { error } = await db.from('user_prompts').insert({
             user_id: IM.userId, product_id: IM.productId, user_gema_id: gemaId,
-            item_id: itemUuid, nombre: ctxMeta.nombrePrompt, valores: ctxMeta.valores, contenido: ctxMeta.contenido,
+            item_id: itemUuid, nombre: nombrePrompt, valores: ctxMeta.valores, contenido: ctxMeta.contenido,
           });
           if (error) { showToast('No se pudo guardar el prompt: ' + error.message); return; }
         }
