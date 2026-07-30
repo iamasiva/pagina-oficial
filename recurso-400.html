@@ -406,7 +406,9 @@
     .im-btn-primario:hover { background: #58328a; }
     .im-vacio { color: #6b6178; font-style: italic; padding: 20px 0; }
     .im-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-    .im-toolbar .im-ubicacion { font-weight: 800; font-size: 0.95rem; }
+    .im-mg-enc { margin: 4px 0 16px; }
+    .im-mg-enc h2 { font-size: 1.55rem; margin: 0; line-height: 1.2; }
+    .im-mg-enc-sub { font-size: 0.98rem; font-weight: 700; color: #6b6178; margin-top: 4px; }
     .im-toolbar-acciones { margin-left: auto; display: flex; gap: 8px; }
     .im-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 22px; }
     .im-cat-card { position: relative; background: #ece3f7; color: #4a3a75; border-radius: 12px; padding: 18px; cursor: pointer; min-height: 104px; display: flex; flex-direction: column; }
@@ -916,11 +918,14 @@
           </div></div>
           <div class="im-toolbar">
             <button id="imMgVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
-            <span class="im-ubicacion" id="imMgUbicacion"></span>
             <div class="im-toolbar-acciones">
               <button id="imMgNuevaCat" class="im-mini-btn" type="button">Crear categoría</button>
               <button id="imMgNuevaGema" class="im-btn-primario" type="button">Guardar gema</button>
             </div>
+          </div>
+          <div id="imMgEncabezado" class="im-mg-enc" style="display:none">
+            <h2 id="imMgEncCat"></h2>
+            <div id="imMgEncSub" class="im-mg-enc-sub"></div>
           </div>
           <h4 id="imMgCardsTitulo" class="im-lista-titulo" style="display:none"></h4>
           <div id="imMgCards" class="im-cards-grid"></div>
@@ -935,7 +940,7 @@
             <h3>Guardar gema</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imMetaNombre" type="text" readonly />
-            <label class="im-modal-label">Link de la gema (opcional)</label>
+            <label class="im-modal-label">Link de la gema</label>
             <input id="imMetaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
             <label class="im-modal-label">Categoría (opcional)</label>
             <select id="imMetaSelCat"></select>
@@ -976,7 +981,7 @@
                 <label class="im-modal-label">Nombre</label>
                 <input id="imGemaNombre" type="text" placeholder="Ej: Mi gema de contenido semanal" />
               </div>
-              <label class="im-modal-label">Link de la gema (opcional)</label>
+              <label class="im-modal-label">Link de la gema</label>
               <input id="imGemaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
               <label class="im-modal-label">¿Para qué es? (opcional)</label>
               <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte" />
@@ -1987,7 +1992,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       function render() {
         if ((vista.t === 'cat' || vista.t === 'sub') && !nodoDe(vista.id)) vista = { t: 'root' };
-        let cards = '', lista = [], ubicacion = '', btnCat = 'Crear categoría', verBtnCat = true;
+        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear categoría', verBtnCat = true;
 
         if (vista.t === 'root') {
           $('imMgVolver').style.display = 'none';
@@ -1996,19 +2001,24 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         } else if (vista.t === 'cat') {
           const cat = nodoDe(vista.id);
           $('imMgVolver').style.display = '';
-          ubicacion = cat.nombre;
+          encCat = cat.nombre;
           btnCat = 'Crear subcategoría';
           cards = subsDe(cat.id).map(n => cardNodo(n, gemasEn(n.id).length)).join('');
           lista = gemasEn(cat.id);
         } else {
           const sub = nodoDe(vista.id);
           $('imMgVolver').style.display = '';
-          ubicacion = `${nodoDe(sub.parent_id)?.nombre ?? ''} › ${sub.nombre}`;
+          encCat = nodoDe(sub.parent_id)?.nombre ?? '';
+          encSub = sub.nombre;
           verBtnCat = false;
           lista = gemasEn(sub.id);
         }
 
-        $('imMgUbicacion').textContent = ubicacion;
+        // Encabezado grande: dónde estoy parado
+        $('imMgEncabezado').style.display = encCat ? '' : 'none';
+        $('imMgEncCat').textContent = encCat;
+        $('imMgEncSub').textContent = encSub;
+        $('imMgEncSub').style.display = encSub ? '' : 'none';
         $('imMgNuevaCat').style.display = verBtnCat ? '' : 'none';
         $('imMgNuevaCat').textContent = btnCat;
         const titCards = $('imMgCardsTitulo');
@@ -2294,8 +2304,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           const catalogo = ctxGema.catalogo ?? gemDeCatalogo(ctxGema.gema);
           const titulo = catalogo ? (ctxGema.gema?.titulo ?? catalogo.nombre) : $('imGemaNombre').value.trim();
           if (!titulo) { showToast('Escribe el nombre'); return; }
-          let url = $('imGemaUrl').value.trim() || null;
-          if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+          let url = $('imGemaUrl').value.trim();
+          if (!url) { showToast('Pega el link de tu gema'); return; }
+          if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
           const descripcion = $('imGemaDesc').value.trim() || null;
           if (modo === 'crear') {
             ({ error } = await db.from('user_gemas').insert({ user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null }));
@@ -2421,18 +2432,28 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imMetaGuardar').addEventListener('click', async () => {
         const conPrompt = $('imMetaConPrompt').checked;
         if (conPrompt && !ctxMeta.contenido.trim()) { showToast('Llena el formulario o desmarca "Guardar el prompt"'); return; }
+        const itemUuid = uuidDeCatalogo(ctxMeta.gem.id);
+        let url = $('imMetaUrl').value.trim();
+        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+        // El link es obligatorio salvo que la gema ya exista en la ubicación elegida.
+        // Se valida ANTES de resolver el nodo, para no crear categorías en un guardado fallido.
+        if (!url) {
+          const catV = $(IDS_META.cat).value, subV = $(IDS_META.sub).value;
+          const nodoPrevisto = (catV === '__nueva__' || subV === '__nueva__') ? '__no__' : (subV || catV || null);
+          const yaExiste = nodoPrevisto !== '__no__' && misGemas.some(g => g.item_id === itemUuid && (g.nodo_id ?? null) === nodoPrevisto);
+          if (!yaExiste) { showToast('Pega el link de tu gema'); return; }
+        }
         const nodoId = await resolverNodoDestino(IDS_META);
         if (nodoId === undefined) return;
-        const itemUuid = uuidDeCatalogo(ctxMeta.gem.id);
         const existente = misGemas.find(g => g.item_id === itemUuid && (g.nodo_id ?? null) === nodoId);
         let gemaId = existente?.id;
         if (existente) {
-          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta gema en esa ubicación'); return; }
+          // Si la existente quedó sin link de una versión anterior y aquí pegaste uno, se aprovecha
+          if (url && !existente.url) await db.from('user_gemas').update({ url }).eq('id', existente.id);
+          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta gema en esa ubicación'); cargarTodo(); return; }
           const ok = await confirmar('La gema ya existe en esa ubicación. ¿Deseas guardar el prompt dentro de esa gema?', 'La gema ya existe', 'Sí, guardar el prompt');
           if (!ok) return;
         } else {
-          let url = $('imMetaUrl').value.trim() || null;
-          if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
           const { data, error } = await db.from('user_gemas').insert({
             user_id: IM.userId, titulo: ctxMeta.gem.nombre, url,
             descripcion: ctxMeta.gem.descripcion_corta ?? null,
