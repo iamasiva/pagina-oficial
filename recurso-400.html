@@ -396,7 +396,7 @@
     .im-gate .im-btn:hover { background: #58328a; }
     .im-gate a { color: #8e5cc4; font-weight: 700; }
     .im-oculto { display: none !important; }
-    /* Espacio personal (favoritos + colecciones) */
+    /* Espacio personal (gemas guardadas + prompts reutilizables) */
     .im-det-acciones { display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; }
     .im-star { background: none; border: none; font-size: 1.6rem; line-height: 1; color: #b8872d; cursor: pointer; padding: 2px 6px; }
     .im-star:hover { transform: scale(1.15); }
@@ -429,6 +429,27 @@
     .im-modal-caja input:focus, .im-modal-caja select:focus { border-color: #6b3fa0; }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #6b6178; margin: 14px 0 6px; }
     .im-modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .im-modal-ancha { max-width: 620px; max-height: 88vh; overflow-y: auto; }
+    .im-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .im-chip { border: 1.5px solid #e3dcee; background: #fff; border-radius: 20px; padding: 7px 15px; font-size: 0.84rem; font-weight: 600; color: #6b6178; cursor: pointer; }
+    .im-chip.activo { border-color: #6b3fa0; background: #ece3f7; color: #4a3a75; }
+    .im-gema { background: #fff; border: 1px solid #e3dcee; border-radius: 12px; margin-bottom: 10px; overflow: visible; }
+    .im-gema-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; text-align: left; padding: 16px 18px; cursor: pointer; }
+    .im-gema-head:hover { background: #faf8fd; }
+    .im-gema-head .chev { font-size: 0.7rem; color: #6b3fa0; transition: transform 0.15s; }
+    .im-gema-head .chev.abierta { transform: rotate(90deg); }
+    .im-gema-head h3 { font-size: 0.95rem; margin: 0; }
+    .im-gema-meta { font-size: 0.76rem; color: #6b6178; margin-top: 3px; }
+    .im-gema-cuerpo { padding: 0 18px 16px; }
+    .im-prompt { position: relative; border: 1px solid #efe9f7; border-radius: 9px; margin-bottom: 8px; background: #fdfcfe; }
+    .im-prompt-head { display: flex; align-items: center; gap: 10px; width: calc(100% - 44px); background: none; border: none; text-align: left; padding: 12px 14px; cursor: pointer; font-weight: 700; font-size: 0.87rem; color: #241b2e; }
+    .im-prompt-head .chev { font-size: 0.65rem; color: #8e5cc4; transition: transform 0.15s; }
+    .im-prompt-head .chev.abierta { transform: rotate(90deg); }
+    .im-prompt-cat { font-size: 0.7rem; font-weight: 700; background: #ece3f7; color: #4a3a75; border-radius: 12px; padding: 2px 9px; }
+    .im-prompt-body { padding: 0 14px 12px; }
+    .im-prompt-body .code-output { width: 100%; min-height: 120px; }
+    .im-prompt-body .im-btn-primario { margin-top: 8px; }
+    .im-gema-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     /* El hamburguesa (fijo arriba-izquierda en móvil) no debe tapar los botones de volver */
     @media (max-width: 860px) {
       .config-detail-back { margin-left: 52px; }
@@ -466,10 +487,6 @@
           <button class="sidebar-link active" data-nav="library">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
             Biblioteca de gemas
-          </button>
-          <button class="sidebar-link" data-nav="colecciones">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
-            <span>Mis colecciones</span>
           </button>
           <button class="sidebar-link" data-nav="favoritos">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"></path></svg>
@@ -549,7 +566,6 @@
               <h2 id="detailTitle">Nombre de la gema</h2>
               <div class="im-det-acciones">
                 <button id="imFavStar" class="im-star" type="button" title="Guardar en favoritos">☆</button>
-                <button id="imAddColeccion" class="im-mini-btn" type="button">＋ Agregar a colección</button>
               </div>
               <p id="detailDesc">Descripción corta.</p>
             </div>
@@ -628,6 +644,7 @@
                 <textarea class="code-output" id="promptOutput" readonly></textarea>
                 <div class="actions">
                   <button class="primary-btn" id="copyPromptBtn">Copiar prompt</button>
+                  <button class="im-mini-btn" id="imGuardarPrompt" type="button">Guardar prompt</button>
                   <button class="secondary-btn" id="resetBtn">Restablecer</button>
                   <span class="copy-feedback" id="copyPromptFeedback">Copiado ✓</span>
                 </div>
@@ -878,59 +895,51 @@
         <section class="section" id="section-favoritos">
           <div class="hero"><div class="intro">
             <p class="eyebrow">Tu espacio</p>
-            <h2>Tus gemas favoritas.</h2>
-            <p>Márcalas con la estrella dentro de cualquier gema y quedan siempre a la mano aquí.</p>
+            <h2>Tus gemas y tus prompts, listos para usar.</h2>
+            <p>Guarda los prompts que generas y reutilízalos sin volver a llenar el formulario. La estrella guarda la gema; el botón "Guardar prompt" guarda tu prompt ya listo.</p>
           </div></div>
+          <div id="imFavChips" class="im-chips"></div>
           <div id="imFavList"></div>
-          <div id="imFavVacio" class="im-vacio" style="display:none">Aún no tienes favoritos. Abre una gema y tócale la estrella.</div>
+          <div id="imFavVacio" class="im-vacio" style="display:none">Aún no tienes nada guardado. Abre una gema, márcala con la estrella o guarda un prompt generado.</div>
         </section>
 
-        <section class="section" id="section-colecciones">
-          <div class="hero"><div class="intro">
-            <p class="eyebrow">Tu espacio</p>
-            <h2>Tus gemas, organizadas a tu manera.</h2>
-            <p>Crea colecciones con tus propias categorías y agrupa las gemas que usas para cada frente de tu vida o tu negocio.</p>
-          </div></div>
-          <div class="im-toolbar">
-            <button id="imColVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
-            <span class="im-ubicacion" id="imColUbicacion"></span>
-            <div class="im-toolbar-acciones">
-              <button id="imBtnNuevaCol" class="im-btn-primario" type="button">Crear colección</button>
-            </div>
-          </div>
-          <div id="imColCards" class="im-cards-grid"></div>
-          <div id="imColList"></div>
-          <div id="imColVacio" class="im-vacio" style="display:none">Aún no tienes colecciones. Crea la primera y empieza a organizar tus gemas.</div>
-        </section>
-
-        <!-- Modal: crear/editar colección -->
-        <div id="imModalCol" class="im-modal">
+        <!-- Modal: nombre y categoría del prompt (guardar desde el detalle) -->
+        <div id="imModalMeta" class="im-modal">
           <div class="im-modal-caja">
-            <h3 id="imModalColTitulo">Crear colección</h3>
+            <h3>Guardar prompt</h3>
             <label class="im-modal-label">Nombre</label>
-            <input id="imColNombre" type="text" placeholder="Ej: Contenido para IA MASIVA" />
-            <label class="im-modal-label">Descripción (opcional)</label>
-            <input id="imColDesc" type="text" placeholder="Ej: Las gemas que uso cada semana para crear contenido" />
+            <input id="imMetaNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
+            <label class="im-modal-label">Categoría (opcional)</label>
+            <select id="imMetaCat"></select>
+            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
             <div class="im-modal-acciones">
-              <button id="imColCancelar" class="im-mini-btn" type="button">Cancelar</button>
-              <button id="imColGuardar" class="im-btn-primario" type="button">Guardar</button>
+              <button id="imMetaCancelar" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imMetaGuardar" class="im-btn-primario" type="button">Guardar</button>
             </div>
           </div>
         </div>
 
-        <!-- Modal: agregar gema a colección -->
-        <div id="imModalAgregar" class="im-modal">
-          <div class="im-modal-caja">
-            <h3>Agregar a colección</h3>
-            <label class="im-modal-label">Colección</label>
-            <select id="imAgregarSel"></select>
-            <input id="imAgregarNueva" type="text" placeholder="Nombre de la nueva colección" style="display:none; margin-top:8px;" />
+        <!-- Modal: crear/editar prompt con el formulario real de la gema -->
+        <div id="imModalPromptForm" class="im-modal">
+          <div class="im-modal-caja im-modal-ancha">
+            <h3 id="imFPTitulo">Nuevo prompt</h3>
+            <label class="im-modal-label">Nombre</label>
+            <input id="imFPNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
+            <label class="im-modal-label">Categoría (opcional)</label>
+            <select id="imFPCat"></select>
+            <input id="imFPCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Campos de la gema</label>
+            <div id="imFPForm" class="prompt-form"></div>
+            <label class="im-modal-label">Prompt resultante</label>
+            <textarea id="imFPOutput" class="code-output" readonly style="min-height:120px;"></textarea>
             <div class="im-modal-acciones">
-              <button id="imAgregarCancelar" class="im-mini-btn" type="button">Cancelar</button>
-              <button id="imAgregarOk" class="im-btn-primario" type="button">Agregar</button>
+              <button id="imFPCancelar" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imFPGuardar" class="im-btn-primario" type="button">Guardar</button>
             </div>
           </div>
         </div>
+
+
 
       </div>
     </main>
@@ -1694,7 +1703,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     showExplore();
 
 
-    // ═══ IA MASIVA · Espacio personal: Favoritos y Mis colecciones ═══
+    // ═══ IA MASIVA · Espacio personal: gemas guardadas + prompts reutilizables ═══
     (function imEspacioGemas() {
       const IM = window.__IM;
       if (!IM) return;
@@ -1703,20 +1712,16 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       const uuidDeGema = (id) => IM.uuidByNum.get(id);
       const numByUuid = new Map([...IM.uuidByNum].map(([n, u]) => [u, n]));
 
-      const filaGema = (g) => `
-        <button class="config-row-rich" data-id="${g.id}">
-          <div class="row-top"><h3>${escapeHtml(g.nombre)}</h3></div>
-          <p>${escapeHtml(g.descripcion_corta)}</p>
-          <div class="row-meta">
-            <span class="tool-badge">${escapeHtml(toolLabel(g.herramienta))}</span>
-            <span>${escapeHtml(g.categoria)}</span>
-          </div>
-        </button>`;
+      let favoritos = new Set();      // uuids de gemas con estrella
+      let prompts = [];               // filas de user_prompts
+      let gemaActualId = null;        // gema abierta en el detalle
+      let filtroCat = null;
+      let gemasAbiertas = new Set();  // desplegables abiertos (item_num)
+      let promptsAbiertos = new Set();
+      let menuPrompt = null;
+      let ctxMeta = null, ctxForm = null;
 
-      // ── Favoritos ──
-      let favoritos = new Set();
-      let gemaActualId = null;
-
+      // ── Estrella en el detalle ──
       const imOpenGemOrig = openGem;
       openGem = function (id) {
         imOpenGemOrig(id);
@@ -1729,200 +1734,263 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const activo = favoritos.has(uuidDeGema(gemaActualId));
         const star = $('imFavStar');
         star.textContent = activo ? '★' : '☆';
-        star.title = activo ? 'Quitar de favoritos' : 'Guardar en favoritos';
+        star.title = activo ? 'Quitar de guardadas' : 'Guardar esta gema';
       }
 
       $('imFavStar').addEventListener('click', async () => {
         if (gemaActualId == null) return;
         const uuid = uuidDeGema(gemaActualId);
         if (favoritos.has(uuid)) {
+          const { error } = await db.from('user_favorites').delete().eq('user_id', IM.userId).eq('item_id', uuid);
+          if (error) { showToast('No se pudo quitar'); return; }
           favoritos.delete(uuid);
-          await db.from('user_favorites').delete().eq('user_id', IM.userId).eq('item_id', uuid);
-          showToast('Quitada de favoritos');
+          showToast('Quitada de guardadas');
         } else {
+          const { error } = await db.from('user_favorites').insert({ user_id: IM.userId, item_id: uuid });
+          if (error) { showToast('No se pudo guardar'); return; }
           favoritos.add(uuid);
-          await db.from('user_favorites').insert({ user_id: IM.userId, item_id: uuid });
-          showToast('Agregada a favoritos');
+          showToast('Gema guardada');
         }
-        pintarEstrella(); renderFavoritos();
+        pintarEstrella(); renderEspacio();
       });
 
+      // ── Datos ──
       async function cargarFavoritos() {
-        const { data } = await db.from('user_favorites').select('item_id');
-        // user_favorites es compartida entre productos: filtrar a este producto
+        const { data, error } = await db.from('user_favorites').select('item_id');
+        if (error) { showToast('No se pudieron cargar tus gemas guardadas'); return; }
         favoritos = new Set((data ?? []).map(f => f.item_id).filter(u => numByUuid.has(u)));
-        renderFavoritos();
+        renderEspacio();
       }
 
-      function renderFavoritos() {
-        const lista = [...favoritos].map(u => gems.find(g => g.id === numByUuid.get(u))).filter(Boolean);
+      async function cargarPrompts() {
+        const { data, error } = await db.from('user_prompts').select('*').eq('product_id', IM.productId).order('created_at', { ascending: false });
+        if (error) { showToast('No se pudieron cargar tus prompts'); return; }
+        prompts = data ?? [];
+        renderEspacio();
+      }
+
+      const promptsDeGema = (itemNum) => prompts.filter(p => numByUuid.get(p.item_id) === itemNum);
+      const catsDePrompts = () => [...new Set(prompts.map(p => (p.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+      // ── Render de la sección unificada ──
+      function renderEspacio() {
+        const cats = catsDePrompts();
+        if (filtroCat && !cats.includes(filtroCat)) filtroCat = null;
+        $('imFavChips').innerHTML = cats.length ? `
+          <button class="im-chip ${!filtroCat ? 'activo' : ''}" type="button" data-fcat="">Todas (${prompts.length})</button>
+          ${cats.map(c => `<button class="im-chip ${filtroCat === c ? 'activo' : ''}" type="button" data-fcat="${escapeHtml(c)}">${escapeHtml(c)} (${prompts.filter(p => (p.categoria || '').trim() === c).length})</button>`).join('')}` : '';
+
+        const nums = new Set();
+        favoritos.forEach(u => nums.add(numByUuid.get(u)));
+        prompts.forEach(p => nums.add(numByUuid.get(p.item_id)));
+
+        let lista = [...nums].map(n => gems.find(g => g.id === n)).filter(Boolean)
+          .sort((a, b) => a.nombre.localeCompare(b.nombre));
+        if (filtroCat) lista = lista.filter(g => promptsDeGema(g.id).some(p => (p.categoria || '').trim() === filtroCat));
+
         $('imFavVacio').style.display = lista.length ? 'none' : '';
-        $('imFavList').innerHTML = lista.map(filaGema).join('');
+        $('imFavList').innerHTML = lista.map(g => {
+          const abierta = gemasAbiertas.has(g.id);
+          let ps = promptsDeGema(g.id);
+          if (filtroCat) ps = ps.filter(p => (p.categoria || '').trim() === filtroCat);
+          const esFav = favoritos.has(uuidDeGema(g.id));
+          return `
+          <div class="im-gema">
+            <button class="im-gema-head" type="button" data-gtoggle="${g.id}">
+              <span class="chev ${abierta ? 'abierta' : ''}">▶</span>
+              <div>
+                <h3>${escapeHtml(g.nombre)}</h3>
+                <div class="im-gema-meta">${escapeHtml(toolLabel(g.herramienta))} · ${ps.length} ${ps.length === 1 ? 'prompt' : 'prompts'}${esFav ? ' · ★' : ''}</div>
+              </div>
+            </button>
+            ${abierta ? `
+            <div class="im-gema-cuerpo">
+              ${ps.map(p => `
+                <div class="im-prompt">
+                  <button class="im-prompt-head" type="button" data-ptoggle="${p.id}">
+                    <span class="chev ${promptsAbiertos.has(p.id) ? 'abierta' : ''}">▶</span>
+                    <span>${escapeHtml(p.nombre)}</span>
+                    ${p.categoria ? `<span class="im-prompt-cat">${escapeHtml(p.categoria)}</span>` : ''}
+                  </button>
+                  <button class="im-menu-btn" type="button" data-pmenu="${p.id}">⋮</button>
+                  ${menuPrompt === p.id ? `
+                    <div class="im-menu">
+                      <button type="button" data-paccion="editar" data-pid="${p.id}">Editar</button>
+                      <button type="button" data-paccion="eliminar" data-pid="${p.id}">Eliminar</button>
+                    </div>` : ''}
+                  ${promptsAbiertos.has(p.id) ? `
+                    <div class="im-prompt-body">
+                      <textarea class="code-output" readonly>${escapeHtml(p.contenido)}</textarea>
+                      <button class="im-btn-primario" type="button" data-pcopy="${p.id}">Copiar prompt</button>
+                    </div>` : ''}
+                </div>`).join('')}
+              <div class="im-gema-acciones">
+                <button class="im-btn-primario" type="button" data-nuevo="${g.id}">＋ Agregar nuevo prompt</button>
+                <button class="im-mini-btn" type="button" data-verconfig="${g.id}">Ver configuración de la gema</button>
+              </div>
+            </div>` : ''}
+          </div>`;
+        }).join('');
       }
 
-      $('imFavList').addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-id]');
-        if (btn) openGem(Number(btn.dataset.id));
+      $('imFavChips').addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-fcat]');
+        if (chip) { filtroCat = chip.dataset.fcat || null; renderEspacio(); }
       });
 
-      // ── Mis colecciones ──
-      let colecciones = [], colItems = [];
-      let colVista = null;          // null = cards | id de colección abierta
-      let colMenuAbierto = null, colCtx = null;
-
-      const itemsDe = (colId) => colItems.filter(x => x.coleccion_id === colId);
-
-      async function cargarColecciones() {
-        const [c, i] = await Promise.all([
-          db.from('user_colecciones').select('*').eq('product_id', IM.productId).order('created_at'),
-          db.from('user_coleccion_items').select('coleccion_id,item_id'),
-        ]);
-        colecciones = c.data ?? [];
-        colItems = (i.data ?? []).filter(x => numByUuid.has(x.item_id));
-        renderColecciones();
-      }
-
-      function renderColecciones() {
-        if (colVista && !colecciones.find(c => c.id === colVista)) colVista = null;
-
-        if (!colVista) {
-          $('imColVolver').style.display = 'none';
-          $('imColUbicacion').textContent = '';
-          $('imBtnNuevaCol').style.display = '';
-          $('imColCards').innerHTML = colecciones.map(c => `
-            <div class="im-cat-card" data-col="${c.id}">
-              <button class="im-menu-btn" type="button" data-menucol="${c.id}">⋮</button>
-              ${colMenuAbierto === c.id ? `
-                <div class="im-menu">
-                  <button type="button" data-accion="editar">Editar</button>
-                  <button type="button" data-accion="eliminar">Eliminar</button>
-                </div>` : ''}
-              <h3>${escapeHtml(c.nombre)}</h3>
-              ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
-              <div class="im-count">${itemsDe(c.id).length} gemas</div>
-            </div>`).join('');
-          $('imColList').innerHTML = '';
-          $('imColVacio').style.display = colecciones.length ? 'none' : '';
-        } else {
-          const col = colecciones.find(c => c.id === colVista);
-          $('imColVolver').style.display = '';
-          $('imColUbicacion').textContent = col.nombre;
-          $('imBtnNuevaCol').style.display = 'none';
-          $('imColCards').innerHTML = '';
-          const lista = itemsDe(col.id).map(x => gems.find(g => g.id === numByUuid.get(x.item_id))).filter(Boolean);
-          $('imColList').innerHTML = lista.map(g => `
-            <div class="im-fila-col">
-              ${filaGema(g)}
-              <button class="im-mini-btn im-quitar" type="button" data-quitar="${uuidDeGema(g.id)}">Quitar</button>
-            </div>`).join('');
-          $('imColVacio').style.display = lista.length ? 'none' : '';
+      $('imFavList').addEventListener('click', async (e) => {
+        const gt = e.target.closest('[data-gtoggle]');
+        if (gt) {
+          const id = Number(gt.dataset.gtoggle);
+          gemasAbiertas.has(id) ? gemasAbiertas.delete(id) : gemasAbiertas.add(id);
+          renderEspacio(); return;
         }
-      }
-
-      $('imColCards').addEventListener('click', (e) => {
-        const menuBtn = e.target.closest('[data-menucol]');
-        if (menuBtn) {
-          colMenuAbierto = colMenuAbierto === menuBtn.dataset.menucol ? null : menuBtn.dataset.menucol;
-          renderColecciones(); e.stopPropagation(); return;
+        const pt = e.target.closest('[data-ptoggle]');
+        if (pt) {
+          const id = pt.dataset.ptoggle;
+          promptsAbiertos.has(id) ? promptsAbiertos.delete(id) : promptsAbiertos.add(id);
+          renderEspacio(); return;
         }
-        const accion = e.target.closest('[data-accion]');
-        if (accion) {
-          const col = colecciones.find(c => c.id === accion.closest('[data-col]').dataset.col);
-          colMenuAbierto = null;
-          if (accion.dataset.accion === 'editar') abrirModalCol({ modo: 'editar', col });
-          if (accion.dataset.accion === 'eliminar') eliminarColeccion(col);
-          e.stopPropagation(); return;
-        }
-        const card = e.target.closest('[data-col]');
-        if (card) { colVista = card.dataset.col; colMenuAbierto = null; renderColecciones(); }
-      });
-
-      $('imColList').addEventListener('click', async (e) => {
-        const quitar = e.target.closest('[data-quitar]');
-        if (quitar) {
-          await db.from('user_coleccion_items').delete().eq('coleccion_id', colVista).eq('item_id', quitar.dataset.quitar);
-          colItems = colItems.filter(x => !(x.coleccion_id === colVista && x.item_id === quitar.dataset.quitar));
-          renderColecciones(); showToast('Quitada de la colección');
+        const pm = e.target.closest('[data-pmenu]');
+        if (pm) { menuPrompt = menuPrompt === pm.dataset.pmenu ? null : pm.dataset.pmenu; renderEspacio(); e.stopPropagation(); return; }
+        const pa = e.target.closest('[data-paccion]');
+        if (pa) {
+          const p = prompts.find(x => x.id === pa.dataset.pid);
+          menuPrompt = null;
+          if (pa.dataset.paccion === 'editar' && p) {
+            const gem = gems.find(g => g.id === numByUuid.get(p.item_id));
+            if (gem) abrirPopupPrompt(gem, p);
+          }
+          if (pa.dataset.paccion === 'eliminar' && p) {
+            if (!confirm('¿Eliminar este prompt definitivamente?')) return;
+            const { error } = await db.from('user_prompts').delete().eq('id', p.id);
+            if (error) { showToast('No se pudo eliminar'); return; }
+            prompts = prompts.filter(x => x.id !== p.id);
+            showToast('Eliminado'); renderEspacio();
+          }
           return;
         }
-        const btn = e.target.closest('[data-id]');
-        if (btn) openGem(Number(btn.dataset.id));
+        const pc = e.target.closest('[data-pcopy]');
+        if (pc) {
+          const p = prompts.find(x => x.id === pc.dataset.pcopy);
+          if (p) copyText(p.contenido);
+          return;
+        }
+        const nv = e.target.closest('[data-nuevo]');
+        if (nv) {
+          const gem = gems.find(g => g.id === Number(nv.dataset.nuevo));
+          if (gem) abrirPopupPrompt(gem, null);
+          return;
+        }
+        const vc = e.target.closest('[data-verconfig]');
+        if (vc) openGem(Number(vc.dataset.verconfig));
       });
 
       document.addEventListener('click', (e) => {
-        if (colMenuAbierto && !e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn')) {
-          colMenuAbierto = null; renderColecciones();
+        if (menuPrompt && !e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn')) {
+          menuPrompt = null; renderEspacio();
         }
       });
 
-      $('imColVolver').addEventListener('click', () => { colVista = null; renderColecciones(); });
-      $('imBtnNuevaCol').addEventListener('click', () => abrirModalCol({ modo: 'crear' }));
-
-      async function eliminarColeccion(col) {
-        if (!confirm('¿Eliminar la colección? Las gemas no se pierden, solo la agrupación.')) return;
-        await db.from('user_colecciones').delete().eq('id', col.id);
-        showToast('Eliminada');
-        cargarColecciones();
+      // ── Selects de categoría (compartido por ambos modales) ──
+      function llenarSelCat(sel, actual) {
+        sel.innerHTML = '<option value="">— Sin categoría</option>' +
+          catsDePrompts().map(c => `<option value="${escapeHtml(c)}" ${c === actual ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('') +
+          '<option value="__nueva__">➕ Nueva categoría…</option>';
       }
-
-      function abrirModalCol(ctx) {
-        colCtx = ctx;
-        $('imModalColTitulo').textContent = ctx.modo === 'crear' ? 'Crear colección' : 'Editar colección';
-        $('imColNombre').value = ctx.col?.nombre ?? '';
-        $('imColDesc').value = ctx.col?.descripcion ?? '';
-        $('imModalCol').classList.add('abierto');
-        $('imColNombre').focus();
+      function resolverCat(sel, inputNueva) {
+        let v = sel.value;
+        if (v === '__nueva__') v = inputNueva.value.trim();
+        return v || null;
       }
+      $('imMetaCat').addEventListener('change', () => { $('imMetaCatNueva').style.display = $('imMetaCat').value === '__nueva__' ? '' : 'none'; });
+      $('imFPCat').addEventListener('change', () => { $('imFPCatNueva').style.display = $('imFPCat').value === '__nueva__' ? '' : 'none'; });
 
-      $('imColGuardar').addEventListener('click', async () => {
-        const nombre = $('imColNombre').value.trim();
+      // ── Guardar prompt desde el detalle de la gema ──
+      $('imGuardarPrompt').addEventListener('click', () => {
+        if (!activeGem) return;
+        ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
+        if (!ctxMeta.contenido.trim()) { showToast('Primero llena el formulario'); return; }
+        $('imMetaNombre').value = '';
+        llenarSelCat($('imMetaCat'), null);
+        $('imMetaCatNueva').style.display = 'none'; $('imMetaCatNueva').value = '';
+        $('imModalMeta').classList.add('abierto');
+        $('imMetaNombre').focus();
+      });
+
+      $('imMetaGuardar').addEventListener('click', async () => {
+        const nombre = $('imMetaNombre').value.trim();
         if (!nombre) { showToast('Escribe un nombre'); return; }
-        const descripcion = $('imColDesc').value.trim() || null;
-        if (colCtx.modo === 'crear') {
-          await db.from('user_colecciones').insert({ user_id: IM.userId, product_id: IM.productId, nombre, descripcion });
+        const { error } = await db.from('user_prompts').insert({
+          user_id: IM.userId, product_id: IM.productId,
+          item_id: uuidDeGema(ctxMeta.gem.id),
+          nombre, categoria: resolverCat($('imMetaCat'), $('imMetaCatNueva')),
+          valores: ctxMeta.valores, contenido: ctxMeta.contenido,
+        });
+        if (error) { showToast('No se pudo guardar: ' + error.message); return; }
+        $('imModalMeta').classList.remove('abierto');
+        showToast('Prompt guardado');
+        gemasAbiertas.add(ctxMeta.gem.id);
+        cargarPrompts();
+      });
+      $('imMetaCancelar').addEventListener('click', () => $('imModalMeta').classList.remove('abierto'));
+      $('imModalMeta').addEventListener('click', (e) => { if (e.target.id === 'imModalMeta') e.target.classList.remove('abierto'); });
+
+      // ── Pop-up crear/editar con el formulario REAL de la gema ──
+      function abrirPopupPrompt(gem, promptRow) {
+        // snapshot del estado del detalle para restaurarlo al cerrar
+        ctxForm = { gem, promptRow, prev: { gem: activeGem, form: formState, formEl: activeFormEl, outEl: activeOutputEl } };
+        $('imFPTitulo').textContent = (promptRow ? 'Editar prompt — ' : 'Nuevo prompt — ') + gem.nombre;
+        $('imFPNombre').value = promptRow?.nombre ?? '';
+        llenarSelCat($('imFPCat'), promptRow?.categoria ?? null);
+        $('imFPCatNueva').style.display = 'none'; $('imFPCatNueva').value = '';
+
+        activeGem = gem;
+        resetFormState(gem);
+        if (promptRow?.valores) Object.assign(formState, promptRow.valores);
+        activeFormEl = $('imFPForm');
+        activeOutputEl = $('imFPOutput');
+        renderForm(gem);
+        updatePromptOutput();
+        $('imModalPromptForm').classList.add('abierto');
+      }
+
+      function cerrarPopupPrompt() {
+        $('imModalPromptForm').classList.remove('abierto');
+        const prev = ctxForm?.prev;
+        if (prev) {
+          activeGem = prev.gem; formState = prev.form;
+          activeFormEl = prev.formEl; activeOutputEl = prev.outEl;
+        }
+        ctxForm = null;
+      }
+
+      $('imFPGuardar').addEventListener('click', async () => {
+        const nombre = $('imFPNombre').value.trim();
+        if (!nombre) { showToast('Escribe un nombre'); return; }
+        const gem = ctxForm.gem;
+        const fila = {
+          nombre, categoria: resolverCat($('imFPCat'), $('imFPCatNueva')),
+          valores: { ...formState }, contenido: buildPrompt(gem),
+        };
+        let error;
+        if (ctxForm.promptRow) {
+          ({ error } = await db.from('user_prompts').update({ ...fila, updated_at: new Date().toISOString() }).eq('id', ctxForm.promptRow.id));
         } else {
-          await db.from('user_colecciones').update({ nombre, descripcion }).eq('id', colCtx.col.id);
+          ({ error } = await db.from('user_prompts').insert({
+            ...fila, user_id: IM.userId, product_id: IM.productId, item_id: uuidDeGema(gem.id),
+          }));
         }
-        $('imModalCol').classList.remove('abierto');
-        showToast('Guardado');
-        cargarColecciones();
+        if (error) { showToast('No se pudo guardar: ' + error.message); return; }
+        gemasAbiertas.add(gem.id);
+        cerrarPopupPrompt();
+        showToast('Prompt guardado');
+        cargarPrompts();
       });
-      $('imColCancelar').addEventListener('click', () => $('imModalCol').classList.remove('abierto'));
-      $('imModalCol').addEventListener('click', (e) => { if (e.target.id === 'imModalCol') e.target.classList.remove('abierto'); });
+      $('imFPCancelar').addEventListener('click', cerrarPopupPrompt);
+      $('imModalPromptForm').addEventListener('click', (e) => { if (e.target.id === 'imModalPromptForm') cerrarPopupPrompt(); });
 
-      // ── Agregar gema a colección (desde el detalle) ──
-      $('imAddColeccion').addEventListener('click', () => {
-        if (gemaActualId == null) return;
-        $('imAgregarSel').innerHTML =
-          colecciones.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('') +
-          '<option value="__nueva__">➕ Nueva colección…</option>';
-        $('imAgregarNueva').style.display = colecciones.length ? 'none' : '';
-        if (!colecciones.length) $('imAgregarSel').value = '__nueva__';
-        $('imModalAgregar').classList.add('abierto');
-      });
-
-      $('imAgregarSel').addEventListener('change', () => {
-        $('imAgregarNueva').style.display = $('imAgregarSel').value === '__nueva__' ? '' : 'none';
-      });
-
-      $('imAgregarOk').addEventListener('click', async () => {
-        let colId = $('imAgregarSel').value;
-        if (colId === '__nueva__') {
-          const nombre = $('imAgregarNueva').value.trim();
-          if (!nombre) { showToast('Escribe un nombre'); return; }
-          const { data } = await db.from('user_colecciones').insert({ user_id: IM.userId, product_id: IM.productId, nombre }).select('id').single();
-          colId = data.id;
-        }
-        const itemUuid = uuidDeGema(gemaActualId);
-        const { error } = await db.from('user_coleccion_items').insert({ coleccion_id: colId, item_id: itemUuid, user_id: IM.userId });
-        showToast(error ? 'Ya estaba en esa colección' : 'Agregada a la colección');
-        $('imModalAgregar').classList.remove('abierto');
-        cargarColecciones();
-      });
-      $('imAgregarCancelar').addEventListener('click', () => $('imModalAgregar').classList.remove('abierto'));
-      $('imModalAgregar').addEventListener('click', (e) => { if (e.target.id === 'imModalAgregar') e.target.classList.remove('abierto'); });
-
-      cargarFavoritos(); cargarColecciones();
+      cargarFavoritos(); cargarPrompts();
     })();
   }
   </script>
