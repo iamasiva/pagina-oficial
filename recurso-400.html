@@ -466,6 +466,9 @@
     .im-lista-titulo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #6b6178; margin: 18px 0 10px; }
     .im-modal-nota { font-size: 0.8rem; color: #6b6178; line-height: 1.5; margin: 14px 0 0; }
     .im-gema-catinfo { background: #f4effb; border: 1px solid #e3dcee; border-radius: 10px; padding: 10px 12px; font-weight: 700; font-size: 0.9rem; margin-top: 14px; }
+    .im-check { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; user-select: none; }
+    .im-check input { width: 16px; height: 16px; accent-color: #6b3fa0; cursor: pointer; }
+    .im-modal-caja input[readonly] { background: #f4effb; color: #4a3a75; cursor: default; }
     /* El hamburguesa (fijo arriba-izquierda en móvil) no debe tapar los botones de volver */
     @media (max-width: 860px) {
       .config-detail-back { margin-left: 52px; }
@@ -657,8 +660,8 @@
                 <textarea class="code-output" id="promptOutput" readonly></textarea>
                 <div class="actions">
                   <button class="primary-btn" id="copyPromptBtn">Copiar prompt</button>
-                  <button class="secondary-btn" id="imGuardarPrompt" type="button">Guardar prompt</button>
                   <button class="secondary-btn" id="resetBtn">Restablecer</button>
+                  <button class="secondary-btn" id="imGuardarPrompt" type="button">Guardar gema</button>
                   <span class="copy-feedback" id="copyPromptFeedback">Copiado ✓</span>
                 </div>
               </div>
@@ -919,6 +922,7 @@
               <button id="imMgNuevaGema" class="im-btn-primario" type="button">Guardar gema</button>
             </div>
           </div>
+          <h4 id="imMgCardsTitulo" class="im-lista-titulo" style="display:none"></h4>
           <div id="imMgCards" class="im-cards-grid"></div>
           <h4 id="imMgListaTitulo" class="im-lista-titulo" style="display:none"></h4>
           <div id="imMgLista"></div>
@@ -928,16 +932,18 @@
         <!-- Modal: nombre y categoría del prompt (guardar desde el detalle) -->
         <div id="imModalMeta" class="im-modal">
           <div class="im-modal-caja">
-            <h3>Guardar prompt</h3>
+            <h3>Guardar gema</h3>
             <label class="im-modal-label">Nombre</label>
-            <input id="imMetaNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
+            <input id="imMetaNombre" type="text" readonly />
+            <label class="im-modal-label">Link de la gema (opcional)</label>
+            <input id="imMetaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
             <label class="im-modal-label">Categoría (opcional)</label>
             <select id="imMetaSelCat"></select>
             <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
             <label class="im-modal-label">Subcategoría (opcional)</label>
             <select id="imMetaSelSub"></select>
             <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
-            <p class="im-modal-nota" id="imMetaNota"></p>
+            <label class="im-check"><input type="checkbox" id="imMetaConPrompt" checked /> Guardar el prompt</label>
             <div class="im-modal-acciones">
               <button id="imMetaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imMetaGuardar" class="im-btn-primario" type="button">Guardar</button>
@@ -1064,6 +1070,18 @@
             <div class="im-modal-acciones">
               <button id="imFPCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imFPGuardar" class="im-btn-primario" type="button">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: confirmación (reemplaza el confirm() nativo) -->
+        <div id="imModalConfirmar" class="im-modal">
+          <div class="im-modal-caja">
+            <h3 id="imConfTitulo">¿Estás seguro?</h3>
+            <p class="im-modal-nota" id="imConfTexto" style="margin-top:10px;"></p>
+            <div class="im-modal-acciones">
+              <button id="imConfNo" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imConfSi" class="im-btn-primario" type="button">Sí, continuar</button>
             </div>
           </div>
         </div>
@@ -1993,6 +2011,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imMgUbicacion').textContent = ubicacion;
         $('imMgNuevaCat').style.display = verBtnCat ? '' : 'none';
         $('imMgNuevaCat').textContent = btnCat;
+        const titCards = $('imMgCardsTitulo');
+        if (cards) { titCards.textContent = vista.t === 'root' ? 'Categorías' : 'Subcategorías'; titCards.style.display = ''; }
+        else titCards.style.display = 'none';
         $('imMgCards').innerHTML = cards;
         // Cuando gemas sueltas conviven con tarjetas, la lista lleva su título
         const tit = $('imMgListaTitulo');
@@ -2108,29 +2129,52 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imModalTipoGema').addEventListener('click', (e) => { if (e.target.id === 'imModalTipoGema') e.target.classList.remove('abierto'); });
 
-      // ── Eliminaciones ──
+      // ── Confirmación propia (el confirm() nativo se puede suprimir y se ve ajeno al sitio) ──
+      let confResolve = null;
+      function confirmar(texto, titulo, textoSi) {
+        $('imConfTitulo').textContent = titulo ?? '¿Estás seguro?';
+        $('imConfTexto').textContent = texto;
+        $('imConfSi').textContent = textoSi ?? 'Sí, continuar';
+        $('imModalConfirmar').classList.add('abierto');
+        return new Promise((res) => { confResolve = res; });
+      }
+      function cerrarConfirmar(v) {
+        $('imModalConfirmar').classList.remove('abierto');
+        if (confResolve) { confResolve(v); confResolve = null; }
+      }
+      $('imConfSi').addEventListener('click', () => cerrarConfirmar(true));
+      $('imConfNo').addEventListener('click', () => cerrarConfirmar(false));
+      $('imModalConfirmar').addEventListener('click', (e) => { if (e.target.id === 'imModalConfirmar') cerrarConfirmar(false); });
+
+      // ── Eliminaciones (verificadas: si la base no borró nada, se avisa) ──
+      async function borrarFila(tabla, id) {
+        const { data, error } = await db.from(tabla).delete().eq('id', id).select('id');
+        if (error) return error.message;
+        if (!data?.length) return 'la base de datos no borró la fila';
+        return null;
+      }
       async function eliminarNodo(n) {
-        if (!confirm('¿Eliminar? Las gemas que contiene quedarán sin categoría.')) return;
-        const { error } = await db.from('user_gema_categorias').delete().eq('id', n.id);
-        if (error) { showToast('No se pudo eliminar'); return; }
+        if (!await confirmar('Las gemas que contiene quedarán sin categoría.', '¿Eliminar la categoría?', 'Sí, eliminar')) return;
+        const err = await borrarFila('user_gema_categorias', n.id);
+        if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
       }
       async function eliminarGema(g) {
-        if (!confirm('¿Eliminar la gema con sus chats y prompts guardados?')) return;
-        const { error } = await db.from('user_gemas').delete().eq('id', g.id);
-        if (error) { showToast('No se pudo eliminar'); return; }
+        if (!await confirmar('Se eliminará con sus chats y prompts guardados.', '¿Eliminar la gema?', 'Sí, eliminar')) return;
+        const err = await borrarFila('user_gemas', g.id);
+        if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
       }
       async function eliminarChat(c) {
-        if (!confirm('¿Eliminar este chat guardado?')) return;
-        const { error } = await db.from('user_gema_chats').delete().eq('id', c.id);
-        if (error) { showToast('No se pudo eliminar'); return; }
+        if (!await confirmar('Se eliminará este chat guardado (el chat real en Gemini no se toca).', '¿Eliminar el chat?', 'Sí, eliminar')) return;
+        const err = await borrarFila('user_gema_chats', c.id);
+        if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminado'); cargarTodo();
       }
       async function eliminarPrompt(p) {
-        if (!confirm('¿Eliminar este prompt definitivamente?')) return;
-        const { error } = await db.from('user_prompts').delete().eq('id', p.id);
-        if (error) { showToast('No se pudo eliminar'); return; }
+        if (!await confirmar('Este prompt se eliminará definitivamente.', '¿Eliminar el prompt?', 'Sí, eliminar')) return;
+        const err = await borrarFila('user_prompts', p.id);
+        if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminado'); cargarTodo();
       }
 
@@ -2353,49 +2397,59 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imLibreCancelar').addEventListener('click', () => $('imModalLibre').classList.remove('abierto'));
       $('imModalLibre').addEventListener('click', (e) => { if (e.target.id === 'imModalLibre') e.target.classList.remove('abierto'); });
 
-      // ── Guardar prompt desde el detalle del catálogo ──
-      // El prompt pertenece a ESA gema: solo se pide nombre y ubicación. Si la
-      // gema ya está en esa categoría/subcategoría el prompt se suma; si no,
-      // la gema se crea ahí (vinculada al catálogo).
+      // ── "Guardar gema" desde el detalle del catálogo ──
+      // Guarda la gema (nombre inmutable del catálogo, link opcional, ubicación)
+      // y, si el check está activo, también el prompt del formulario. Si la gema
+      // ya existe en esa ubicación, solo se ofrece guardar el prompt.
       $('imGuardarPrompt').addEventListener('click', () => {
         if (!activeGem) return;
         ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
-        if (!ctxMeta.contenido.trim()) { showToast('Primero llena el formulario'); return; }
-        // Nombre por defecto (editable): gema + primer campo diligenciado
+        // Nombre interno del prompt: gema + primer campo diligenciado
         const primerInput = (activeGem.inputs || [])[0];
         let detalle = primerInput ? String(formState[primerInput.id] ?? '').trim() : '';
         if (detalle === 'Otro') detalle = String(formState[primerInput.id + '__otro'] ?? '').trim();
         if (detalle.length > 48) detalle = detalle.slice(0, 48) + '…';
-        $('imMetaNombre').value = detalle ? `${activeGem.nombre}: ${detalle}` : activeGem.nombre;
+        ctxMeta.nombrePrompt = detalle ? `${activeGem.nombre}: ${detalle}` : activeGem.nombre;
+        $('imMetaNombre').value = activeGem.nombre;
+        $('imMetaUrl').value = '';
+        $('imMetaConPrompt').checked = true;
         llenarSelCat(IDS_META, null, null);
-        $('imMetaNota').textContent = `💎 La gema "${activeGem.nombre}" quedará guardada en "Mis gemas" con este prompt adentro. Si ya la tienes en la ubicación que elijas, el prompt se suma a esa gema.`;
         $('imModalMeta').classList.add('abierto');
-        $('imMetaNombre').focus();
+        $('imMetaUrl').focus();
       });
 
       $('imMetaGuardar').addEventListener('click', async () => {
-        const nombre = $('imMetaNombre').value.trim();
-        if (!nombre) { showToast('Escribe un nombre'); return; }
+        const conPrompt = $('imMetaConPrompt').checked;
+        if (conPrompt && !ctxMeta.contenido.trim()) { showToast('Llena el formulario o desmarca "Guardar el prompt"'); return; }
         const nodoId = await resolverNodoDestino(IDS_META);
         if (nodoId === undefined) return;
         const itemUuid = uuidDeCatalogo(ctxMeta.gem.id);
-        let gemaId = misGemas.find(g => g.item_id === itemUuid && (g.nodo_id ?? null) === nodoId)?.id;
-        if (!gemaId) {
+        const existente = misGemas.find(g => g.item_id === itemUuid && (g.nodo_id ?? null) === nodoId);
+        let gemaId = existente?.id;
+        if (existente) {
+          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta gema en esa ubicación'); return; }
+          const ok = await confirmar('La gema ya existe en esa ubicación. ¿Deseas guardar el prompt dentro de esa gema?', 'La gema ya existe', 'Sí, guardar el prompt');
+          if (!ok) return;
+        } else {
+          let url = $('imMetaUrl').value.trim() || null;
+          if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
           const { data, error } = await db.from('user_gemas').insert({
-            user_id: IM.userId, titulo: ctxMeta.gem.nombre, url: null,
+            user_id: IM.userId, titulo: ctxMeta.gem.nombre, url,
             descripcion: ctxMeta.gem.descripcion_corta ?? null,
             nodo_id: nodoId, item_id: itemUuid,
           }).select('id').single();
           if (error) { showToast('No se pudo guardar la gema: ' + error.message); return; }
           gemaId = data.id;
         }
-        const { error } = await db.from('user_prompts').insert({
-          user_id: IM.userId, product_id: IM.productId, user_gema_id: gemaId,
-          item_id: itemUuid, nombre, valores: ctxMeta.valores, contenido: ctxMeta.contenido,
-        });
-        if (error) { showToast('No se pudo guardar: ' + error.message); return; }
+        if (conPrompt) {
+          const { error } = await db.from('user_prompts').insert({
+            user_id: IM.userId, product_id: IM.productId, user_gema_id: gemaId,
+            item_id: itemUuid, nombre: ctxMeta.nombrePrompt, valores: ctxMeta.valores, contenido: ctxMeta.contenido,
+          });
+          if (error) { showToast('No se pudo guardar el prompt: ' + error.message); return; }
+        }
         $('imModalMeta').classList.remove('abierto');
-        showToast('Prompt guardado en tu gema');
+        showToast(conPrompt ? (existente ? 'Prompt guardado en tu gema' : 'Gema guardada con su prompt') : 'Gema guardada');
         cargarTodo();
       });
       $('imMetaCancelar').addEventListener('click', () => $('imModalMeta').classList.remove('abierto'));
