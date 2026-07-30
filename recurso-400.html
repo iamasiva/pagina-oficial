@@ -460,6 +460,12 @@
     .im-buscar-item:hover { background: #f8f5fc; }
     .im-buscar-item .b-tit { font-weight: 700; font-size: 0.86rem; }
     .im-buscar-item .b-meta { color: #6b6178; font-size: 0.75rem; margin-top: 2px; }
+    .im-tag { display: inline-block; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; vertical-align: 2px; margin-left: 8px; }
+    .im-tag-catalogo { background: #ece3f7; color: #6b3fa0; }
+    .im-tag-propia { background: #fbf1de; color: #a3742a; }
+    .im-lista-titulo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #6b6178; margin: 18px 0 10px; }
+    .im-modal-nota { font-size: 0.8rem; color: #6b6178; line-height: 1.5; margin: 14px 0 0; }
+    .im-gema-catinfo { background: #f4effb; border: 1px solid #e3dcee; border-radius: 10px; padding: 10px 12px; font-weight: 700; font-size: 0.9rem; margin-top: 14px; }
     /* El hamburguesa (fijo arriba-izquierda en móvil) no debe tapar los botones de volver */
     @media (max-width: 860px) {
       .config-detail-back { margin-left: 52px; }
@@ -914,6 +920,7 @@
             </div>
           </div>
           <div id="imMgCards" class="im-cards-grid"></div>
+          <h4 id="imMgListaTitulo" class="im-lista-titulo" style="display:none"></h4>
           <div id="imMgLista"></div>
           <div id="imMgVacio" class="im-vacio" style="display:none">Aún no guardas gemas. Guarda la primera con el botón de arriba, o guarda un prompt desde cualquier gema del catálogo.</div>
         </section>
@@ -924,9 +931,13 @@
             <h3>Guardar prompt</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imMetaNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
-            <label class="im-modal-label">¿En cuál de tus gemas lo guardo?</label>
-            <select id="imMetaGema"></select>
-            <input id="imMetaGemaNueva" type="text" placeholder="Nombre de tu gema nueva (el link se lo pones después)" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Categoría (opcional)</label>
+            <select id="imMetaSelCat"></select>
+            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Subcategoría (opcional)</label>
+            <select id="imMetaSelSub"></select>
+            <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+            <p class="im-modal-nota" id="imMetaNota"></p>
             <div class="im-modal-acciones">
               <button id="imMetaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imMetaGuardar" class="im-btn-primario" type="button">Guardar</button>
@@ -954,8 +965,11 @@
           <div class="im-modal-caja">
             <h3 id="imGemaTitulo">Guardar gema</h3>
             <div id="imGemaCampos">
-              <label class="im-modal-label">Nombre</label>
-              <input id="imGemaNombre" type="text" placeholder="Ej: Mi gema de contenido semanal" />
+              <div id="imGemaCatalogoInfo" class="im-gema-catinfo" style="display:none"></div>
+              <div id="imGemaNombreCampo">
+                <label class="im-modal-label">Nombre</label>
+                <input id="imGemaNombre" type="text" placeholder="Ej: Mi gema de contenido semanal" />
+              </div>
               <label class="im-modal-label">Link de la gema (opcional)</label>
               <input id="imGemaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
               <label class="im-modal-label">¿Para qué es? (opcional)</label>
@@ -1011,8 +1025,19 @@
           <div class="im-modal-caja">
             <h3>¿Cómo quieres crear el prompt?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
-              <button id="imOrigenCatalogo" class="im-btn-primario" type="button" style="width:100%;">Desde una gema del catálogo (formulario)</button>
+              <button id="imOrigenCatalogo" class="im-btn-primario" type="button" style="width:100%;">Desde el formulario de la gema</button>
               <button id="imOrigenLibre" class="im-mini-btn" type="button" style="width:100%;">Redactado por mí (texto libre)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: qué tipo de gema vas a guardar -->
+        <div id="imModalTipoGema" class="im-modal">
+          <div class="im-modal-caja">
+            <h3>¿Qué gema quieres guardar?</h3>
+            <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
+              <button id="imTipoCatalogo" class="im-btn-primario" type="button" style="width:100%;">Una gema del catálogo</button>
+              <button id="imTipoPropia" class="im-mini-btn" type="button" style="width:100%;">Una gema creada por mí</button>
             </div>
           </div>
         </div>
@@ -1241,6 +1266,11 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       "Video, audio y multimedia": '<rect x="3" y="5" width="18" height="14" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="5" x2="7" y2="9"></line><line x1="15" y1="5" x2="13" y2="9"></line>',
     };
     const DEFAULT_ICON = '<circle cx="12" cy="12" r="8"></circle><path d="M12 4v16M4 12h16"></path>';
+    // Las claves del mapa están sin tildes y las categorías del dataset las llevan:
+    // sin normalizar ambos lados, casi todas caían al icono genérico.
+    const sinTildes = (s) => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const ICONS_NORM = Object.fromEntries(Object.entries(ICONS_BY_CATEGORY).map(([k, v]) => [sinTildes(k), v]));
+    const iconoDeCategoria = (cat) => ICONS_NORM[sinTildes(cat)] || DEFAULT_ICON;
 
     const TOOL_DISPLAY_MAP = {
       "Conversación": "Sin herramienta predeterminada",
@@ -1333,7 +1363,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           (cat, i) => `
         <button class="category-card" data-cat="${escapeHtml(cat)}">
           <span class="category-card-icon" style="background:${i % 2 === 0 ? "var(--accent-soft)" : "#fbf1de"}; color:${i % 2 === 0 ? "var(--accent)" : "var(--gold)"};">
-            <svg viewBox="0 0 24 24">${ICONS_BY_CATEGORY[cat] || DEFAULT_ICON}</svg>
+            <svg viewBox="0 0 24 24">${iconoDeCategoria(cat)}</svg>
           </span>
           <span class="category-card-body">
             <h3>${escapeHtml(cat)}</h3>
@@ -1821,7 +1851,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       let vista = { t: 'root' };
       let abiertos = { chats: new Set(), prompts: new Set(), textos: new Set() };
       let menu = null;                 // 'nodo-id' | 'gema-id' | 'chat-id' | 'prompt-id'
-      let ctxNodo = null, ctxGema = null, ctxChat = null, ctxMeta = null, ctxForm = null, ctxLibre = null, ctxOrigen = null;
+      let ctxNodo = null, ctxGema = null, ctxChat = null, ctxMeta = null, ctxForm = null, ctxLibre = null, ctxOrigen = null, ctxTipo = null;
 
       const catsRaiz = () => nodos.filter(n => !n.parent_id).sort((a, b) => a.nombre.localeCompare(b.nombre));
       const subsDe = (id) => nodos.filter(n => n.parent_id === id).sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -1830,6 +1860,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       const totalEnCat = (catId) => gemasEn(catId).length + subsDe(catId).reduce((a, s) => a + gemasEn(s.id).length, 0);
       const chatsDe = (gemaId) => chats.filter(c => c.gema_id === gemaId);
       const promptsDe = (gemaId) => prompts.filter(p => p.user_gema_id === gemaId);
+      const gemDeCatalogo = (g) => g?.item_id ? gems.find(x => x.id === numByUuid.get(g.item_id)) : null;
 
       async function cargarTodo() {
         const [n, g, c, p] = await Promise.all([
@@ -1914,7 +1945,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
                   <button type="button" data-gemaaccion="eliminar" data-gid="${g.id}">Eliminar</button>
                 </div>` : ''}
               <div>
-                <h3>${escapeHtml(g.titulo)}</h3>
+                <h3>${escapeHtml(g.titulo)} <span class="im-tag ${g.item_id ? 'im-tag-catalogo' : 'im-tag-propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span></h3>
                 ${g.descripcion ? `<div class="im-gema-meta">${escapeHtml(g.descripcion)}</div>` : ''}
               </div>
             </div>
@@ -1963,6 +1994,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imMgNuevaCat').style.display = verBtnCat ? '' : 'none';
         $('imMgNuevaCat').textContent = btnCat;
         $('imMgCards').innerHTML = cards;
+        // Cuando gemas sueltas conviven con tarjetas, la lista lleva su título
+        const tit = $('imMgListaTitulo');
+        if (cards && lista.length && vista.t !== 'sub') {
+          tit.textContent = vista.t === 'root' ? 'Gemas sin categoría' : 'Gemas sin subcategoría';
+          tit.style.display = '';
+        } else tit.style.display = 'none';
         $('imMgLista').innerHTML = lista.map(filaGema).join('');
         $('imMgVacio').style.display = (!cards && !lista.length) ? '' : 'none';
       }
@@ -2024,7 +2061,14 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const nc = e.target.closest('[data-nuevochat]');
         if (nc) { abrirModalChat({ modo: 'crear', gemaId: nc.dataset.nuevochat }); return; }
         const np = e.target.closest('[data-nuevoprompt]');
-        if (np) { ctxOrigen = { gemaId: np.dataset.nuevoprompt }; $('imModalOrigen').classList.add('abierto'); return; }
+        if (np) {
+          const g = misGemas.find(x => x.id === np.dataset.nuevoprompt);
+          if (!g) return;
+          // Gema del catálogo: formulario o texto libre. Gema propia: lo redactas tú.
+          if (g.item_id) { ctxOrigen = { gemaId: g.id }; $('imModalOrigen').classList.add('abierto'); }
+          else abrirModalLibre({ modo: 'crear', gemaId: g.id });
+          return;
+        }
 
         const card = e.target.closest('[data-navnodo]');
         if (card) {
@@ -2045,10 +2089,24 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imMgNuevaCat').addEventListener('click', () => abrirModalNodo({ modo: 'crear', parentId: vista.t === 'cat' ? vista.id : null }));
       $('imMgNuevaGema').addEventListener('click', () => {
-        const prefCat = vista.t === 'cat' ? vista.id : (vista.t === 'sub' ? nodoDe(vista.id)?.parent_id : null);
-        const prefSub = vista.t === 'sub' ? vista.id : null;
-        abrirModalGema({ modo: 'crear', prefCat, prefSub });
+        ctxTipo = {
+          prefCat: vista.t === 'cat' ? vista.id : (vista.t === 'sub' ? nodoDe(vista.id)?.parent_id : null),
+          prefSub: vista.t === 'sub' ? vista.id : null,
+        };
+        $('imModalTipoGema').classList.add('abierto');
       });
+      $('imTipoPropia').addEventListener('click', () => {
+        $('imModalTipoGema').classList.remove('abierto');
+        abrirModalGema({ modo: 'crear', ...ctxTipo });
+      });
+      $('imTipoCatalogo').addEventListener('click', () => {
+        $('imModalTipoGema').classList.remove('abierto');
+        $('imBuscarInput').value = '';
+        renderBusqueda('');
+        $('imModalBuscarGema').classList.add('abierto');
+        $('imBuscarInput').focus();
+      });
+      $('imModalTipoGema').addEventListener('click', (e) => { if (e.target.id === 'imModalTipoGema') e.target.classList.remove('abierto'); });
 
       // ── Eliminaciones ──
       async function eliminarNodo(n) {
@@ -2101,16 +2159,18 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imNodoCancelar').addEventListener('click', () => $('imModalNodo').classList.remove('abierto'));
       $('imModalNodo').addEventListener('click', (e) => { if (e.target.id === 'imModalNodo') e.target.classList.remove('abierto'); });
 
-      // ── Modal gema (crear/editar/mover) ──
-      function llenarSelCatGema(catSel, subSel) {
-        $('imGemaSelCat').innerHTML = '<option value="">— Sin categoría</option>' +
+      // ── Selects de categoría/subcategoría (los usan el modal de gema y el de guardar prompt) ──
+      const IDS_GEMA = { cat: 'imGemaSelCat', catN: 'imGemaCatNueva', sub: 'imGemaSelSub', subN: 'imGemaSubNueva' };
+      const IDS_META = { cat: 'imMetaSelCat', catN: 'imMetaCatNueva', sub: 'imMetaSelSub', subN: 'imMetaSubNueva' };
+      function llenarSelCat(ids, catSel, subSel) {
+        $(ids.cat).innerHTML = '<option value="">— Sin categoría</option>' +
           catsRaiz().map(n => `<option value="${n.id}" ${n.id === catSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
           '<option value="__nueva__">➕ Nueva categoría…</option>';
-        $('imGemaCatNueva').style.display = 'none'; $('imGemaCatNueva').value = '';
-        llenarSelSubGema(catSel, subSel);
+        $(ids.catN).style.display = 'none'; $(ids.catN).value = '';
+        llenarSelSub(ids, catSel, subSel);
       }
-      function llenarSelSubGema(catId, subSel) {
-        const sel = $('imGemaSelSub');
+      function llenarSelSub(ids, catId, subSel) {
+        const sel = $(ids.sub);
         if (!catId || catId === '__nueva__') {
           sel.innerHTML = '<option value="">— Sin subcategoría</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva subcategoría…</option>' : '');
         } else {
@@ -2118,39 +2178,49 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
             '<option value="__nueva__">➕ Nueva subcategoría…</option>';
         }
-        $('imGemaSubNueva').style.display = 'none'; $('imGemaSubNueva').value = '';
+        $(ids.subN).style.display = 'none'; $(ids.subN).value = '';
       }
-      $('imGemaSelCat').addEventListener('change', () => {
-        const v = $('imGemaSelCat').value;
-        $('imGemaCatNueva').style.display = v === '__nueva__' ? '' : 'none';
-        llenarSelSubGema(v, null);
-      });
-      $('imGemaSelSub').addEventListener('change', () => {
-        $('imGemaSubNueva').style.display = $('imGemaSelSub').value === '__nueva__' ? '' : 'none';
-      });
+      function conectarSelCat(ids) {
+        $(ids.cat).addEventListener('change', () => {
+          const v = $(ids.cat).value;
+          $(ids.catN).style.display = v === '__nueva__' ? '' : 'none';
+          llenarSelSub(ids, v, null);
+        });
+        $(ids.sub).addEventListener('change', () => {
+          $(ids.subN).style.display = $(ids.sub).value === '__nueva__' ? '' : 'none';
+        });
+      }
+      conectarSelCat(IDS_GEMA);
+      conectarSelCat(IDS_META);
 
+      // ── Modal gema (crear/editar/mover) ──
       function abrirModalGema(ctx) {
         ctxGema = ctx;
         const g = ctx.gema;
+        const catalogo = ctx.catalogo ?? gemDeCatalogo(g);
         $('imGemaTitulo').textContent = ctx.modo === 'crear' ? 'Guardar gema' : (ctx.modo === 'editar' ? 'Editar gema' : 'Mover gema');
         $('imGemaCampos').style.display = ctx.modo === 'mover' ? 'none' : '';
+        // Gema del catálogo: el nombre viene del catálogo y no se toca
+        $('imGemaCatalogoInfo').style.display = catalogo ? '' : 'none';
+        $('imGemaNombreCampo').style.display = catalogo ? 'none' : '';
+        if (catalogo) $('imGemaCatalogoInfo').innerHTML = `<span class="im-tag im-tag-catalogo" style="margin:0 8px 0 0;">Catálogo</span>${escapeHtml(catalogo.nombre)}`;
         $('imGemaNombre').value = g?.titulo ?? '';
         $('imGemaUrl').value = g?.url ?? '';
-        $('imGemaDesc').value = g?.descripcion ?? '';
+        $('imGemaDesc').value = g?.descripcion ?? catalogo?.descripcion_corta ?? '';
         let catId = ctx.prefCat ?? null, subId = ctx.prefSub ?? null;
         if (g?.nodo_id) {
           const n = nodoDe(g.nodo_id);
           if (n?.parent_id) { catId = n.parent_id; subId = n.id; } else if (n) catId = n.id;
         }
-        llenarSelCatGema(catId, subId);
+        llenarSelCat(IDS_GEMA, catId, subId);
         $('imModalGema').classList.add('abierto');
       }
 
-      async function resolverNodoDestino() {
-        let catId = $('imGemaSelCat').value || null;
-        let subId = $('imGemaSelSub').value || null;
+      async function resolverNodoDestino(ids) {
+        let catId = $(ids.cat).value || null;
+        let subId = $(ids.sub).value || null;
         if (catId === '__nueva__') {
-          const nombre = $('imGemaCatNueva').value.trim();
+          const nombre = $(ids.catN).value.trim();
           if (!nombre) { showToast('Escribe el nombre de la categoría'); return undefined; }
           const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: null, nombre }).select('id').single();
           if (error) { showToast('No se pudo crear la categoría'); return undefined; }
@@ -2159,7 +2229,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (subId === '__nueva__') {
           if (!catId) subId = null;
           else {
-            const nombre = $('imGemaSubNueva').value.trim();
+            const nombre = $(ids.subN).value.trim();
             if (!nombre) { showToast('Escribe el nombre de la subcategoría'); return undefined; }
             const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
             if (error) { showToast('No se pudo crear la subcategoría'); return undefined; }
@@ -2171,19 +2241,20 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       $('imGemaOk').addEventListener('click', async () => {
         const modo = ctxGema.modo;
-        const nodoId = await resolverNodoDestino();
+        const nodoId = await resolverNodoDestino(IDS_GEMA);
         if (nodoId === undefined) return;
         let error;
         if (modo === 'mover') {
           ({ error } = await db.from('user_gemas').update({ nodo_id: nodoId }).eq('id', ctxGema.gema.id));
         } else {
-          const titulo = $('imGemaNombre').value.trim();
+          const catalogo = ctxGema.catalogo ?? gemDeCatalogo(ctxGema.gema);
+          const titulo = catalogo ? (ctxGema.gema?.titulo ?? catalogo.nombre) : $('imGemaNombre').value.trim();
           if (!titulo) { showToast('Escribe el nombre'); return; }
           let url = $('imGemaUrl').value.trim() || null;
           if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
           const descripcion = $('imGemaDesc').value.trim() || null;
           if (modo === 'crear') {
-            ({ error } = await db.from('user_gemas').insert({ user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId }));
+            ({ error } = await db.from('user_gemas').insert({ user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null }));
           } else {
             ({ error } = await db.from('user_gemas').update({ titulo, url, descripcion, nodo_id: nodoId, updated_at: new Date().toISOString() }).eq('id', ctxGema.gema.id));
           }
@@ -2227,10 +2298,10 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       // ── Origen del prompt nuevo (catálogo o libre) ──
       $('imOrigenCatalogo').addEventListener('click', () => {
         $('imModalOrigen').classList.remove('abierto');
-        $('imBuscarInput').value = '';
-        renderBusqueda('');
-        $('imModalBuscarGema').classList.add('abierto');
-        $('imBuscarInput').focus();
+        const g = misGemas.find(x => x.id === ctxOrigen.gemaId);
+        const gem = gemDeCatalogo(g);
+        if (!gem) { showToast('No encontré esta gema en el catálogo'); return; }
+        abrirPopupPrompt(gem, null, g.id);
       });
       $('imOrigenLibre').addEventListener('click', () => {
         $('imModalOrigen').classList.remove('abierto');
@@ -2253,7 +2324,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (!btn) return;
         const gem = gems.find(g => g.id === Number(btn.dataset.elegir));
         $('imModalBuscarGema').classList.remove('abierto');
-        if (gem) abrirPopupPrompt(gem, null, ctxOrigen.gemaId);
+        if (gem) abrirModalGema({ modo: 'crear', catalogo: gem, prefCat: ctxTipo?.prefCat ?? null, prefSub: ctxTipo?.prefSub ?? null });
       });
       $('imModalBuscarGema').addEventListener('click', (e) => { if (e.target.id === 'imModalBuscarGema') e.target.classList.remove('abierto'); });
 
@@ -2283,19 +2354,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imModalLibre').addEventListener('click', (e) => { if (e.target.id === 'imModalLibre') e.target.classList.remove('abierto'); });
 
       // ── Guardar prompt desde el detalle del catálogo ──
-      function llenarSelMisGemas(actual) {
-        $('imMetaGema').innerHTML =
-          misGemas.map(g => `<option value="${g.id}" ${g.id === actual ? 'selected' : ''}>${escapeHtml(g.titulo)}</option>`).join('') +
-          '<option value="__nueva__">➕ Nueva gema…</option>';
-        const sinGemas = !misGemas.length;
-        if (sinGemas) $('imMetaGema').value = '__nueva__';
-        $('imMetaGemaNueva').value = '';
-        $('imMetaGemaNueva').style.display = (sinGemas || $('imMetaGema').value === '__nueva__') ? '' : 'none';
-      }
-      $('imMetaGema').addEventListener('change', () => {
-        $('imMetaGemaNueva').style.display = $('imMetaGema').value === '__nueva__' ? '' : 'none';
-      });
-
+      // El prompt pertenece a ESA gema: solo se pide nombre y ubicación. Si la
+      // gema ya está en esa categoría/subcategoría el prompt se suma; si no,
+      // la gema se crea ahí (vinculada al catálogo).
       $('imGuardarPrompt').addEventListener('click', () => {
         if (!activeGem) return;
         ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
@@ -2306,32 +2367,31 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (detalle === 'Otro') detalle = String(formState[primerInput.id + '__otro'] ?? '').trim();
         if (detalle.length > 48) detalle = detalle.slice(0, 48) + '…';
         $('imMetaNombre').value = detalle ? `${activeGem.nombre}: ${detalle}` : activeGem.nombre;
-        llenarSelMisGemas(null);
+        llenarSelCat(IDS_META, null, null);
+        $('imMetaNota').textContent = `💎 La gema "${activeGem.nombre}" quedará guardada en "Mis gemas" con este prompt adentro. Si ya la tienes en la ubicación que elijas, el prompt se suma a esa gema.`;
         $('imModalMeta').classList.add('abierto');
         $('imMetaNombre').focus();
       });
 
-      async function resolverMiGema() {
-        let id = $('imMetaGema').value;
-        if (id === '__nueva__') {
-          const titulo = $('imMetaGemaNueva').value.trim();
-          if (!titulo) { showToast('Ponle nombre a tu gema'); return undefined; }
-          const { data, error } = await db.from('user_gemas').insert({ user_id: IM.userId, titulo, url: null, nodo_id: null }).select('id').single();
-          if (error) { showToast('No se pudo crear tu gema'); return undefined; }
-          return data.id;
-        }
-        return id || undefined;
-      }
-
       $('imMetaGuardar').addEventListener('click', async () => {
         const nombre = $('imMetaNombre').value.trim();
         if (!nombre) { showToast('Escribe un nombre'); return; }
-        const gemaId = await resolverMiGema();
-        if (!gemaId) return;
+        const nodoId = await resolverNodoDestino(IDS_META);
+        if (nodoId === undefined) return;
+        const itemUuid = uuidDeCatalogo(ctxMeta.gem.id);
+        let gemaId = misGemas.find(g => g.item_id === itemUuid && (g.nodo_id ?? null) === nodoId)?.id;
+        if (!gemaId) {
+          const { data, error } = await db.from('user_gemas').insert({
+            user_id: IM.userId, titulo: ctxMeta.gem.nombre, url: null,
+            descripcion: ctxMeta.gem.descripcion_corta ?? null,
+            nodo_id: nodoId, item_id: itemUuid,
+          }).select('id').single();
+          if (error) { showToast('No se pudo guardar la gema: ' + error.message); return; }
+          gemaId = data.id;
+        }
         const { error } = await db.from('user_prompts').insert({
           user_id: IM.userId, product_id: IM.productId, user_gema_id: gemaId,
-          item_id: uuidDeCatalogo(ctxMeta.gem.id),
-          nombre, valores: ctxMeta.valores, contenido: ctxMeta.contenido,
+          item_id: itemUuid, nombre, valores: ctxMeta.valores, contenido: ctxMeta.contenido,
         });
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
         $('imModalMeta').classList.remove('abierto');
