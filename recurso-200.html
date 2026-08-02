@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light">
+  <title>200 Diseños para Presentaciones — IA MASIVA</title>
+  <style>
+    :root {
+      --ink: #14213d;
+      --muted: #667085;
+      --paper: #f5f3ef;
+      --surface: #ffffff;
+      --line: #ddd9d1;
+      --accent: #ff5c35;
+      --accent-dark: #d83b18;
+      --navy: #14213d;
+      --radius: 18px;
+      --shadow: 0 18px 50px rgba(20, 33, 61, .12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .masthead {
+      position: relative;
+      overflow: hidden;
+      padding: 28px clamp(20px, 5vw, 72px) 54px;
+      color: white;
+      background: var(--navy);
+    }
+    .masthead::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      right: -130px;
+      top: -200px;
+      border: 72px solid var(--accent);
+      border-radius: 50%;
+      opacity: .95;
+    }
+    .nav, .hero, .controls, main { width: min(1180px, 100%); margin-inline: auto; }
+    .nav { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+    .brand { display: flex; gap: 12px; align-items: center; font-weight: 850; letter-spacing: -.02em; }
+    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; background: var(--accent); border-radius: 10px; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .interface-language { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; color: #d8deea; font-size: 12px; font-weight: 700; }
+    .interface-language select { border: 0; color: white; background: transparent; outline: none; font-weight: 800; cursor: pointer; }
+    .interface-language option { color: var(--ink); background: white; }
+    .pilot-chip { padding: 7px 11px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; font-size: 12px; color: #d8deea; }
+    .hero { position: relative; z-index: 1; padding-top: 62px; }
+    .eyebrow { color: #ff9a7e; text-transform: uppercase; letter-spacing: .16em; font-weight: 800; font-size: 12px; }
+    h1 { margin: 13px 0 16px; max-width: 760px; font-size: clamp(42px, 7vw, 74px); line-height: .98; letter-spacing: -.055em; }
+    .hero p { max-width: 620px; margin: 0; color: #cbd3e2; font-size: 18px; line-height: 1.6; }
+    .controls-wrap { position: sticky; top: 0; z-index: 8; padding: 18px clamp(20px, 5vw, 72px); background: rgba(245,243,239,.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(221,217,209,.85); }
+    .controls { display: grid; gap: 14px; }
+    .search { position: relative; }
+    .search input { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px 15px 48px; background: white; color: var(--ink); outline: none; }
+    .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,92,53,.12); }
+    .search svg { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+    .filter { flex: 0 0 auto; padding: 9px 13px; border-radius: 999px; border: 1px solid var(--line); color: #475467; background: transparent; font-size: 13px; font-weight: 700; }
+    .filter:hover, .filter.active { color: white; border-color: var(--navy); background: var(--navy); }
+    main { padding: 38px 20px 72px; }
+    .results-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 20px; }
+    .results-head h2 { font-size: 24px; margin: 0; letter-spacing: -.03em; }
+    .result-count { color: var(--muted); font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+    .card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); transition: transform .2s ease, box-shadow .2s ease; }
+    .card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .preview-wrap { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #e4e7ec; }
+    .preview-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+    .card:hover img { transform: scale(1.025); }
+    .card-body { padding: 18px; }
+    .badges { min-height: 25px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { padding: 5px 8px; border-radius: 7px; color: var(--accent-dark); background: #fff0eb; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    .card h3 { min-height: 52px; margin: 13px 0 17px; font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }
+    .open-prompt { width: 100%; border: 0; border-radius: 11px; padding: 12px 14px; color: white; background: var(--navy); font-weight: 800; }
+    .open-prompt:hover { background: #22345d; }
+    .empty { grid-column: 1 / -1; padding: 64px 20px; text-align: center; color: var(--muted); border: 1px dashed #c7c1b6; border-radius: var(--radius); }
+    .backdrop { position: fixed; inset: 0; z-index: 20; opacity: 0; visibility: hidden; background: rgba(10,18,38,.58); transition: .25s ease; }
+    .backdrop.visible { opacity: 1; visibility: visible; }
+    .panel { position: fixed; z-index: 21; top: 0; right: 0; width: min(720px, 100%); height: 100%; overflow-y: auto; transform: translateX(100%); background: #fbfaf8; box-shadow: -30px 0 80px rgba(9,16,33,.24); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+    .panel.open { transform: translateX(0); }
+    .panel-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--line); background: rgba(251,250,248,.94); backdrop-filter: blur(14px); }
+    .panel-top span { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .close { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: white; color: var(--ink); font-size: 22px; line-height: 1; }
+    .panel-content { padding: 24px; }
+    .panel-preview { width: 100%; border-radius: 15px; border: 1px solid var(--line); display: block; box-shadow: 0 8px 26px rgba(20,33,61,.09); }
+    .panel h2 { margin: 22px 0 8px; font-size: 30px; line-height: 1.12; letter-spacing: -.04em; }
+    .panel-category { margin: 0 0 28px; color: var(--muted); }
+    .section-title { margin: 28px 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: .12em; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+    .field { display: grid; gap: 7px; align-content: start; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 12px; color: #475467; font-weight: 750; }
+    .field input, .field select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; color: var(--ink); background: white; outline: none; }
+    .field input[readonly] { color: var(--muted); background: #f3f1ed; }
+    .color-row { display: grid; grid-template-columns: 46px 1fr; gap: 8px; }
+    .color-row input[type=color] { height: 43px; padding: 4px; }
+    .field select { transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease; }
+    .field select:hover { border-color: #3b82f6; background: #f7fbff; }
+    .field select:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14); }
+    .field input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,92,53,.1); }
+    .default-hint { color: #64748b; font-size: 10px; font-weight: 700; }
+    .customize-toggle { width: 100%; margin: 4px 0 0; padding: 13px 16px; border: 1px solid #2563eb; border-radius: 11px; color: #1d4ed8; background: #eff6ff; font-weight: 850; transition: .18s ease; }
+    .customize-toggle:hover { color: white; background: #2563eb; }
+    .customize-toggle[aria-expanded="true"] { color: white; background: #2563eb; }
+    .customization-reset { width: 100%; margin-top: 14px; }
+    textarea { min-height: 270px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.55; }
+    .actions { display: flex; gap: 10px; margin-top: 12px; }
+    .action { flex: 1; padding: 12px 14px; border-radius: 11px; font-weight: 800; }
+    .reset { color: var(--ink); background: white; border: 1px solid var(--line); }
+    .copy { color: white; background: var(--accent); border: 1px solid var(--accent); }
+    .copy:hover { background: var(--accent-dark); }
+    .footer-note { padding: 22px; margin-top: 30px; border-radius: 14px; color: #475467; background: #f0ede7; font-size: 12px; line-height: 1.6; }
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .im-oculto { display: none !important; }
+    .im-gate { position: fixed; inset: 0; z-index: 9999; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 14px; }
+    .im-gate h1 { font-size: 1.5rem; color: var(--ink); margin: 0; letter-spacing: -.02em; }
+    .im-gate p { color: var(--muted); max-width: 480px; line-height: 1.6; margin: 0; }
+    .im-gate .im-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 13px 30px; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
+    .im-gate .im-btn:hover { background: var(--accent-dark); }
+    .im-gate a { color: var(--accent-dark); font-weight: 700; }
+    @media (max-width: 620px) {
+      .masthead { padding-bottom: 38px; }
+      .interface-language span { display: none; }
+      .pilot-chip { display: none; }
+      .hero { padding-top: 42px; }
+      .hero p { font-size: 16px; }
+      .grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
+  <div class="im-gate im-oculto" id="imSinAcceso">
+    <h1>200 Diseños para Presentaciones en NotebookLM</h1>
+    <p>Este es un recurso premium de IA MASIVA: 200 estilos visuales con vista previa real, personalizables en colores, tipografías y estilo, con el prompt listo para copiar en NotebookLM.</p>
+    <button class="im-btn" id="imBtnComprar">Comprar ahora</button>
+    <p id="imMsjCompra" class="im-oculto"></p>
+    <a href="app.html">← Volver a IA MASIVA</a>
+  </div>
+
+  <header class="masthead">
+    <nav class="nav">
+      <div class="brand"><span class="brand-mark">P</span> Presenta</div>
+      <div class="nav-actions">
+        <label class="interface-language"><span data-i18n="interfaceLanguage">Interfaz</span>
+          <select id="ui-language" aria-label="Interfaz" data-i18n-aria="interfaceLanguage">
+            <option value="es">Español</option><option value="en">English</option><option value="pt">Português</option>
+            <option value="fr">Français</option><option value="de">Deutsch</option><option value="it">Italiano</option>
+          </select>
+        </label>
+        <span class="pilot-chip" data-i18n="pilot">Piloto · 5 estilos</span>
+      </div>
+    </nav>
+    <div class="hero">
+      <div class="eyebrow" data-i18n="eyebrow">Diseño bajo tu control</div>
+      <h1><span data-i18n="heroLine1">Tu contenido.</span><br><span data-i18n="heroLine2">Tu estilo.</span></h1>
+      <p data-i18n="heroDescription">Elige una dirección visual, personalízala y copia un prompt listo para transformar tus fuentes en una presentación de NotebookLM.</p>
+    </div>
+  </header>
+
+  <div class="controls-wrap">
+    <div class="controls">
+      <label class="search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search" type="search" placeholder="Buscar por nombre o estilo visual…" aria-label="Buscar estilos" data-i18n-placeholder="searchPlaceholder" data-i18n-aria="searchLabel">
+      </label>
+      <div class="filters" id="filters" aria-label="Filtrar por categoría" data-i18n-aria="filterLabel"></div>
+    </div>
+  </div>
+
+  <main>
+    <div class="results-head"><h2 data-i18n="library">Biblioteca visual</h2><span class="result-count" id="result-count"></span></div>
+    <section class="grid" id="gallery" aria-live="polite"></section>
+  </main>
+
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="panel" id="panel" aria-hidden="true" aria-label="Personalizador de prompt">
+    <div class="panel-top"><span data-i18n="customizeStyle">Personalizar estilo</span><button class="close" id="close" aria-label="Cerrar" data-i18n-aria="close">×</button></div>
+    <div class="panel-content">
+      <img class="panel-preview" id="panel-preview" alt="">
+      <h2 id="panel-title"></h2>
+      <p class="panel-category" id="panel-category"></p>
+      <button class="customize-toggle" id="customize-toggle" aria-expanded="false" data-i18n="customizeButton">Personalizar</button>
+      <section id="customization" hidden>
+        <h3 class="section-title" data-i18n="designVariables">Variables de diseño</h3>
+        <div class="form-grid" id="form"></div>
+        <button class="action reset customization-reset" id="reset" data-i18n="restore">Restaurar valores</button>
+      </section>
+      <h3 class="section-title" data-i18n="generatedPrompt">Prompt generado</h3>
+      <textarea id="prompt" readonly aria-label="Prompt generado" data-i18n-aria="generatedPrompt"></textarea>
+      <div class="actions">
+        <button class="action copy" id="copy" data-i18n="copy">Copiar prompt</button>
+      </div>
+      <div class="footer-note" data-i18n="footerNote">El prompt controla únicamente el sistema visual. NotebookLM construirá el contenido a partir de tus propias fuentes.</div>
+    </div>
+  </aside>
+
+  <script id="presentation-data" type="application/json">[]</script>
+  <script>
+  function __initApp() {
+// Materialized local copy.
+const items = JSON.parse(document.getElementById('presentation-data').textContent);
+const categories = [...new Set(items.flatMap(item => item.categorias))];
+const gallery = document.getElementById('gallery');
+const filters = document.getElementById('filters');
+const search = document.getElementById('search');
+const resultCount = document.getElementById('result-count');
+const panel = document.getElementById('panel');
+const backdrop = document.getElementById('backdrop');
+const form = document.getElementById('form');
+const promptOutput = document.getElementById('prompt');
+const uiLanguageSelect = document.getElementById('ui-language');
+const customizeToggle = document.getElementById('customize-toggle');
+const customization = document.getElementById('customization');
+let activeCategory = 'ALL';
+let activeItem = null;
+let activeValues = null;
+let defaultValues = null;
+let isCustomizing = false;
+let uiLanguage = 'es';
+
+const FONT_OPTIONS = ['Arial','Helvetica','Helvetica Neue','Inter','Roboto','Open Sans','Lato','Poppins','Montserrat','Oswald','Bebas Neue','Playfair Display','Merriweather','Georgia','Times New Roman','Cooper Black','Orbitron'];
+const fieldConfig = [
+  ['PRIMARY_COLOR', 'primaryColor', 'color'],
+  ['SECONDARY_COLOR', 'secondaryColor', 'color'],
+  ['BACKGROUND_COLOR', 'backgroundColor', 'color'],
+  ['TITLE_FONT', 'titleFont', FONT_OPTIONS],
+  ['BODY_FONT', 'bodyFont', FONT_OPTIONS],
+  ['VISUAL_STYLE', 'visualStyle', ['minimalist','corporate','creative','academic','bold','elegant','playful','futuristic']],
+  ['CHART_STYLE', 'chartStyle', ['flat','outlined','filled','3D','illustrated']],
+  ['IMAGE_STYLE', 'imageStyle', ['photographic','illustrated','icon-based','abstract','none']],
+  ['TEXT_DENSITY', 'textDensity', ['concise','balanced','detailed']],
+  ['LAYOUT_PATTERN', 'layoutPattern', ['centered','left-aligned','right-aligned','asymmetric','grid']],
+  ['LANGUAGE', 'presentationLanguage', ['Spanish','English','Portuguese','French','German','Italian']],
+];
+
+const translations = {
+  es: {interfaceLanguage:'Interfaz',pilot:'Piloto · 5 estilos',eyebrow:'Diseño bajo tu control',heroLine1:'Tu contenido.',heroLine2:'Tu estilo.',heroDescription:'Elige una dirección visual, personalízala y copia un prompt listo para transformar tus fuentes en una presentación de NotebookLM.',searchPlaceholder:'Buscar por nombre o estilo visual…',searchLabel:'Buscar estilos',filterLabel:'Filtrar por categoría',all:'Todas',library:'Biblioteca visual',styleOne:'estilo',styleMany:'estilos',viewCustomize:'Ver y personalizar',noResults:'No encontramos estilos con esos filtros.',customizeStyle:'Personalizar estilo',customizeButton:'Personalizar',hideCustomization:'Ocultar personalización',defaultOption:'Por defecto',close:'Cerrar',designVariables:'Variables de diseño',generatedPrompt:'Prompt generado',restore:'Restaurar valores',copy:'Copiar prompt',copied:'¡Copiado!',footerNote:'El prompt siempre se redacta en inglés. NotebookLM generará el contenido en el idioma de presentación seleccionado.',previewOf:'Vista previa de {name}',enlargedPreviewOf:'Vista ampliada de {name}',primaryColor:'Color principal',secondaryColor:'Color secundario',backgroundColor:'Color de fondo',titleFont:'Tipografía de títulos',bodyFont:'Tipografía de cuerpo',visualStyle:'Estilo visual',chartStyle:'Estilo de gráficas',imageStyle:'Tratamiento de imágenes',textDensity:'Densidad de texto',layoutPattern:'Composición',presentationLanguage:'Idioma de la presentación',other:'Otro',otherPlaceholder:'Escribe otra opción…'},
+  en: {interfaceLanguage:'Interface',pilot:'Pilot · 5 styles',eyebrow:'Design under your control',heroLine1:'Your content.',heroLine2:'Your style.',heroDescription:'Choose a visual direction, customize it and copy a prompt ready to transform your sources into a NotebookLM presentation.',searchPlaceholder:'Search by name or visual style…',searchLabel:'Search styles',filterLabel:'Filter by category',all:'All',library:'Visual library',styleOne:'style',styleMany:'styles',viewCustomize:'View and customize',noResults:'No styles match those filters.',customizeStyle:'Customize style',close:'Close',designVariables:'Design variables',generatedPrompt:'Generated prompt',restore:'Restore values',copy:'Copy prompt',copied:'Copied!',footerNote:'The prompt is always written in English. NotebookLM will generate the content in the selected presentation language.',previewOf:'Preview of {name}',enlargedPreviewOf:'Large preview of {name}',primaryColor:'Primary color',secondaryColor:'Secondary color',backgroundColor:'Background color',titleFont:'Title font',bodyFont:'Body font',visualStyle:'Visual style',chartStyle:'Chart style',imageStyle:'Image treatment',textDensity:'Text density',layoutPattern:'Layout',presentationLanguage:'Presentation language',other:'Other',otherPlaceholder:'Enter another option…'},
+  pt: {interfaceLanguage:'Interface',pilot:'Piloto · 5 estilos',eyebrow:'Design sob seu controle',heroLine1:'Seu conteúdo.',heroLine2:'Seu estilo.',heroDescription:'Escolha uma direção visual, personalize-a e copie um prompt pronto para transformar suas fontes em uma apresentação do NotebookLM.',searchPlaceholder:'Buscar por nome ou estilo visual…',searchLabel:'Buscar estilos',filterLabel:'Filtrar por categoria',all:'Todas',library:'Biblioteca visual',styleOne:'estilo',styleMany:'estilos',viewCustomize:'Ver e personalizar',noResults:'Nenhum estilo corresponde a esses filtros.',customizeStyle:'Personalizar estilo',close:'Fechar',designVariables:'Variáveis de design',generatedPrompt:'Prompt gerado',restore:'Restaurar valores',copy:'Copiar prompt',copied:'Copiado!',footerNote:'O prompt é sempre escrito em inglês. O NotebookLM gerará o conteúdo no idioma de apresentação selecionado.',previewOf:'Prévia de {name}',enlargedPreviewOf:'Prévia ampliada de {name}',primaryColor:'Cor principal',secondaryColor:'Cor secundária',backgroundColor:'Cor de fundo',titleFont:'Fonte dos títulos',bodyFont:'Fonte do corpo',visualStyle:'Estilo visual',chartStyle:'Estilo dos gráficos',imageStyle:'Tratamento de imagens',textDensity:'Densidade de texto',layoutPattern:'Composição',presentationLanguage:'Idioma da apresentação',other:'Outro',otherPlaceholder:'Digite outra opção…'},
+  fr: {interfaceLanguage:'Interface',pilot:'Pilote · 5 styles',eyebrow:'Le design sous votre contrôle',heroLine1:'Votre contenu.',heroLine2:'Votre style.',heroDescription:'Choisissez une direction visuelle, personnalisez-la et copiez un prompt prêt à transformer vos sources en présentation NotebookLM.',searchPlaceholder:'Rechercher par nom ou style visuel…',searchLabel:'Rechercher des styles',filterLabel:'Filtrer par catégorie',all:'Toutes',library:'Bibliothèque visuelle',styleOne:'style',styleMany:'styles',viewCustomize:'Voir et personnaliser',noResults:'Aucun style ne correspond à ces filtres.',customizeStyle:'Personnaliser le style',close:'Fermer',designVariables:'Variables de design',generatedPrompt:'Prompt généré',restore:'Restaurer les valeurs',copy:'Copier le prompt',copied:'Copié !',footerNote:'Le prompt est toujours rédigé en anglais. NotebookLM générera le contenu dans la langue de présentation choisie.',previewOf:'Aperçu de {name}',enlargedPreviewOf:'Aperçu agrandi de {name}',primaryColor:'Couleur principale',secondaryColor:'Couleur secondaire',backgroundColor:'Couleur de fond',titleFont:'Police des titres',bodyFont:'Police du corps',visualStyle:'Style visuel',chartStyle:'Style des graphiques',imageStyle:'Traitement des images',textDensity:'Densité du texte',layoutPattern:'Composition',presentationLanguage:'Langue de la présentation',other:'Autre',otherPlaceholder:'Saisissez une autre option…'},
+  de: {interfaceLanguage:'Oberfläche',pilot:'Pilot · 5 Stile',eyebrow:'Design unter Ihrer Kontrolle',heroLine1:'Ihre Inhalte.',heroLine2:'Ihr Stil.',heroDescription:'Wählen Sie eine visuelle Richtung, passen Sie sie an und kopieren Sie einen Prompt für Ihre NotebookLM-Präsentation.',searchPlaceholder:'Nach Name oder visuellem Stil suchen…',searchLabel:'Stile suchen',filterLabel:'Nach Kategorie filtern',all:'Alle',library:'Visuelle Bibliothek',styleOne:'Stil',styleMany:'Stile',viewCustomize:'Ansehen und anpassen',noResults:'Keine Stile entsprechen diesen Filtern.',customizeStyle:'Stil anpassen',close:'Schließen',designVariables:'Designvariablen',generatedPrompt:'Generierter Prompt',restore:'Werte zurücksetzen',copy:'Prompt kopieren',copied:'Kopiert!',footerNote:'Der Prompt wird immer auf Englisch verfasst. NotebookLM erzeugt den Inhalt in der ausgewählten Präsentationssprache.',previewOf:'Vorschau von {name}',enlargedPreviewOf:'Große Vorschau von {name}',primaryColor:'Primärfarbe',secondaryColor:'Sekundärfarbe',backgroundColor:'Hintergrundfarbe',titleFont:'Titelschrift',bodyFont:'Textschrift',visualStyle:'Visueller Stil',chartStyle:'Diagrammstil',imageStyle:'Bildstil',textDensity:'Textdichte',layoutPattern:'Layout',presentationLanguage:'Präsentationssprache',other:'Andere',otherPlaceholder:'Andere Option eingeben…'},
+  it: {interfaceLanguage:'Interfaccia',pilot:'Pilota · 5 stili',eyebrow:'Il design sotto il tuo controllo',heroLine1:'I tuoi contenuti.',heroLine2:'Il tuo stile.',heroDescription:'Scegli una direzione visiva, personalizzala e copia un prompt pronto a trasformare le tue fonti in una presentazione NotebookLM.',searchPlaceholder:'Cerca per nome o stile visivo…',searchLabel:'Cerca stili',filterLabel:'Filtra per categoria',all:'Tutte',library:'Libreria visiva',styleOne:'stile',styleMany:'stili',viewCustomize:'Vedi e personalizza',noResults:'Nessuno stile corrisponde a questi filtri.',customizeStyle:'Personalizza stile',close:'Chiudi',designVariables:'Variabili di design',generatedPrompt:'Prompt generato',restore:'Ripristina valori',copy:'Copia prompt',copied:'Copiato!',footerNote:'Il prompt è sempre scritto in inglese. NotebookLM genererà il contenuto nella lingua di presentazione selezionata.',previewOf:'Anteprima di {name}',enlargedPreviewOf:'Anteprima grande di {name}',primaryColor:'Colore principale',secondaryColor:'Colore secondario',backgroundColor:'Colore di sfondo',titleFont:'Font dei titoli',bodyFont:'Font del testo',visualStyle:'Stile visivo',chartStyle:'Stile dei grafici',imageStyle:'Trattamento immagini',textDensity:'Densità del testo',layoutPattern:'Composizione',presentationLanguage:'Lingua della presentazione',other:'Altro',otherPlaceholder:'Inserisci un’altra opzione…'},
+};
+
+Object.assign(translations.en, {customizeButton:'Customize', hideCustomization:'Hide customization', defaultOption:'Default'});
+Object.assign(translations.pt, {customizeButton:'Personalizar', hideCustomization:'Ocultar personalização', defaultOption:'Padrão'});
+Object.assign(translations.fr, {customizeButton:'Personnaliser', hideCustomization:'Masquer la personnalisation', defaultOption:'Par défaut'});
+Object.assign(translations.de, {customizeButton:'Anpassen', hideCustomization:'Anpassung ausblenden', defaultOption:'Standard'});
+Object.assign(translations.it, {customizeButton:'Personalizza', hideCustomization:'Nascondi personalizzazione', defaultOption:'Predefinito'});
+Object.assign(translations.es, {pilot:'Biblioteca · {count} estilos'});
+Object.assign(translations.en, {pilot:'Library · {count} styles'});
+Object.assign(translations.pt, {pilot:'Biblioteca · {count} estilos'});
+Object.assign(translations.fr, {pilot:'Bibliothèque · {count} styles'});
+Object.assign(translations.de, {pilot:'Bibliothek · {count} Stile'});
+Object.assign(translations.it, {pilot:'Libreria · {count} stili'});
+
+const categoryTranslations = {
+  'Marketing y Ventas': {es:'Marketing y Ventas',en:'Marketing and Sales',pt:'Marketing e Vendas',fr:'Marketing et Ventes',de:'Marketing und Vertrieb',it:'Marketing e Vendite'},
+  'Negocios y Corporativo': {es:'Negocios y Corporativo',en:'Business and Corporate',pt:'Negócios e Corporativo',fr:'Entreprise et Corporate',de:'Business und Unternehmen',it:'Business e Aziendale'},
+  'Tecnología e IA': {es:'Tecnología e IA',en:'Technology and AI',pt:'Tecnologia e IA',fr:'Technologie et IA',de:'Technologie und KI',it:'Tecnologia e IA'},
+  'Propuestas de Proyecto': {es:'Propuestas de Proyecto',en:'Project Proposals',pt:'Propostas de Projeto',fr:'Propositions de Projet',de:'Projektvorschläge',it:'Proposte di Progetto'},
+  'Portafolios Creativos': {es:'Portafolios Creativos',en:'Creative Portfolios',pt:'Portfólios Criativos',fr:'Portfolios Créatifs',de:'Kreative Portfolios',it:'Portfolio Creativi'},
+  'Marca e Identidad': {es:'Marca e Identidad',en:'Brand and Identity',pt:'Marca e Identidade',fr:'Marque et Identité',de:'Marke und Identität',it:'Marca e Identità'},
+  'Finanzas e Inversión': {es:'Finanzas e Inversión',en:'Finance and Investment',pt:'Finanças e Investimento',fr:'Finance et Investissement',de:'Finanzen und Investitionen',it:'Finanza e Investimenti'},
+  'Educación y Eventos': {es:'Educación y Eventos',en:'Education and Events',pt:'Educação e Eventos',fr:'Éducation et Événements',de:'Bildung und Veranstaltungen',it:'Formazione ed Eventi'},
+  'Salud': {es:'Salud',en:'Health',pt:'Saúde',fr:'Santé',de:'Gesundheit',it:'Salute'},
+  'Moda y Lifestyle': {es:'Moda y Lifestyle',en:'Fashion and Lifestyle',pt:'Moda e Lifestyle',fr:'Mode et Lifestyle',de:'Mode und Lifestyle',it:'Moda e Lifestyle'},
+  'Deportes': {es:'Deportes',en:'Sports',pt:'Esportes',fr:'Sports',de:'Sport',it:'Sport'},
+};
+
+const nameTranslations = {
+  '001': {es:'Plan de Marketing Tricolor Moderno',en:'Modern Tricolor Marketing Plan',pt:'Plano de Marketing Tricolor Moderno',fr:'Plan Marketing Tricolore Moderne',de:'Moderner dreifarbiger Marketingplan',it:'Piano di Marketing Tricolore Moderno'},
+  '002': {es:'Presentación Geométrica en Bloques Diagonales',en:'Geometric Diagonal Block Presentation',pt:'Apresentação Geométrica com Blocos Diagonais',fr:'Présentation Géométrique à Blocs Diagonaux',de:'Geometrische Präsentation mit diagonalen Blöcken',it:'Presentazione Geometrica a Blocchi Diagonali'},
+  '003': {es:'Propuesta de Proyecto para Startup Tech Minimalista',en:'Minimalist Tech Startup Project Proposal',pt:'Proposta de Projeto Minimalista para Startup Tech',fr:'Proposition de Projet Minimaliste pour Startup Tech',de:'Minimalistischer Projektvorschlag für ein Tech-Startup',it:'Proposta di Progetto Minimalista per Startup Tech'},
+  '004': {es:'Presentación de Startup Tecnológica Azul Moderno',en:'Modern Blue Tech Startup Presentation',pt:'Apresentação de Startup Tecnológica Azul Moderna',fr:'Présentation de Startup Technologique Bleue Moderne',de:'Moderne blaue Präsentation für ein Tech-Startup',it:'Presentazione di Startup Tecnologica Blu Moderna'},
+  '005': {es:'Tendencias de Marketing Azul Moderno',en:'Modern Blue Marketing Trends',pt:'Tendências de Marketing em Azul Moderno',fr:'Tendances Marketing en Bleu Moderne',de:'Marketingtrends in modernem Blau',it:'Tendenze Marketing in Blu Moderno'},
+};
+
+Object.assign(nameTranslations, {
+  '006': {es:'Manual de Cultura Empresarial y Onboarding Corporativo',en:'Corporate Culture and Onboarding Guide',pt:'Manual de Cultura Empresarial e Integração',fr:'Guide de Culture d’Entreprise et d’Intégration',de:'Leitfaden für Unternehmenskultur und Onboarding',it:'Manuale di Cultura Aziendale e Onboarding'},
+  '007': {es:'Presentación Minimalista para Webinar o Evento',en:'Minimalist Webinar or Event Presentation',pt:'Apresentação Minimalista para Webinar ou Evento',fr:'Présentation Minimaliste pour Webinaire ou Événement',de:'Minimalistische Webinar- oder Event-Präsentation',it:'Presentazione Minimalista per Webinar o Evento'},
+  '008': {es:'Portafolio Creativo Beige y Rojo Audaz',en:'Bold Beige and Red Creative Portfolio',pt:'Portfólio Criativo Ousado Bege e Vermelho',fr:'Portfolio Créatif Audacieux Beige et Rouge',de:'Markantes Kreativportfolio in Beige und Rot',it:'Portfolio Creativo Audace Beige e Rosso'},
+  '009': {es:'Propuesta de Proyecto Moderna Beige y Naranja',en:'Modern Beige and Orange Project Proposal',pt:'Proposta de Projeto Moderna Bege e Laranja',fr:'Proposition de Projet Moderne Beige et Orange',de:'Moderner Projektvorschlag in Beige und Orange',it:'Proposta di Progetto Moderna Beige e Arancione'},
+  '010': {es:'Portafolio Creativo Negro y Café Moderno',en:'Modern Black and Brown Creative Portfolio',pt:'Portfólio Criativo Moderno Preto e Marrom',fr:'Portfolio Créatif Moderne Noir et Marron',de:'Modernes Kreativportfolio in Schwarz und Braun',it:'Portfolio Creativo Moderno Nero e Marrone'},
+  '011': {es:'Presentación Corporativa Negro, Blanco y Naranja',en:'Black, White and Orange Corporate Presentation',pt:'Apresentação Corporativa Preta, Branca e Laranja',fr:'Présentation Corporate Noire, Blanche et Orange',de:'Unternehmenspräsentation in Schwarz, Weiß und Orange',it:'Presentazione Aziendale Nera, Bianca e Arancione'},
+  '012': {es:'Presentación de Tecnología Negro y Azul',en:'Black and Blue Technology Presentation',pt:'Apresentação de Tecnologia Preta e Azul',fr:'Présentation Technologique Noire et Bleue',de:'Technologiepräsentation in Schwarz und Blau',it:'Presentazione Tecnologica Nera e Blu'},
+  '013': {es:'Portafolio Creativo Minimalista Negro y Gris',en:'Minimalist Black and Gray Creative Portfolio',pt:'Portfólio Criativo Minimalista Preto e Cinza',fr:'Portfolio Créatif Minimaliste Noir et Gris',de:'Minimalistisches Kreativportfolio in Schwarz und Grau',it:'Portfolio Creativo Minimalista Nero e Grigio'},
+  '014': {es:'Empresa Tech con Formas 3D en Negro y Gris',en:'Tech Company with Black and Gray 3D Shapes',pt:'Empresa Tech com Formas 3D em Preto e Cinza',fr:'Entreprise Tech aux Formes 3D Noires et Grises',de:'Tech-Unternehmen mit schwarzen und grauen 3D-Formen',it:'Azienda Tech con Forme 3D Nere e Grigie'},
+  '015': {es:'Estrategia de Marca Minimalista Rosa y Negro',en:'Minimalist Pink and Black Brand Strategy',pt:'Estratégia de Marca Minimalista Rosa e Preta',fr:'Stratégie de Marque Minimaliste Rose et Noire',de:'Minimalistische Markenstrategie in Rosa und Schwarz',it:'Strategia di Marca Minimalista Rosa e Nera'},
+  '016': {es:'Keynote Tecnológico Geométrico Negro y Rojo',en:'Black and Red Geometric Technology Keynote',pt:'Keynote Tecnológica Geométrica Preta e Vermelha',fr:'Keynote Technologique Géométrique Noire et Rouge',de:'Geometrische Technologie-Keynote in Schwarz und Rot',it:'Keynote Tecnologico Geometrico Nero e Rosso'},
+  '017': {es:'Propuesta de Proyecto Ilustrada Blanco y Negro',en:'Black and White Illustrated Project Proposal',pt:'Proposta de Projeto Ilustrada em Preto e Branco',fr:'Proposition de Projet Illustrée en Noir et Blanc',de:'Illustrierter Projektvorschlag in Schwarz und Weiß',it:'Proposta di Progetto Illustrata in Bianco e Nero'},
+  '018': {es:'Brief Creativo Minimalista Blanco y Negro',en:'Minimalist Black and White Creative Brief',pt:'Briefing Criativo Minimalista em Preto e Branco',fr:'Brief Créatif Minimaliste en Noir et Blanc',de:'Minimalistisches Kreativbriefing in Schwarz und Weiß',it:'Brief Creativo Minimalista in Bianco e Nero'},
+  '019': {es:'Portafolio Creativo Minimalista Blanco y Negro',en:'Minimalist Black and White Creative Portfolio',pt:'Portfólio Criativo Minimalista em Preto e Branco',fr:'Portfolio Créatif Minimaliste en Noir et Blanc',de:'Minimalistisches Kreativportfolio in Schwarz und Weiß',it:'Portfolio Creativo Minimalista in Bianco e Nero'},
+  '020': {es:'Pitch Deck Moderno Blanco y Negro',en:'Modern Black and White Pitch Deck',pt:'Pitch Deck Moderno em Preto e Branco',fr:'Pitch Deck Moderne en Noir et Blanc',de:'Modernes Pitch Deck in Schwarz und Weiß',it:'Pitch Deck Moderno in Bianco e Nero'},
+  '021': {es:'Pitch Deck de Startup Moderno Blanco y Negro',en:'Modern Black and White Startup Pitch Deck',pt:'Pitch Deck Moderno para Startup em Preto e Branco',fr:'Pitch Deck Moderne de Startup en Noir et Blanc',de:'Modernes Startup-Pitch-Deck in Schwarz und Weiß',it:'Pitch Deck Moderno per Startup in Bianco e Nero'},
+  '022': {es:'Plan de Negocios Moderno Azul y Blanco',en:'Modern Blue and White Business Plan',pt:'Plano de Negócios Moderno Azul e Branco',fr:'Plan d’Affaires Moderne Bleu et Blanc',de:'Moderner Geschäftsplan in Blau und Weiß',it:'Business Plan Moderno Blu e Bianco'},
+  '023': {es:'Planificación Empresarial Moderna Blanco y Negro',en:'Modern Black and White Business Planning',pt:'Planejamento Empresarial Moderno em Preto e Branco',fr:'Planification d’Entreprise Moderne en Noir et Blanc',de:'Moderne Unternehmensplanung in Schwarz und Weiß',it:'Pianificazione Aziendale Moderna in Bianco e Nero'},
+  '024': {es:'Portafolio Creativo Azul y Beige Moderno',en:'Modern Blue and Beige Creative Portfolio',pt:'Portfólio Criativo Moderno Azul e Bege',fr:'Portfolio Créatif Moderne Bleu et Beige',de:'Modernes Kreativportfolio in Blau und Beige',it:'Portfolio Creativo Moderno Blu e Beige'},
+  '025': {es:'Propuesta de Proyecto Azul Audaz',en:'Bold Blue Project Proposal',pt:'Proposta de Projeto Azul Ousada',fr:'Proposition de Projet Bleue Audacieuse',de:'Markanter blauer Projektvorschlag',it:'Proposta di Progetto Blu Audace'},
+});
+
+Object.assign(nameTranslations, {
+  '026': {es:'Pitch Deck para Colaboración de Marca Azul',en:'Blue Brand Collaboration Pitch Deck',pt:'Pitch Deck Azul para Colaboração de Marca',fr:'Pitch Deck Bleu pour Collaboration de Marque',de:'Blaues Pitch Deck für Markenkooperation',it:'Pitch Deck Blu per Collaborazione di Marca'},
+  '027': {es:'Propuesta de Negocio Azul Moderna',en:'Modern Blue Business Proposal',pt:'Proposta de Negócio Azul Moderna',fr:'Proposition Commerciale Bleue Moderne',de:'Moderner blauer Geschäftsvorschlag',it:'Proposta Commerciale Blu Moderna'},
+  '028': {es:'Brief Creativo Empresarial Azul Moderno',en:'Modern Blue Company Creative Brief',pt:'Briefing Criativo Empresarial Azul Moderno',fr:'Brief Créatif d’Entreprise Bleu Moderne',de:'Modernes blaues Kreativbriefing für Unternehmen',it:'Brief Creativo Aziendale Blu Moderno'},
+  '029': {es:'Reporte de KPIs Azul Moderno',en:'Modern Blue KPI Report',pt:'Relatório de KPIs Azul Moderno',fr:'Rapport KPI Bleu Moderne',de:'Moderner blauer KPI-Bericht',it:'Report KPI Blu Moderno'},
+  '030': {es:'Pitch Deck de Negocios Azul y Blanco',en:'Blue and White Business Pitch Deck',pt:'Pitch Deck de Negócios Azul e Branco',fr:'Pitch Deck Commercial Bleu et Blanc',de:'Geschäfts-Pitch-Deck in Blau und Weiß',it:'Pitch Deck Aziendale Blu e Bianco'},
+  '031': {es:'Portafolio Creativo Crema y Negro Moderno',en:'Modern Cream and Black Creative Portfolio',pt:'Portfólio Criativo Moderno Creme e Preto',fr:'Portfolio Créatif Moderne Crème et Noir',de:'Modernes Kreativportfolio in Creme und Schwarz',it:'Portfolio Creativo Moderno Crema e Nero'},
+  '032': {es:'Portafolio Creativo Verde y Gris Audaz',en:'Bold Green and Gray Creative Portfolio',pt:'Portfólio Criativo Ousado Verde e Cinza',fr:'Portfolio Créatif Audacieux Vert et Gris',de:'Markantes Kreativportfolio in Grün und Grau',it:'Portfolio Creativo Audace Verde e Grigio'},
+  '033': {es:'Estrategia de Marketing Digital Verde y Blanco',en:'Green and White Digital Marketing Strategy',pt:'Estratégia de Marketing Digital Verde e Branca',fr:'Stratégie de Marketing Numérique Verte et Blanche',de:'Digitale Marketingstrategie in Grün und Weiß',it:'Strategia di Marketing Digitale Verde e Bianca'},
+  '034': {es:'Propuesta de Proyecto Minimalista Gris Audaz',en:'Bold Gray Minimalist Project Proposal',pt:'Proposta de Projeto Minimalista Cinza Ousada',fr:'Proposition de Projet Minimaliste Grise et Audacieuse',de:'Markanter minimalistischer Projektvorschlag in Grau',it:'Proposta di Progetto Minimalista Grigia e Audace'},
+  '035': {es:'Plan de Marketing Marrón y Blanco Moderno',en:'Modern Brown and White Marketing Plan',pt:'Plano de Marketing Moderno Marrom e Branco',fr:'Plan Marketing Moderne Marron et Blanc',de:'Moderner Marketingplan in Braun und Weiß',it:'Piano di Marketing Moderno Marrone e Bianco'},
+  '036': {es:'Portafolio para Creadores de Contenido Naranja',en:'Orange Content Creator Portfolio',pt:'Portfólio Laranja para Criadores de Conteúdo',fr:'Portfolio Orange pour Créateurs de Contenu',de:'Orangefarbenes Portfolio für Content Creator',it:'Portfolio Arancione per Content Creator'},
+  '037': {es:'Portafolio Creativo Rosa Audaz Moderno',en:'Modern Bold Pink Creative Portfolio',pt:'Portfólio Criativo Rosa Moderno e Ousado',fr:'Portfolio Créatif Rose Moderne et Audacieux',de:'Modernes markantes Kreativportfolio in Rosa',it:'Portfolio Creativo Rosa Moderno e Audace'},
+  '038': {es:'Plan Ejecutivo de Negocios Moderno Azul',en:'Modern Blue Executive Business Plan',pt:'Plano Executivo de Negócios Azul Moderno',fr:'Plan d’Affaires Exécutif Bleu Moderne',de:'Moderner blauer Executive-Geschäftsplan',it:'Piano Aziendale Esecutivo Blu Moderno'},
+  '039': {es:'Estrategias de E-commerce Profesional Negro',en:'Professional Black E-commerce Strategies',pt:'Estratégias Profissionais de E-commerce em Preto',fr:'Stratégies E-commerce Professionnelles en Noir',de:'Professionelle E-Commerce-Strategien in Schwarz',it:'Strategie E-commerce Professionali in Nero'},
+  '040': {es:'Manual de Marca Minimalista Beige',en:'Minimalist Beige Brand Manual',pt:'Manual de Marca Minimalista Bege',fr:'Manuel de Marque Minimaliste Beige',de:'Minimalistisches Markenhandbuch in Beige',it:'Manuale di Marca Minimalista Beige'},
+  '041': {es:'Presentación de Proyecto Profesional Azul',en:'Professional Blue Project Presentation',pt:'Apresentação de Projeto Profissional Azul',fr:'Présentation de Projet Professionnelle Bleue',de:'Professionelle blaue Projektpräsentation',it:'Presentazione di Progetto Professionale Blu'},
+  '042': {es:'Proyecto de Negocios Formal Azul',en:'Formal Blue Business Project',pt:'Projeto de Negócios Formal Azul',fr:'Projet Commercial Formel Bleu',de:'Formelles blaues Geschäftsprojekt',it:'Progetto Aziendale Formale Blu'},
+  '043': {es:'Servicios Médicos Profesional Azul',en:'Professional Blue Medical Services',pt:'Serviços Médicos Profissionais em Azul',fr:'Services Médicaux Professionnels en Bleu',de:'Professionelle medizinische Dienstleistungen in Blau',it:'Servizi Medici Professionali in Blu'},
+  '044': {es:'Brief de Proyecto Corporativo Blanco y Negro',en:'Black and White Corporate Project Brief',pt:'Briefing de Projeto Corporativo em Preto e Branco',fr:'Brief de Projet Corporate en Noir et Blanc',de:'Unternehmens-Projektbriefing in Schwarz und Weiß',it:'Brief di Progetto Aziendale in Bianco e Nero'},
+  '045': {es:'Resumen Ejecutivo de Proyecto Corporativo Verde',en:'Green Corporate Project Executive Summary',pt:'Resumo Executivo de Projeto Corporativo Verde',fr:'Résumé Exécutif de Projet Corporate Vert',de:'Executive Summary eines grünen Unternehmensprojekts',it:'Sintesi Esecutiva di Progetto Aziendale Verde'},
+});
+
+Object.assign(nameTranslations, {
+  '046': {es:'Informe de Marketing Geométrico Azul',en:'Blue Geometric Marketing Report',pt:'Relatório de Marketing Geométrico Azul',fr:'Rapport Marketing Géométrique Bleu',de:'Blauer geometrischer Marketingbericht',it:'Report Marketing Geometrico Blu'},
+  '047': {es:'Bienvenida a Evento Corporativo Negro Moderno',en:'Modern Black Corporate Event Welcome',pt:'Boas-vindas a Evento Corporativo Preto Moderno',fr:'Accueil d’Événement Corporate Noir Moderne',de:'Moderne schwarze Begrüßung für Firmenevents',it:'Benvenuto a Evento Aziendale Nero Moderno'},
+  '048': {es:'BrandBook Moderno: Manual de Marca Completo',en:'Modern Brandbook: Complete Brand Manual',pt:'Brandbook Moderno: Manual de Marca Completo',fr:'Brandbook Moderne : Manuel de Marque Complet',de:'Modernes Brandbook: vollständiges Markenhandbuch',it:'Brandbook Moderno: Manuale di Marca Completo'},
+  '049': {es:'Curso de Redes Sociales Geométrico Naranja',en:'Orange Geometric Social Media Course',pt:'Curso de Redes Sociais Geométrico Laranja',fr:'Cours de Réseaux Sociaux Géométrique Orange',de:'Geometrischer Social-Media-Kurs in Orange',it:'Corso Social Media Geometrico Arancione'},
+  '050': {es:'Proyecto Creativo Orgánico Multicolor',en:'Multicolor Organic Creative Project',pt:'Projeto Criativo Orgânico Multicolor',fr:'Projet Créatif Organique Multicolore',de:'Mehrfarbiges organisches Kreativprojekt',it:'Progetto Creativo Organico Multicolore'},
+  '051': {es:'Portafolio Fotográfico Minimalista Aesthetic',en:'Minimalist Aesthetic Photography Portfolio',pt:'Portfólio Fotográfico Minimalista Aesthetic',fr:'Portfolio Photographique Minimaliste Aesthetic',de:'Minimalistisches ästhetisches Fotoportfolio',it:'Portfolio Fotografico Minimalista Aesthetic'},
+  '052': {es:'Propuesta de Negocio Simple Geométrica Verde',en:'Simple Green Geometric Business Proposal',pt:'Proposta de Negócio Geométrica Verde Simples',fr:'Proposition Commerciale Géométrique Verte Simple',de:'Einfacher geometrischer Geschäftsvorschlag in Grün',it:'Proposta Commerciale Geometrica Verde Semplice'},
+  '053': {es:'Propuesta de Negocios Moderna Azul',en:'Modern Blue Business Proposal',pt:'Proposta de Negócios Azul Moderna',fr:'Proposition Commerciale Bleue Moderne',de:'Moderner blauer Geschäftsvorschlag',it:'Proposta Commerciale Blu Moderna'},
+  '054': {es:'Proyecto Creativo Juvenil Rosa y Azul',en:'Youthful Pink and Blue Creative Project',pt:'Projeto Criativo Jovem Rosa e Azul',fr:'Projet Créatif Jeune Rose et Bleu',de:'Jugendliches Kreativprojekt in Rosa und Blau',it:'Progetto Creativo Giovanile Rosa e Blu'},
+  '055': {es:'Proyecto Creativo Minimalista Negro y Morado',en:'Minimalist Black and Purple Creative Project',pt:'Projeto Criativo Minimalista Preto e Roxo',fr:'Projet Créatif Minimaliste Noir et Violet',de:'Minimalistisches Kreativprojekt in Schwarz und Lila',it:'Progetto Creativo Minimalista Nero e Viola'},
+  '056': {es:'Proyecto Creativo Orgánico Rosa',en:'Pink Organic Creative Project',pt:'Projeto Criativo Orgânico Rosa',fr:'Projet Créatif Organique Rose',de:'Organisches Kreativprojekt in Rosa',it:'Progetto Creativo Organico Rosa'},
+  '057': {es:'Proyecto de Negocios Moderno Azul y Blanco',en:'Modern Blue and White Business Project',pt:'Projeto de Negócios Moderno Azul e Branco',fr:'Projet Commercial Moderne Bleu et Blanc',de:'Modernes Geschäftsprojekt in Blau und Weiß',it:'Progetto Aziendale Moderno Blu e Bianco'},
+  '058': {es:'Proyecto de Negocios Tech Corporativo Azul',en:'Blue Corporate Tech Business Project',pt:'Projeto de Negócios Tech Corporativo Azul',fr:'Projet Commercial Tech Corporate Bleu',de:'Blaues Corporate-Tech-Geschäftsprojekt',it:'Progetto Aziendale Tech Corporate Blu'},
+  '059': {es:'Proyecto de Tecnología Ilustrado Azul y Blanco',en:'Blue and White Illustrated Technology Project',pt:'Projeto de Tecnologia Ilustrado Azul e Branco',fr:'Projet Technologique Illustré Bleu et Blanc',de:'Illustriertes Technologieprojekt in Blau und Weiß',it:'Progetto Tecnologico Illustrato Blu e Bianco'},
+  '060': {es:'Presentación Ejecutiva Geométrica con Acentos Neón',en:'Geometric Executive Presentation with Neon Accents',pt:'Apresentação Executiva Geométrica com Acentos Neon',fr:'Présentation Exécutive Géométrique aux Accents Néon',de:'Geometrische Executive-Präsentation mit Neonakzenten',it:'Presentazione Esecutiva Geometrica con Accenti Neon'},
+  '061': {es:'Agencia de Marketing Orgánico Naranja y Rosado',en:'Orange and Pink Organic Marketing Agency',pt:'Agência de Marketing Orgânico Laranja e Rosa',fr:'Agence Marketing Organique Orange et Rose',de:'Organische Marketingagentur in Orange und Rosa',it:'Agenzia di Marketing Organico Arancione e Rosa'},
+  '062': {es:'Empresa de Tecnología e IA Azul Moderno',en:'Modern Blue Technology and AI Company',pt:'Empresa de Tecnologia e IA Azul Moderna',fr:'Entreprise de Technologie et d’IA Bleue Moderne',de:'Modernes blaues Technologie- und KI-Unternehmen',it:'Azienda di Tecnologia e IA Blu Moderna'},
+  '063': {es:'Presentación Corporativa con Infografías Multicolor',en:'Corporate Presentation with Multicolor Infographics',pt:'Apresentação Corporativa com Infográficos Multicoloridos',fr:'Présentation Corporate avec Infographies Multicolores',de:'Unternehmenspräsentation mit mehrfarbigen Infografiken',it:'Presentazione Aziendale con Infografiche Multicolore'},
+  '064': {es:'Inversión y Finanzas Corporativo Degradado Azul',en:'Blue Gradient Corporate Investment and Finance',pt:'Investimento e Finanças Corporativo em Degradê Azul',fr:'Investissement et Finance Corporate en Dégradé Bleu',de:'Corporate Investment und Finanzen mit blauem Verlauf',it:'Investimenti e Finanza Aziendale con Gradiente Blu'},
+  '065': {es:'Proyecto de Negocios con Formas Orgánicas Azul y Crema',en:'Blue and Cream Organic Shapes Business Project',pt:'Projeto de Negócios com Formas Orgânicas Azul e Creme',fr:'Projet Commercial aux Formes Organiques Bleues et Crème',de:'Geschäftsprojekt mit organischen Formen in Blau und Creme',it:'Progetto Aziendale con Forme Organiche Blu e Crema'},
+});
+
+Object.assign(nameTranslations, {
+  '066': {es:'Empresa Digital de IA Azul Oscuro Moderno',en:'Modern Dark Blue Digital AI Company',pt:'Empresa Digital de IA Azul-Escuro Moderna',fr:'Entreprise Numérique d’IA Bleu Foncé Moderne',de:'Modernes digitales KI-Unternehmen in Dunkelblau',it:'Azienda Digitale di IA Blu Scuro Moderna'},
+  '067': {es:'Presentación Empresarial Clásica Azul y Blanco',en:'Classic Blue and White Business Presentation',pt:'Apresentação Empresarial Clássica Azul e Branca',fr:'Présentation d’Entreprise Classique Bleue et Blanche',de:'Klassische Unternehmenspräsentation in Blau und Weiß',it:'Presentazione Aziendale Classica Blu e Bianca'},
+  '068': {es:'Proyectos de Negocio Corporativo Simple Azul',en:'Simple Blue Corporate Business Projects',pt:'Projetos de Negócios Corporativos Simples em Azul',fr:'Projets Commerciaux Corporate Simples en Bleu',de:'Einfache blaue Unternehmensprojekte',it:'Progetti Aziendali Corporate Semplici in Blu'},
+  '069': {es:'Estrategia de Ventas Azul y Negro',en:'Blue and Black Sales Strategy',pt:'Estratégia de Vendas Azul e Preta',fr:'Stratégie Commerciale Bleue et Noire',de:'Vertriebsstrategie in Blau und Schwarz',it:'Strategia di Vendita Blu e Nera'},
+  '070': {es:'Estudio de Diseño y Creatividad Verde y Amarillo',en:'Green and Yellow Design and Creativity Studio',pt:'Estúdio de Design e Criatividade Verde e Amarelo',fr:'Studio de Design et Créativité Vert et Jaune',de:'Design- und Kreativstudio in Grün und Gelb',it:'Studio di Design e Creatività Verde e Giallo'},
+  '071': {es:'Evento de Tecnología Geométrico Multicolor',en:'Multicolor Geometric Technology Event',pt:'Evento de Tecnologia Geométrico Multicolorido',fr:'Événement Technologique Géométrique Multicolore',de:'Mehrfarbiges geometrisches Technologie-Event',it:'Evento Tecnologico Geometrico Multicolore'},
+  '072': {es:'Finanzas e Inversión con Iconos Dorado y Negro',en:'Gold and Black Finance and Investment with Icons',pt:'Finanças e Investimentos com Ícones Dourados e Pretos',fr:'Finance et Investissement avec Icônes Dorées et Noires',de:'Finanzen und Investitionen mit goldenen und schwarzen Symbolen',it:'Finanza e Investimenti con Icone Oro e Nere'},
+  '073': {es:'Historia y Datos del Fútbol Gradiente Multicolor',en:'Multicolor Gradient Football History and Data',pt:'História e Dados do Futebol com Gradiente Multicolorido',fr:'Histoire et Données du Football en Dégradé Multicolore',de:'Fußballgeschichte und Daten mit mehrfarbigem Verlauf',it:'Storia e Dati del Calcio con Gradiente Multicolore'},
+  '074': {es:'Hoja de Ruta Estratégica Corporativa Verde y Blanco',en:'Green and White Corporate Strategic Roadmap',pt:'Roteiro Estratégico Corporativo Verde e Branco',fr:'Feuille de Route Stratégique Corporate Verte et Blanche',de:'Strategische Unternehmens-Roadmap in Grün und Weiß',it:'Roadmap Strategica Aziendale Verde e Bianca'},
+  '075': {es:'Inteligencia Artificial Profesional Azul Neón',en:'Professional Neon Blue Artificial Intelligence',pt:'Inteligência Artificial Profissional Azul Neon',fr:'Intelligence Artificielle Professionnelle Bleu Néon',de:'Professionelle künstliche Intelligenz in Neonblau',it:'Intelligenza Artificiale Professionale Blu Neon'},
+  '076': {es:'Informe Corporativo Elegante Geométrico Azul',en:'Elegant Blue Geometric Corporate Report',pt:'Relatório Corporativo Elegante Geométrico Azul',fr:'Rapport Corporate Élégant Géométrique Bleu',de:'Eleganter geometrischer Unternehmensbericht in Blau',it:'Report Aziendale Elegante Geometrico Blu'},
+  '077': {es:'Informe de Negocios Profesional Naranja y Azul',en:'Professional Orange and Blue Business Report',pt:'Relatório de Negócios Profissional Laranja e Azul',fr:'Rapport Commercial Professionnel Orange et Bleu',de:'Professioneller Geschäftsbericht in Orange und Blau',it:'Report Aziendale Professionale Arancione e Blu'},
+  '078': {es:'IA con Gradiente Azul y Morado',en:'Blue and Purple Gradient AI',pt:'IA com Gradiente Azul e Roxo',fr:'IA en Dégradé Bleu et Violet',de:'KI mit blau-violettem Verlauf',it:'IA con Gradiente Blu e Viola'},
+  '079': {es:'Inteligencia Artificial Moderno Negro',en:'Modern Black Artificial Intelligence',pt:'Inteligência Artificial Moderna Preta',fr:'Intelligence Artificielle Moderne Noire',de:'Moderne schwarze künstliche Intelligenz',it:'Intelligenza Artificiale Moderna Nera'},
+  '080': {es:'IA Tecnológica Ilustrada Azul y Amarillo',en:'Blue and Yellow Illustrated Technology AI',pt:'IA Tecnológica Ilustrada Azul e Amarela',fr:'IA Technologique Illustrée Bleue et Jaune',de:'Illustrierte Technologie-KI in Blau und Gelb',it:'IA Tecnologica Illustrata Blu e Gialla'},
+  '081': {es:'Inteligencia Artificial Tecnológico Lila',en:'Lilac Technological Artificial Intelligence',pt:'Inteligência Artificial Tecnológica Lilás',fr:'Intelligence Artificielle Technologique Lilas',de:'Technologische künstliche Intelligenz in Lila',it:'Intelligenza Artificiale Tecnologica Lilla'},
+  '082': {es:'Inteligencia Artificial Futurista',en:'Futuristic Artificial Intelligence',pt:'Inteligência Artificial Futurista',fr:'Intelligence Artificielle Futuriste',de:'Futuristische künstliche Intelligenz',it:'Intelligenza Artificiale Futuristica'},
+  '083': {es:'Manual de Identidad Visual Verde Orgánico',en:'Organic Green Visual Identity Manual',pt:'Manual de Identidade Visual Verde Orgânico',fr:'Manuel d’Identité Visuelle Vert Organique',de:'Organisches grünes visuelles Identitätshandbuch',it:'Manuale di Identità Visiva Verde Organico'},
+  '084': {es:'BrandBook Tipográfico Negro, Blanco y Rosa',en:'Black, White and Pink Typographic Brandbook',pt:'Brandbook Tipográfico Preto, Branco e Rosa',fr:'Brandbook Typographique Noir, Blanc et Rose',de:'Typografisches Brandbook in Schwarz, Weiß und Rosa',it:'Brandbook Tipografico Nero, Bianco e Rosa'},
+  '085': {es:'Manual de Marca para Cafetería Moderno Azul',en:'Modern Blue Coffee Shop Brand Manual',pt:'Manual de Marca Moderno Azul para Cafeteria',fr:'Manuel de Marque Moderne Bleu pour Café',de:'Modernes blaues Markenhandbuch für ein Café',it:'Manuale di Marca Moderno Blu per Caffetteria'},
+});
+
+Object.assign(nameTranslations, {
+  '086': {es:'Manual de Marca para Gimnasio Rojo y Blanco',en:'Red and White Gym Brand Manual',pt:'Manual de Marca para Academia Vermelho e Branco',fr:'Manuel de Marque pour Salle de Sport Rouge et Blanc',de:'Markenhandbuch für ein Fitnessstudio in Rot und Weiß',it:'Manuale di Marca per Palestra Rosso e Bianco'},
+  '087': {es:'Manual de Marca Rosa y Blanco Moderno',en:'Modern Pink and White Brand Manual',pt:'Manual de Marca Moderno Rosa e Branco',fr:'Manuel de Marque Moderne Rose et Blanc',de:'Modernes Markenhandbuch in Rosa und Weiß',it:'Manuale di Marca Moderno Rosa e Bianco'},
+  '088': {es:'Manual de Marca Tienda de Ropa Negro y Verde Neón',en:'Black and Neon Green Clothing Store Brand Manual',pt:'Manual de Marca para Loja de Roupas Preto e Verde Neon',fr:'Manuel de Marque de Boutique de Vêtements Noir et Vert Néon',de:'Markenhandbuch für ein Modegeschäft in Schwarz und Neongrün',it:'Manuale di Marca per Negozio di Abbigliamento Nero e Verde Neon'},
+  '089': {es:'Marketing Digital Moderno Amarillo',en:'Modern Yellow Digital Marketing',pt:'Marketing Digital Moderno Amarelo',fr:'Marketing Numérique Moderne Jaune',de:'Modernes digitales Marketing in Gelb',it:'Marketing Digitale Moderno Giallo'},
+  '090': {es:'Proyecto Final Estilo Coquette Rosado',en:'Pink Coquette Style Final Project',pt:'Projeto Final Estilo Coquette Rosa',fr:'Projet Final Style Coquette Rose',de:'Abschlussprojekt im rosa Coquette-Stil',it:'Progetto Finale in Stile Coquette Rosa'},
+  '091': {es:'Planeador de Contenido para Redes y Marketing',en:'Social Media and Marketing Content Planner',pt:'Planejador de Conteúdo para Redes Sociais e Marketing',fr:'Planificateur de Contenu pour Réseaux Sociaux et Marketing',de:'Content-Planer für Social Media und Marketing',it:'Pianificatore di Contenuti per Social Media e Marketing'},
+  '092': {es:'Negocio de Restaurante de Burgers Moderno Amarillo',en:'Modern Yellow Burger Restaurant Business',pt:'Negócio de Restaurante de Hambúrgueres Moderno Amarelo',fr:'Entreprise de Restaurant de Burgers Moderne Jaune',de:'Modernes Burgerrestaurant-Geschäft in Gelb',it:'Attività di Ristorante di Hamburger Moderna Gialla'},
+  '093': {es:'Estrategia de Crecimiento y Branding Corporativo Azul',en:'Blue Corporate Growth and Branding Strategy',pt:'Estratégia de Crescimento e Branding Corporativo Azul',fr:'Stratégie de Croissance et Branding Corporate Bleue',de:'Unternehmensstrategie für Wachstum und Branding in Blau',it:'Strategia di Crescita e Branding Aziendale Blu'},
+  '094': {es:'Nueva Colección Deportiva Fotográfica Amarillo y Verde',en:'Yellow and Green Photographic New Sports Collection',pt:'Nova Coleção Esportiva Fotográfica Amarela e Verde',fr:'Nouvelle Collection Sportive Photographique Jaune et Verte',de:'Neue fotografische Sportkollektion in Gelb und Grün',it:'Nuova Collezione Sportiva Fotografica Gialla e Verde'},
+  '095': {es:'Pitch Deck para Idea de Negocio Profesional Azul',en:'Professional Blue Business Idea Pitch Deck',pt:'Pitch Deck Profissional Azul para Ideia de Negócio',fr:'Pitch Deck Professionnel Bleu pour Idée Commerciale',de:'Professionelles blaues Pitch Deck für eine Geschäftsidee',it:'Pitch Deck Professionale Blu per Idea di Business'},
+  '096': {es:'Plan de Marketing Digital para Agencia Rosado y Negro',en:'Pink and Black Agency Digital Marketing Plan',pt:'Plano de Marketing Digital para Agência Rosa e Preto',fr:'Plan de Marketing Numérique pour Agence Rose et Noir',de:'Digitaler Marketingplan für eine Agentur in Rosa und Schwarz',it:'Piano di Marketing Digitale per Agenzia Rosa e Nero'},
+  '097': {es:'Plan de Marketing Moderno Negro y Amarillo',en:'Modern Black and Yellow Marketing Plan',pt:'Plano de Marketing Moderno Preto e Amarelo',fr:'Plan Marketing Moderne Noir et Jaune',de:'Moderner Marketingplan in Schwarz und Gelb',it:'Piano di Marketing Moderno Nero e Giallo'},
+  '098': {es:'Plan de Marketing Minimalista Rosa y Blanco',en:'Minimalist Pink and White Marketing Plan',pt:'Plano de Marketing Minimalista Rosa e Branco',fr:'Plan Marketing Minimaliste Rose et Blanc',de:'Minimalistischer Marketingplan in Rosa und Weiß',it:'Piano di Marketing Minimalista Rosa e Bianco'},
+  '099': {es:'Plan de Marketing Ilustrado Morado y Amarillo',en:'Purple and Yellow Illustrated Marketing Plan',pt:'Plano de Marketing Ilustrado Roxo e Amarelo',fr:'Plan Marketing Illustré Violet et Jaune',de:'Illustrierter Marketingplan in Lila und Gelb',it:'Piano di Marketing Illustrato Viola e Giallo'},
+  '100': {es:'Reporte de Marketing Mensual y Anual Rosa y Negro',en:'Pink and Black Monthly and Annual Marketing Report',pt:'Relatório de Marketing Mensal e Anual Rosa e Preto',fr:'Rapport Marketing Mensuel et Annuel Rose et Noir',de:'Monatlicher und jährlicher Marketingbericht in Rosa und Schwarz',it:'Report Marketing Mensile e Annuale Rosa e Nero'},
+  '101': {es:'Plan de Marketing Geométrico Azul y Verde',en:'Blue and Green Geometric Marketing Plan',pt:'Plano de Marketing Geométrico Azul e Verde',fr:'Plan Marketing Géométrique Bleu et Vert',de:'Geometrischer Marketingplan in Blau und Grün',it:'Piano di Marketing Geometrico Blu e Verde'},
+  '102': {es:'Plan de Marketing Corporativo Naranja',en:'Orange Corporate Marketing Plan',pt:'Plano de Marketing Corporativo Laranja',fr:'Plan Marketing Corporate Orange',de:'Unternehmens-Marketingplan in Orange',it:'Piano di Marketing Aziendale Arancione'},
+  '103': {es:'Plan de Marketing Geométrico Violeta y Rosa',en:'Violet and Pink Geometric Marketing Plan',pt:'Plano de Marketing Geométrico Violeta e Rosa',fr:'Plan Marketing Géométrique Violet et Rose',de:'Geometrischer Marketingplan in Violett und Rosa',it:'Piano di Marketing Geometrico Viola e Rosa'},
+  '104': {es:'Plan de Marketing Ilustrado Beige y Naranja',en:'Beige and Orange Illustrated Marketing Plan',pt:'Plano de Marketing Ilustrado Bege e Laranja',fr:'Plan Marketing Illustré Beige et Orange',de:'Illustrierter Marketingplan in Beige und Orange',it:'Piano di Marketing Illustrato Beige e Arancione'},
+  '105': {es:'Plan de Marketing Minimalista Elegante Azul y Verde',en:'Elegant Minimalist Blue and Green Marketing Plan',pt:'Plano de Marketing Minimalista Elegante Azul e Verde',fr:'Plan Marketing Minimaliste Élégant Bleu et Vert',de:'Eleganter minimalistischer Marketingplan in Blau und Grün',it:'Piano di Marketing Minimalista Elegante Blu e Verde'},
+});
+
+for (const item of items) {
+  if (!nameTranslations[item.id]) {
+    const englishName = item.pdf_original.replace(/\.pdf$/i, '');
+    nameTranslations[item.id] = {
+      es: item.nombre_es,
+      en: englishName,
+      pt: item.nombre_es,
+      fr: item.nombre_es,
+      de: item.nombre_es,
+      it: item.nombre_es,
+    };
+  }
+}
+
+const optionTranslations = {
+  es: {minimalist:'Minimalista',corporate:'Corporativo',creative:'Creativo',academic:'Académico',bold:'Audaz',elegant:'Elegante',playful:'Divertido',futuristic:'Futurista',flat:'Plano',outlined:'Con contornos',filled:'Con relleno','3D':'3D',illustrated:'Ilustrado',photographic:'Fotográfico','icon-based':'Basado en iconos',abstract:'Abstracto',none:'Ninguno',concise:'Concisa',balanced:'Equilibrada',detailed:'Detallada',centered:'Centrada','left-aligned':'Alineada a la izquierda','right-aligned':'Alineada a la derecha',asymmetric:'Asimétrica',grid:'Cuadrícula'},
+  en: {minimalist:'Minimalist',corporate:'Corporate',creative:'Creative',academic:'Academic',bold:'Bold',elegant:'Elegant',playful:'Playful',futuristic:'Futuristic',flat:'Flat',outlined:'Outlined',filled:'Filled','3D':'3D',illustrated:'Illustrated',photographic:'Photographic','icon-based':'Icon-based',abstract:'Abstract',none:'None',concise:'Concise',balanced:'Balanced',detailed:'Detailed',centered:'Centered','left-aligned':'Left-aligned','right-aligned':'Right-aligned',asymmetric:'Asymmetric',grid:'Grid'},
+  pt: {minimalist:'Minimalista',corporate:'Corporativo',creative:'Criativo',academic:'Acadêmico',bold:'Ousado',elegant:'Elegante',playful:'Divertido',futuristic:'Futurista',flat:'Plano',outlined:'Com contornos',filled:'Preenchido','3D':'3D',illustrated:'Ilustrado',photographic:'Fotográfico','icon-based':'Baseado em ícones',abstract:'Abstrato',none:'Nenhum',concise:'Concisa',balanced:'Equilibrada',detailed:'Detalhada',centered:'Centralizada','left-aligned':'Alinhada à esquerda','right-aligned':'Alinhada à direita',asymmetric:'Assimétrica',grid:'Grade'},
+  fr: {minimalist:'Minimaliste',corporate:'Corporate',creative:'Créatif',academic:'Académique',bold:'Audacieux',elegant:'Élégant',playful:'Ludique',futuristic:'Futuriste',flat:'Plat',outlined:'Avec contours',filled:'Rempli','3D':'3D',illustrated:'Illustré',photographic:'Photographique','icon-based':'Basé sur des icônes',abstract:'Abstrait',none:'Aucun',concise:'Concise',balanced:'Équilibrée',detailed:'Détaillée',centered:'Centrée','left-aligned':'Alignée à gauche','right-aligned':'Alignée à droite',asymmetric:'Asymétrique',grid:'Grille'},
+  de: {minimalist:'Minimalistisch',corporate:'Geschäftlich',creative:'Kreativ',academic:'Akademisch',bold:'Markant',elegant:'Elegant',playful:'Verspielt',futuristic:'Futuristisch',flat:'Flach',outlined:'Konturiert',filled:'Gefüllt','3D':'3D',illustrated:'Illustriert',photographic:'Fotografisch','icon-based':'Symbolbasiert',abstract:'Abstrakt',none:'Keine',concise:'Knapp',balanced:'Ausgewogen',detailed:'Detailliert',centered:'Zentriert','left-aligned':'Linksbündig','right-aligned':'Rechtsbündig',asymmetric:'Asymmetrisch',grid:'Raster'},
+  it: {minimalist:'Minimalista',corporate:'Aziendale',creative:'Creativo',academic:'Accademico',bold:'Audace',elegant:'Elegante',playful:'Giocoso',futuristic:'Futuristico',flat:'Piatto',outlined:'Con contorni',filled:'Riempito','3D':'3D',illustrated:'Illustrato',photographic:'Fotografico','icon-based':'Basato su icone',abstract:'Astratto',none:'Nessuno',concise:'Concisa',balanced:'Equilibrata',detailed:'Dettagliata',centered:'Centrata','left-aligned':'Allineata a sinistra','right-aligned':'Allineata a destra',asymmetric:'Asimmetrica',grid:'Griglia'},
+};
+
+const languageCodes = {Spanish:'es',English:'en',Portuguese:'pt',French:'fr',German:'de',Italian:'it'};
+function t(key) { return translations[uiLanguage]?.[key] ?? translations.en[key] ?? key; }
+function format(text, values) { return text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? ''); }
+function categoryLabel(category) { return categoryTranslations[category]?.[uiLanguage] ?? category; }
+function itemName(item) { return nameTranslations[item.id]?.[uiLanguage] ?? item.nombre_es; }
+function optionLabel(key, value) {
+  if (value === '__default__') return `${t('defaultOption')} · ${optionLabel(key, defaultValues[key])}`;
+  if (value === '__other__') return t('other');
+  if (key === 'TITLE_FONT' || key === 'BODY_FONT') return value;
+  if (key === 'LANGUAGE') {
+    try { return new Intl.DisplayNames([uiLanguage], {type:'language'}).of(languageCodes[value]); } catch (_) { return value; }
+  }
+  return optionTranslations[uiLanguage]?.[value] ?? value;
+}
+function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
+function normalize(text) { return String(text).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function signatureText(item) {
+  if (item.__signatureText === undefined) {
+    const match = item.prompt_template.match(/Reference-specific signature rules[\s\S]*?(?=\n\nReference slide blueprints|\n\nComposition fidelity rules)/);
+    item.__signatureText = match ? match[0] : '';
+  }
+  return item.__signatureText;
+}
+function searchHaystack(item) {
+  if (item.__haystack === undefined) {
+    const allNames = Object.values(nameTranslations[item.id] || {}).join(' ');
+    const allCategoryLabels = item.categorias.map(category => Object.values(categoryTranslations[category] || {}).join(' ')).join(' ');
+    const variableValues = Object.entries(item.variables).map(([key, value]) => `${value} ${optionLabel(key, value)}`).join(' ');
+    const keywords = (item.keywords || []).join(' ');
+    item.__haystack = normalize(`${allNames} ${allCategoryLabels} ${variableValues} ${signatureText(item)} ${keywords}`);
+  }
+  return item.__haystack;
+}
+
+function renderFilters() {
+  const choices = ['ALL', ...categories];
+  filters.innerHTML = choices.map(category => `<button class="filter ${category === activeCategory ? 'active' : ''}" data-category="${escapeHtml(category)}">${escapeHtml(category === 'ALL' ? t('all') : categoryLabel(category))}</button>`).join('');
+  filters.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+    activeCategory = button.dataset.category;
+    renderFilters();
+    renderGallery();
+  }));
+}
+
+function renderGallery() {
+  const query = normalize(search.value.trim());
+  const visible = items.filter(item => {
+    const categoryMatch = activeCategory === 'ALL' || item.categorias.includes(activeCategory);
+    return categoryMatch && (query === '' || searchHaystack(item).includes(query));
+  });
+  resultCount.textContent = `${visible.length} ${visible.length === 1 ? t('styleOne') : t('styleMany')}`;
+  gallery.innerHTML = visible.length ? visible.map(item => `
+    <article class="card">
+      <div class="preview-wrap"><img src="${escapeHtml(item.preview)}" alt="${escapeHtml(format(t('previewOf'), {name:itemName(item)}))}"></div>
+      <div class="card-body">
+        <div class="badges">${item.categorias.map(category => `<span class="badge">${escapeHtml(categoryLabel(category))}</span>`).join('')}</div>
+        <h3>${escapeHtml(itemName(item))}</h3>
+        <button class="open-prompt" data-id="${item.id}">${escapeHtml(t('viewCustomize'))}</button>
+      </div>
+    </article>`).join('') : `<div class="empty">${escapeHtml(t('noResults'))}</div>`;
+  gallery.querySelectorAll('.open-prompt').forEach(button => button.addEventListener('click', () => openPanel(button.dataset.id)));
+}
+
+function fieldMarkup([key, labelKey, type]) {
+  const value = activeValues[key];
+  const label = t(labelKey);
+  if (type === 'color') {
+    return `<div class="field"><label for="${key}">${escapeHtml(label)}<span class="default-hint" data-default-hint-for="${key}" ${value === defaultValues[key] ? '' : 'hidden'}> · ${escapeHtml(t('defaultOption'))}</span></label><div class="color-row"><input id="${key}" data-key="${key}" type="color" value="${escapeHtml(value)}"><input data-color-text="${key}" type="text" value="${escapeHtml(value)}" aria-label="${escapeHtml(label)}" readonly></div></div>`;
+  }
+  const isDefault = value === defaultValues[key];
+  const isStandard = type.includes(value);
+  const selected = isDefault ? '__default__' : (isStandard ? value : '__other__');
+  const choices = ['__default__', ...type.filter(option => option !== defaultValues[key]), '__other__'];
+  return `<div class="field"><label for="${key}">${escapeHtml(label)}</label><select id="${key}" data-key="${key}">${choices.map(option => `<option value="${escapeHtml(option)}" ${option === selected ? 'selected' : ''}>${escapeHtml(optionLabel(key, option))}</option>`).join('')}</select><input data-custom-for="${key}" type="text" value="${isStandard ? '' : escapeHtml(value)}" placeholder="${escapeHtml(t('otherPlaceholder'))}" aria-label="${escapeHtml(`${label}: ${t('other')}`)}" ${selected === '__other__' ? '' : 'hidden'}></div>`;
+}
+
+function renderForm() {
+  form.innerHTML = fieldConfig.map(fieldMarkup).join('');
+  form.querySelectorAll('[data-key]').forEach(input => input.addEventListener('input', event => {
+    const key = event.target.dataset.key;
+    if (event.target.type === 'color') {
+      activeValues[key] = event.target.value;
+      form.querySelector(`[data-color-text="${key}"]`).value = event.target.value.toUpperCase();
+      form.querySelector(`[data-default-hint-for="${key}"]`).hidden = event.target.value.toLowerCase() !== defaultValues[key].toLowerCase();
+    } else {
+      const customInput = form.querySelector(`[data-custom-for="${key}"]`);
+      const useOther = event.target.value === '__other__';
+      customInput.hidden = !useOther;
+      activeValues[key] = event.target.value === '__default__' ? defaultValues[key] : (useOther ? customInput.value : event.target.value);
+      if (useOther) customInput.focus();
+    }
+    updatePrompt();
+  }));
+  form.querySelectorAll('[data-custom-for]').forEach(input => input.addEventListener('input', event => {
+    activeValues[event.target.dataset.customFor] = event.target.value;
+    updatePrompt();
+  }));
+}
+
+function openPanel(id) {
+  activeItem = items.find(item => item.id === id);
+  defaultValues = {...activeItem.variables, LANGUAGE:'Spanish'};
+  activeValues = {...defaultValues};
+  isCustomizing = false;
+  customization.hidden = true;
+  customizeToggle.setAttribute('aria-expanded', 'false');
+  customizeToggle.textContent = t('customizeButton');
+  document.getElementById('panel-preview').src = activeItem.preview;
+  document.getElementById('panel-preview').alt = format(t('enlargedPreviewOf'), {name:itemName(activeItem)});
+  document.getElementById('panel-title').textContent = itemName(activeItem);
+  document.getElementById('panel-category').textContent = activeItem.categorias.map(categoryLabel).join(' · ');
+  renderForm();
+  updatePrompt();
+  panel.classList.add('open');
+  backdrop.classList.add('visible');
+  panel.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function updatePrompt() {
+  promptOutput.value = activeItem.prompt_template.replace(/\{\{([A-Z_]+)\}\}/g, (_, key) => activeValues[key] ?? `{{${key}}}`);
+}
+
+function closePanel() {
+  panel.classList.remove('open');
+  backdrop.classList.remove('visible');
+  panel.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+function setUiLanguage(code) {
+  uiLanguage = translations[code] ? code : 'es';
+  document.documentElement.lang = uiLanguage;
+  uiLanguageSelect.value = uiLanguage;
+  try { localStorage.setItem('presenta-ui-language', uiLanguage); } catch (_) {}
+  document.querySelectorAll('[data-i18n]').forEach(node => node.textContent = t(node.dataset.i18n));
+  const pilotLabel = document.querySelector('[data-i18n="pilot"]');
+  if (pilotLabel) pilotLabel.textContent = format(t('pilot'), {count:items.length});
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(node => node.placeholder = t(node.dataset.i18nPlaceholder));
+  document.querySelectorAll('[data-i18n-aria]').forEach(node => node.setAttribute('aria-label', t(node.dataset.i18nAria)));
+  customizeToggle.textContent = t(isCustomizing ? 'hideCustomization' : 'customizeButton');
+  items.forEach(item => { delete item.__haystack; });
+  renderFilters();
+  renderGallery();
+  if (activeItem) {
+    document.getElementById('panel-preview').alt = format(t('enlargedPreviewOf'), {name:itemName(activeItem)});
+    document.getElementById('panel-title').textContent = itemName(activeItem);
+    document.getElementById('panel-category').textContent = activeItem.categorias.map(categoryLabel).join(' · ');
+    renderForm();
+  }
+}
+
+search.addEventListener('input', renderGallery);
+document.getElementById('close').addEventListener('click', closePanel);
+backdrop.addEventListener('click', closePanel);
+document.addEventListener('keydown', event => { if (event.key === 'Escape') closePanel(); });
+document.getElementById('reset').addEventListener('click', () => {
+  activeValues = {...defaultValues};
+  renderForm();
+  updatePrompt();
+});
+customizeToggle.addEventListener('click', () => {
+  isCustomizing = !isCustomizing;
+  customization.hidden = !isCustomizing;
+  customizeToggle.setAttribute('aria-expanded', String(isCustomizing));
+  customizeToggle.textContent = t(isCustomizing ? 'hideCustomization' : 'customizeButton');
+});
+document.addEventListener('pointerdown', event => {
+  const focused = document.activeElement;
+  if (focused?.tagName === 'SELECT' && event.target !== focused) focused.blur();
+});
+document.getElementById('copy').addEventListener('click', async event => {
+  const button = event.currentTarget;
+  try { await navigator.clipboard.writeText(promptOutput.value); }
+  catch (_) { promptOutput.select(); document.execCommand('copy'); }
+  button.textContent = t('copied');
+  setTimeout(() => button.textContent = t('copy'), 2000);
+});
+uiLanguageSelect.addEventListener('change', event => setUiLanguage(event.target.value));
+
+let savedLanguage = 'es';
+try { savedLanguage = localStorage.getItem('presenta-ui-language') || 'es'; } catch (_) {}
+setUiLanguage(savedLanguage);
+
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+  (async () => {
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+    const PRODUCT_ID = '2c296299-d9a4-4409-bc99-67b4999e47f8';
+    const PREVIEWS_BASE = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/previews-200/';
+
+    document.getElementById('imBtnComprar').addEventListener('click', async () => {
+      const msj = document.getElementById('imMsjCompra');
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch(`/api/checkout?product=${PRODUCT_ID}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        const body = await res.json();
+        if (!res.ok) { msj.textContent = body.error || 'Muy pronto disponible.'; msj.classList.remove('im-oculto'); return; }
+        sessionStorage.setItem('compra_ref', body.reference);
+        window.location.href = body.url;
+      } catch { msj.textContent = 'Muy pronto disponible.'; msj.classList.remove('im-oculto'); }
+    });
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+
+    // El RLS es el candado: sin compra aprobada (o admin) no llegan filas.
+    const { data, error } = await sb.from('premium_items').select('item_num, id, data')
+      .eq('product_id', PRODUCT_ID).order('item_num').range(0, 249);
+    const filas = error ? [] : (data ?? []);
+
+    if (!filas.length) {
+      document.getElementById('imCargando').classList.add('im-oculto');
+      document.getElementById('imSinAcceso').classList.remove('im-oculto');
+      return;
+    }
+
+    const disenos = filas.map(f => {
+      const d = f.data;
+      d.preview = PREVIEWS_BASE + String(d.preview || '').split('/').pop();
+      return d;
+    });
+    // textContent vía DOM es inerte: no re-parsea HTML, no hay riesgo de romper el tag
+    document.getElementById('presentation-data').textContent = JSON.stringify(disenos);
+    window.__IM = {
+      sb,
+      userId: session.user.id,
+      productId: PRODUCT_ID,
+      uuidByNum: new Map(filas.map(f => [f.item_num, f.id])),
+    };
+
+    document.getElementById('imCargando').classList.add('im-oculto');
+    __initApp();
+  })();
+  </script>
+</body>
+</html>
