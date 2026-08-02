@@ -7,7 +7,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const SUPABASE_URL = 'https://iyiygnfaxiejtlgkkivs.supabase.co';
-const PREVIEWS_DIR =
+// Acepta un directorio alterno (ej. la copia optimizada con sips) como argumento.
+const PREVIEWS_DIR = process.argv[2] ||
   '/Users/sergiolizcano/Desktop/PROYECTOS/PROYECTOS IA MASIVA/VERSIONES FINALES RECURSOS/200 diseños para presentaciones/pilot/previews';
 const BUCKET = 'previews-200';
 
