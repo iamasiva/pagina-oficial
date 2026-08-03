@@ -47,10 +47,11 @@
 
     /* Tarjeta clara de dolor (contraste con el fondo del producto) */
     .dolor-card { background: var(--card-claro-fondo); color: var(--card-claro-ink); border-radius: 18px; padding: 34px clamp(20px, 4vw, 44px); max-width: 640px; margin: 0 auto; }
-    .dolor-card .dolor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: none; border: none; color: inherit; text-align: left; font-size: 1.1rem; font-weight: 700; padding: 0; }
-    .dolor-card .dolor-chev { font-size: 1.2rem; color: var(--acento); transition: transform .25s ease; }
-    .dolor-card .dolor-toggle[aria-expanded="true"] .dolor-chev { transform: rotate(180deg); }
-    .dolor-card .dolor-toggle[aria-expanded="true"] { margin-bottom: 18px; }
+    .dolor-card .dolor-invito { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .dolor-card .intro-texto { font-size: 1.1rem; font-weight: 700; }
+    .dolor-card .btn-evaluar { background: var(--acento); color: var(--cta-texto); border: none; border-radius: 999px; padding: 11px 30px; font-weight: 800; font-size: 0.92rem; transition: transform .15s ease, filter .2s; }
+    .dolor-card .btn-evaluar:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .dolor-card #pDolorCuerpo { margin-top: 18px; }
     .dolor-card .prob { display: flex; gap: 10px; margin-bottom: 12px; color: var(--card-claro-muted); font-size: 0.98rem; }
     .dolor-card .prob b { color: var(--acento); }
     .dolor-card .pregunta { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
@@ -147,10 +148,10 @@
   <section id="secDolor">
     <div class="contenido">
       <div class="dolor-card">
-        <button class="intro dolor-toggle" id="pDolorToggle" type="button" aria-expanded="false">
-          <span id="pDolorIntro"></span>
-          <span class="dolor-chev">▾</span>
-        </button>
+        <div class="dolor-invito">
+          <span class="intro-texto" id="pDolorIntro"></span>
+          <button class="btn-evaluar" id="pDolorEvaluar" type="button">Evaluar</button>
+        </div>
         <div id="pDolorCuerpo" class="oculto">
           <div id="pDolorLista"></div>
           <p class="giro giro-interactivo" id="pDolorGiro"></p>
@@ -299,7 +300,7 @@
         tema: { fondo: '#0a0918', panel: 'rgba(124,92,255,0.08)', borde: 'rgba(124,92,255,0.28)', ink: '#f2f0ff', muted: '#a9a3c8', acento: '#7c5cff', ctaTexto: '#ffffff', cardClaroFondo: '#f1eefc', cardClaroInk: '#241b4d', cardClaroMuted: '#5a5380' },
         hero: { desktop: PORTADAS + 'hero-557-desktop-promo.jpg', mobile: PORTADAS + 'hero-557-mobile-promo.jpg' },
         dolor: {
-          intro: 'Para empezar, responde estas preguntas',
+          intro: 'Evalúa rápidamente si este producto es para ti.',
           lista: [
             '¿Sientes que en vez de ahorrar tiempo, usando la IA te estás demorando más?',
             '¿Vives corrigiéndola porque entrega cosas irrelevantes o inventadas?',
@@ -371,7 +372,7 @@
         tema: { fondo: '#f3f2fa', panel: '#ffffff', borde: '#ddd9ec', ink: '#141b4d', muted: '#5a6080', acento: '#4a5fe0', ctaTexto: '#ffffff', cardClaroFondo: '#141b4d', cardClaroInk: '#ffffff', cardClaroMuted: '#c9cdea' },
         hero: { desktop: PORTADAS + 'hero-400-desktop-promo.jpg', mobile: PORTADAS + 'hero-400-mobile-promo.jpg' },
         dolor: {
-          intro: 'Para empezar, responde estas preguntas',
+          intro: 'Evalúa rápidamente si este producto es para ti.',
           lista: [
             '¿Se te va el día en tareas repetitivas que ya sabes hacer de memoria?',
             '¿Le explicas lo mismo a la IA una y otra vez, en cada chat?',
@@ -441,7 +442,7 @@
         tema: { fondo: '#0b0a08', panel: 'rgba(255,140,26,0.07)', borde: 'rgba(255,140,26,0.25)', ink: '#f7f1e3', muted: '#b3a892', acento: '#ff8c1a', ctaTexto: '#1a1204', cardClaroFondo: '#f7f1e3', cardClaroInk: '#241c0e', cardClaroMuted: '#6b6046' },
         hero: { desktop: PORTADAS + 'hero-200-desktop-promo.jpg', mobile: PORTADAS + 'hero-200-mobile-promo.jpg' },
         dolor: {
-          intro: 'Para empezar, responde estas preguntas',
+          intro: 'Evalúa rápidamente si este producto es para ti.',
           lista: [
             '¿Usas Gemini Notebooks (antes NotebookLM) para crear presentaciones?',
             '¿Sus diseños te parecen genéricos, con poco control sobre cómo se ven?',
@@ -511,7 +512,7 @@
         tema: { fondo: '#050F3A', panel: 'rgba(47,107,255,0.1)', borde: 'rgba(47,107,255,0.3)', ink: '#ffffff', muted: '#9aacbf', acento: '#2F6BFF', ctaTexto: '#ffffff', cardClaroFondo: '#f5f6fa', cardClaroInk: '#1c2333', cardClaroMuted: '#4b5568' },
         hero: null,
         dolor: {
-          intro: 'Para empezar, responde estas preguntas',
+          intro: 'Evalúa rápidamente si este producto es para ti.',
           lista: [
             '¿Cuadernos que responden como asistente genérico y chats que empiezan de cero?',
             '¿Trabajos regados por toda la IA, sin orden ni forma de encontrarlos?',
@@ -623,10 +624,10 @@
 
       $('pDolorIntro').textContent = cfg.dolor.intro;
       $('pDolorGiro').innerHTML = cfg.dolor.giro;
-      $('pDolorToggle').addEventListener('click', () => {
-        const abierto = $('pDolorToggle').getAttribute('aria-expanded') === 'true';
-        $('pDolorToggle').setAttribute('aria-expanded', String(!abierto));
-        $('pDolorCuerpo').classList.toggle('oculto', abierto);
+      // El quiz se expande si y solo si el usuario oprime "Evaluar"
+      $('pDolorEvaluar').addEventListener('click', () => {
+        $('pDolorEvaluar').classList.add('oculto');
+        $('pDolorCuerpo').classList.remove('oculto');
       });
       if (cfg.dolor.quiz === false) {
         // Problema en lista numerada, con la solución visible de una

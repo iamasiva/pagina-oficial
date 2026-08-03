@@ -514,9 +514,23 @@
         localStorage.setItem(CACHE_CONTENIDO, JSON.stringify({ guides: allGuides, slides: heroSlidesRaw, products: allProducts }));
       } catch (_) {}
     }
+
+    // Primera visita rápida: el contenido público se pide DE UNA, en paralelo con el login
+    const cargaPublica = Promise.all([
+      sb.from('guides').select('*').eq('publicada', true).order('created_at', { ascending: false }),
+      sb.from('hero_slides').select('*').order('orden', { ascending: true }),
+      sb.from('products').select('*').eq('activo', true),
+    ]).then(([g, s, p]) => {
+      if (g.error) return false;
+      allGuides = g.data ?? []; heroSlidesRaw = s.data ?? []; allProducts = p.data ?? [];
+      renderAll();
+      guardarCacheContenido();
+      return true;
+    }).catch(() => false);
     let heroSlides = [], heroIndex = 0, heroTimer = null, heroSlidesRaw = [];
 
     // ── AUTH GUARD ────────────────────────────────────────────
+    pintarDesdeCache();
     sb.auth.getSession().then(({ data: { session } }) => {
       if (!session) { window.location.href = 'index.html'; return; }
       initApp(session);
@@ -1137,9 +1151,6 @@
       const nombre=session.user.user_metadata?.nombre||session.user.user_metadata?.full_name||session.user.email;
       document.getElementById('appNavName').textContent=nombre;
 
-      // Mientras llega lo fresco, se pinta lo último conocido (imágenes al instante)
-      pintarDesdeCache();
-
       // Admin y compras en paralelo (antes eran dos viajes en serie)
       const [{ data: profile }, { data: purchases }] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id',session.user.id).single(),
@@ -1152,7 +1163,11 @@
       }
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
 
-      await loadAndRender();
+      // El contenido público ya viene en camino desde el arranque;
+      // el admin necesita además las guías despublicadas
+      await cargaPublica;
+      if (isAdmin) await loadAndRender();
+      else renderAll();
     }
   </script>
 </body>
