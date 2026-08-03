@@ -86,7 +86,13 @@
     .scroll-arrow.right { right: -20px; }
 
     /* ─── CARDS ──────────────────────────────────────────────── */
-    .app-card { flex: 0 0 175px; height: 252px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
+    .app-card { flex: 0 0 175px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); background: rgba(255,255,255,0.035); display: flex; flex-direction: column; transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
+    .app-card-arte { position: relative; height: 252px; flex-shrink: 0; overflow: hidden; }
+    .app-card-pie { display: flex; align-items: center; gap: 7px; padding: 8px 10px; }
+    .fav-estrella { background: none; border: none; color: #6b7b92; font-size: 1.1rem; line-height: 1; padding: 2px; flex-shrink: 0; transition: transform .15s ease, color .15s ease; }
+    .fav-estrella:hover { transform: scale(1.2); color: #ffd166; }
+    .fav-estrella.activo { color: #ffd166; }
+    .app-card-nombre { font-size: 0.76rem; font-weight: 600; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
     .app-card:nth-child(1)  { background: linear-gradient(160deg, #060c2a 0%, #0e1f5c 100%); }
     .app-card:nth-child(2)  { background: linear-gradient(160deg, #050b26 0%, #091749 100%); }
@@ -119,9 +125,6 @@
       .ficha-info p { font-size: 0.8rem; max-height: 180px; }
       .ficha-ver { padding: 11px 22px; font-size: 0.85rem; }
     }
-    .card-fav { position: absolute; top: 10px; left: 10px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(5,5,5,0.55); color: #fff; font-size: 1.05rem; line-height: 1; backdrop-filter: blur(4px); opacity: 0.85; }
-    .card-fav:hover { opacity: 1; transform: scale(1.08); }
-    .card-fav.activo { color: #ff5c7a; border-color: rgba(255,92,122,0.6); }
     .app-card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .app-card::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.2) 0%, transparent 65%), linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%); }
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
@@ -670,14 +673,19 @@
       const esFav = favoritosSet.has(guide.id);
       return `
         <div class="app-card${locked?' locked':''}" onclick="openGuide('${guide.id}',${locked})">
-          ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
-          <button class="card-fav${esFav ? ' activo' : ''}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '♥' : '♡'}</button>
-          ${adminControls}
-          ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
-          ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
-          ${badgeHtml}
-          <div class="app-card-info">
-            <div class="app-card-tag">${cats}</div>
+          <div class="app-card-arte">
+            ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
+            ${adminControls}
+            ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
+            ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
+            ${badgeHtml}
+            <div class="app-card-info">
+              <div class="app-card-tag">${cats}</div>
+            </div>
+          </div>
+          <div class="app-card-pie">
+            <button class="fav-estrella${esFav ? ' activo' : ''}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
+            <span class="app-card-nombre">${guide.titulo}</span>
           </div>
         </div>`;
     }
