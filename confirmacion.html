@@ -67,6 +67,14 @@
       <a class="btn" href="app.html" id="btnAbrirRecurso">Abrir mi recurso</a>
     </div>
 
+    <div id="vistaCuenta" class="hidden">
+      <div class="icono">🎉</div>
+      <h1 class="ok">¡Compra confirmada!</h1>
+      <p>Tu recurso está listo. Solo falta un paso: <b>crea tu cuenta con el mismo correo que usaste al pagar</b> y el recurso aparecerá habilitado de inmediato.</p>
+      <p style="font-size:0.85rem;">¿Ya tienes cuenta con ese correo? Solo inicia sesión.</p>
+      <a class="btn" href="index.html">Crear mi cuenta / Entrar</a>
+    </div>
+
     <!-- Estado: rechazada / error -->
     <div id="vistaRechazada" class="hidden">
       <div class="icono">😕</div>
@@ -92,14 +100,14 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
     );
 
-    const vistas = ['vistaProcesando','vistaAprobada','vistaRechazada','vistaSinRef'];
+    const vistas = ['vistaProcesando','vistaAprobada','vistaCuenta','vistaRechazada','vistaSinRef'];
     function mostrar(id) {
       vistas.forEach(v => document.getElementById(v).classList.toggle('hidden', v !== id));
     }
 
     async function main() {
+      // La sesión es opcional: el invitado también ve su confirmación
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) { window.location.href = 'index.html'; return; }
 
       const ref = sessionStorage.getItem('compra_ref');
       if (!ref) { mostrar('vistaSinRef'); return; }
@@ -108,11 +116,19 @@
       // El webhook de Wompi es quien la actualiza; aquí solo observamos.
       const INTENTOS = 40, ESPERA_MS = 3000; // ~2 minutos
       for (let i = 0; i < INTENTOS; i++) {
-        const { data: compra } = await sb.from('purchases')
-          .select('estado, product_id').eq('referencia', ref).maybeSingle();
+        let compra = null;
+        try {
+          const r = await fetch(`/api/estado-compra?ref=${encodeURIComponent(ref)}`);
+          if (r.ok) compra = await r.json();
+        } catch (_) {}
 
         if (compra?.estado === 'APROBADA') {
           sessionStorage.removeItem('compra_ref');
+          if (!session && compra.de_invitado) {
+            // Invitado: el recurso queda listo, falta crear la cuenta con su correo
+            mostrar('vistaCuenta');
+            return;
+          }
           // Directo al recurso comprado (el bundle lleva al catálogo, donde están los tres)
           const PAGINAS = {
             '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',

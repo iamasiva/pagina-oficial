@@ -59,13 +59,6 @@
   <div class="caja">
     <div id="cargando" class="estado">Cargando…</div>
 
-    <div id="sinSesion" class="oculto">
-      <p class="paso-titulo">Un paso antes</p>
-      <h1>Inicia sesión para comprar</h1>
-      <p style="color:#c3cede; font-size:0.9rem; margin-bottom:22px;">El recurso queda habilitado en tu cuenta de IA MASIVA: por eso necesitas entrar (o crearla, tarda un minuto).</p>
-      <button class="btn" id="btnIrLogin">Iniciar sesión</button>
-    </div>
-
     <div id="yaComprado" class="oculto">
       <p class="paso-titulo">Ya es tuyo</p>
       <h1>Este recurso ya está en tu cuenta</h1>
@@ -106,7 +99,7 @@
     const productId = new URLSearchParams(location.search).get('p');
 
     function mostrar(id) {
-      for (const s of ['cargando', 'sinSesion', 'yaComprado', 'checkout']) $(s).classList.add('oculto');
+      for (const s of ['cargando', 'yaComprado', 'checkout']) $(s).classList.add('oculto');
       $(id).classList.remove('oculto');
     }
 
@@ -114,23 +107,21 @@
       if (!productId) { location.href = 'app.html'; return; }
       $('linkVolver').href = `producto.html?p=${productId}`;
 
+      // La sesión es opcional: cualquiera con el link puede comprar
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) {
-        mostrar('sinSesion');
-        $('btnIrLogin').addEventListener('click', () => { location.href = 'index.html'; });
-        return;
-      }
 
       const { data: producto } = await sb.from('products')
         .select('*').eq('id', productId).maybeSingle();
       if (!producto) { location.href = 'app.html'; return; }
 
-      const { data: compra } = await sb.from('purchases').select('id')
-        .eq('product_id', productId).eq('estado', 'APROBADA').maybeSingle();
-      if (compra) {
-        mostrar('yaComprado');
-        $('btnIrRecurso').addEventListener('click', () => { location.href = PAGINAS[productId] || 'app.html'; });
-        return;
+      if (session) {
+        const { data: compra } = await sb.from('purchases').select('id')
+          .eq('product_id', productId).eq('estado', 'APROBADA').maybeSingle();
+        if (compra) {
+          mostrar('yaComprado');
+          $('btnIrRecurso').addEventListener('click', () => { location.href = PAGINAS[productId] || 'app.html'; });
+          return;
+        }
       }
 
       $('prodNombre').textContent = producto.nombre;
@@ -146,9 +137,9 @@
         if (trm) $('prodCop').textContent = `Se cobra en pesos: ≈ ${Math.round(efectivo * trm / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`;
       } catch (_) {}
 
-      // Bundle: avisar si ya posee alguno de los componentes
+      // Bundle: avisar si ya posee alguno de los componentes (solo con sesión)
       const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
-      if (esBundle) {
+      if (esBundle && session) {
         const { data: previas } = await sb.from('purchases').select('product_id')
           .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
         if (previas?.length) {
@@ -163,9 +154,8 @@
         $('btnPagar').disabled = true;
         $('msjError').classList.add('oculto');
         try {
-          const res = await fetch(`/api/checkout?product=${productId}&consent=1`, {
-            headers: { Authorization: `Bearer ${session.access_token}` }
-          });
+          const cab = session ? { Authorization: `Bearer ${session.access_token}` } : {};
+          const res = await fetch(`/api/checkout?product=${productId}&consent=1`, { headers: cab });
           const body = await res.json();
           if (!res.ok) throw new Error(body.error || 'No se pudo iniciar el pago');
           sessionStorage.setItem('compra_ref', body.reference);

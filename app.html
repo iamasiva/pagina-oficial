@@ -1239,6 +1239,17 @@
       }
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
 
+      // Compras hechas como invitado con este correo: se enganchan solas
+      fetch('/api/reclamar', { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(async (j) => {
+          if (!j?.reclamadas) return;
+          const { data: pr } = await sb.from('purchases').select('guide_id').eq('user_id', session.user.id).eq('estado', 'APROBADA');
+          userPurchases = (pr || []).map(p => p.guide_id).filter(Boolean);
+          renderAll();
+        })
+        .catch(() => {});
+
       // El contenido público ya viene en camino desde el arranque;
       // el admin necesita además las guías despublicadas
       await cargaPublica;

@@ -41,13 +41,16 @@ export default async function handler(req, res) {
       const db = adminClient();
       const { data: compra } = await db
         .from('purchases')
-        .select('id, estado, user_id, product_id, consintio_acceso')
+        .select('id, estado, user_id, product_id, consintio_acceso, email_comprador')
         .eq('referencia', tx.reference)
         .maybeSingle();
 
       // Idempotencia: una compra ya APROBADA no se toca (Wompi reintenta eventos).
       if (compra && compra.estado !== 'APROBADA') {
         const cambios = { estado, gateway_transaction_id: tx.id };
+        // El correo que el pagador escribió en Wompi: con él se reclama la
+        // compra de invitado al crear la cuenta.
+        if (tx.customer_email) cambios.email_comprador = tx.customer_email;
         if (estado === 'APROBADA') cambios.purchased_at = new Date().toISOString();
 
         const { error } = await db.from('purchases').update(cambios).eq('id', compra.id);
@@ -62,12 +65,17 @@ export default async function handler(req, res) {
           // cada uno (monto 0, gateway 'bundle'). Si el usuario ya tenía alguno,
           // ese componente se salta — el índice único lo protege igual.
           for (const [i, componente] of BUNDLE.componentes.entries()) {
-            const { data: ya } = await db.from('purchases').select('id')
-              .eq('user_id', compra.user_id).eq('product_id', componente)
-              .eq('estado', 'APROBADA').maybeSingle();
-            if (ya) continue;
+            // Con dueño conocido se evita duplicar lo ya comprado; el invitado
+            // recibe los tres y el reclamo posterior descarta duplicados.
+            if (compra.user_id) {
+              const { data: ya } = await db.from('purchases').select('id')
+                .eq('user_id', compra.user_id).eq('product_id', componente)
+                .eq('estado', 'APROBADA').maybeSingle();
+              if (ya) continue;
+            }
             await db.from('purchases').insert({
               user_id: compra.user_id,
+              email_comprador: tx.customer_email ?? compra.email_comprador ?? null,
               product_id: componente,
               estado: 'APROBADA',
               gateway: 'bundle',

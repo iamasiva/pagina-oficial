@@ -1,5 +1,7 @@
 // GET /api/checkout?product=<uuid>
-// Requiere sesión (Authorization: Bearer <jwt de Supabase>).
+// La sesión es OPCIONAL: cualquiera con el link puede comprar (fase X).
+// Si viene sesión, la compra nace con dueño; si no, nace de invitado y se
+// reclama después con el correo que el pagador escribió en Wompi.
 // Calcula el monto en COP con la TRM del día (precio maestro en USD, cobro
 // exacto: sin colchón ni redondeo), firma la transacción y devuelve la URL
 // del checkout de Wompi. La firma usa un secreto que solo existe aquí.
@@ -10,8 +12,7 @@ export default async function handler(req, res) {
   try {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Método no permitido' });
 
-    const user = await userFromRequest(req);
-    if (!user) return res.status(401).json({ error: 'Inicia sesión para comprar' });
+    const user = await userFromRequest(req);   // null = compra de invitado
 
     const productId = req.query.product;
     if (!productId) return res.status(400).json({ error: 'Falta el producto' });
@@ -31,14 +32,16 @@ export default async function handler(req, res) {
       .single();
     if (!product) return res.status(404).json({ error: 'Producto no disponible' });
 
-    const { data: previa } = await db
-      .from('purchases')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('product_id', productId)
-      .eq('estado', 'APROBADA')
-      .maybeSingle();
-    if (previa) return res.status(409).json({ error: 'Ya tienes este producto' });
+    if (user) {
+      const { data: previa } = await db
+        .from('purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('product_id', productId)
+        .eq('estado', 'APROBADA')
+        .maybeSingle();
+      if (previa) return res.status(409).json({ error: 'Ya tienes este producto' });
+    }
 
     const trm = await trmDelDia();
     // Si hay promoción activa se cobra el precio promocional; si no, el regular.
@@ -46,7 +49,7 @@ export default async function handler(req, res) {
     // centavos USD × TRM = centavos COP. Cobro exacto al centavo.
     const amountInCents = Math.round(precioEfectivo * trm);
     const currency = 'COP';
-    const reference = `${productId}__${user.id}__${Date.now()}`;
+    const reference = `${productId}__${user ? user.id : 'guest'}__${Date.now()}`;
 
     const integrity = crypto
       .createHash('sha256')
@@ -55,7 +58,7 @@ export default async function handler(req, res) {
 
     // Registro PENDIENTE: deja auditoría de la TRM y el monto ofrecidos.
     const { error: insertError } = await db.from('purchases').insert({
-      user_id: user.id,
+      user_id: user?.id ?? null,
       product_id: productId,
       guide_id: product.guide_id,
       estado: 'PENDIENTE',
