@@ -71,6 +71,7 @@
     .remate { text-align: center; max-width: 640px; margin: 26px auto 0; font-size: 1.05rem; color: var(--muted); line-height: 1.6; }
     .remate b { color: var(--ink); }
     .escenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .escenarios.esc-4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); }
     .escenario { background: var(--panel); border: 1px solid var(--borde); border-left: 4px solid var(--acento); border-radius: 14px; padding: 22px; }
     .escenario b { display: block; font-size: 1.02rem; margin-bottom: 8px; line-height: 1.35; }
     .escenario span { color: var(--muted); font-size: 0.92rem; }
@@ -447,11 +448,11 @@
             ['Tus diseños guardados', 'Los vuelves a usar después solo copiando y pegando el prompt.'],
             ['Tú a lo importante', 'Prepararte para la presentación.'],
           ],
-          remate: 'Y aquí lo tienes: <b>200 diseños base</b> con más de <b>50.000 variaciones de personalización</b>.',
+          remate: '',
         },
         claimEyebrow: 'El cambio',
         claim: 'Dejas de pensar en el diseño. <span>Y empiezas a pensar en tu presentación.</span>',
-        claimSub: '200 estilos con preview real de 4 diapositivas: eliges viendo, personalizas en vivo y copias un prompt que Gemini Notebooks ejecuta con tus fuentes.',
+        claimSub: 'Y aquí lo tienes: <b>200 diseños base</b> con más de <b>50.000 variaciones de personalización</b>. Puedes elegir de forma visual cómo se ve el diseño, lo personalizas de manera fácil y copias un prompt que Gemini Notebooks ejecuta para replicar ese mismo diseño en tu presentación.',
         noNecesitas: ['Cero Canva ni plantillas', 'Cero saber de diseño', 'Cero pelear con el diseño genérico'],
         vida: 'Un solo pago, y esta biblioteca diseña contigo para <span>SIEMPRE</span>.',
         uso: {
@@ -639,6 +640,7 @@
 
       $('pEscEyebrow').textContent = cfg.ejemplos.eyebrow;
       $('pEscTitulo').textContent = cfg.ejemplos.titulo;
+      $('pEscenarios').classList.toggle('esc-4', cfg.ejemplos.items.length === 4);
       $('pEscenarios').innerHTML = cfg.ejemplos.items.map(([b, s]) => `<div class="escenario"><b>${b}</b><span>${s}</span></div>`).join('');
       if (cfg.ejemplos.remate) $('pEjemplosRemate').innerHTML = cfg.ejemplos.remate;
       else $('pEjemplosRemate').classList.add('oculto');
@@ -654,7 +656,7 @@
 
       $('pClaimEyebrow').textContent = cfg.claimEyebrow;
       $('pClaim').innerHTML = cfg.claim;
-      $('pClaimSub').textContent = cfg.claimSub;
+      $('pClaimSub').innerHTML = cfg.claimSub;
       $('pNoNecesitas').innerHTML = cfg.noNecesitas.map(x => `<span>${x}</span>`).join('');
       $('pVida').innerHTML = cfg.vida;
 
