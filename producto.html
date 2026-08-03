@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="preconnect" href="https://iyiygnfaxiejtlgkkivs.supabase.co" crossorigin>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
@@ -46,7 +47,10 @@
 
     /* Tarjeta clara de dolor (contraste con el fondo del producto) */
     .dolor-card { background: var(--card-claro-fondo); color: var(--card-claro-ink); border-radius: 18px; padding: 34px clamp(20px, 4vw, 44px); max-width: 640px; margin: 0 auto; }
-    .dolor-card p.intro { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; }
+    .dolor-card .dolor-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: none; border: none; color: inherit; text-align: left; font-size: 1.1rem; font-weight: 700; padding: 0; }
+    .dolor-card .dolor-chev { font-size: 1.2rem; color: var(--acento); transition: transform .25s ease; }
+    .dolor-card .dolor-toggle[aria-expanded="true"] .dolor-chev { transform: rotate(180deg); }
+    .dolor-card .dolor-toggle[aria-expanded="true"] { margin-bottom: 18px; }
     .dolor-card .prob { display: flex; gap: 10px; margin-bottom: 12px; color: var(--card-claro-muted); font-size: 0.98rem; }
     .dolor-card .prob b { color: var(--acento); }
     .dolor-card .pregunta { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
@@ -130,7 +134,7 @@
   <header class="hero">
     <picture id="pHeroPic">
       <source id="pHeroMobile" media="(max-width: 640px)" srcset="">
-      <img id="pHeroImg" src="" alt="">
+      <img id="pHeroImg" src="" alt="" fetchpriority="high" decoding="async">
     </picture>
     <div class="hero-fade"></div>
   </header>
@@ -143,9 +147,14 @@
   <section id="secDolor">
     <div class="contenido">
       <div class="dolor-card">
-        <p class="intro" id="pDolorIntro"></p>
-        <div id="pDolorLista"></div>
-        <p class="giro giro-interactivo" id="pDolorGiro"></p>
+        <button class="intro dolor-toggle" id="pDolorToggle" type="button" aria-expanded="false">
+          <span id="pDolorIntro"></span>
+          <span class="dolor-chev">▾</span>
+        </button>
+        <div id="pDolorCuerpo" class="oculto">
+          <div id="pDolorLista"></div>
+          <p class="giro giro-interactivo" id="pDolorGiro"></p>
+        </div>
       </div>
     </div>
   </section>
@@ -301,7 +310,7 @@
         },
         ejemplos: {
           eyebrow: 'Así debería ser',
-          titulo: '¿Cómo debería funcionar?',
+          titulo: '¿Cómo debería funcionar realmente la IA?',
           items: [
             ['Un abogado que revisa tu contrato', 'Te señala cláusulas de riesgo, vacíos y lo que debes preguntar antes de firmar.'],
             ['Un estratega que arma tu plan de contenidos', 'Calendario, ángulos y formatos con criterio de años de oficio.'],
@@ -371,8 +380,8 @@
           giro: 'Lo que te falta no es otra IA. Es un equipo de <span>mini-agentes</span> que trabaje contigo todos los días.',
         },
         ejemplos: {
-          eyebrow: 'Así trabaja un equipo',
-          titulo: 'Imagina tener estos mini agentes siempre listos',
+          eyebrow: 'Así se trabaja hoy',
+          titulo: 'Imagina tener a un equipo de mini agentes siempre listos',
           items: [
             ['Tu guionista', 'Produce los guiones de la semana con tu tono, tu estructura y tus ganchos.'],
             ['Tu vendedor', 'Arma propuestas y cotizaciones con los datos del cliente, en minutos.'],
@@ -441,7 +450,7 @@
           giro: 'La función es buenísima. Lo que falta es que <span>no pierdas tiempo en el diseño</span> y por eso te presentamos esta solución.',
         },
         ejemplos: {
-          eyebrow: 'Se acabó esa pelea',
+          eyebrow: 'El diseño siempre a la mano',
           titulo: 'No vuelvas a gastar tiempo en el diseño de tus presentaciones',
           items: [
             ['Una biblioteca de 200 diseños', 'Con sus prompts ya listos para copiar.'],
@@ -614,6 +623,11 @@
 
       $('pDolorIntro').textContent = cfg.dolor.intro;
       $('pDolorGiro').innerHTML = cfg.dolor.giro;
+      $('pDolorToggle').addEventListener('click', () => {
+        const abierto = $('pDolorToggle').getAttribute('aria-expanded') === 'true';
+        $('pDolorToggle').setAttribute('aria-expanded', String(!abierto));
+        $('pDolorCuerpo').classList.toggle('oculto', abierto);
+      });
       if (cfg.dolor.quiz === false) {
         // Problema en lista numerada, con la solución visible de una
         $('pDolorLista').innerHTML = cfg.dolor.lista.map((q, i) => `<div class="prob"><b>${i + 1}.</b><span>${q}</span></div>`).join('');

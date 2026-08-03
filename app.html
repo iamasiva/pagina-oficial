@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="preconnect" href="https://iyiygnfaxiejtlgkkivs.supabase.co" crossorigin>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
@@ -100,6 +101,9 @@
     .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; overflow-y: auto; max-height: 260px; }
     .ficha-ver { margin-top: auto; align-self: flex-start; background: var(--blue-elec); color: #fff; border: none; border-radius: 8px; padding: 13px 34px; font-weight: 800; font-size: 0.95rem; margin-top: 18px; }
     .ficha-ver:hover { background: #4d7fff; }
+    .ficha-ver:disabled { opacity: 0.75; cursor: wait; }
+    .ficha-ver .bolita { display: inline-block; width: 14px; height: 14px; margin-left: 10px; vertical-align: -2px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: girar-bolita 0.8s linear infinite; }
+    @keyframes girar-bolita { to { transform: rotate(360deg); } }
     .ficha-cerrar { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; }
     @media (max-width: 560px) {
       .ficha-caja { gap: 14px; padding: 16px; }
@@ -494,6 +498,22 @@
     ];
 
     let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
+
+    // Pintura instantánea: lo último que el navegador vio, mientras llega lo fresco
+    const CACHE_CONTENIDO = 'im_contenido_v1';
+    function pintarDesdeCache() {
+      try {
+        const c = JSON.parse(localStorage.getItem(CACHE_CONTENIDO) || 'null');
+        if (!c || !c.guides?.length) return;
+        allGuides = c.guides; heroSlidesRaw = c.slides || []; allProducts = c.products || [];
+        renderAll();
+      } catch (_) {}
+    }
+    function guardarCacheContenido() {
+      try {
+        localStorage.setItem(CACHE_CONTENIDO, JSON.stringify({ guides: allGuides, slides: heroSlidesRaw, products: allProducts }));
+      } catch (_) {}
+    }
     let heroSlides = [], heroIndex = 0, heroTimer = null, heroSlidesRaw = [];
 
     // ── AUTH GUARD ────────────────────────────────────────────
@@ -584,7 +604,7 @@
         </div>` : '';
       return `
         <div class="app-card${locked?' locked':''}" onclick="openGuide('${guide.id}',${locked})">
-          ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover"/>` : ''}
+          ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
           ${adminControls}
           ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
           ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
@@ -660,13 +680,18 @@
     document.getElementById('fichaCerrar').addEventListener('click', cerrarFicha);
     document.getElementById('fichaOverlay').addEventListener('click', (e) => { if (e.target.id === 'fichaOverlay') cerrarFicha(); });
     document.getElementById('fichaVer').addEventListener('click', async () => {
-      cerrarFicha();
-      await abrirVisorGuia(fichaGuiaId);
+      const btn = document.getElementById('fichaVer');
+      btn.disabled = true;
+      btn.insertAdjacentHTML('beforeend', '<span class="bolita"></span>');
+      const abierto = await abrirVisorGuia(fichaGuiaId);
+      btn.disabled = false;
+      btn.querySelector('.bolita')?.remove();
+      if (abierto) cerrarFicha();
     });
 
     async function abrirVisorGuia(id) {
       const g = allGuides.find(g => g.id === id);
-      if (!g?.contenido_url) return;
+      if (!g?.contenido_url) return false;
       try {
         const res  = await fetch(g.contenido_url);
         const html = await res.text();
@@ -674,8 +699,10 @@
         document.getElementById('guideFrame').srcdoc = html;
         document.getElementById('guideOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
+        return true;
       } catch(e) {
         alert('No se pudo cargar la guía. Intenta de nuevo.');
+        return false;
       }
     }
 
@@ -716,6 +743,8 @@
           picture.appendChild(source);
         }
         const img = document.createElement('img');
+        img.fetchPriority = 'high';
+        img.decoding = 'async';
         img.src = s.imgDesktop;
         picture.appendChild(img);
         hero.insertBefore(picture, hero.firstChild);
@@ -1100,6 +1129,7 @@
       heroSlidesRaw=slides||[];
       allProducts=products||[];
       renderAll();
+      guardarCacheContenido();
     }
 
     // ── INIT ──────────────────────────────────────────────────
@@ -1107,16 +1137,19 @@
       const nombre=session.user.user_metadata?.nombre||session.user.user_metadata?.full_name||session.user.email;
       document.getElementById('appNavName').textContent=nombre;
 
-      // Verificar admin
-      const {data:profile}=await sb.from('profiles').select('es_admin').eq('id',session.user.id).single();
+      // Mientras llega lo fresco, se pinta lo último conocido (imágenes al instante)
+      pintarDesdeCache();
+
+      // Admin y compras en paralelo (antes eran dos viajes en serie)
+      const [{ data: profile }, { data: purchases }] = await Promise.all([
+        sb.from('profiles').select('es_admin').eq('id',session.user.id).single(),
+        sb.from('purchases').select('guide_id').eq('user_id',session.user.id).eq('estado','APROBADA'),
+      ]);
       isAdmin=!!profile?.es_admin;
       if(isAdmin) {
         document.getElementById('btnNewGuide').classList.remove('hidden');
         document.getElementById('heroEditBtn').classList.remove('hidden');
       }
-
-      // Compras del usuario (solo las aprobadas dan acceso)
-      const {data:purchases}=await sb.from('purchases').select('guide_id').eq('user_id',session.user.id).eq('estado','APROBADA');
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
 
       await loadAndRender();
