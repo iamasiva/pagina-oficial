@@ -68,7 +68,6 @@
     .app-hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, #050505 0%, rgba(5,5,5,0.75) 8%, rgba(5,5,5,0.25) 18%, transparent 30%); }
     .app-hero::after { content: ''; position: absolute; inset: 0; z-index: 0; background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%); }
     .app-hero-content { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; }
-    .app-hero.clickable { cursor: pointer; }
     .app-hero-empty { position: relative; z-index: 2; width: 100%; text-align: center; color: #9aacbf; font-size: 1rem; margin-bottom: 20px; }
     .app-hero-actions { display: flex; justify-content: center; width: 100%; }
     .app-btn-play { background: var(--blue-elec); color: var(--white); border: none; padding: 20px 56px; border-radius: 8px; font-size: 1.15rem; font-weight: 800; letter-spacing: 0.02em; display: flex; align-items: center; gap: 10px; transition: background 0.2s, transform 0.15s; box-shadow: 0 10px 30px rgba(47,107,255,0.4); }
@@ -265,7 +264,6 @@
     <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menú">&#9776;</button>
     <div class="app-nav-collapse" id="navCollapse">
       <div class="app-nav-right">
-        <button class="btn-nav-primary hidden" id="btnNewGuide">+ Nueva guía</button>
         <div class="user-box" id="userBox">
           <button class="user-chip" id="userChip" onclick="toggleUserMenu(event)">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"></path></svg>
@@ -273,6 +271,7 @@
             <span class="user-caret">▾</span>
           </button>
           <div class="user-menu" id="userMenu">
+            <button class="hidden" id="btnNewGuide">+ Nueva guía</button>
             <button onclick="abrirPanelUsuario('favoritos')">❤ Favoritos</button>
             <button onclick="abrirPanelUsuario('compras')">Mis compras</button>
             <button id="appLogout">Salir</button>
@@ -504,7 +503,7 @@
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" id="heroBtnCancel">Cancelar</button>
-          <button type="submit" class="btn-primary" id="heroBtnSave">Guardar imagen</button>
+          <button type="submit" class="btn-primary" id="heroBtnSave">Guardar</button>
         </div>
       </form>
     </div>
@@ -872,13 +871,11 @@
       if (!heroSlides.length) {
         heroContent.classList.add('hidden');
         emptyMsg.classList.remove('hidden');
-        hero.classList.remove('clickable');
-        hero.querySelectorAll('.app-hero-bg').forEach(el => el.remove());
+          hero.querySelectorAll('.app-hero-bg').forEach(el => el.remove());
         if (heroTimer) clearInterval(heroTimer);
         return;
       }
       heroContent.classList.remove('hidden');
-      hero.classList.add('clickable');
       emptyMsg.classList.add('hidden');
 
       document.getElementById('heroDots').innerHTML = heroSlides.length > 1
@@ -948,7 +945,7 @@
     function openAdminModal() { adminModal.classList.add('active'); document.body.style.overflow='hidden'; }
     function closeAdminModal() { adminModal.classList.remove('active'); document.body.style.overflow=''; resetForm(); }
 
-    document.getElementById('btnNewGuide').addEventListener('click', ()=>{ document.getElementById('modalTitle').textContent='Nueva guía'; openAdminModal(); });
+    document.getElementById('btnNewGuide').addEventListener('click', ()=>{ document.getElementById('userMenu').classList.remove('open'); document.getElementById('navCollapse').classList.remove('open'); document.getElementById('modalTitle').textContent='Nueva guía'; openAdminModal(); });
     document.getElementById('modalClose').addEventListener('click', closeAdminModal);
     document.getElementById('btnCancel').addEventListener('click', closeAdminModal);
     adminModal.addEventListener('click', e=>{ if(e.target===adminModal) closeAdminModal(); });
@@ -1076,7 +1073,6 @@
       resetHeroForm();
     }
     document.getElementById('heroEditBtn').addEventListener('click', e => { e.stopPropagation(); openHeroAdminModal(); });
-    document.getElementById('appHero').addEventListener('click', () => goToUrl(heroSlides[heroIndex]?.ctaUrl));
 
     // Swipe horizontal entre slides (táctil)
     let heroTouchX = 0, heroTouchY = 0;
@@ -1177,7 +1173,7 @@
         showHeroFormMsg(id?'Imagen actualizada.':'Imagen agregada al hero.','success');
         setTimeout(async()=>{ closeHeroAdminModal(); await loadAndRender(); }, 1000);
       } catch(err){ showHeroFormMsg(err.message); }
-      finally { btn.textContent='Guardar imagen'; btn.disabled=false; }
+      finally { btn.textContent='Guardar'; btn.disabled=false; }
     });
 
     async function editHeroSlide(id) {
