@@ -56,6 +56,8 @@
     .no-necesitas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
     .no-necesitas span { border: 1px solid var(--borde); background: var(--panel); border-radius: 999px; padding: 9px 16px; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
 
+    .vida { text-align: center; margin-top: 20px; font-weight: 900; font-size: 1.2rem; }
+    .vida span { color: var(--acento); }
     .remate { text-align: center; max-width: 640px; margin: 26px auto 0; font-size: 1.05rem; color: var(--muted); line-height: 1.6; }
     .remate b { color: var(--ink); }
     .escenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
@@ -152,6 +154,7 @@
       <h2 id="pClaim"></h2>
       <p class="sub" id="pClaimSub"></p>
       <div class="no-necesitas" id="pNoNecesitas"></div>
+      <p class="vida" id="pVida"></p>
     </div>
   </section>
 
@@ -218,6 +221,7 @@
         <span><b>✓</b> Actualizaciones incluidas</span>
         <span><b>✓</b> Garantía por fallas técnicas</span>
         <span><b>✓</b> Pago seguro con Wompi (Bancolombia)</span>
+        <span><b>✓</b> Soporte directo del equipo IA MASIVA</span>
       </div>
     </div>
   </section>
@@ -279,27 +283,30 @@
           giro: 'El problema no eres tú. Es que nadie le ha dado a tu IA <span>el criterio de un experto</span>.',
         },
         ejemplos: {
-          eyebrow: 'Qué puedes hacer con esto',
-          titulo: 'Ejemplos de uso',
+          eyebrow: 'Así debería ser',
+          titulo: '¿Cómo debería funcionar?',
           items: [
-            ['Revisar un contrato antes de firmar', 'La configuración de revisión legal le da a tu cuaderno el criterio para señalar cláusulas de riesgo, vacíos y preguntas que hacer antes de comprometerte.'],
-            ['Armar el plan de contenidos del mes', 'El estratega de contenido entrega calendario, ángulos y formatos como alguien que lleva años haciéndolo.'],
-            ['Leer los números de tu negocio', 'El analista financiero convierte tu Excel en decisiones: qué sangra, qué funciona y qué mover ya.'],
-            ['Preparar una entrevista o negociación', 'El coach te monta el simulacro: preguntas difíciles, objeciones probables y cómo responderlas.'],
-            ['Estudiar un tema complejo en serio', 'El profesor convierte tus fuentes en ruta de estudio, con explicaciones a tu nivel y evaluación de lo aprendido.'],
+            ['Un abogado que revisa tu contrato', 'Te señala cláusulas de riesgo, vacíos y lo que debes preguntar antes de firmar.'],
+            ['Un estratega que arma tu plan de contenidos', 'Calendario, ángulos y formatos con criterio de años de oficio.'],
+            ['Un analista que lee tus números', 'Convierte tu Excel en decisiones: qué sangra, qué funciona, qué mover ya.'],
+            ['Un coach que te prepara la negociación', 'El simulacro completo: preguntas difíciles, objeciones probables y cómo responderlas.'],
+            ['Un profesor que te enseña a tu ritmo', 'Convierte tus fuentes en ruta de estudio, con explicaciones a tu nivel.'],
+            ['Un consultor que cuestiona tus decisiones', 'Supuestos ocultos, riesgos que no estás viendo y una recomendación con razones.'],
           ],
-          remate: 'Y estos son solo 5 ejemplos: tienes <b>557 configuraciones listas para usar</b>. Si no encuentras la que necesitas, creas la tuya con el generador y la guardas para tenerla siempre a la mano.',
+          remate: 'Todo esto se soluciona con dos cosas: <b>1.</b> trabajar en cuadernos y <b>2.</b> configurarlos de la manera adecuada. Por eso te traemos <b>557 configuraciones listas para usar</b>. Y si no encuentras la que necesitas, creas la tuya con el generador y la guardas para tenerla siempre a la mano.',
         },
         claimEyebrow: 'Haz la cuenta',
         claim: '557 especialistas de guardia, por menos de lo que cuesta <span>una hora de uno solo</span>',
         claimSub: 'Abogados, estrategas, analistas, profesores, coaches. Eliges el que necesitas hoy, copias su configuración y trabajas con él al instante. En español o en inglés.',
         noNecesitas: ['Cero conocimientos de prompts', 'Funciona en NotebookLM, Gemini, ChatGPT y Claude', 'Listo en lo que tarda un copiar y pegar'],
+        vida: '¡Y lo mejor! Las tienes para <span>TODA LA VIDA</span>.',
         uso: {
           eyebrow: 'Simple a propósito',
           pasos: [
             ['Busca', 'Encuentra la configuración de tu caso por categorías o con el buscador.'],
             ['Adapta', 'Ajústala a tu situación específica con sus campos de personalización.'],
             ['Copia y pega', 'Pégala en tu cuaderno de NotebookLM o Gemini, o en un proyecto de ChatGPT o Claude.'],
+            ['Crea la tuya', 'Si no encuentras la configuración que necesitas, creas la tuya en minutos.'],
           ],
           remate: 'Y empiezas a usar Gemini. Pero no el de siempre, que alucina y divaga: <b>uno especializado que ya sabe qué dirección tomar</b>.',
         },
@@ -309,17 +316,18 @@
           texto: 'Gemini y la mayoría de IAs tienen el mismo problema: no puedes organizar tus trabajos. Los chats se entierran, los cuadernos se pierden. Aquí tienes una interfaz dedicada exactamente a eso.',
           puntos: [
             ['Tus categorías y subcategorías', 'Organiza tus cuadernos como organizas tu negocio: por cliente, por proyecto, por tema.'],
-            ['Cada cuaderno con sus dos links', 'El de Gemini y el de NotebookLM juntos y a un clic. Son links distintos del mismo cuaderno: aquí viven en el mismo lugar.'],
+            ['Cada cuaderno con sus links', 'El de Gemini y el de NotebookLM juntos y a un clic. Son links distintos del mismo cuaderno: aquí viven en el mismo lugar.'],
             ['Tus chats importantes, a salvo', 'Guarda los links de las conversaciones que no quieres volver a perder, dentro del cuaderno al que pertenecen.'],
           ],
         },
         features: [
-          ['Respuestas de especialista, no de asistente', '557 configuraciones con el criterio real de cada campo: lo que un experto preguntaría, revisaría y evitaría.'],
+          ['Conviertes a la IA en el especialista que quieras', '557 configuraciones con el criterio real de cada campo: lo que un experto preguntaría, revisaría y evitaría.'],
           ['Sirve en tus 4 plataformas', 'Diseñadas para cuadernos de NotebookLM y Gemini, y funcionan también como instrucciones en los proyectos de ChatGPT y Claude.'],
           ['Encuentras en segundos', 'Categorías, subcategorías y buscador global: de "necesito ayuda con esto" a trabajando, en menos de un minuto.'],
           ['Si tu caso no existe, lo creas', 'El generador arma configuraciones nuevas con la misma estructura experta. Solo respondes un formulario.'],
           ['Favoritos y configuraciones guardadas', 'Marca las que más usas y guarda las que generes, organizadas con tus propias categorías.'],
           ['Bilingüe de verdad', 'La aplicación completa y las 557 configuraciones, en español e inglés.'],
+          ['Soporte directo de IA MASIVA', 'Cualquier duda o situación con el producto la resuelves de primera mano con nuestro equipo.'],
         ],
         galeriaTitulo: 'La herramienta, por dentro',
         capturas: [MOCKUPS + 'mockup-557-home.jpg', MOCKUPS + 'mockup-557-detalle.jpg'],
@@ -347,27 +355,30 @@
           giro: 'Una gema bien montada es <span>un empleado entrenado que no renuncia</span>: le hablas y ejecuta.',
         },
         ejemplos: {
-          eyebrow: 'Qué puedes hacer con esto',
-          titulo: 'Ejemplos de uso',
+          eyebrow: 'Así debería ser',
+          titulo: '¿Cómo debería funcionar?',
           items: [
-            ['Producir los guiones de la semana', 'Tu gema de guiones ya conoce tu tono, tu estructura y tus ganchos. Le das el tema y produce.'],
-            ['Armar propuestas y cotizaciones', 'Le pasas los datos del cliente a la gema indicada y el borrador sale en minutos, no en horas.'],
-            ['Responder a tus clientes con tu voz', 'La gema de atención responde con tu tono y tus políticas, sin que se lo repitas cada vez.'],
-            ['Analizar a tu competencia', 'La gema de investigación estructura el análisis: posicionamiento, precios, ángulos y oportunidades.'],
-            ['Planear tu próximo lanzamiento', 'La gema de estrategia arma el plan por fases, con fechas, canales y mensajes.'],
+            ['Una gema que produce tus guiones', 'Ya conoce tu tono, tu estructura y tus ganchos. Le das el tema y produce.'],
+            ['Una gema que arma tus propuestas', 'Le pasas los datos del cliente y el borrador sale en minutos, no en horas.'],
+            ['Una gema que responde con tu voz', 'Atiende con tu tono y tus políticas, sin que se lo repitas cada vez.'],
+            ['Una gema que vigila a tu competencia', 'Estructura el análisis: posicionamiento, precios, ángulos y oportunidades.'],
+            ['Una gema que planea tus lanzamientos', 'Arma el plan por fases, con fechas, canales y mensajes.'],
+            ['Una gema que existe solo para tu caso', 'Diseñada a tu medida cuando ninguna del catálogo te sirve.'],
           ],
-          remate: 'Y estos son solo 5 ejemplos: tienes <b>400 gemas en 20 categorías</b>. Si tu caso no existe, la Gema para crear gemas te diseña una a tu medida.',
+          remate: 'Todo esto se soluciona con dos cosas: <b>1.</b> crear Gemas y <b>2.</b> configurarlas de la manera adecuada. Por eso te traemos <b>400 gemas listas para copiar</b>. Y si tu caso no existe, la Gema para crear gemas te diseña una a tu medida.',
         },
         claimEyebrow: 'El salto',
         claim: 'Deja de usar Gemini como chat. <span>Conviértelo en tu equipo.</span>',
         claimSub: '400 gemas expertas en 20 categorías. Cada una con sus 5 campos listos para copiar en Gemini y un formulario que genera tu prompt personalizado al instante.',
         noNecesitas: ['Cero prompts desde cero', 'Cero configuración a mano', 'Cero empezar de nuevo en cada chat'],
+        vida: '¡Y lo mejor! Las tienes para <span>TODA LA VIDA</span>.',
         uso: {
           eyebrow: 'Simple a propósito',
           pasos: [
             ['Elige tu gema', 'Busca en la biblioteca la especialista de tu caso.'],
             ['Créala en Gemini', 'Copia sus 5 campos, cada uno con su botón, y pégalos en el formulario de Gemas.'],
             ['Ponla a trabajar', 'Usa el formulario de la gema para generarle prompts exactos cada vez que la necesites.'],
+            ['Crea la tuya', 'Si ninguna gema cubre tu caso, la Gema para crear gemas te la diseña en minutos.'],
           ],
           remate: 'Gemini deja de ser un chat vacío: cada gema ya sabe su oficio, <b>tu contexto y tu forma de trabajar</b>.',
         },
@@ -388,6 +399,7 @@
           ['Los 5 campos listos para copiar', 'Nombre, descripción, instrucciones, herramienta y conocimiento: cada uno con su botón de copiar.'],
           ['De cero a experto con la guía', 'El recorrido completo con capturas: de la biblioteca a tu gema respondiendo en Gemini.'],
           ['Exclusivo Gemini Gems', 'Aprovecha funciones que solo existen ahí: herramientas predeterminadas y conocimiento por archivos.'],
+          ['Soporte directo de IA MASIVA', 'Cualquier duda o situación con el producto la resuelves de primera mano con nuestro equipo.'],
         ],
         galeriaTitulo: 'La herramienta, por dentro',
         capturas: [MOCKUPS + 'mockup-400-home.jpg', MOCKUPS + 'mockup-400-detalle.jpg'],
@@ -414,27 +426,30 @@
           giro: 'No te falta talento de diseño. Te falta <span>darle a la IA una dirección de arte</span>.',
         },
         ejemplos: {
-          eyebrow: 'Qué puedes hacer con esto',
-          titulo: 'Ejemplos de uso',
+          eyebrow: 'Así debería ser',
+          titulo: '¿Cómo debería funcionar?',
           items: [
-            ['La presentación para el cliente de mañana', 'Eliges el estilo viendo su preview, le pones los colores de tu marca y NotebookLM diseña con tus fuentes.'],
-            ['El pitch para inversionistas', 'Estilos corporativos y financieros con la sobriedad que esa mesa exige.'],
-            ['La clase o el taller que dictas', 'Estilos académicos y creativos que sostienen la atención sin verse infantiles.'],
-            ['El informe mensual de resultados', 'Gráficas y densidad de texto ajustadas para que los números se entiendan de una.'],
-            ['Tu portafolio o propuesta creativa', 'Estilos con personalidad para que tu trabajo se venda solo.'],
+            ['La presentación del cliente, con dirección de arte', 'Un estilo elegido a propósito, no la plantilla que todos usan.'],
+            ['El pitch con la sobriedad que exige esa mesa', 'Estilos corporativos y financieros que dan seriedad de entrada.'],
+            ['La clase que sostiene la atención', 'Estilos académicos y creativos sin verse infantiles.'],
+            ['El informe donde los números se entienden', 'Gráficas y densidad de texto pensadas para decidir de una.'],
+            ['El portafolio que se vende solo', 'Estilos con personalidad para mostrar tu trabajo.'],
+            ['Tu marca visible en cada diapositiva', 'Tus colores y tipografías aplicados sin pelear con ninguna herramienta.'],
           ],
-          remate: 'Y estos son solo 5 casos: tienes <b>200 estilos con preview real</b> en 11 categorías, cada uno personalizable a tu marca.',
+          remate: 'Todo esto se soluciona con dos cosas: <b>1.</b> darle a NotebookLM una dirección de arte y <b>2.</b> personalizarla a tu marca. Por eso te traemos <b>200 estilos con preview real</b>. Eliges viendo, ajustas y copias.',
         },
         claimEyebrow: 'El cambio',
         claim: 'De "otra presentación más" a <span>"¿quién te la diseñó?"</span>',
         claimSub: '200 estilos visuales con preview real de 4 diapositivas. Eliges viendo, personalizas en vivo y copias un prompt que NotebookLM ejecuta con tus fuentes.',
         noNecesitas: ['Cero Canva ni plantillas', 'Cero saber de diseño', 'Cero describir a ciegas: lo ves antes de elegir'],
+        vida: '¡Y lo mejor! Los tienes para <span>TODA LA VIDA</span>.',
         uso: {
           eyebrow: 'Simple a propósito',
           pasos: [
             ['Elige viendo', 'Explora los 200 estilos con su preview real de 4 diapositivas.'],
             ['Personaliza', 'Colores, tipografías, gráficas, densidad e idioma: el prompt se reescribe en vivo.'],
             ['Copia y genera', 'Pega el prompt en NotebookLM y deja que diseñe con tus fuentes.'],
+            ['Guarda tu diseño', 'Tu personalización queda en Mis diseños, lista para la próxima presentación.'],
           ],
           remate: 'Tu contenido de siempre, <b>con dirección de arte de verdad</b>.',
         },
@@ -455,6 +470,7 @@
           ['En tu idioma y el de tu público', 'Interfaz en 6 idiomas y presentación final en el idioma que elijas.'],
           ['Probado donde importa', 'Cada prompt fue curado revisando su resultado real en el generador de presentaciones de NotebookLM.'],
           ['Todas las variables con opción "Otro"', 'Si tu tipografía o tu color no está en la lista, lo escribes libre y entra al prompt.'],
+          ['Soporte directo de IA MASIVA', 'Cualquier duda o situación con el producto la resuelves de primera mano con nuestro equipo.'],
         ],
         galeriaTitulo: 'La herramienta, por dentro',
         capturas: [MOCKUPS + 'mockup-200-home.jpg'],
@@ -494,12 +510,14 @@
         claim: 'Los 3 recursos premium. <span>Un solo pago.</span>',
         claimSub: 'El bundle existe para que equiparte completo sea la decisión obvia: los tres recursos quedan habilitados en tu cuenta al instante.',
         noNecesitas: ['Un solo pago', 'Tres recursos habilitados al instante', 'El mejor precio posible'],
+        vida: '¡Y lo mejor! Los tienes para <span>TODA LA VIDA</span>.',
         uso: {
           eyebrow: 'Tu nuevo flujo',
           pasos: [
             ['Configura tus cuadernos', 'Con el criterio experto de las 557 configuraciones.'],
             ['Ejecuta con tus gemas', 'Especialistas de Gemini que ya saben su oficio y tu contexto.'],
             ['Presenta tus resultados', 'Con los 200 estilos y tu identidad visual guardada.'],
+            ['Todo queda guardado', 'Tus configuraciones, gemas y diseños viven en tus espacios personales.'],
           ],
           remate: 'De la investigación a la entrega final, <b>todo tu flujo equipado</b>.',
         },
@@ -518,6 +536,7 @@
           ['400 Gemas para Gemini', 'Formularios que generan prompts personalizados, más la Gema para crear gemas a tu medida.'],
           ['200 Diseños para Presentaciones', 'Estilos visuales con preview real y personalizador en vivo, en 6 idiomas.'],
           ['Acceso de por vida a los tres', 'Con todas las actualizaciones incluidas, sin pagos recurrentes.'],
+          ['Soporte directo de IA MASIVA', 'Cualquier duda o situación con los productos la resuelves de primera mano con nuestro equipo.'],
         ],
         galeriaTitulo: 'Las herramientas, por dentro',
         capturas: [MOCKUPS + 'mockup-557-home.jpg', MOCKUPS + 'mockup-400-home.jpg', MOCKUPS + 'mockup-200-home.jpg'],
@@ -592,6 +611,7 @@
       $('pClaim').innerHTML = cfg.claim;
       $('pClaimSub').textContent = cfg.claimSub;
       $('pNoNecesitas').innerHTML = cfg.noNecesitas.map(x => `<span>${x}</span>`).join('');
+      $('pVida').innerHTML = cfg.vida;
 
       $('pFeatures').innerHTML = cfg.features.map(([b, s]) => `<div class="feature"><b>${b}</b><span>${s}</span></div>`).join('');
 
