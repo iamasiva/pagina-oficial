@@ -112,6 +112,9 @@
       .ficha-info p { font-size: 0.8rem; max-height: 180px; }
       .ficha-ver { padding: 11px 22px; font-size: 0.85rem; }
     }
+    .card-fav { position: absolute; top: 10px; left: 10px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(5,5,5,0.55); color: #fff; font-size: 1.05rem; line-height: 1; backdrop-filter: blur(4px); opacity: 0.85; }
+    .card-fav:hover { opacity: 1; transform: scale(1.08); }
+    .card-fav.activo { color: #ff5c7a; border-color: rgba(255,92,122,0.6); }
     .app-card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .app-card::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.2) 0%, transparent 65%), linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%); }
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
@@ -240,6 +243,8 @@
       <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
       <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
       <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
+      <button class="filter-btn"        id="filterFavoritos" onclick="setFilter('favoritos')">❤ Favoritos</button>
+      <button class="filter-btn"        id="filterCompras" onclick="setFilter('compras')">Mis compras</button>
       <div class="cat-dropdown">
         <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
         <div class="cat-menu" id="catMenu"></div>
@@ -498,6 +503,7 @@
     ];
 
     let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
+    let favoritosSet = new Set();
 
     // Pintura instantánea: lo último que el navegador vio, mientras llega lo fresco
     const CACHE_CONTENIDO = 'im_contenido_v1';
@@ -552,7 +558,7 @@
 
     // ── FILTERS ───────────────────────────────────────────────
     function setFilter(type, cat = null) {
-      ['filterAll','filterGratis','filterPremium','filterCatBtn'].forEach(id =>
+      ['filterAll','filterGratis','filterPremium','filterFavoritos','filterCompras','filterCatBtn'].forEach(id =>
         document.getElementById(id).classList.remove('active')
       );
       document.querySelectorAll('.cat-menu-item').forEach(el => el.classList.remove('active'));
@@ -567,19 +573,28 @@
 
       if (type === 'gratis')  document.getElementById('filterGratis').classList.add('active');
       if (type === 'premium') document.getElementById('filterPremium').classList.add('active');
+      if (type === 'favoritos') document.getElementById('filterFavoritos').classList.add('active');
+      if (type === 'compras')   document.getElementById('filterCompras').classList.add('active');
       if (type === 'cat')     { document.getElementById('filterCatBtn').classList.add('active'); }
 
       let filtered = [];
       if (type === 'gratis')  filtered = allGuides.filter(g => !g.es_premium);
       if (type === 'premium') filtered = allGuides.filter(g => g.es_premium);
+      if (type === 'favoritos') filtered = allGuides.filter(g => favoritosSet.has(g.id));
+      if (type === 'compras')   filtered = allGuides.filter(g => userPurchases.includes(g.id));
       if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias||[]).includes(cat));
 
       document.getElementById('filteredTitle').textContent =
-        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías Premium' : cat;
+        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías Premium'
+        : type === 'favoritos' ? 'Tus favoritos' : type === 'compras' ? 'Tus compras' : cat;
 
+      const vacios = {
+        favoritos: 'Aún no guardas favoritos. Toca el corazón de cualquier guía y quedará aquí, a un clic.',
+        compras: 'Aún no tienes compras. Cuando adquieras un recurso premium aparecerá aquí, listo para abrir.',
+      };
       document.getElementById('rowFiltered').innerHTML = filtered.length
         ? filtered.map((g,i) => makeCard(g,i+1,false)).join('')
-        : '<p class="app-empty">No hay guías aquí aún.</p>';
+        : `<p class="app-empty">${vacios[type] || 'No hay guías aquí aún.'}</p>`;
 
       document.getElementById('filteredSection').classList.add('active');
       document.getElementById('mainSections').classList.add('filtered');
@@ -616,9 +631,11 @@
           <button class="admin-card-btn edit" onclick="event.stopPropagation();editGuide('${guide.id}')">Editar</button>
           <button class="admin-card-btn del"  onclick="event.stopPropagation();deleteGuide('${guide.id}','${guide.titulo.replace(/'/g,"\\'")}')">Eliminar</button>
         </div>` : '';
+      const esFav = favoritosSet.has(guide.id);
       return `
         <div class="app-card${locked?' locked':''}" onclick="openGuide('${guide.id}',${locked})">
           ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
+          <button class="card-fav${esFav ? ' activo' : ''}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '♥' : '♡'}</button>
           ${adminControls}
           ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
           ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
@@ -628,6 +645,25 @@
           </div>
         </div>`;
     }
+
+    // ── FAVORITOS ─────────────────────────────────────────────
+    async function toggleFavorito(guideId) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      if (favoritosSet.has(guideId)) {
+        const { error } = await sb.from('user_guia_favoritos').delete().eq('guide_id', guideId);
+        if (error) { alert('No se pudo quitar de favoritos'); return; }
+        favoritosSet.delete(guideId);
+      } else {
+        const { error } = await sb.from('user_guia_favoritos').insert({ user_id: session.user.id, guide_id: guideId });
+        if (error) { alert('No se pudo guardar en favoritos'); return; }
+        favoritosSet.add(guideId);
+      }
+      renderAll();
+      // Si está viendo el panel de favoritos, refrescarlo también
+      if (document.getElementById('filterFavoritos').classList.contains('active')) setFilter('favoritos');
+    }
+    window.toggleFavorito = toggleFavorito;
 
     // ── COMPRA ────────────────────────────────────────────────
     // Página propia de cada producto-app (los recursos que no viven en Storage)
@@ -640,6 +676,10 @@
     async function comprarGuia(guideId) {
       const product = allProducts.find(p => p.guide_id === guideId && p.activo);
       if (!product) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
+      // Si ya es suyo, directo al recurso: jamás de vuelta a la página de venta
+      const { data: compra } = await sb.from('purchases').select('id')
+        .eq('product_id', product.id).eq('estado', 'APROBADA').maybeSingle();
+      if (compra && PAGINAS_PRODUCTO[product.id]) { window.location.href = PAGINAS_PRODUCTO[product.id]; return; }
       // La compra pasa por la landing de venta (ahí están los CTAs y el pago)
       window.location.href = `producto.html?p=${product.id}`;
     }
@@ -1152,10 +1192,12 @@
       document.getElementById('appNavName').textContent=nombre;
 
       // Admin y compras en paralelo (antes eran dos viajes en serie)
-      const [{ data: profile }, { data: purchases }] = await Promise.all([
+      const [{ data: profile }, { data: purchases }, { data: favs }] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id',session.user.id).single(),
         sb.from('purchases').select('guide_id').eq('user_id',session.user.id).eq('estado','APROBADA'),
+        sb.from('user_guia_favoritos').select('guide_id'),
       ]);
+      favoritosSet = new Set((favs || []).map(f => f.guide_id));
       isAdmin=!!profile?.es_admin;
       if(isAdmin) {
         document.getElementById('btnNewGuide').classList.remove('hidden');
