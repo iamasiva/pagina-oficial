@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Pago seguro — IA MASIVA</title>
+  <title>Pago seguro · IA MASIVA</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -61,7 +61,7 @@
     <div id="sinSesion" class="oculto">
       <p class="paso-titulo">Un paso antes</p>
       <h1>Inicia sesión para comprar</h1>
-      <p style="color:#c3cede; font-size:0.9rem; margin-bottom:22px;">El recurso queda habilitado en tu cuenta de IA MASIVA — por eso necesitas entrar (o crearla, tarda un minuto).</p>
+      <p style="color:#c3cede; font-size:0.9rem; margin-bottom:22px;">El recurso queda habilitado en tu cuenta de IA MASIVA: por eso necesitas entrar (o crearla, tarda un minuto).</p>
       <button class="btn" id="btnIrLogin">Iniciar sesión</button>
     </div>
 
@@ -147,7 +147,7 @@
         const { data: previas } = await sb.from('purchases').select('product_id')
           .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
         if (previas?.length) {
-          $('notaBundle').textContent = `Ojo: ya tienes ${previas.length} de los 3 recursos — el bundle no descuenta lo ya comprado.`;
+          $('notaBundle').textContent = `Ojo: ya tienes ${previas.length} de los 3 recursos: el bundle no descuenta lo ya comprado.`;
           $('notaBundle').classList.remove('oculto');
         }
       }

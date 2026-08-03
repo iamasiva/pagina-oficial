@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>IA MASIVA — Recurso Premium</title>
+  <title>IA MASIVA · Recurso Premium</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,6 +55,11 @@
     .claim h2 span { color: var(--acento); }
     .no-necesitas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
     .no-necesitas span { border: 1px solid var(--borde); background: var(--panel); border-radius: 999px; padding: 9px 16px; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+
+    .escenarios { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .escenario { background: var(--panel); border: 1px solid var(--borde); border-left: 4px solid var(--acento); border-radius: 14px; padding: 22px; }
+    .escenario b { display: block; font-size: 1.02rem; margin-bottom: 8px; line-height: 1.35; }
+    .escenario span { color: var(--muted); font-size: 0.92rem; }
 
     .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
     .feature { background: var(--panel); border: 1px solid var(--borde); border-radius: 14px; padding: 22px; }
@@ -131,6 +136,14 @@
   </section>
 
   <section style="padding-top: 12px;">
+    <div class="contenido">
+      <p class="eyebrow-sec" id="pEscEyebrow"></p>
+      <h2 id="pEscTitulo"></h2>
+      <div class="escenarios" id="pEscenarios" style="margin-top: 26px;"></div>
+    </div>
+  </section>
+
+  <section style="padding-top: 12px;">
     <div class="contenido claim">
       <p class="eyebrow-sec" id="pClaimEyebrow"></p>
       <h2 id="pClaim"></h2>
@@ -143,7 +156,7 @@
     <div class="contenido">
       <h2>Los 3 recursos, uno por uno</h2>
       <div class="bundle-items" id="pBundleItems"></div>
-      <p class="ahorro-linea">Por separado valen <b id="pSumaIndividual"></b> — con el bundle pagas <b id="pPrecioBundle"></b>. <span class="ahorro" id="pAhorro"></span></p>
+      <p class="ahorro-linea">Por separado valen <b id="pSumaIndividual"></b>; con el bundle pagas <b id="pPrecioBundle"></b>. <span class="ahorro" id="pAhorro"></span></p>
     </div>
   </section>
 
@@ -201,8 +214,8 @@
     <div class="contenido faq">
       <p class="eyebrow-sec">Preguntas frecuentes</p>
       <details><summary>¿Es una descarga o una página?</summary><p>Es una aplicación web que vive en tu cuenta de IA MASIVA: entras con tu correo y la usas desde cualquier navegador. Siempre tendrás la versión más reciente.</p></details>
-      <details><summary>¿Puedo pedir reembolso?</summary><p>Este es un recurso digital de acceso inmediato: al comprar autorizas expresamente que se habilite al instante y, una vez habilitado, no aplica derecho de retracto (Ley 1480, art. 47). Si el recurso presenta fallas técnicas que te impidan usarlo, lo resolvemos o te devolvemos tu dinero — esa garantía siempre está.</p></details>
-      <details><summary>¿En qué moneda pago?</summary><p>El precio está en dólares (USD). Al pagar, Wompi procesa el cobro en pesos colombianos con la tasa oficial del día — y las tarjetas internacionales funcionan sin problema.</p></details>
+      <details><summary>¿Puedo pedir reembolso?</summary><p>Este es un recurso digital de acceso inmediato: al comprar autorizas expresamente que se habilite al instante y, una vez habilitado, no aplica derecho de retracto (Ley 1480, art. 47). Si el recurso presenta fallas técnicas que te impidan usarlo, lo resolvemos o te devolvemos tu dinero. Esa garantía siempre está.</p></details>
+      <details><summary>¿En qué moneda pago?</summary><p>El precio está en dólares (USD). Al pagar, Wompi procesa el cobro en pesos colombianos con la tasa oficial del día, y las tarjetas internacionales funcionan sin problema.</p></details>
       <details id="pFaqExtra" class="oculto"><summary id="pFaqExtraQ"></summary><p id="pFaqExtraA"></p></details>
     </div>
   </section>
@@ -238,145 +251,182 @@
 
     // Identidad + copy de venta por producto. El precio SIEMPRE viene de la base.
     const LANDINGS = {
-      // ── 557: azul-violeta profundo con glow ──
+      // 557: azul-violeta profundo con glow
       '656f61d7-37b2-4e9c-8cf3-67065484493c': {
         corto: '557 Configuraciones',
         tema: { fondo: '#0a0918', panel: 'rgba(124,92,255,0.08)', borde: 'rgba(124,92,255,0.28)', ink: '#f2f0ff', muted: '#a9a3c8', acento: '#7c5cff', ctaTexto: '#ffffff', cardClaroFondo: '#f1eefc', cardClaroInk: '#241b4d', cardClaroMuted: '#5a5380' },
         hero: { desktop: PORTADAS + '1784777774571_3cn14345gtd.png', mobile: PORTADAS + '1784777777156_tq9fk5uocs.png' },
         dolor: {
-          intro: 'Le pides algo a la IA y te responde… generalidades.',
+          intro: 'Todos tienen acceso a la misma IA. Casi nadie le saca respuestas de experto.',
           lista: [
-            'Prompts que improvisas cada vez y nunca puedes repetir.',
-            'Respuestas de asistente genérico, cuando necesitas un especialista.',
-            'Cuadernos de NotebookLM y Gemini que se sienten planos, sin criterio.',
+            'Le preguntas algo importante y te contesta como asistente genérico.',
+            'Pierdes 20 minutos escribiendo instrucciones que igual salen a medias.',
+            'Sabes que la IA puede más, pero no sabes qué pedirle ni cómo.',
           ],
-          giro: 'La diferencia no es escribir más: es darle a la IA <span>el criterio de un experto</span>.',
+          giro: 'No necesitas aprender a escribir prompts. Necesitas <span>el criterio de un experto, ya escrito</span>.',
         },
-        claimEyebrow: 'El recurso',
-        claim: '557 especialistas listos para <span>pegar en tus cuadernos</span>',
-        claimSub: 'Cada configuración encapsula lo que un experto de ese campo preguntaría, revisaría y evitaría — redactado, probado y organizado para que solo copies, pegues y trabajes.',
-        noNecesitas: ['No necesitas saber de prompts', 'No necesitas inglés — todo es bilingüe', 'No necesitas configurar nada técnico'],
-        galeriaTitulo: 'La herramienta, por dentro',
+        escenarios: {
+          eyebrow: 'Piénsalo en tu semana real',
+          titulo: 'Momentos en los que esto te salva',
+          items: [
+            ['Te llegó un contrato y no tienes abogado a la mano', 'Pegas la configuración de revisión legal en tu cuaderno y la IA te señala cláusulas de riesgo, vacíos y las preguntas que deberías hacer antes de firmar.'],
+            ['Necesitas el plan de contenidos del mes y no hay agencia', 'El estratega de contenido te entrega calendario, ángulos y formatos con el criterio de alguien que lleva años haciéndolo.'],
+            ['Tienes los números del negocio y nadie que los lea', 'El analista financiero convierte tu Excel en decisiones: qué está sangrando, qué está funcionando y qué mover ya.'],
+          ],
+        },
+        claimEyebrow: 'Haz la cuenta',
+        claim: '557 especialistas de guardia, por menos de lo que cuesta <span>una hora de uno solo</span>',
+        claimSub: 'Abogados, estrategas, analistas, profesores, coaches. Eliges el que necesitas hoy, copias su configuración y trabajas con él al instante. En español o en inglés.',
+        noNecesitas: ['Cero conocimientos de prompts', 'Funciona en NotebookLM, Gemini, ChatGPT y Claude', 'Listo en lo que tarda un copiar y pegar'],
         features: [
-          ['557 configuraciones con mecanismo experto', 'No son plantillas que cambian el título: cada una trae los criterios concretos que un especialista aplicaría y que uno no sabe pedir.'],
-          ['Organizadas para encontrar, no para buscar', 'Categorías, subcategorías y buscador global: llegas a la configuración de tu caso en segundos.'],
-          ['Crea tu configuración', 'Un generador con opciones avanzadas para los casos que el catálogo no cubre — con la misma estructura experta.'],
-          ['Tu espacio personal', 'Favoritos, configuraciones guardadas con tus categorías, y el organizador de cuadernos: links de Gemini y NotebookLM, chats importantes, todo a un clic.'],
-          ['Español e inglés, completo', 'La aplicación y las 557 configuraciones en los dos idiomas — trabaja en el que prefieras.'],
-          ['Guía paso a paso con capturas', 'De cero a tu primer cuaderno configurado sin perderte, aunque nunca hayas usado NotebookLM.'],
+          ['Respuestas de especialista, no de asistente', '557 configuraciones con el criterio real de cada campo: lo que un experto preguntaría, revisaría y evitaría.'],
+          ['Sirve en tus 4 plataformas', 'Diseñadas para cuadernos de NotebookLM y Gemini, y funcionan también como instrucciones en los proyectos de ChatGPT y Claude.'],
+          ['Encuentras en segundos', 'Categorías, subcategorías y buscador global: de "necesito ayuda con esto" a trabajando, en menos de un minuto.'],
+          ['Si tu caso no existe, lo creas', 'El generador arma configuraciones nuevas con la misma estructura experta. Solo respondes un formulario.'],
+          ['Tu arsenal queda guardado', 'Favoritos, configuraciones con tus categorías y tu organizador de cuadernos con links y chats. Todo tuyo, para siempre.'],
+          ['Bilingüe de verdad', 'La aplicación completa y las 557 configuraciones, en español e inglés.'],
         ],
+        galeriaTitulo: 'La herramienta, por dentro',
         capturas: [MOCKUPS + 'mockup-557-home.jpg', MOCKUPS + 'mockup-557-detalle.jpg'],
         cierre: [
-          'Llevas tiempo viendo lo que la IA puede hacer. La diferencia entre quienes le sacan resultados y quienes se frustran no es el talento: son las instrucciones con las que la usan.',
-          'Esto no es un curso que tienes que terminar. Es una caja de herramientas que abres cada vez que trabajas.',
+          'Cada semana que usas la IA "a lo genérico" es una semana de resultados a medias. Y la brecha con quienes la usan bien se agranda.',
+          'Por el precio de una hora de consultoría con un solo experto, te llevas 557 para todas las áreas de tu negocio y tu vida.',
           'Se compra una vez. <span>Se usa siempre.</span>',
         ],
-        faqExtra: ['¿Sirve si uso ChatGPT o Claude?', 'Las configuraciones están diseñadas para cuadernos de NotebookLM y Gemini, pero su estructura funciona también en los proyectos de ChatGPT y Claude — copias la configuración como instrucciones del proyecto.'],
+        faqExtra: ['¿Sirve si uso ChatGPT o Claude?', 'Sí. Las configuraciones están diseñadas para cuadernos de NotebookLM y Gemini, y su estructura funciona también en los proyectos de ChatGPT y Claude: copias la configuración como instrucciones del proyecto y listo.'],
       },
 
-      // ── 400: claro lila con azul zafiro ──
+      // 400: claro lila con azul zafiro
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': {
         corto: '400 Gemas',
         tema: { fondo: '#f3f2fa', panel: '#ffffff', borde: '#ddd9ec', ink: '#141b4d', muted: '#5a6080', acento: '#4a5fe0', ctaTexto: '#ffffff', cardClaroFondo: '#141b4d', cardClaroInk: '#ffffff', cardClaroMuted: '#c9cdea' },
         hero: { desktop: PORTADAS + '1784777862525_kisjuq2kohg.png', mobile: PORTADAS + '1784777866952_4wthkjfkmk.png' },
         dolor: {
-          intro: 'Gemini es potente. Pero cada chat tuyo empieza de cero.',
+          intro: 'Cada chat con Gemini empieza igual: explicándole todo otra vez.',
           lista: [
-            'Le repites el contexto una y otra vez, en cada conversación.',
-            'Sabes que existen las Gemas… pero configurarlas bien es otra historia.',
-            'Terminas con respuestas de asistente común, no de especialista entrenado.',
+            'El mismo contexto, repetido conversación tras conversación.',
+            'Resultados distintos cada día, según cómo te salió el prompt.',
+            'Las Gemas existen hace rato. Configurar una que funcione de verdad es otra historia.',
           ],
-          giro: 'Una gema bien configurada trabaja como <span>un empleado que ya sabe su oficio</span>: le hablas y ejecuta.',
+          giro: 'Una gema bien montada es <span>un empleado entrenado que no renuncia</span>: le hablas y ejecuta.',
         },
-        claimEyebrow: 'El recurso',
-        claim: '400 gemas expertas, cada una con <span>su formulario listo</span>',
-        claimSub: 'Los 5 campos de cada gema listos para copiar en Gemini, y un formulario que convierte tus datos en el prompt exacto — sin redactar nada.',
-        noNecesitas: ['No necesitas saber de prompts', 'No necesitas configurar nada a mano', 'No necesitas empezar de cero nunca más'],
-        galeriaTitulo: 'La herramienta, por dentro',
+        escenarios: {
+          eyebrow: 'Así se siente tenerlas',
+          titulo: 'Tu semana con un equipo de gemas',
+          items: [
+            ['Lunes, 8 am: necesitas los guiones de la semana', 'Abres tu gema de guiones, le das el tema y salen con tu tono, tu estructura y tus ganchos. Sin recordarle quién eres.'],
+            ['Un cliente pide una propuesta compleja', 'Le pasas los datos a la gema indicada con su formulario y el prompt sale exacto. El borrador llega en minutos, no en horas.'],
+            ['Tu caso no existe en ningún catálogo', 'La Gema para crear gemas te entrega el diseño completo de una gema nueva, hecha para tu caso exacto.'],
+          ],
+        },
+        claimEyebrow: 'El salto',
+        claim: 'Deja de usar Gemini como chat. <span>Conviértelo en tu equipo.</span>',
+        claimSub: '400 gemas expertas en 20 categorías. Cada una con sus 5 campos listos para copiar en Gemini y un formulario que genera tu prompt personalizado al instante.',
+        noNecesitas: ['Cero prompts desde cero', 'Cero configuración a mano', 'Cero empezar de nuevo en cada chat'],
         features: [
-          ['400 gemas en 20 categorías', 'Marketing, ventas, contenido, finanzas, educación, productividad… cada una con su territorio claro, sin repeticiones disfrazadas.'],
-          ['Formulario por gema', 'Llenas tus datos, el prompt se arma solo, lo copias. La personalización sin el trabajo de redactar.'],
-          ['Gema para crear gemas', 'Tu caso es único? La herramienta especial diseña una gema nueva a tu medida: nombre, descripción, instrucciones y todo lo demás.'],
-          ['Mis gemas', 'Guarda los links de tus gemas organizados con tus categorías, con sus chats y tus prompts reutilizables — editables con el formulario real.'],
-          ['Prompts que no vuelves a escribir', 'Lo que llenas una vez queda guardado para reutilizar con un clic, dentro de la gema a la que pertenece.'],
-          ['Guía completa con capturas', 'El camino entero: de la biblioteca a tu gema funcionando en Gemini, paso a paso.'],
+          ['Un especialista por gema', '400 gemas con territorio claro: marketing, ventas, contenido, finanzas, educación, productividad y 14 categorías más.'],
+          ['Tu prompt en 30 segundos', 'Llenas el formulario de la gema con tus datos y el prompt final se arma solo. Copiar, pegar, listo.'],
+          ['La fábrica de gemas propias', 'Tu caso único merece su gema: la herramienta especial te entrega nombre, descripción e instrucciones completas.'],
+          ['Tu colección viva', 'Mis gemas guarda tus links de Gemini, tus chats importantes y tus prompts reutilizables, organizados a tu manera.'],
+          ['Nada se escribe dos veces', 'Cada prompt que llenas queda guardado y editable con su formulario real. Reutilizarlo es un clic.'],
+          ['De cero a experto con la guía', 'El recorrido completo con capturas: de la biblioteca a tu gema respondiendo en Gemini.'],
         ],
+        galeriaTitulo: 'La herramienta, por dentro',
         capturas: [MOCKUPS + 'mockup-400-home.jpg', MOCKUPS + 'mockup-400-detalle.jpg'],
         cierre: [
-          'Cada semana usas Gemini para trabajar. La pregunta es si cada chat va a seguir empezando de cero, o si vas a tener 400 especialistas esperándote.',
-          'Esto no es contenido para consumir. Es infraestructura para tu trabajo diario con IA.',
+          'Gemini lo tiene todo el mundo. La diferencia está en si el tuyo es un chat vacío o un equipo de 400 especialistas ya configurados.',
+          'Esto no se consume y se acaba: es infraestructura para cada día de trabajo.',
           'Se compra una vez. <span>Se usa siempre.</span>',
         ],
-        faqExtra: ['¿Funciona solo con Gemini?', 'Sí — este recurso es exclusivo para Gemini Gems, porque usa funciones que solo existen ahí (herramientas predeterminadas, conocimiento por archivos). Esa especialización es justo lo que lo hace profundo.'],
+        faqExtra: ['¿Funciona solo con Gemini?', 'Sí, este recurso es exclusivo para Gemini Gems, porque aprovecha funciones que solo existen ahí (herramientas predeterminadas, conocimiento por archivos). Esa especialización es justo lo que lo hace profundo.'],
       },
 
-      // ── 200: cine negro con naranja/dorado ──
+      // 200: cine negro con naranja/dorado
       '2c296299-d9a4-4409-bc99-67b4999e47f8': {
         corto: '200 Diseños',
         tema: { fondo: '#0b0a08', panel: 'rgba(255,140,26,0.07)', borde: 'rgba(255,140,26,0.25)', ink: '#f7f1e3', muted: '#b3a892', acento: '#ff8c1a', ctaTexto: '#1a1204', cardClaroFondo: '#f7f1e3', cardClaroInk: '#241c0e', cardClaroMuted: '#6b6046' },
         hero: { desktop: PORTADAS + '1784777735372_zhhecvw9x99.png', mobile: PORTADAS + '1784778585157_ez16ae7xt5k.png' },
         dolor: {
-          intro: 'NotebookLM ya te hace las presentaciones. El problema es cómo se ven.',
+          intro: 'Tu contenido es bueno. Tus diapositivas lo están traicionando.',
           lista: [
-            'Diapositivas genéricas que se ven iguales a las de todo el mundo.',
-            'Horas peleando con plantillas para que algo se vea profesional.',
-            'Sin dirección de arte, tu contenido bueno parece improvisado.',
+            'Presentaciones que se ven a plantilla gratuita desde lejos.',
+            'Horas moviendo cajitas en vez de preparar lo que vas a decir.',
+            'NotebookLM ya te arma las diapositivas... con cara de documento.',
           ],
-          giro: 'La IA solo necesita <span>la dirección visual correcta</span> — y eso es exactamente lo que le entregas con cada prompt.',
+          giro: 'No te falta talento de diseño. Te falta <span>darle a la IA una dirección de arte</span>.',
         },
-        claimEyebrow: 'El recurso',
-        claim: 'Eliges viendo. Personalizas en vivo. <span>Copias un prompt.</span>',
-        claimSub: '200 estilos visuales con vista previa real de 4 diapositivas: eliges el que va con tu marca, ajustas colores y tipografías, y el prompt queda listo para NotebookLM.',
-        noNecesitas: ['No necesitas saber diseño', 'No necesitas plantillas ni Canva', 'No necesitas describir lo que quieres — lo ves'],
+        escenarios: {
+          eyebrow: 'El antes y el después',
+          titulo: 'Tu próxima entrega, con dirección de arte',
+          items: [
+            ['Mañana presentas ante el cliente', 'Eliges un estilo viendo su preview real, le pones los colores de tu marca y copias el prompt. NotebookLM hace el resto con tus fuentes.'],
+            ['Tu marca por fin se ve en tus slides', 'Guardas tu personalización en Mis diseños y cada presentación futura sale con tu identidad, sin rehacer nada.'],
+            ['Clase, pitch o informe: cada uno con su estilo', '11 categorías con dirección de arte real: corporativo, creativo, académico, financiero y más.'],
+          ],
+        },
+        claimEyebrow: 'El cambio',
+        claim: 'De "otra presentación más" a <span>"¿quién te la diseñó?"</span>',
+        claimSub: '200 estilos visuales con preview real de 4 diapositivas. Eliges viendo, personalizas en vivo y copias un prompt que NotebookLM ejecuta con tus fuentes.',
+        noNecesitas: ['Cero Canva ni plantillas', 'Cero saber de diseño', 'Cero describir a ciegas: lo ves antes de elegir'],
         features: [
-          ['200 estilos con preview real', 'Cada estilo muestra 4 diapositivas reales de cómo queda. Eliges viendo, no adivinando ni describiendo.'],
-          ['Personalizador en vivo', 'Colores, tipografías, estilo visual, gráficas, densidad de texto e idioma: el prompt se actualiza mientras ajustas.'],
-          ['11 categorías', 'Negocios, marketing, propuestas, portafolios, tecnología, finanzas, moda, educación y más.'],
-          ['Mis diseños', 'Guarda tus personalizaciones con tus propias categorías — tu identidad visual queda lista para copiar cuando la necesites.'],
-          ['Interfaz en 6 idiomas', 'Español, inglés, portugués, francés, alemán e italiano. El prompt siempre optimizado en inglés, la presentación en tu idioma.'],
-          ['Optimizado para NotebookLM', 'Cada prompt fue redactado y curado revisando visualmente su resultado en el generador de presentaciones.'],
+          ['Eliges viendo, no imaginando', 'Cada estilo muestra 4 diapositivas reales de cómo queda. Sin sorpresas al final.'],
+          ['Tu marca en cada slide', 'Colores, tipografías, estilo de gráficas, densidad e idioma: ajustas y el prompt se reescribe en vivo.'],
+          ['Un estilo para cada ocasión', 'Negocios, marketing, propuestas, portafolios, tecnología, finanzas, moda, educación y más.'],
+          ['Tu identidad guardada', 'Mis diseños conserva tus personalizaciones organizadas con tus categorías. Copiar y presentar.'],
+          ['En tu idioma y el de tu público', 'Interfaz en 6 idiomas y presentación final en el idioma que elijas.'],
+          ['Probado donde importa', 'Cada prompt fue curado revisando su resultado real en el generador de presentaciones de NotebookLM.'],
         ],
-        capturas: [MOCKUPS + 'mockup-200-home.jpg'],
         galeriaTitulo: 'La herramienta, por dentro',
+        capturas: [MOCKUPS + 'mockup-200-home.jpg'],
         cierre: [
-          'Tu próxima presentación puede verse como todas… o puede tener dirección de arte de verdad, en el mismo tiempo.',
-          'No es una plantilla más: es un sistema visual que NotebookLM ejecuta por ti.',
+          'La gente decide en los primeros 10 segundos si tu presentación merece atención. Tu contenido merece ganar esos 10 segundos.',
+          'Y el tiempo que hoy se va en plantillas vuelve a ser tiempo para preparar lo que vas a decir.',
           'Se compra una vez. <span>Se usa en cada presentación.</span>',
         ],
-        faqExtra: ['¿Necesito saber inglés?', 'No. La interfaz está en 6 idiomas y tú eliges el idioma de la presentación final. El prompt se genera en inglés porque así rinde mejor en NotebookLM — pero no tienes que tocarlo, solo copiarlo.'],
+        faqExtra: ['¿Necesito saber inglés?', 'No. La interfaz está en 6 idiomas y tú eliges el idioma de la presentación final. El prompt se genera en inglés porque así rinde mejor en NotebookLM, pero no tienes que tocarlo: solo copiarlo.'],
       },
 
-      // ── Bundle: identidad IA MASIVA ──
+      // Bundle: identidad IA MASIVA
       __bundle__: {
         corto: 'Bundle: 3 Recursos Premium',
         tema: { fondo: '#050F3A', panel: 'rgba(47,107,255,0.1)', borde: 'rgba(47,107,255,0.3)', ink: '#ffffff', muted: '#9aacbf', acento: '#2F6BFF', ctaTexto: '#ffffff', cardClaroFondo: '#f5f6fa', cardClaroInk: '#1c2333', cardClaroMuted: '#4b5568' },
         hero: null,
         dolor: {
-          intro: 'Usas NotebookLM y Gemini todos los días. A medias.',
+          intro: 'Ya decidiste trabajar con IA. La pregunta es con qué herramientas.',
           lista: [
-            'Cuadernos sin configurar que responden como asistente genérico.',
+            'Cuadernos que responden como asistente genérico.',
             'Chats de Gemini que empiezan de cero cada vez.',
             'Presentaciones que no se parecen a tu marca.',
           ],
-          giro: 'Con el bundle equipas <span>todo tu flujo de trabajo con IA</span> de una sola vez.',
+          giro: 'Equipar <span>todo tu flujo de trabajo</span> cuesta menos que equiparlo por partes.',
+        },
+        escenarios: {
+          eyebrow: 'El arsenal completo',
+          titulo: 'Tu semana con los tres recursos',
+          items: [
+            ['Investigas y decides con especialistas', 'Las 557 configuraciones convierten tus cuadernos en abogados, analistas y estrategas de guardia.'],
+            ['Ejecutas con tu equipo de gemas', '400 gemas entrenadas listas para producir con tu contexto, más la fábrica de gemas propias.'],
+            ['Presentas con dirección de arte', '200 estilos visuales con preview real para que cada entrega se vea profesional.'],
+          ],
         },
         claimEyebrow: 'Todo IA MASIVA',
-        claim: 'Los 3 recursos premium, <span>un solo pago</span>',
-        claimSub: '557 configuraciones expertas + 400 gemas para Gemini + 200 diseños para presentaciones. El arsenal completo, con el máximo ahorro.',
+        claim: 'Los 3 recursos premium. <span>Un solo pago.</span>',
+        claimSub: 'El bundle existe para que equiparte completo sea la decisión obvia: los tres recursos quedan habilitados en tu cuenta al instante.',
         noNecesitas: ['Un solo pago', 'Tres recursos habilitados al instante', 'El mejor precio posible'],
         features: [
-          ['557 Configuraciones', 'El buque insignia: configuraciones expertas bilingües para NotebookLM y Gemini, con tu espacio personal completo.'],
+          ['557 Configuraciones', 'El buque insignia: configuraciones expertas bilingües para NotebookLM y Gemini, con tu espacio personal completo. Sirven también en proyectos de ChatGPT y Claude.'],
           ['400 Gemas para Gemini', 'Formularios que generan prompts personalizados, más la Gema para crear gemas a tu medida.'],
           ['200 Diseños para Presentaciones', 'Estilos visuales con preview real y personalizador en vivo, en 6 idiomas.'],
-          ['Tu espacio personal en cada uno', 'Todo lo que guardes — configuraciones, gemas, prompts, diseños — queda en tu cuenta para siempre.'],
+          ['Tu espacio personal en cada uno', 'Todo lo que guardes (configuraciones, gemas, prompts, diseños) queda en tu cuenta para siempre.'],
         ],
-        capturas: [],
+        galeriaTitulo: 'Las herramientas, por dentro',
+        capturas: [MOCKUPS + 'mockup-557-home.jpg', MOCKUPS + 'mockup-400-home.jpg', MOCKUPS + 'mockup-200-home.jpg'],
         cierre: [
-          'Si ya sabes que vas a trabajar con IA este año, la pregunta no es si equiparte — es si pagar más por hacerlo en partes.',
-          'Tres recursos, tres espacios personales, un solo pago.',
+          'Si ya sabes que vas a trabajar con IA este año, la pregunta no es si equiparte: es si pagar más por hacerlo en partes.',
+          'Tres herramientas, tres espacios personales, una decisión.',
           'Se compra una vez. <span>Se usa siempre.</span>',
         ],
-        faqExtra: ['¿Qué pasa si ya tengo uno de los recursos?', 'El bundle habilita los tres; si ya tienes alguno, la página de pago te lo advierte antes de comprar para que decidas con claridad — el bundle no descuenta lo ya comprado.'],
+        faqExtra: ['¿Qué pasa si ya tengo uno de los recursos?', 'El bundle habilita los tres. Si ya tienes alguno, la página de pago te lo advierte antes de comprar para que decidas con claridad: el bundle no descuenta lo ya comprado.'],
       },
     };
 
@@ -401,7 +451,7 @@
       if (!cfg) { location.href = 'app.html'; return; }
 
       pintarTema(cfg.tema);
-      document.title = `${cfg.corto} — IA MASIVA`;
+      document.title = `${cfg.corto} · IA MASIVA`;
 
       // Hero del producto (la identidad manda). El bundle no tiene imagen: cabecera compacta.
       if (cfg.hero) {
@@ -423,6 +473,10 @@
       $('pDolorIntro').textContent = cfg.dolor.intro;
       $('pDolorLista').innerHTML = cfg.dolor.lista.map(x => `<li>${x}</li>`).join('');
       $('pDolorGiro').innerHTML = cfg.dolor.giro;
+
+      $('pEscEyebrow').textContent = cfg.escenarios.eyebrow;
+      $('pEscTitulo').textContent = cfg.escenarios.titulo;
+      $('pEscenarios').innerHTML = cfg.escenarios.items.map(([b, s]) => `<div class="escenario"><b>${b}</b><span>${s}</span></div>`).join('');
 
       $('pClaimEyebrow').textContent = cfg.claimEyebrow;
       $('pClaim').innerHTML = cfg.claim;
