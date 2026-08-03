@@ -47,6 +47,8 @@
     /* Tarjeta clara de dolor (contraste con el fondo del producto) */
     .dolor-card { background: var(--card-claro-fondo); color: var(--card-claro-ink); border-radius: 18px; padding: 34px clamp(20px, 4vw, 44px); max-width: 640px; margin: 0 auto; }
     .dolor-card p.intro { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; }
+    .dolor-card .prob { display: flex; gap: 10px; margin-bottom: 12px; color: var(--card-claro-muted); font-size: 0.98rem; }
+    .dolor-card .prob b { color: var(--acento); }
     .dolor-card .pregunta { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
     .dolor-card .pregunta:last-of-type { border-bottom: none; }
     .dolor-card .q-texto { color: var(--card-claro-muted); font-size: 0.95rem; }
@@ -137,7 +139,7 @@
     <p class="micro">Acceso inmediato en tu cuenta · Pago seguro con Wompi · Tuyo para siempre</p>
   </div>
 
-  <section>
+  <section id="secDolor">
     <div class="contenido">
       <div class="dolor-card">
         <p class="intro" id="pDolorIntro"></p>
@@ -147,7 +149,7 @@
     </div>
   </section>
 
-  <section style="padding-top: 12px;">
+  <section id="secEjemplos" style="padding-top: 12px;">
     <div class="contenido">
       <p class="eyebrow-sec" id="pEscEyebrow"></p>
       <h2 id="pEscTitulo"></h2>
@@ -181,6 +183,7 @@
     <div class="contenido">
       <p class="eyebrow-sec">Así se ve por dentro</p>
       <h2 id="pGaleriaTitulo">Tu recurso, real</h2>
+      <p class="sub oculto" id="pGaleriaIntro"></p>
       <div class="galeria" id="pGaleria" style="margin-top: 26px;"></div>
     </div>
   </section>
@@ -426,42 +429,41 @@
         corto: '200 Diseños',
         tema: { fondo: '#0b0a08', panel: 'rgba(255,140,26,0.07)', borde: 'rgba(255,140,26,0.25)', ink: '#f7f1e3', muted: '#b3a892', acento: '#ff8c1a', ctaTexto: '#1a1204', cardClaroFondo: '#f7f1e3', cardClaroInk: '#241c0e', cardClaroMuted: '#6b6046' },
         hero: { desktop: PORTADAS + '1784777735372_zhhecvw9x99.png', mobile: PORTADAS + '1784778585157_ez16ae7xt5k.png' },
+        beneficiosPrimero: true,
         dolor: {
-          intro: 'Para empezar, responde estas preguntas',
+          quiz: false,
+          intro: 'El problema',
           lista: [
-            '¿Usas Gemini Notebooks (antes NotebookLM) para crear presentaciones?',
-            '¿Sus diseños te parecen genéricos, con poco control sobre cómo se ven?',
-            '¿Terminas gastando en el diseño el tiempo que era para preparar tu presentación?',
+            'Gastas el mismo tiempo o más haciendo una presentación con IA que con PowerPoint o Canva.',
+            'Te entrega constantemente presentaciones con errores y cosas que no cuadran.',
           ],
-          giro: 'La función es buenísima. Lo que le falta es <span>darte el control del diseño</span>. Y eso es exactamente lo que te traemos.',
+          giro: 'La solución: <span>diseños predefinidos</span> que copias y pegas rápidamente, para obtener justo el diseño que ya sabes cómo es.<br><br>Y aquí te traemos <b>200 diseños base</b> con más de <b>50.000 variaciones de personalización</b>.',
         },
         ejemplos: {
-          eyebrow: 'El diseño resuelto',
-          titulo: 'Tú a lo importante: la presentación',
+          eyebrow: 'Se acabó esa pelea',
+          titulo: 'No vuelvas a gastar tiempo en el diseño de tus presentaciones',
           items: [
-            ['La presentación del cliente', 'Eliges el estilo viendo su preview real y Gemini Notebooks diseña con tus fuentes.'],
-            ['El pitch para inversionistas', 'Sobriedad corporativa y financiera de entrada.'],
-            ['La clase o el taller', 'Estilos que sostienen la atención sin verse infantiles.'],
-            ['El informe de resultados', 'Gráficas y densidad de texto pensadas para decidir de una.'],
-            ['El portafolio creativo', 'Personalidad para que tu trabajo se venda solo.'],
-            ['La de tu marca, siempre', 'Tus colores y tipografías guardados para cada presentación futura.'],
+            ['Una biblioteca de 200 diseños', 'Con sus prompts ya listos para copiar.'],
+            ['Personalizables a tu estilo', 'No son diseños únicos: les das tus colores, tus tipografías y tu propio estilo.'],
+            ['Tus diseños guardados', 'Los vuelves a usar después solo copiando y pegando el prompt.'],
+            ['Tú a lo importante', 'Prepararte para la presentación.'],
           ],
-          remate: 'Una de las funciones más útiles de Gemini Notebooks es crear presentaciones. Su problema: <b>diseños genéricos y poco control</b>.<br><br>Por eso te traemos <b>200 diseños personalizables</b>: eliges el estilo viendo su preview real, lo ajustas a tu marca y copias el prompt. Para que no tengas que pensar en el diseño y te ocupes de lo importante: <b>la presentación</b>.',
+          remate: '',
         },
         claimEyebrow: 'El cambio',
-        claim: 'No pienses en el diseño. <span>Piensa en tu presentación.</span>',
+        claim: 'Dejas de pensar en el diseño. <span>Y empiezas a pensar en tu presentación.</span>',
         claimSub: '200 estilos con preview real de 4 diapositivas: eliges viendo, personalizas en vivo y copias un prompt que Gemini Notebooks ejecuta con tus fuentes.',
         noNecesitas: ['Cero Canva ni plantillas', 'Cero saber de diseño', 'Cero pelear con el diseño genérico'],
-        vida: '¡Y lo mejor! Los tienes para <span>TODA LA VIDA</span>.',
+        vida: 'Un solo pago, y esta biblioteca diseña contigo para <span>SIEMPRE</span>.',
         uso: {
           eyebrow: 'Simple a propósito',
           pasos: [
-            ['Elige viendo', 'Explora los 200 estilos con su preview real de 4 diapositivas.'],
-            ['Personaliza', 'Colores, tipografías, gráficas, densidad e idioma: el prompt se reescribe en vivo.'],
-            ['Copia y genera', 'Pega el prompt en Gemini Notebooks y deja que diseñe con tus fuentes.'],
-            ['Guarda tu diseño', 'Tu personalización queda en Mis diseños, lista para la próxima presentación.'],
+            ['Encuentra un diseño', 'Explora la biblioteca y elige el que te guste viendo su preview real.'],
+            ['Personalízalo a tu gusto', 'Colores, tipografías, gráficas, densidad e idioma: el prompt se reescribe en vivo.'],
+            ['Copia el prompt', 'Un clic y queda listo. Si quieres, guárdalo en Mis diseños para la próxima.'],
+            ['Pégalo en Gemini Notebooks', 'En Presentación, pega el prompt en la descripción y deja que diseñe con tus fuentes.'],
           ],
-          remate: 'Tu tiempo vuelve a lo que importa: <b>lo que vas a decir</b>.',
+          remate: 'Y no solo en Gemini Notebooks: el prompt funciona en <b>cualquier IA que genere presentaciones</b>.',
         },
         exclusiva: {
           eyebrow: 'Solo aquí',
@@ -474,15 +476,16 @@
           ],
         },
         features: [
-          ['Eliges viendo, no imaginando', 'Cada estilo muestra 4 diapositivas reales de cómo queda. Sin sorpresas al final.'],
+          ['Eliges viendo, no imaginando', 'Cada estilo muestra 4 diapositivas reales de referencia: sabes qué dirección de arte le estás pidiendo a la IA antes de copiar el prompt.'],
           ['Tu marca en cada slide', 'Colores, tipografías, estilo de gráficas, densidad e idioma: ajustas y el prompt se reescribe en vivo.'],
-          ['Un estilo para cada ocasión', 'Negocios, marketing, propuestas, portafolios, tecnología, finanzas, moda, educación y más.'],
+          ['Encuentras múltiples estilos', 'Negocios, marketing, propuestas, portafolios, tecnología, finanzas, moda, educación y más.'],
           ['En tu idioma y el de tu público', 'Interfaz en 6 idiomas y presentación final en el idioma que elijas.'],
           ['Probado donde importa', 'Cada prompt fue curado revisando su resultado real en el generador de presentaciones de Gemini Notebooks.'],
           ['Todas las variables con opción "Otro"', 'Si tu tipografía o tu color no está en la lista, lo escribes libre y entra al prompt.'],
           ['Soporte directo de IA MASIVA', 'Cualquier duda o situación con el producto la resuelves de primera mano con nuestro equipo.'],
         ],
         galeriaTitulo: 'La herramienta, por dentro',
+        galeriaIntro: 'Una biblioteca con 200 diseños con sus respectivos prompts, para que Gemini Notebooks haga ese diseño por ti.',
         capturas: [MOCKUPS + 'mockup-200-home.jpg'],
         cierre: [
           'La gente decide en los primeros 10 segundos si tu presentación merece atención. Tu contenido merece ganar esos 10 segundos.',
@@ -605,31 +608,41 @@
       $('pPrecioFinal').innerHTML = htmlPrecio;
       $('pTituloFinal').textContent = cfg.corto;
 
+      // Algunas landings abren con los beneficios y presentan el problema después
+      if (cfg.beneficiosPrimero) $('secDolor').parentNode.insertBefore($('secEjemplos'), $('secDolor'));
+
       $('pDolorIntro').textContent = cfg.dolor.intro;
-      $('pDolorLista').innerHTML = cfg.dolor.lista.map((q, i) => `
-        <div class="pregunta">
-          <span class="q-texto">${q}</span>
-          <span class="q-botones">
-            <button type="button" data-q="${i}" data-r="si">Sí</button>
-            <button type="button" data-q="${i}" data-r="no">No</button>
-          </span>
-        </div>`).join('');
       $('pDolorGiro').innerHTML = cfg.dolor.giro;
-      // El mensaje aparece solo cuando responde la última pregunta
-      const respondidas = new Set();
-      $('pDolorLista').addEventListener('click', (e) => {
-        const b = e.target.closest('button[data-q]');
-        if (!b) return;
-        b.closest('.pregunta').querySelectorAll('button').forEach(x => x.classList.remove('elegida'));
-        b.classList.add('elegida');
-        respondidas.add(b.dataset.q);
-        if (respondidas.size === cfg.dolor.lista.length) $('pDolorGiro').classList.add('visible');
-      });
+      if (cfg.dolor.quiz === false) {
+        // Problema en lista numerada, con la solución visible de una
+        $('pDolorLista').innerHTML = cfg.dolor.lista.map((q, i) => `<div class="prob"><b>${i + 1}.</b><span>${q}</span></div>`).join('');
+        $('pDolorGiro').classList.add('visible');
+      } else {
+        $('pDolorLista').innerHTML = cfg.dolor.lista.map((q, i) => `
+          <div class="pregunta">
+            <span class="q-texto">${q}</span>
+            <span class="q-botones">
+              <button type="button" data-q="${i}" data-r="si">Sí</button>
+              <button type="button" data-q="${i}" data-r="no">No</button>
+            </span>
+          </div>`).join('');
+        // El mensaje aparece solo cuando responde la última pregunta
+        const respondidas = new Set();
+        $('pDolorLista').addEventListener('click', (e) => {
+          const b = e.target.closest('button[data-q]');
+          if (!b) return;
+          b.closest('.pregunta').querySelectorAll('button').forEach(x => x.classList.remove('elegida'));
+          b.classList.add('elegida');
+          respondidas.add(b.dataset.q);
+          if (respondidas.size === cfg.dolor.lista.length) $('pDolorGiro').classList.add('visible');
+        });
+      }
 
       $('pEscEyebrow').textContent = cfg.ejemplos.eyebrow;
       $('pEscTitulo').textContent = cfg.ejemplos.titulo;
       $('pEscenarios').innerHTML = cfg.ejemplos.items.map(([b, s]) => `<div class="escenario"><b>${b}</b><span>${s}</span></div>`).join('');
-      $('pEjemplosRemate').innerHTML = cfg.ejemplos.remate;
+      if (cfg.ejemplos.remate) $('pEjemplosRemate').innerHTML = cfg.ejemplos.remate;
+      else $('pEjemplosRemate').classList.add('oculto');
 
       $('pUsoEyebrow').textContent = cfg.uso.eyebrow;
       $('pUsoPasos').innerHTML = cfg.uso.pasos.map(([b, s], i) => `<div class="paso"><span class="num">${i + 1}</span><b>${b}</b><span>${s}</span></div>`).join('');
@@ -651,6 +664,7 @@
       if (cfg.capturas.length) {
         $('pSecGaleria').classList.remove('oculto');
         if (cfg.galeriaTitulo) $('pGaleriaTitulo').textContent = cfg.galeriaTitulo;
+        if (cfg.galeriaIntro) { $('pGaleriaIntro').textContent = cfg.galeriaIntro; $('pGaleriaIntro').classList.remove('oculto'); }
         $('pGaleria').innerHTML = cfg.capturas.map(u => `<img loading="lazy" src="${u}" alt="">`).join('');
       }
 
