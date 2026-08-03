@@ -32,6 +32,8 @@
     .hero-compra { position: relative; margin-top: clamp(-90px, -6vw, -40px); z-index: 2; text-align: center; padding: 0 5vw 8px; }
     .precio-grande { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 900; margin-bottom: 14px; text-shadow: 0 2px 24px rgba(0,0,0,0.35); }
     .precio-grande small { font-size: 0.5em; font-weight: 700; color: var(--muted); }
+    .precio-grande .tachado { font-size: 0.62em; font-weight: 800; color: var(--muted); text-decoration: line-through; margin-right: 12px; }
+    .promo-pill { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta-texto); background: var(--acento); border-radius: 999px; padding: 6px 14px; margin-bottom: 10px; }
     .cta { display: inline-block; background: var(--acento); color: var(--cta-texto); border: none; padding: 18px 52px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; letter-spacing: 0.03em; transition: transform .15s ease, filter .2s; box-shadow: 0 12px 34px color-mix(in srgb, var(--acento) 40%, transparent); }
     .cta:hover { filter: brightness(1.12); transform: translateY(-2px); }
     .micro { margin-top: 12px; color: var(--muted); font-size: 0.82rem; }
@@ -130,6 +132,7 @@
     <div class="hero-fade"></div>
   </header>
   <div class="hero-compra">
+    <span class="promo-pill oculto" id="pPromoPill">Precio de lanzamiento</span>
     <div class="precio-grande" id="pPrecio"></div>
     <button class="cta" id="pCtaTop">COMPRAR AHORA</button>
     <p class="micro">Acceso inmediato en tu cuenta · Pago seguro con Wompi · Tuyo para siempre</p>
@@ -572,7 +575,7 @@
     }
 
     async function init() {
-      const { data: productos } = await sb.from('products').select('id, nombre, precio_usd_centavos, activo, tipo');
+      const { data: productos } = await sb.from('products').select('*');
       const producto = (productos ?? []).find(p => p.id === productId);
       if (!producto) { document.body.innerHTML = '<p style="padding:60px; text-align:center;">Este producto no está disponible. <a href="app.html" style="text-decoration:underline;">Volver a IA MASIVA</a></p>'; return; }
       const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
@@ -595,8 +598,15 @@
         hc.insertAdjacentHTML('afterbegin', `<h2 style="margin-bottom:14px;">${cfg.corto}</h2>`);
       }
 
-      $('pPrecio').innerHTML = usd(producto.precio_usd_centavos);
-      $('pPrecioFinal').innerHTML = usd(producto.precio_usd_centavos);
+      // Promoción activa: ancla tachada + precio de compra (se apaga vaciando el campo en la base)
+      const promo = producto.precio_promo_usd_centavos ?? null;
+      const efectivo = promo ?? producto.precio_usd_centavos;
+      const htmlPrecio = promo
+        ? `<span class="tachado">$${producto.precio_usd_centavos / 100} USD</span>${usd(promo)}`
+        : usd(producto.precio_usd_centavos);
+      $('pPrecio').innerHTML = htmlPrecio;
+      $('pPrecioFinal').innerHTML = htmlPrecio;
+      if (promo) $('pPromoPill').classList.remove('oculto');
       $('pTituloFinal').textContent = cfg.corto;
 
       $('pDolorIntro').textContent = cfg.dolor.intro;
@@ -661,12 +671,13 @@
       if (esBundle) {
         $('pSecBundle').classList.remove('oculto');
         const individuales = (productos ?? []).filter(p => LANDINGS[p.id]);
-        const suma = individuales.reduce((a, p) => a + p.precio_usd_centavos, 0);
+        const efectivoDe = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
+        const suma = individuales.reduce((a, p) => a + efectivoDe(p), 0);
         $('pBundleItems').innerHTML = individuales.map(p =>
-          `<div class="bundle-item"><b>${LANDINGS[p.id].corto}</b><span class="p-ind">Individual: $${p.precio_usd_centavos / 100} USD</span></div>`).join('');
+          `<div class="bundle-item"><b>${LANDINGS[p.id].corto}</b><span class="p-ind">Individual: $${efectivoDe(p) / 100} USD</span></div>`).join('');
         $('pSumaIndividual').textContent = `$${suma / 100} USD`;
-        $('pPrecioBundle').textContent = `$${producto.precio_usd_centavos / 100} USD`;
-        $('pAhorro').textContent = `Ahorras $${(suma - producto.precio_usd_centavos) / 100} USD.`;
+        $('pPrecioBundle').textContent = `$${efectivo / 100} USD`;
+        $('pAhorro').textContent = `Ahorras $${(suma - efectivo) / 100} USD.`;
       }
 
       // Si ya lo tiene, los CTA cambian a "Ir al recurso"

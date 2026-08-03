@@ -33,6 +33,7 @@
     .resumen { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px; }
     .resumen .nombre { font-weight: 700; font-size: 0.98rem; }
     .resumen .precio { font-size: 1.5rem; font-weight: 900; white-space: nowrap; }
+    .resumen .precio .tachado { font-size: 0.95rem; font-weight: 700; color: #8fa0b5; text-decoration: line-through; margin-right: 8px; }
     .cop { color: #9aacbf; font-size: 0.85rem; text-align: right; margin-bottom: 22px; }
     .nota-bundle { color: #9aacbf; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.5; }
     .consent { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; margin-bottom: 20px; cursor: pointer; }
@@ -121,7 +122,7 @@
       }
 
       const { data: producto } = await sb.from('products')
-        .select('id, nombre, precio_usd_centavos, tipo').eq('id', productId).maybeSingle();
+        .select('*').eq('id', productId).maybeSingle();
       if (!producto) { location.href = 'app.html'; return; }
 
       const { data: compra } = await sb.from('purchases').select('id')
@@ -133,12 +134,16 @@
       }
 
       $('prodNombre').textContent = producto.nombre;
-      $('prodPrecio').textContent = '$' + (producto.precio_usd_centavos / 100) + ' USD';
+      const promo = producto.precio_promo_usd_centavos ?? null;
+      const efectivo = promo ?? producto.precio_usd_centavos;
+      $('prodPrecio').innerHTML = promo
+        ? `<span class="tachado">$${producto.precio_usd_centavos / 100}</span>$${promo / 100} USD`
+        : '$' + (producto.precio_usd_centavos / 100) + ' USD';
       try {
         const r = await fetch('https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=1');
         const [fila] = await r.json();
         const trm = Number(fila?.valor);
-        if (trm) $('prodCop').textContent = `Se cobra en pesos: ≈ ${Math.round(producto.precio_usd_centavos * trm / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`;
+        if (trm) $('prodCop').textContent = `Se cobra en pesos: ≈ ${Math.round(efectivo * trm / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`;
       } catch (_) {}
 
       // Bundle: avisar si ya posee alguno de los componentes

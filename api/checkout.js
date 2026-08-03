@@ -41,8 +41,10 @@ export default async function handler(req, res) {
     if (previa) return res.status(409).json({ error: 'Ya tienes este producto' });
 
     const trm = await trmDelDia();
+    // Si hay promoción activa se cobra el precio promocional; si no, el regular.
+    const precioEfectivo = product.precio_promo_usd_centavos ?? product.precio_usd_centavos;
     // centavos USD × TRM = centavos COP. Cobro exacto al centavo.
-    const amountInCents = Math.round(product.precio_usd_centavos * trm);
+    const amountInCents = Math.round(precioEfectivo * trm);
     const currency = 'COP';
     const reference = `${productId}__${user.id}__${Date.now()}`;
 
@@ -61,7 +63,7 @@ export default async function handler(req, res) {
       referencia: reference,
       monto_centavos: amountInCents,
       moneda: currency,
-      monto_usd_centavos: product.precio_usd_centavos,
+      monto_usd_centavos: precioEfectivo,
       trm_aplicada: trm,
       consintio_acceso: new Date().toISOString(),
     });
