@@ -90,6 +90,24 @@
     .app-card:nth-child(8)  { background: linear-gradient(160deg, #050b26 0%, #0b1a50 100%); }
     .app-card:nth-child(9)  { background: linear-gradient(160deg, #060e2c 0%, #101d5c 100%); }
     .app-card:nth-child(10) { background: linear-gradient(160deg, #060c28 0%, #0e1c5a 100%); }
+    .ficha-overlay { position: fixed; inset: 0; z-index: 210; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.75); backdrop-filter: blur(6px); padding: 20px; }
+    .ficha-overlay.active { display: flex; }
+    .ficha-caja { position: relative; display: flex; gap: 24px; align-items: stretch; width: min(760px, 100%); background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
+    .ficha-portada { flex: 0 0 44%; display: flex; }
+    .ficha-portada img { width: 100%; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
+    .ficha-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ficha-info h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; padding-right: 26px; }
+    .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; overflow-y: auto; max-height: 260px; }
+    .ficha-ver { margin-top: auto; align-self: flex-start; background: var(--blue-elec); color: #fff; border: none; border-radius: 8px; padding: 13px 34px; font-weight: 800; font-size: 0.95rem; margin-top: 18px; }
+    .ficha-ver:hover { background: #4d7fff; }
+    .ficha-cerrar { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; }
+    @media (max-width: 560px) {
+      .ficha-caja { gap: 14px; padding: 16px; }
+      .ficha-portada { flex-basis: 40%; }
+      .ficha-info h3 { font-size: 1rem; }
+      .ficha-info p { font-size: 0.8rem; max-height: 180px; }
+      .ficha-ver { padding: 11px 22px; font-size: 0.85rem; }
+    }
     .app-card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .app-card::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.2) 0%, transparent 65%), linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%); }
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
@@ -297,6 +315,19 @@
   </div>
 
   <!-- ═══ GUIDE VIEWER ════════════════════════════════════════ -->
+  <!-- Popup de guía gratuita: portada + descripción + Ver Recurso -->
+  <div class="ficha-overlay" id="fichaOverlay">
+    <div class="ficha-caja">
+      <button class="ficha-cerrar" id="fichaCerrar" aria-label="Cerrar">✕</button>
+      <div class="ficha-portada"><img id="fichaPortada" src="" alt=""></div>
+      <div class="ficha-info">
+        <h3 id="fichaTitulo"></h3>
+        <p id="fichaDesc"></p>
+        <button class="ficha-ver" id="fichaVer">Ver Recurso</button>
+      </div>
+    </div>
+  </div>
+
   <div class="guide-overlay" id="guideOverlay">
     <div class="guide-topbar">
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
@@ -586,6 +617,8 @@
       if (productoApp) { window.location.href = PAGINAS_PRODUCTO[productoApp.id]; return; }
       const g = allGuides.find(g => g.id === id);
       if (!g?.contenido_url) return;
+      // Guía gratuita: primero la ficha (portada + descripción + Ver Recurso)
+      if (!g.es_premium) { abrirFicha(g); return; }
       try {
         let contentUrl = g.contenido_url;
         if (g.es_premium) {
@@ -599,6 +632,43 @@
           contentUrl = body.url;
         }
         const res  = await fetch(contentUrl);
+        const html = await res.text();
+        document.getElementById('guideViewerTitle').textContent = g.titulo;
+        document.getElementById('guideFrame').srcdoc = html;
+        document.getElementById('guideOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      } catch(e) {
+        alert('No se pudo cargar la guía. Intenta de nuevo.');
+      }
+    }
+
+    // ── Ficha de guía gratuita ──
+    let fichaGuiaId = null;
+    function abrirFicha(g) {
+      fichaGuiaId = g.id;
+      document.getElementById('fichaPortada').src = g.portada_url || '';
+      document.getElementById('fichaPortada').alt = g.titulo;
+      document.getElementById('fichaTitulo').textContent = g.titulo;
+      document.getElementById('fichaDesc').textContent = g.descripcion || '';
+      document.getElementById('fichaOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function cerrarFicha() {
+      document.getElementById('fichaOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('fichaCerrar').addEventListener('click', cerrarFicha);
+    document.getElementById('fichaOverlay').addEventListener('click', (e) => { if (e.target.id === 'fichaOverlay') cerrarFicha(); });
+    document.getElementById('fichaVer').addEventListener('click', async () => {
+      cerrarFicha();
+      await abrirVisorGuia(fichaGuiaId);
+    });
+
+    async function abrirVisorGuia(id) {
+      const g = allGuides.find(g => g.id === id);
+      if (!g?.contenido_url) return;
+      try {
+        const res  = await fetch(g.contenido_url);
         const html = await res.text();
         document.getElementById('guideViewerTitle').textContent = g.titulo;
         document.getElementById('guideFrame').srcdoc = html;
