@@ -109,13 +109,20 @@ MIS_JS = r'''
   function renderMis() {
     pintarBotonPanel();
     if ($('im-mis').hidden) return;
+    // Sin diseños guardados: solo el mensaje, nada de chips ni contador
+    if (!misDisenos.length) {
+      $('imMisChips').innerHTML = '';
+      $('imMisCount').textContent = '';
+      $('imMisGrid').innerHTML = `<div class="empty">${escapeHtml(t('imVacio'))}</div>`;
+      return;
+    }
     const cats = catsPlanas();
     if (catActiva !== 'ALL' && !cats.includes(catActiva)) catActiva = 'ALL';
     $('imMisChips').innerHTML = ['ALL', ...cats].map(c =>
       `<button class="filter ${c === catActiva ? 'active' : ''}" type="button" data-imchip="${escapeHtml(c)}">${escapeHtml(c === 'ALL' ? t('imTodas') : c)}</button>`).join('');
     const visibles = misDisenos.filter(d => catActiva === 'ALL' || d.categoria === catActiva);
     $('imMisCount').textContent = `${visibles.length} ${visibles.length === 1 ? t('imDisenoUno') : t('imDisenoMuchos')}`;
-    $('imMisGrid').innerHTML = visibles.length ? visibles.map(cardMis).join('') : `<div class="empty">${escapeHtml(t('imVacio'))}</div>`;
+    $('imMisGrid').innerHTML = visibles.map(cardMis).join('');
   }
 
   function setVistaMis(v) {
@@ -287,7 +294,7 @@ MIS_JS = r'''
     if (menuMis && !e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn')) { menuMis = null; renderMis(); }
   });
 
-  $('imMisBtn').addEventListener('click', () => setVistaMis(true));
+  $('imMisBtn').addEventListener('click', () => setVistaMis($('im-mis').hidden));
   $('imMisVolver').addEventListener('click', () => setVistaMis(false));
 
   // El cambio de idioma también refresca lo nuestro
@@ -319,6 +326,7 @@ rep('<title>Presenta - Biblioteca de estilos para NotebookLM</title>',
 
 rep('    @media (max-width: 620px) {',
 '''    .im-oculto { display: none !important; }
+    [hidden] { display: none !important; }
     .im-gate { position: fixed; inset: 0; z-index: 9999; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 14px; }
     .im-gate h1 { font-size: 1.5rem; color: var(--ink); margin: 0; letter-spacing: -.02em; }
     .im-gate p { color: var(--muted); max-width: 480px; line-height: 1.6; margin: 0; }
