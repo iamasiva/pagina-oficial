@@ -28,6 +28,14 @@
     .app-nav-collapse { display: flex; margin-left: auto; }
     .app-nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
     .app-nav-name { font-size: 0.85rem; color: var(--gray); }
+    .user-box { position: relative; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: transparent; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); padding: 8px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+    .user-chip:hover { background: rgba(47,107,255,0.15); color: var(--white); }
+    .user-caret { font-size: 0.7rem; }
+    .user-menu { display: none; position: absolute; top: calc(100% + 8px); right: 0; z-index: 120; min-width: 180px; background: rgba(5,15,58,0.98); border: 1px solid rgba(47,107,255,0.25); border-radius: 10px; padding: 6px; box-shadow: 0 16px 40px rgba(0,0,0,0.55); }
+    .user-menu.open { display: block; }
+    .user-menu button { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--gray); padding: 10px 12px; border-radius: 7px; font-size: 0.86rem; font-weight: 600; }
+    .user-menu button:hover { background: rgba(47,107,255,0.18); color: var(--white); }
     .hamburger-btn { display: none; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--white); width: 38px; height: 38px; border-radius: 6px; font-size: 1.2rem; align-items: center; justify-content: center; flex-shrink: 0; margin-left: auto; }
     .hamburger-btn:hover { background: rgba(47,107,255,0.15); border-color: var(--blue-elec); }
     .btn-nav { background: transparent; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); padding: 8px 18px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
@@ -212,6 +220,12 @@
       .app-nav-collapse.open { display: flex; }
       .app-nav-right { flex-direction: column; align-items: stretch; gap: 10px; }
       .app-nav-name { text-align: center; }
+      /* En la hamburguesa: nombre como encabezado y el menú siempre desplegado */
+      .user-chip { width: 100%; justify-content: center; pointer-events: none; border: none; color: var(--white); font-weight: 700; }
+      .user-caret { display: none; }
+      .user-menu { display: block; position: static; min-width: 0; background: none; border: none; box-shadow: none; padding: 0; margin-top: 4px; }
+      .user-menu button { text-align: center; border: 1px solid rgba(47,107,255,0.3); margin-bottom: 8px; }
+      .user-menu button:last-child { margin-bottom: 0; }
     }
 
     @media (max-width: 720px) {
@@ -243,8 +257,6 @@
       <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
       <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
       <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
-      <button class="filter-btn"        id="filterFavoritos" onclick="setFilter('favoritos')">❤ Favoritos</button>
-      <button class="filter-btn"        id="filterCompras" onclick="setFilter('compras')">Mis compras</button>
       <div class="cat-dropdown">
         <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
         <div class="cat-menu" id="catMenu"></div>
@@ -254,8 +266,18 @@
     <div class="app-nav-collapse" id="navCollapse">
       <div class="app-nav-right">
         <button class="btn-nav-primary hidden" id="btnNewGuide">+ Nueva guía</button>
-        <span class="app-nav-name" id="appNavName"></span>
-        <button class="btn-nav" id="appLogout">Salir</button>
+        <div class="user-box" id="userBox">
+          <button class="user-chip" id="userChip" onclick="toggleUserMenu(event)">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"></path></svg>
+            <span id="appNavName"></span>
+            <span class="user-caret">▾</span>
+          </button>
+          <div class="user-menu" id="userMenu">
+            <button onclick="abrirPanelUsuario('favoritos')">❤ Favoritos</button>
+            <button onclick="abrirPanelUsuario('compras')">Mis compras</button>
+            <button id="appLogout">Salir</button>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -546,6 +568,23 @@
     });
     document.getElementById('appLogout').addEventListener('click', () => sb.auth.signOut());
 
+    // ── MENÚ DE USUARIO ───────────────────────────────────────
+    function toggleUserMenu(e) {
+      if (e) e.stopPropagation();
+      document.getElementById('userMenu').classList.toggle('open');
+    }
+    window.toggleUserMenu = toggleUserMenu;
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.user-box')) document.getElementById('userMenu').classList.remove('open');
+    });
+    function abrirPanelUsuario(tipo) {
+      document.getElementById('userMenu').classList.remove('open');
+      document.getElementById('navCollapse').classList.remove('open');
+      setFilter(tipo);
+      document.getElementById('filteredSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    window.abrirPanelUsuario = abrirPanelUsuario;
+
     // ── NAVBAR SCROLL ─────────────────────────────────────────
     window.addEventListener('scroll', () => {
       document.getElementById('appNav').classList.toggle('scrolled', window.scrollY > 20);
@@ -558,7 +597,7 @@
 
     // ── FILTERS ───────────────────────────────────────────────
     function setFilter(type, cat = null) {
-      ['filterAll','filterGratis','filterPremium','filterFavoritos','filterCompras','filterCatBtn'].forEach(id =>
+      ['filterAll','filterGratis','filterPremium','filterCatBtn'].forEach(id =>
         document.getElementById(id).classList.remove('active')
       );
       document.querySelectorAll('.cat-menu-item').forEach(el => el.classList.remove('active'));
@@ -573,8 +612,6 @@
 
       if (type === 'gratis')  document.getElementById('filterGratis').classList.add('active');
       if (type === 'premium') document.getElementById('filterPremium').classList.add('active');
-      if (type === 'favoritos') document.getElementById('filterFavoritos').classList.add('active');
-      if (type === 'compras')   document.getElementById('filterCompras').classList.add('active');
       if (type === 'cat')     { document.getElementById('filterCatBtn').classList.add('active'); }
 
       let filtered = [];
@@ -661,7 +698,8 @@
       }
       renderAll();
       // Si está viendo el panel de favoritos, refrescarlo también
-      if (document.getElementById('filterFavoritos').classList.contains('active')) setFilter('favoritos');
+      if (document.getElementById('filteredTitle').textContent === 'Tus favoritos' &&
+          document.getElementById('filteredSection').classList.contains('active')) setFilter('favoritos');
     }
     window.toggleFavorito = toggleFavorito;
 
