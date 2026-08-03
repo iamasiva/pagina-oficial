@@ -45,10 +45,16 @@
     /* Tarjeta clara de dolor (contraste con el fondo del producto) */
     .dolor-card { background: var(--card-claro-fondo); color: var(--card-claro-ink); border-radius: 18px; padding: 34px clamp(20px, 4vw, 44px); max-width: 640px; margin: 0 auto; }
     .dolor-card p.intro { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; }
-    .dolor-card ul { list-style: none; margin-bottom: 22px; }
-    .dolor-card li { padding-left: 30px; position: relative; margin-bottom: 12px; color: var(--card-claro-muted); }
-    .dolor-card li::before { content: '✕'; position: absolute; left: 0; color: #d64545; font-weight: 900; }
+    .dolor-card .pregunta { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
+    .dolor-card .pregunta:last-of-type { border-bottom: none; }
+    .dolor-card .q-texto { color: var(--card-claro-muted); font-size: 0.95rem; }
+    .dolor-card .q-botones { display: flex; gap: 8px; flex-shrink: 0; }
+    .dolor-card .q-botones button { border: 2px solid var(--acento); background: transparent; color: inherit; padding: 7px 18px; border-radius: 999px; font-weight: 800; font-size: 0.85rem; transition: all .15s ease; }
+    .dolor-card .q-botones button:hover { transform: translateY(-1px); }
+    .dolor-card .q-botones button.elegida { background: var(--acento); color: #fff; }
     .dolor-card p.giro { font-size: 1.15rem; font-weight: 800; }
+    .giro-interactivo { opacity: 0; max-height: 0; overflow: hidden; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease, max-height .6s ease, margin-top .6s ease; margin-top: 0; }
+    .giro-interactivo.visible { opacity: 1; max-height: 220px; transform: none; margin-top: 22px; }
     .dolor-card p.giro span { color: var(--acento); }
 
     .claim { text-align: center; max-width: 760px; margin: 0 auto; }
@@ -133,8 +139,8 @@
     <div class="contenido">
       <div class="dolor-card">
         <p class="intro" id="pDolorIntro"></p>
-        <ul id="pDolorLista"></ul>
-        <p class="giro" id="pDolorGiro"></p>
+        <div id="pDolorLista"></div>
+        <p class="giro giro-interactivo" id="pDolorGiro"></p>
       </div>
     </div>
   </section>
@@ -277,7 +283,7 @@
         tema: { fondo: '#0a0918', panel: 'rgba(124,92,255,0.08)', borde: 'rgba(124,92,255,0.28)', ink: '#f2f0ff', muted: '#a9a3c8', acento: '#7c5cff', ctaTexto: '#ffffff', cardClaroFondo: '#f1eefc', cardClaroInk: '#241b4d', cardClaroMuted: '#5a5380' },
         hero: { desktop: PORTADAS + '1784777774571_3cn14345gtd.png', mobile: PORTADAS + '1784777777156_tq9fk5uocs.png' },
         dolor: {
-          intro: 'Cuando usas Inteligencia Artificial:',
+          intro: 'Antes de empezar, responde estas preguntas:',
           lista: [
             '¿Sientes que en vez de ahorrar tiempo, usando la IA te estás demorando más?',
             '¿Vives corrigiéndola porque entrega cosas irrelevantes o inventadas?',
@@ -349,7 +355,7 @@
         tema: { fondo: '#f3f2fa', panel: '#ffffff', borde: '#ddd9ec', ink: '#141b4d', muted: '#5a6080', acento: '#4a5fe0', ctaTexto: '#ffffff', cardClaroFondo: '#141b4d', cardClaroInk: '#ffffff', cardClaroMuted: '#c9cdea' },
         hero: { desktop: PORTADAS + '1784777862525_kisjuq2kohg.png', mobile: PORTADAS + '1784777866952_4wthkjfkmk.png' },
         dolor: {
-          intro: 'Cuando usas Gemini:',
+          intro: 'Antes de empezar, responde estas preguntas:',
           lista: [
             '¿Cada chat con Gemini empieza desde cero, explicándole todo otra vez?',
             '¿Resultados distintos cada día, según cómo te salió el prompt?',
@@ -421,7 +427,7 @@
         tema: { fondo: '#0b0a08', panel: 'rgba(255,140,26,0.07)', borde: 'rgba(255,140,26,0.25)', ink: '#f7f1e3', muted: '#b3a892', acento: '#ff8c1a', ctaTexto: '#1a1204', cardClaroFondo: '#f7f1e3', cardClaroInk: '#241c0e', cardClaroMuted: '#6b6046' },
         hero: { desktop: PORTADAS + '1784777735372_zhhecvw9x99.png', mobile: PORTADAS + '1784778585157_ez16ae7xt5k.png' },
         dolor: {
-          intro: 'Cuando haces presentaciones:',
+          intro: 'Antes de empezar, responde estas preguntas:',
           lista: [
             '¿Tus presentaciones se ven a plantilla gratuita desde lejos?',
             '¿Horas moviendo cajitas en vez de preparar lo que vas a decir?',
@@ -492,7 +498,7 @@
         tema: { fondo: '#050F3A', panel: 'rgba(47,107,255,0.1)', borde: 'rgba(47,107,255,0.3)', ink: '#ffffff', muted: '#9aacbf', acento: '#2F6BFF', ctaTexto: '#ffffff', cardClaroFondo: '#f5f6fa', cardClaroInk: '#1c2333', cardClaroMuted: '#4b5568' },
         hero: null,
         dolor: {
-          intro: 'Cuando trabajas con Inteligencia Artificial:',
+          intro: 'Antes de empezar, responde estas preguntas:',
           lista: [
             '¿Cuadernos que responden como asistente genérico y chats que empiezan de cero?',
             '¿Trabajos regados por toda la IA, sin orden ni forma de encontrarlos?',
@@ -594,8 +600,25 @@
       $('pTituloFinal').textContent = cfg.corto;
 
       $('pDolorIntro').textContent = cfg.dolor.intro;
-      $('pDolorLista').innerHTML = cfg.dolor.lista.map(x => `<li>${x}</li>`).join('');
+      $('pDolorLista').innerHTML = cfg.dolor.lista.map((q, i) => `
+        <div class="pregunta">
+          <span class="q-texto">${q}</span>
+          <span class="q-botones">
+            <button type="button" data-q="${i}" data-r="si">Sí</button>
+            <button type="button" data-q="${i}" data-r="no">No</button>
+          </span>
+        </div>`).join('');
       $('pDolorGiro').innerHTML = cfg.dolor.giro;
+      // El mensaje aparece solo cuando responde la última pregunta
+      const respondidas = new Set();
+      $('pDolorLista').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-q]');
+        if (!b) return;
+        b.closest('.pregunta').querySelectorAll('button').forEach(x => x.classList.remove('elegida'));
+        b.classList.add('elegida');
+        respondidas.add(b.dataset.q);
+        if (respondidas.size === cfg.dolor.lista.length) $('pDolorGiro').classList.add('visible');
+      });
 
       $('pEscEyebrow').textContent = cfg.ejemplos.eyebrow;
       $('pEscTitulo').textContent = cfg.ejemplos.titulo;
