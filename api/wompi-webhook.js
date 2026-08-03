@@ -3,7 +3,7 @@
 // eventos antes de confiar en nada. Solo el servidor escribe estados de
 // compra — el navegador jamás toca esta tabla.
 import crypto from 'node:crypto';
-import { adminClient } from './_lib.js';
+import { adminClient, BUNDLE } from './_lib.js';
 
 // Resuelve rutas tipo "transaction.id" dentro del objeto data del evento.
 function valorPorRuta(obj, ruta) {
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       const db = adminClient();
       const { data: compra } = await db
         .from('purchases')
-        .select('id, estado')
+        .select('id, estado, user_id, product_id, consintio_acceso')
         .eq('referencia', tx.reference)
         .maybeSingle();
 
@@ -57,6 +57,29 @@ export default async function handler(req, res) {
           await db.from('purchases')
             .update({ estado: 'ERROR', gateway_transaction_id: tx.id })
             .eq('id', compra.id);
+        } else if (estado === 'APROBADA' && compra.product_id === BUNDLE.productId) {
+          // El bundle desbloquea sus tres componentes: una compra APROBADA por
+          // cada uno (monto 0, gateway 'bundle'). Si el usuario ya tenía alguno,
+          // ese componente se salta — el índice único lo protege igual.
+          for (const [i, componente] of BUNDLE.componentes.entries()) {
+            const { data: ya } = await db.from('purchases').select('id')
+              .eq('user_id', compra.user_id).eq('product_id', componente)
+              .eq('estado', 'APROBADA').maybeSingle();
+            if (ya) continue;
+            await db.from('purchases').insert({
+              user_id: compra.user_id,
+              product_id: componente,
+              estado: 'APROBADA',
+              gateway: 'bundle',
+              referencia: `${tx.reference}__c${i + 1}`,
+              monto_centavos: 0,
+              moneda: 'COP',
+              monto_usd_centavos: 0,
+              purchased_at: new Date().toISOString(),
+              gateway_transaction_id: tx.id,
+              consintio_acceso: compra.consintio_acceso,
+            });
+          }
         }
       }
     }

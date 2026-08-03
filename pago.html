@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Pago seguro — IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-deep: #0B1E6D; --blue-elec: #2F6BFF; --blue-dark: #050F3A;
+      --black: #050505; --white: #FFFFFF; --gray: #D1D5DB; --green: #00FF9C; --red: #ff6b6b;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%);
+      color: var(--white); min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px;
+    }
+    a { color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+    .oculto { display: none !important; }
+    .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.1em; margin: 16px 0 34px; }
+    .caja {
+      background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.25);
+      border-radius: 16px; padding: 34px 30px; max-width: 500px; width: 100%;
+      backdrop-filter: blur(10px);
+    }
+    .paso-titulo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #8fa0b5; margin-bottom: 8px; }
+    h1 { font-size: 1.3rem; font-weight: 800; margin-bottom: 22px; }
+    .resumen { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px; }
+    .resumen .nombre { font-weight: 700; font-size: 0.98rem; }
+    .resumen .precio { font-size: 1.5rem; font-weight: 900; white-space: nowrap; }
+    .cop { color: #9aacbf; font-size: 0.85rem; text-align: right; margin-bottom: 22px; }
+    .nota-bundle { color: #9aacbf; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.5; }
+    .consent { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; margin-bottom: 20px; cursor: pointer; }
+    .consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--blue-elec); cursor: pointer; flex-shrink: 0; }
+    .consent span { font-size: 0.85rem; color: #c3cede; line-height: 1.55; }
+    .consent a { text-decoration: underline; }
+    .btn {
+      width: 100%; background: var(--blue-elec); color: var(--white); border: none;
+      padding: 16px; border-radius: 10px; font-size: 1.02rem; font-weight: 800;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .btn:hover { background: #4d7fff; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sec { display: block; text-align: center; margin-top: 14px; color: #9aacbf; font-size: 0.85rem; text-decoration: underline; }
+    .msj { margin-top: 14px; font-size: 0.88rem; color: var(--red); text-align: center; }
+    .seguro { margin-top: 18px; text-align: center; color: #8fa0b5; font-size: 0.78rem; }
+    .estado { text-align: center; padding: 20px 0; color: #c3cede; }
+  </style>
+</head>
+<body>
+  <div class="logo">IA MASIVA</div>
+
+  <div class="caja">
+    <div id="cargando" class="estado">Cargando…</div>
+
+    <div id="sinSesion" class="oculto">
+      <p class="paso-titulo">Un paso antes</p>
+      <h1>Inicia sesión para comprar</h1>
+      <p style="color:#c3cede; font-size:0.9rem; margin-bottom:22px;">El recurso queda habilitado en tu cuenta de IA MASIVA — por eso necesitas entrar (o crearla, tarda un minuto).</p>
+      <button class="btn" id="btnIrLogin">Iniciar sesión</button>
+    </div>
+
+    <div id="yaComprado" class="oculto">
+      <p class="paso-titulo">Ya es tuyo</p>
+      <h1>Este recurso ya está en tu cuenta</h1>
+      <button class="btn" id="btnIrRecurso">Ir al recurso</button>
+    </div>
+
+    <div id="checkout" class="oculto">
+      <p class="paso-titulo">Pago seguro</p>
+      <h1>Confirma tu compra</h1>
+      <div class="resumen">
+        <span class="nombre" id="prodNombre"></span>
+        <span class="precio" id="prodPrecio"></span>
+      </div>
+      <p class="cop" id="prodCop"></p>
+      <p class="nota-bundle oculto" id="notaBundle"></p>
+      <label class="consent">
+        <input type="checkbox" id="chkConsent" />
+        <span>Solicito el <b>acceso inmediato</b> al recurso digital y entiendo que, una vez habilitado en mi cuenta, <b>no aplica el derecho de retracto ni desistimiento</b> (Ley 1480 de 2011, art. 47; Directiva UE 2011/83, art. 16.m). Conservo la garantía por fallas técnicas. Acepto los <a href="terminos.html" target="_blank" rel="noopener">términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.</span>
+      </label>
+      <button class="btn" id="btnPagar" disabled>Pagar con Wompi</button>
+      <a class="btn-sec" id="linkVolver" href="#">← Volver al producto</a>
+      <p class="msj oculto" id="msjError"></p>
+      <p class="seguro">🔒 Procesado por Wompi (Bancolombia). Tarjetas, PSE y Nequi. Nunca vemos los datos de tu tarjeta.</p>
+    </div>
+  </div>
+
+  <script>
+    const sb = supabase.createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+    const PAGINAS = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
+    };
+    const $ = (id) => document.getElementById(id);
+    const productId = new URLSearchParams(location.search).get('p');
+
+    function mostrar(id) {
+      for (const s of ['cargando', 'sinSesion', 'yaComprado', 'checkout']) $(s).classList.add('oculto');
+      $(id).classList.remove('oculto');
+    }
+
+    async function init() {
+      if (!productId) { location.href = 'app.html'; return; }
+      $('linkVolver').href = `producto.html?p=${productId}`;
+
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        mostrar('sinSesion');
+        $('btnIrLogin').addEventListener('click', () => { location.href = 'index.html'; });
+        return;
+      }
+
+      const { data: producto } = await sb.from('products')
+        .select('id, nombre, precio_usd_centavos, tipo').eq('id', productId).maybeSingle();
+      if (!producto) { location.href = 'app.html'; return; }
+
+      const { data: compra } = await sb.from('purchases').select('id')
+        .eq('product_id', productId).eq('estado', 'APROBADA').maybeSingle();
+      if (compra) {
+        mostrar('yaComprado');
+        $('btnIrRecurso').addEventListener('click', () => { location.href = PAGINAS[productId] || 'app.html'; });
+        return;
+      }
+
+      $('prodNombre').textContent = producto.nombre;
+      $('prodPrecio').textContent = '$' + (producto.precio_usd_centavos / 100) + ' USD';
+      try {
+        const r = await fetch('https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=1');
+        const [fila] = await r.json();
+        const trm = Number(fila?.valor);
+        if (trm) $('prodCop').textContent = `Se cobra en pesos: ≈ ${Math.round(producto.precio_usd_centavos * trm / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`;
+      } catch (_) {}
+
+      // Bundle: avisar si ya posee alguno de los componentes
+      const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
+      if (esBundle) {
+        const { data: previas } = await sb.from('purchases').select('product_id')
+          .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
+        if (previas?.length) {
+          $('notaBundle').textContent = `Ojo: ya tienes ${previas.length} de los 3 recursos — el bundle no descuenta lo ya comprado.`;
+          $('notaBundle').classList.remove('oculto');
+        }
+      }
+
+      $('chkConsent').addEventListener('change', () => { $('btnPagar').disabled = !$('chkConsent').checked; });
+
+      $('btnPagar').addEventListener('click', async () => {
+        $('btnPagar').disabled = true;
+        $('msjError').classList.add('oculto');
+        try {
+          const res = await fetch(`/api/checkout?product=${productId}&consent=1`, {
+            headers: { Authorization: `Bearer ${session.access_token}` }
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error || 'No se pudo iniciar el pago');
+          sessionStorage.setItem('compra_ref', body.reference);
+          location.href = body.url;
+        } catch (e) {
+          $('msjError').textContent = e.message;
+          $('msjError').classList.remove('oculto');
+          $('btnPagar').disabled = !$('chkConsent').checked;
+        }
+      });
+
+      mostrar('checkout');
+    }
+
+    init();
+  </script>
+</body>
+</html>

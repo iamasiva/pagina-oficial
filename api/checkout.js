@@ -16,6 +16,12 @@ export default async function handler(req, res) {
     const productId = req.query.product;
     if (!productId) return res.status(400).json({ error: 'Falta el producto' });
 
+    // Consentimiento expreso de acceso inmediato (renuncia al retracto:
+    // Ley 1480 art. 47 exc. 1 / Directiva UE 2011/83 art. 16.m). Sin él no hay venta.
+    if (req.query.consent !== '1') {
+      return res.status(400).json({ error: 'Debes aceptar el acceso inmediato para continuar' });
+    }
+
     const db = adminClient();
     const { data: product } = await db
       .from('products')
@@ -57,6 +63,7 @@ export default async function handler(req, res) {
       moneda: currency,
       monto_usd_centavos: product.precio_usd_centavos,
       trm_aplicada: trm,
+      consintio_acceso: new Date().toISOString(),
     });
     if (insertError) throw new Error(insertError.message);
 

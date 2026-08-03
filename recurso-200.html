@@ -968,18 +968,9 @@ setUiLanguage(savedLanguage);
     const PRODUCT_ID = '2c296299-d9a4-4409-bc99-67b4999e47f8';
     const PREVIEWS_BASE = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/previews-200/';
 
-    document.getElementById('imBtnComprar').addEventListener('click', async () => {
-      const msj = document.getElementById('imMsjCompra');
-      try {
-        const { data: { session } } = await sb.auth.getSession();
-        const res = await fetch(`/api/checkout?product=${PRODUCT_ID}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` }
-        });
-        const body = await res.json();
-        if (!res.ok) { msj.textContent = body.error || 'Muy pronto disponible.'; msj.classList.remove('im-oculto'); return; }
-        sessionStorage.setItem('compra_ref', body.reference);
-        window.location.href = body.url;
-      } catch { msj.textContent = 'Muy pronto disponible.'; msj.classList.remove('im-oculto'); }
+    // La compra pasa por la landing de venta (ahí están los CTAs y el checkout con consentimiento)
+    document.getElementById('imBtnComprar').addEventListener('click', () => {
+      window.location.href = `producto.html?p=${PRODUCT_ID}`;
     });
 
     const { data: { session } } = await sb.auth.getSession();

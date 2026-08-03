@@ -450,18 +450,9 @@ bootstrap = '''  <script>
     const PRODUCT_ID = '__PRODUCT_ID__';
     const PREVIEWS_BASE = '__PREVIEWS_BASE__';
 
-    document.getElementById('imBtnComprar').addEventListener('click', async () => {
-      const msj = document.getElementById('imMsjCompra');
-      try {
-        const { data: { session } } = await sb.auth.getSession();
-        const res = await fetch(`/api/checkout?product=${PRODUCT_ID}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` }
-        });
-        const body = await res.json();
-        if (!res.ok) { msj.textContent = body.error || 'Muy pronto disponible.'; msj.classList.remove('im-oculto'); return; }
-        sessionStorage.setItem('compra_ref', body.reference);
-        window.location.href = body.url;
-      } catch { msj.textContent = 'Muy pronto disponible.'; msj.classList.remove('im-oculto'); }
+    // La compra pasa por la landing de venta (ahí están los CTAs y el checkout con consentimiento)
+    document.getElementById('imBtnComprar').addEventListener('click', () => {
+      window.location.href = `producto.html?p=${PRODUCT_ID}`;
     });
 
     const { data: { session } } = await sb.auth.getSession();

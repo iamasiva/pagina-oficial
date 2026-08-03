@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>IA MASIVA — Recurso Premium</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-deep: #0B1E6D; --blue-elec: #2F6BFF; --blue-dark: #050F3A;
+      --black: #050505; --white: #FFFFFF; --gray: #D1D5DB; --green: #00FF9C;
+      --acento: #2F6BFF;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+    .oculto { display: none !important; }
+
+    .nav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(5,15,58,0.97); border-bottom: 1px solid rgba(47,107,255,0.12); }
+    .nav-logo { font-size: 1.3rem; font-weight: 900; letter-spacing: 0.1em; }
+    .nav a.volver { font-size: 0.85rem; color: var(--gray); border: 1px solid rgba(47,107,255,0.4); padding: 8px 16px; border-radius: 6px; }
+    .nav a.volver:hover { background: rgba(47,107,255,0.15); color: var(--white); }
+
+    .hero { background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%); padding: 64px 5vw 56px; }
+    .hero-inner { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center; }
+    .eyebrow { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acento); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px; margin-bottom: 18px; }
+    h1 { font-size: clamp(1.9rem, 4.2vw, 3rem); font-weight: 900; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .pitch { color: #b9c6d8; font-size: 1.08rem; max-width: 560px; margin-bottom: 26px; }
+    .precio-linea { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+    .precio { font-size: 2.4rem; font-weight: 900; }
+    .precio small { font-size: 1rem; color: var(--gray); font-weight: 600; }
+    .precio-cop { color: #9aacbf; font-size: 0.9rem; }
+    .cta { display: inline-block; background: var(--blue-elec); color: var(--white); border: none; padding: 17px 42px; border-radius: 10px; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.02em; transition: transform .15s ease, background .2s; }
+    .cta:hover { background: #4d7fff; transform: translateY(-2px); }
+    .micro-trust { margin-top: 14px; color: #8fa0b5; font-size: 0.82rem; }
+    .hero-visual { border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 24px 60px rgba(0,0,0,0.45); background: rgba(255,255,255,0.04); min-height: 240px; display: flex; align-items: center; justify-content: center; }
+    .hero-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-visual .pendiente { color: #6b7b92; font-size: 0.85rem; padding: 30px; text-align: center; }
+
+    section { padding: 60px 5vw; }
+    .contenido { max-width: 1080px; margin: 0 auto; }
+    h2 { font-size: 1.6rem; font-weight: 900; margin-bottom: 28px; letter-spacing: -0.01em; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .feature { background: rgba(255,255,255,0.045); border: 1px solid rgba(47,107,255,0.18); border-radius: 12px; padding: 20px 22px; }
+    .feature b { display: block; margin-bottom: 6px; font-size: 1rem; }
+    .feature span { color: #a8b6c8; font-size: 0.9rem; }
+
+    .galeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .galeria img { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); display: block; }
+
+    .pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .paso { background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 22px; }
+    .paso .num { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 50%; background: var(--blue-elec); font-weight: 900; margin-bottom: 12px; }
+    .paso b { display: block; margin-bottom: 6px; }
+    .paso span { color: #a8b6c8; font-size: 0.9rem; }
+
+    .bundle-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 10px; }
+    .bundle-item { background: rgba(255,255,255,0.045); border: 1px solid rgba(47,107,255,0.18); border-radius: 12px; padding: 20px; }
+    .bundle-item b { display: block; margin-bottom: 4px; }
+    .bundle-item .p-ind { color: #8fa0b5; font-size: 0.85rem; }
+    .ahorro { color: var(--green); font-weight: 800; }
+
+    .faq details { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; }
+    .faq summary { font-weight: 700; cursor: pointer; }
+    .faq p { color: #a8b6c8; font-size: 0.92rem; margin-top: 10px; }
+
+    .cta-final { text-align: center; background: linear-gradient(135deg, #0B1E6D, #1E3A8A); border-radius: 18px; padding: 48px 24px; }
+    .cta-final h2 { margin-bottom: 8px; }
+    .cta-final .precio-linea { justify-content: center; }
+
+    footer { padding: 34px 5vw 44px; text-align: center; color: #6b7b92; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    footer a { color: #8fa0b5; text-decoration: underline; margin: 0 8px; }
+
+    @media (max-width: 860px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 28px; }
+      .hero { padding-top: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <span class="nav-logo">IA MASIVA</span>
+    <a class="volver" href="app.html">← Volver al catálogo</a>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <span class="eyebrow" id="pEyebrow">Recurso Premium</span>
+        <h1 id="pTitulo">Cargando…</h1>
+        <p class="pitch" id="pPitch"></p>
+        <div class="precio-linea">
+          <span class="precio" id="pPrecio"></span>
+          <span class="precio-cop" id="pPrecioCop"></span>
+        </div>
+        <button class="cta" id="pCtaTop">COMPRAR AHORA</button>
+        <p class="micro-trust">Acceso inmediato en tu cuenta · Pago seguro con Wompi · Tuyo para siempre</p>
+      </div>
+      <div class="hero-visual" id="pVisual"><span class="pendiente"></span></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="contenido">
+      <h2>Qué recibes</h2>
+      <div class="features" id="pFeatures"></div>
+    </div>
+  </section>
+
+  <section id="pSecBundle" class="oculto" style="padding-top: 0;">
+    <div class="contenido">
+      <h2>Los 3 recursos, uno por uno</h2>
+      <div class="bundle-items" id="pBundleItems"></div>
+      <p style="color:#a8b6c8;">Comprados por separado valen <b id="pSumaIndividual"></b> — con el bundle pagas <b id="pPrecioBundle"></b>. <span class="ahorro" id="pAhorro"></span></p>
+    </div>
+  </section>
+
+  <section id="pSecGaleria" class="oculto" style="padding-top: 0;">
+    <div class="contenido">
+      <h2>Así se ve por dentro</h2>
+      <div class="galeria" id="pGaleria"></div>
+    </div>
+  </section>
+
+  <section style="padding-top: 0;">
+    <div class="contenido">
+      <h2>Cómo funciona</h2>
+      <div class="pasos">
+        <div class="paso"><span class="num">1</span><b>Compra con tu cuenta</b><span>Pagas con Wompi (tarjetas, PSE, Nequi). Si no tienes cuenta en IA MASIVA, la creas en un minuto.</span></div>
+        <div class="paso"><span class="num">2</span><b>Acceso inmediato</b><span>Apenas se aprueba el pago, el recurso queda habilitado en tu cuenta. Sin descargas, sin esperas.</span></div>
+        <div class="paso"><span class="num">3</span><b>Tuyo para siempre</b><span>Entra cuando quieras desde cualquier dispositivo. Tu espacio personal guarda lo que crees adentro.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top: 0;">
+    <div class="contenido faq">
+      <h2>Preguntas frecuentes</h2>
+      <details><summary>¿Es una descarga o una página?</summary><p>Es una aplicación web que vive en tu cuenta de IA MASIVA: entras con tu correo y la usas desde cualquier navegador. Siempre tendrás la versión más reciente.</p></details>
+      <details><summary>¿Puedo pedir reembolso?</summary><p>Este es un recurso digital de acceso inmediato: al comprar autorizas expresamente que se habilite al instante y, una vez habilitado, no aplica derecho de retracto (Ley 1480, art. 47). Si el recurso presenta fallas técnicas que te impidan usarlo, lo resolvemos o te devolvemos tu dinero — esa garantía siempre está.</p></details>
+      <details><summary>¿En qué moneda pago?</summary><p>El precio está en dólares (USD) y se cobra en pesos colombianos con la TRM oficial del día, sin recargos ocultos. Las tarjetas internacionales también funcionan.</p></details>
+      <details><summary>¿Recibo actualizaciones?</summary><p>Sí. Como el recurso vive en la web, cualquier mejora que hagamos te llega automáticamente, sin pagar de nuevo.</p></details>
+    </div>
+  </section>
+
+  <section style="padding-top: 0;">
+    <div class="contenido">
+      <div class="cta-final">
+        <h2 id="pTituloFinal"></h2>
+        <div class="precio-linea"><span class="precio" id="pPrecioFinal"></span></div>
+        <button class="cta" id="pCtaBottom">COMPRAR AHORA</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    IA MASIVA · ESTRATICA TECH S.A.S. ·
+    <a href="terminos.html">Términos y condiciones</a>
+    <a href="privacidad.html">Política de privacidad</a>
+  </footer>
+
+  <script>
+    const sb = supabase.createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+
+    const PAGINAS = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
+    };
+    const PREVIEWS_200 = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/previews-200/';
+
+    // Contenido de venta por producto (el precio SIEMPRE viene de la base de datos)
+    const LANDINGS = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': {
+        corto: '557 Configuraciones',
+        eyebrow: 'NotebookLM · Gemini · Bilingüe',
+        titulo: '557 configuraciones expertas para que la IA trabaje como un especialista',
+        pitch: 'Deja de improvisar instrucciones. Cada configuración trae el criterio que un experto aplicaría — listo para pegar en tus cuadernos de NotebookLM y Gemini, en español o inglés.',
+        features: [
+          ['557 configuraciones con mecanismo experto', 'No son plantillas: cada una encapsula los criterios concretos que un especialista aplicaría y que uno no sabe pedir.'],
+          ['Navegación por categorías y subcategorías', 'Encuentras la configuración para tu caso en segundos, con buscador global.'],
+          ['Crea tu configuración', 'Un generador con opciones avanzadas para los casos que el catálogo no cubre.'],
+          ['Tu espacio personal', 'Favoritos, configuraciones guardadas con tus categorías, y un organizador de cuadernos con links de Gemini y NotebookLM y tus chats importantes.'],
+          ['Bilingüe español / inglés', 'Toda la aplicación y las configuraciones, en los dos idiomas.'],
+          ['Guía paso a paso con capturas', 'De cero a tu primer cuaderno configurado, sin perderte.'],
+        ],
+        capturas: [],
+      },
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': {
+        corto: '400 Gemas',
+        eyebrow: 'Exclusivo Gemini Gems',
+        titulo: '400 gemas expertas para Gemini, con su formulario listo para usar',
+        pitch: 'Cada gema viene completa: los 5 campos para crearla en Gemini con un clic de copiar, y un formulario que genera tu prompt personalizado en vivo.',
+        features: [
+          ['400 gemas en 20 categorías', 'Marketing, ventas, contenido, finanzas, educación, productividad… cada una con su icono y su territorio claro.'],
+          ['Formulario por gema', 'Llenas tus datos y el prompt se arma solo, personalizado para tu caso.'],
+          ['Gema para crear gemas', 'La herramienta especial: describe tu caso único y te entrega el diseño completo de una gema nueva a tu medida.'],
+          ['Mis gemas', 'Guarda los links de tus gemas de Gemini organizados con tus categorías, con sus chats y tus prompts reutilizables — editables con el formulario real.'],
+          ['Prompts que no vuelves a escribir', 'Lo que llenas una vez queda guardado para reutilizar con un clic.'],
+          ['Guía completa con capturas', 'El camino completo: de la biblioteca a tu gema funcionando en Gemini.'],
+        ],
+        capturas: [],
+      },
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': {
+        corto: '200 Diseños',
+        eyebrow: 'Presentaciones · NotebookLM · 6 idiomas',
+        titulo: '200 estilos visuales para que NotebookLM diseñe tus presentaciones',
+        pitch: 'Elige un estilo viendo su vista previa real, personaliza colores y tipografías, y copia un prompt que convierte tus fuentes en una presentación con dirección de arte.',
+        features: [
+          ['200 estilos con preview real', 'Cada estilo muestra 4 diapositivas reales de cómo queda — eliges viendo, no adivinando.'],
+          ['Personalizador en vivo', 'Colores, tipografías, estilo visual, gráficas, densidad de texto e idioma de la presentación: el prompt se actualiza mientras ajustas.'],
+          ['11 categorías', 'Negocios, marketing, propuestas, portafolios, tecnología, finanzas y más.'],
+          ['Mis diseños', 'Guarda tus personalizaciones con tus propias categorías y copia el prompt cuando lo necesites.'],
+          ['Interfaz en 6 idiomas', 'Español, inglés, portugués, francés, alemán e italiano.'],
+          ['Optimizado para NotebookLM', 'Prompts redactados y probados para el generador de presentaciones de NotebookLM.'],
+        ],
+        capturas: [PREVIEWS_200 + '001.jpg', PREVIEWS_200 + '024.jpg', PREVIEWS_200 + '087.jpg'],
+      },
+      __bundle__: {
+        corto: 'Bundle: 3 Recursos Premium',
+        eyebrow: 'Todo IA MASIVA · Mejor precio',
+        titulo: 'Los 3 recursos premium de IA MASIVA en un solo pago',
+        pitch: '557 configuraciones expertas, 400 gemas para Gemini y 200 diseños para presentaciones. Todo el arsenal, con el máximo ahorro.',
+        features: [
+          ['557 Configuraciones', 'El buque insignia: configuraciones expertas bilingües para NotebookLM y Gemini con tu espacio personal completo.'],
+          ['400 Gemas para Gemini', 'Formularios que generan prompts personalizados + la Gema para crear gemas.'],
+          ['200 Diseños para Presentaciones', 'Estilos visuales con preview real y personalizador en vivo, en 6 idiomas.'],
+          ['Un solo pago, tres cuentas habilitadas', 'Los tres recursos quedan activos en tu cuenta de inmediato y para siempre.'],
+        ],
+        capturas: [],
+      },
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const productId = params.get('p');
+
+    function usd(centavos) { return '$' + (centavos / 100) + ' USD'; }
+
+    async function init() {
+      // El bundle se identifica por nombre (su uuid se resuelve de la base)
+      const { data: productos } = await sb.from('products').select('id, nombre, precio_usd_centavos, activo, tipo');
+      const producto = (productos ?? []).find(p => p.id === productId);
+      if (!producto) {
+        $('pTitulo').textContent = 'Este producto no está disponible.';
+        $('pCtaTop').classList.add('oculto');
+        document.querySelectorAll('section').forEach(s => s.classList.add('oculto'));
+        return;
+      }
+      const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
+      const cfg = esBundle ? LANDINGS.__bundle__ : LANDINGS[producto.id];
+      if (!cfg) { $('pTitulo').textContent = producto.nombre; return; }
+
+      document.title = `${cfg.corto} — IA MASIVA`;
+      $('pEyebrow').textContent = cfg.eyebrow;
+      $('pTitulo').textContent = cfg.titulo;
+      $('pPitch').textContent = cfg.pitch;
+      $('pPrecio').textContent = usd(producto.precio_usd_centavos);
+      $('pTituloFinal').textContent = cfg.corto;
+      $('pPrecioFinal').textContent = usd(producto.precio_usd_centavos);
+
+      $('pFeatures').innerHTML = cfg.features.map(([b, s]) =>
+        `<div class="feature"><b>${b}</b><span>${s}</span></div>`).join('');
+
+      if (cfg.capturas.length) {
+        $('pSecGaleria').classList.remove('oculto');
+        $('pGaleria').innerHTML = cfg.capturas.map(u => `<img loading="lazy" src="${u}" alt="">`).join('');
+        $('pVisual').innerHTML = `<img src="${cfg.capturas[0]}" alt="">`;
+      } else {
+        $('pVisual').querySelector('.pendiente').textContent = cfg.corto;
+      }
+
+      if (esBundle) {
+        $('pSecBundle').classList.remove('oculto');
+        const individuales = (productos ?? []).filter(p => LANDINGS[p.id]);
+        const suma = individuales.reduce((a, p) => a + p.precio_usd_centavos, 0);
+        $('pBundleItems').innerHTML = individuales.map(p =>
+          `<div class="bundle-item"><b>${LANDINGS[p.id].corto}</b><span class="p-ind">Individual: ${usd(p.precio_usd_centavos)}</span></div>`).join('');
+        $('pSumaIndividual').textContent = usd(suma);
+        $('pPrecioBundle').textContent = usd(producto.precio_usd_centavos);
+        $('pAhorro').textContent = `Ahorras ${usd(suma - producto.precio_usd_centavos)}.`;
+      }
+
+      // TRM del día para mostrar el estimado en COP (informativo)
+      try {
+        const r = await fetch('https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=1');
+        const [fila] = await r.json();
+        const trm = Number(fila?.valor);
+        if (trm) $('pPrecioCop').textContent = `≈ ${Math.round(producto.precio_usd_centavos * trm / 100).toLocaleString('es-CO')} COP con la TRM de hoy`;
+      } catch (_) {}
+
+      // Si ya lo tiene, el CTA cambia a "Ir al recurso"
+      const { data: { session } } = await sb.auth.getSession();
+      let comprado = false;
+      if (session) {
+        const { data: compra } = await sb.from('purchases').select('id')
+          .eq('product_id', producto.id).eq('estado', 'APROBADA').maybeSingle();
+        comprado = !!compra;
+      }
+      const destinoCompra = `pago.html?p=${producto.id}`;
+      const destinoRecurso = PAGINAS[producto.id] || 'app.html';
+      for (const btn of [$('pCtaTop'), $('pCtaBottom')]) {
+        btn.textContent = comprado ? 'IR AL RECURSO' : 'COMPRAR AHORA';
+        btn.addEventListener('click', () => { location.href = comprado ? destinoRecurso : destinoCompra; });
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

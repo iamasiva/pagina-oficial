@@ -64,7 +64,7 @@
       <div class="icono">🎉</div>
       <h1 class="ok">¡Compra confirmada!</h1>
       <p>Tu recurso ya está disponible en tu cuenta.</p>
-      <a class="btn" href="app.html">Abrir mi recurso</a>
+      <a class="btn" href="app.html" id="btnAbrirRecurso">Abrir mi recurso</a>
     </div>
 
     <!-- Estado: rechazada / error -->
@@ -109,10 +109,17 @@
       const INTENTOS = 40, ESPERA_MS = 3000; // ~2 minutos
       for (let i = 0; i < INTENTOS; i++) {
         const { data: compra } = await sb.from('purchases')
-          .select('estado').eq('referencia', ref).maybeSingle();
+          .select('estado, product_id').eq('referencia', ref).maybeSingle();
 
         if (compra?.estado === 'APROBADA') {
           sessionStorage.removeItem('compra_ref');
+          // Directo al recurso comprado (el bundle lleva al catálogo, donde están los tres)
+          const PAGINAS = {
+            '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',
+            '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
+            '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
+          };
+          if (PAGINAS[compra.product_id]) document.getElementById('btnAbrirRecurso').href = PAGINAS[compra.product_id];
           mostrar('vistaAprobada');
           return;
         }

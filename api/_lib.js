@@ -23,6 +23,16 @@ export async function userFromRequest(req) {
   return data.user;
 }
 
+// El bundle desbloquea sus tres componentes al aprobarse (lo hace el webhook).
+export const BUNDLE = {
+  productId: '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11',
+  componentes: [
+    '656f61d7-37b2-4e9c-8cf3-67065484493c', // 557 Configuraciones
+    '0f0d6926-5328-4e3e-89a4-92b36ef13996', // 400 Gemas
+    '2c296299-d9a4-4409-bc99-67b4999e47f8', // 200 Diseños
+  ],
+};
+
 // TRM oficial (Superfinanciera) vía datos abiertos del gobierno. Gratis, sin llave.
 // La TRM solo cambia en días hábiles: cache por día en memoria de la función.
 let trmCache = { fecha: null, valor: null };

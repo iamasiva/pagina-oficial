@@ -565,25 +565,25 @@
     }
 
     // ── COMPRA ────────────────────────────────────────────────
+    // Página propia de cada producto-app (los recursos que no viven en Storage)
+    const PAGINAS_PRODUCTO = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
+    };
+
     async function comprarGuia(guideId) {
       const product = allProducts.find(p => p.guide_id === guideId && p.activo);
       if (!product) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
-      try {
-        const { data: { session } } = await sb.auth.getSession();
-        const res = await fetch(`/api/checkout?product=${product.id}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` }
-        });
-        const body = await res.json();
-        if (!res.ok) { alert(body.error || 'No se pudo iniciar la compra.'); return; }
-        sessionStorage.setItem('compra_ref', body.reference);
-        window.location.href = body.url;
-      } catch(e) {
-        alert('No se pudo iniciar la compra. Intenta de nuevo.');
-      }
+      // La compra pasa por la landing de venta (ahí están los CTAs y el pago)
+      window.location.href = `producto.html?p=${product.id}`;
     }
 
     async function openGuide(id, locked) {
       if (locked) { await comprarGuia(id); return; }
+      // Productos-app comprados: se navega a su página propia, no al visor
+      const productoApp = allProducts.find(p => p.guide_id === id && PAGINAS_PRODUCTO[p.id]);
+      if (productoApp) { window.location.href = PAGINAS_PRODUCTO[productoApp.id]; return; }
       const g = allGuides.find(g => g.id === id);
       if (!g?.contenido_url) return;
       try {
