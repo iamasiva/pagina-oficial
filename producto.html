@@ -234,6 +234,7 @@
       '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
     };
     const PORTADAS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/';
+    const MOCKUPS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/';
 
     // Identidad + copy de venta por producto. El precio SIEMPRE viene de la base.
     const LANDINGS = {
@@ -255,6 +256,7 @@
         claim: '557 especialistas listos para <span>pegar en tus cuadernos</span>',
         claimSub: 'Cada configuración encapsula lo que un experto de ese campo preguntaría, revisaría y evitaría — redactado, probado y organizado para que solo copies, pegues y trabajes.',
         noNecesitas: ['No necesitas saber de prompts', 'No necesitas inglés — todo es bilingüe', 'No necesitas configurar nada técnico'],
+        galeriaTitulo: 'La herramienta, por dentro',
         features: [
           ['557 configuraciones con mecanismo experto', 'No son plantillas que cambian el título: cada una trae los criterios concretos que un especialista aplicaría y que uno no sabe pedir.'],
           ['Organizadas para encontrar, no para buscar', 'Categorías, subcategorías y buscador global: llegas a la configuración de tu caso en segundos.'],
@@ -263,7 +265,7 @@
           ['Español e inglés, completo', 'La aplicación y las 557 configuraciones en los dos idiomas — trabaja en el que prefieras.'],
           ['Guía paso a paso con capturas', 'De cero a tu primer cuaderno configurado sin perderte, aunque nunca hayas usado NotebookLM.'],
         ],
-        capturas: [],
+        capturas: [MOCKUPS + 'mockup-557-home.jpg', MOCKUPS + 'mockup-557-detalle.jpg'],
         cierre: [
           'Llevas tiempo viendo lo que la IA puede hacer. La diferencia entre quienes le sacan resultados y quienes se frustran no es el talento: son las instrucciones con las que la usan.',
           'Esto no es un curso que tienes que terminar. Es una caja de herramientas que abres cada vez que trabajas.',
@@ -290,6 +292,7 @@
         claim: '400 gemas expertas, cada una con <span>su formulario listo</span>',
         claimSub: 'Los 5 campos de cada gema listos para copiar en Gemini, y un formulario que convierte tus datos en el prompt exacto — sin redactar nada.',
         noNecesitas: ['No necesitas saber de prompts', 'No necesitas configurar nada a mano', 'No necesitas empezar de cero nunca más'],
+        galeriaTitulo: 'La herramienta, por dentro',
         features: [
           ['400 gemas en 20 categorías', 'Marketing, ventas, contenido, finanzas, educación, productividad… cada una con su territorio claro, sin repeticiones disfrazadas.'],
           ['Formulario por gema', 'Llenas tus datos, el prompt se arma solo, lo copias. La personalización sin el trabajo de redactar.'],
@@ -298,7 +301,7 @@
           ['Prompts que no vuelves a escribir', 'Lo que llenas una vez queda guardado para reutilizar con un clic, dentro de la gema a la que pertenece.'],
           ['Guía completa con capturas', 'El camino entero: de la biblioteca a tu gema funcionando en Gemini, paso a paso.'],
         ],
-        capturas: [],
+        capturas: [MOCKUPS + 'mockup-400-home.jpg', MOCKUPS + 'mockup-400-detalle.jpg'],
         cierre: [
           'Cada semana usas Gemini para trabajar. La pregunta es si cada chat va a seguir empezando de cero, o si vas a tener 400 especialistas esperándote.',
           'Esto no es contenido para consumir. Es infraestructura para tu trabajo diario con IA.',
@@ -333,12 +336,8 @@
           ['Interfaz en 6 idiomas', 'Español, inglés, portugués, francés, alemán e italiano. El prompt siempre optimizado en inglés, la presentación en tu idioma.'],
           ['Optimizado para NotebookLM', 'Cada prompt fue redactado y curado revisando visualmente su resultado en el generador de presentaciones.'],
         ],
-        capturas: [
-          'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/previews-200/001.jpg',
-          'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/previews-200/024.jpg',
-          'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/previews-200/087.jpg',
-        ],
-        galeriaTitulo: 'Previews reales del recurso',
+        capturas: [MOCKUPS + 'mockup-200-home.jpg'],
+        galeriaTitulo: 'La herramienta, por dentro',
         cierre: [
           'Tu próxima presentación puede verse como todas… o puede tener dirección de arte de verdad, en el mismo tiempo.',
           'No es una plantilla más: es un sistema visual que NotebookLM ejecuta por ti.',
