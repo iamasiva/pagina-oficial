@@ -88,7 +88,8 @@
       <div class="icono">⏳</div>
       <h1>Tu pago sigue en proceso</h1>
       <p>La confirmación está tardando más de lo normal (frecuente con PSE).</p>
-      <p>Tranquilo: cuando el banco confirme, el recurso aparecerá automáticamente en tu cuenta.</p>
+      <p id="sinRefDetalle">Tranquilo: cuando el banco confirme, el recurso aparecerá automáticamente en tu cuenta.</p>
+      <p id="sinRefVivo" class="hidden" style="font-size:0.85rem;">Esta página se actualiza sola en cuanto llegue la confirmación. Puedes dejarla abierta.</p>
       <a class="btn" href="app.html">Ir a IA MASIVA</a>
     </div>
   </div>
@@ -114,8 +115,12 @@
 
       // Consulta el estado de la compra (RLS: el usuario solo ve las suyas).
       // El webhook de Wompi es quien la actualiza; aquí solo observamos.
-      const INTENTOS = 40, ESPERA_MS = 3000; // ~2 minutos
-      for (let i = 0; i < INTENTOS; i++) {
+      // Primeros ~2 min: cada 3s. Después se muestra "sigue en proceso" pero
+      // NUNCA se deja de preguntar (cada 10s, hasta ~4 horas): un sandbox o un
+      // PSE lento aprueban minutos después y la página debe reaccionar sola.
+      const RAPIDOS = 40, ESPERA_MS = 3000, ESPERA_LENTA_MS = 10000, TOPE = 1500;
+      let enEspera = false;
+      for (let i = 0; i < TOPE; i++) {
         let compra = null;
         try {
           const r = await fetch(`/api/estado-compra?ref=${encodeURIComponent(ref)}`);
@@ -144,9 +149,17 @@
           mostrar('vistaRechazada');
           return;
         }
-        await new Promise(r => setTimeout(r, ESPERA_MS));
+        if (i >= RAPIDOS - 1 && !enEspera) {
+          enEspera = true;
+          if (!session && compra?.de_invitado) {
+            document.getElementById('sinRefDetalle').innerHTML =
+              'Tranquilo: en cuanto el banco confirme, aquí mismo te diremos cómo activar tu recurso (<b>crear tu cuenta con el mismo correo que usaste al pagar</b>).';
+          }
+          document.getElementById('sinRefVivo').classList.remove('hidden');
+          mostrar('vistaSinRef');
+        }
+        await new Promise(r => setTimeout(r, enEspera ? ESPERA_LENTA_MS : ESPERA_MS));
       }
-      mostrar('vistaSinRef'); // sigue PENDIENTE tras ~2 min (típico PSE lento)
     }
 
     main();
