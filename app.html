@@ -238,6 +238,24 @@
     .cat-nueva select { max-width: 170px; }
     .cat-nueva button { background: rgba(47,107,255,0.18); border: 1px solid rgba(47,107,255,0.45); color: var(--white); border-radius: 8px; padding: 0 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
     .cat-nueva button:hover { background: rgba(47,107,255,0.35); }
+
+    /* ── Editor de "Nuevo en IA MASIVA" (admin) ── */
+    .fila-titulo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-right: 14px; }
+    .btn-editar-seccion { background: none; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+    .btn-editar-seccion:hover { color: var(--white); border-color: var(--blue-elec); }
+    .fila-fijada { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid rgba(47,107,255,0.18); border-radius: 8px; margin-bottom: 6px; cursor: pointer; font-size: 0.88rem; color: var(--gray); }
+    .fila-fijada.activa { border-color: var(--blue-elec); color: var(--white); background: rgba(47,107,255,0.1); }
+    .fila-fijada input { accent-color: var(--blue-elec); width: 15px; height: 15px; }
+    .num-fijada { width: 18px; text-align: center; font-weight: 900; color: var(--blue-elec); }
+    .fila-orden { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; margin-bottom: 6px; background: rgba(255,255,255,0.03); font-size: 0.88rem; color: var(--gray); cursor: grab; }
+    .fila-orden.arrastrando { opacity: 0.4; border-style: dashed; }
+    .agarre { color: #5b6b80; }
+    .fila-orden-titulo { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .flechas { flex-shrink: 0; }
+    .flechas button { background: none; border: 1px solid rgba(47,107,255,0.3); color: var(--gray); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; margin-left: 4px; }
+    .flechas button:disabled { opacity: 0.3; cursor: default; }
+    .btn-guardar-nuevo { width: 100%; background: var(--blue-elec); color: var(--white); border: none; padding: 13px; border-radius: 10px; font-size: 0.95rem; font-weight: 800; cursor: pointer; margin-top: 6px; }
+    .btn-guardar-nuevo:disabled { opacity: 0.5; cursor: not-allowed; }
     .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
     .btn-primary { background: var(--blue-elec); color: var(--white); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; transition: background 0.2s; }
     .btn-primary:hover { background: #4d7fff; }
@@ -309,7 +327,7 @@
     <div class="app-nav-filters">
       <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
       <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
-      <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">Premium</button>
+      <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">De pago</button>
       <div class="cat-dropdown">
         <button class="filter-btn" id="filterCatBtn" onclick="toggleCatMenu()">Categorías ▾</button>
         <div class="cat-menu" id="catMenu"></div>
@@ -374,7 +392,10 @@
     <div id="mainSections">
 
       <div class="app-row">
-        <h2 class="app-row-title">Nuevo en IA MASIVA</h2>
+        <div class="fila-titulo">
+          <h2 class="app-row-title">Nuevo en IA MASIVA</h2>
+          <button class="hidden btn-editar-seccion" id="btnEditarNuevo">✎ Editar</button>
+        </div>
         <div class="scroll-wrapper">
           <button class="scroll-arrow left"  onclick="scrollRow('rowNuevo',-1)">&#8592;</button>
           <div class="app-track" id="rowNuevo"></div>
@@ -383,7 +404,7 @@
       </div>
 
       <div class="app-row">
-        <h2 class="app-row-title">Guías Premium</h2>
+        <h2 class="app-row-title">Guías de pago</h2>
         <div class="scroll-wrapper">
           <button class="scroll-arrow left"  onclick="scrollRow('rowPremium',-1)">&#8592;</button>
           <div class="app-track" id="rowPremium"></div>
@@ -426,6 +447,26 @@
       <button class="guide-close" onclick="closeGuideViewer()">✕ Cerrar</button>
     </div>
     <iframe class="guide-frame" id="guideFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  </div>
+
+  <!-- ═══ EDITAR "NUEVO EN IA MASIVA" (admin) ══════════════════ -->
+  <div class="modal-overlay" id="nuevoModal">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Editar "Nuevo en IA MASIVA"</h2>
+        <button class="modal-close" id="nuevoModalCerrar">&times;</button>
+      </div>
+      <div class="form-field">
+        <label>Destacados de pago (hasta 3, quedan de primeros en el orden que los marques)</label>
+        <div id="listaFijadas"></div>
+      </div>
+      <div class="form-field">
+        <label>Orden de las gratuitas (arrástralas o usa las flechas)</label>
+        <div id="listaOrden"></div>
+      </div>
+      <button class="btn-guardar-nuevo" id="btnGuardarNuevo">Guardar</button>
+      <p id="nuevoModalError" class="hidden" style="color:#ff6b6b; font-size:0.85rem; margin-top:10px; text-align:center;"></p>
+    </div>
   </div>
 
   <!-- ═══ SUGERIR RECURSO ══════════════════════════════════════ -->
@@ -473,7 +514,7 @@
         <div class="form-field">
           <label>Opciones</label>
           <div class="toggle-row">
-            <label class="toggle-label"><input type="checkbox" id="fPremium" /> Premium</label>
+            <label class="toggle-label"><input type="checkbox" id="fPremium" /> De pago</label>
             <label class="toggle-label"><input type="checkbox" id="fPublicada" /> Publicada</label>
           </div>
         </div>
@@ -736,6 +777,128 @@
     }
     window.irInicio = irInicio;
 
+    // ── EDITOR DE "NUEVO EN IA MASIVA" (admin) ────────────────
+    // Hasta 3 guías de pago fijadas de primeras (numeradas en el orden que se
+    // marcan) y las gratuitas reordenables con arrastrar/soltar o flechas.
+    let seleccionFijadas = [];
+    let ordenGratis = [];
+
+    function abrirEditorNuevo() {
+      seleccionFijadas = allGuides.filter(g => g.pin_nuevo)
+        .sort((a,b) => a.pin_nuevo - b.pin_nuevo).map(g => g.id);
+      ordenGratis = allGuides.filter(g => !g.es_premium).sort((a,b) => {
+        if (a.orden_nuevo == null && b.orden_nuevo == null) return new Date(b.created_at) - new Date(a.created_at);
+        if (a.orden_nuevo == null) return -1;
+        if (b.orden_nuevo == null) return 1;
+        return a.orden_nuevo - b.orden_nuevo;
+      }).map(g => g.id);
+      document.getElementById('nuevoModalError').classList.add('hidden');
+      pintarEditorNuevo();
+      document.getElementById('nuevoModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function cerrarEditorNuevo() {
+      document.getElementById('nuevoModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function pintarEditorNuevo() {
+      const dePago = allGuides.filter(g => g.es_premium);
+      document.getElementById('listaFijadas').innerHTML = dePago.length ? dePago.map(g => {
+        const pos = seleccionFijadas.indexOf(g.id);
+        return `<label class="fila-fijada${pos >= 0 ? ' activa' : ''}">
+          <span class="num-fijada">${pos >= 0 ? pos + 1 : ''}</span>
+          <input type="checkbox" ${pos >= 0 ? 'checked' : ''} onchange="toggleFijada('${g.id}')" />
+          <span>${g.titulo}</span>
+        </label>`;
+      }).join('') : '<p class="app-empty" style="padding:8px 0;">No hay guías de pago aún.</p>';
+
+      const porId = new Map(allGuides.map(g => [g.id, g]));
+      document.getElementById('listaOrden').innerHTML = ordenGratis.map((id, i) => `
+        <div class="fila-orden" draggable="true" data-id="${id}">
+          <span class="agarre">⠿</span>
+          <span class="fila-orden-titulo">${porId.get(id)?.titulo ?? ''}</span>
+          <span class="flechas">
+            <button type="button" onclick="moverGratis(${i},-1)" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button type="button" onclick="moverGratis(${i},1)" ${i === ordenGratis.length - 1 ? 'disabled' : ''}>↓</button>
+          </span>
+        </div>`).join('');
+      document.querySelectorAll('#listaOrden .fila-orden').forEach(fila => {
+        fila.addEventListener('dragstart', () => fila.classList.add('arrastrando'));
+        fila.addEventListener('dragend', () => {
+          fila.classList.remove('arrastrando');
+          ordenGratis = [...document.querySelectorAll('#listaOrden .fila-orden')].map(f => f.dataset.id);
+          pintarEditorNuevo();
+        });
+      });
+    }
+
+    function toggleFijada(id) {
+      const pos = seleccionFijadas.indexOf(id);
+      if (pos >= 0) seleccionFijadas.splice(pos, 1);
+      else if (seleccionFijadas.length >= 3) alert('Máximo 3 destacados. Quita uno primero.');
+      else seleccionFijadas.push(id);
+      pintarEditorNuevo();
+    }
+    window.toggleFijada = toggleFijada;
+
+    function moverGratis(i, dir) {
+      const j = i + dir;
+      if (j < 0 || j >= ordenGratis.length) return;
+      [ordenGratis[i], ordenGratis[j]] = [ordenGratis[j], ordenGratis[i]];
+      pintarEditorNuevo();
+    }
+    window.moverGratis = moverGratis;
+
+    // El arrastre reubica la fila en vivo bajo el cursor
+    document.getElementById('listaOrden').addEventListener('dragover', e => {
+      e.preventDefault();
+      const cont = e.currentTarget;
+      const arrastrada = cont.querySelector('.arrastrando');
+      if (!arrastrada) return;
+      const siguiente = [...cont.querySelectorAll('.fila-orden:not(.arrastrando)')].find(f => {
+        const r = f.getBoundingClientRect();
+        return e.clientY < r.top + r.height / 2;
+      });
+      if (siguiente) cont.insertBefore(arrastrada, siguiente);
+      else cont.appendChild(arrastrada);
+    });
+
+    document.getElementById('btnEditarNuevo').addEventListener('click', abrirEditorNuevo);
+    document.getElementById('nuevoModalCerrar').addEventListener('click', cerrarEditorNuevo);
+    document.getElementById('nuevoModal').addEventListener('click', e => { if (e.target.id === 'nuevoModal') cerrarEditorNuevo(); });
+    document.getElementById('btnGuardarNuevo').addEventListener('click', async () => {
+      const btn = document.getElementById('btnGuardarNuevo');
+      const msj = document.getElementById('nuevoModalError');
+      btn.disabled = true; btn.textContent = 'Guardando…'; msj.classList.add('hidden');
+      try {
+        for (const g of allGuides.filter(x => x.es_premium)) {
+          const pos = seleccionFijadas.indexOf(g.id);
+          const nuevoPin = pos >= 0 ? pos + 1 : null;
+          if ((g.pin_nuevo ?? null) !== nuevoPin) {
+            const { error } = await sb.from('guides').update({ pin_nuevo: nuevoPin }).eq('id', g.id);
+            if (error) throw error;
+          }
+        }
+        for (let i = 0; i < ordenGratis.length; i++) {
+          const g = allGuides.find(x => x.id === ordenGratis[i]);
+          if ((g?.orden_nuevo ?? null) !== i + 1) {
+            const { error } = await sb.from('guides').update({ orden_nuevo: i + 1 }).eq('id', ordenGratis[i]);
+            if (error) throw error;
+          }
+        }
+        cerrarEditorNuevo();
+        await loadAndRender();
+      } catch (e) {
+        msj.textContent = /column|pin_nuevo|orden_nuevo/i.test(e.message ?? '')
+          ? 'Falta correr el SQL de esta función en Supabase.'
+          : 'No se pudo guardar: ' + (e.message ?? 'error');
+        msj.classList.remove('hidden');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Guardar';
+      }
+    });
+
     // ── SUGERIR RECURSO ───────────────────────────────────────
     function abrirSugerencia() {
       document.getElementById('userMenu').classList.remove('open');
@@ -821,13 +984,13 @@
       if (type === 'catalogo') filtered = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
 
       document.getElementById('filteredTitle').textContent =
-        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías Premium'
+        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías de pago'
         : type === 'favoritos' ? 'Tus favoritos' : type === 'compras' ? 'Tus compras'
         : type === 'catalogo' ? 'Todo el catálogo' : cat;
 
       const vacios = {
         favoritos: 'Aún no guardas favoritos. Toca el corazón de cualquier guía y quedará aquí, a un clic.',
-        compras: 'Aún no tienes compras. Cuando adquieras un recurso premium aparecerá aquí, listo para abrir.',
+        compras: 'Aún no tienes compras. Cuando adquieras un recurso de pago aparecerá aquí, listo para abrir.',
       };
       // "Ver catálogo" se muestra como lista vertical: portada, nombre,
       // descripción y botón Ver recurso, para recorrerlo uno por uno
@@ -932,7 +1095,7 @@
 
     async function comprarGuia(guideId) {
       const product = allProducts.find(p => p.guide_id === guideId && p.activo);
-      if (!product) { alert('Esta es una guía Premium. Pronto podrás adquirirla.'); return; }
+      if (!product) { alert('Esta es una guía de pago. Pronto podrás adquirirla.'); return; }
       // Si ya es suyo, directo al recurso: jamás de vuelta a la página de venta
       const { data: compra } = await sb.from('purchases').select('id')
         .eq('product_id', product.id).eq('estado', 'APROBADA').maybeSingle();
@@ -1117,11 +1280,21 @@
 
     // ── RENDER SECCIONES ──────────────────────────────────────
     function renderAll() {
-      const byNew = [...allGuides].sort((a,b) => new Date(b.created_at)-new Date(a.created_at));
+      // Nuevo en IA MASIVA: hasta 3 de pago fijadas por el admin (pin_nuevo 1-3)
+      // y luego las gratuitas: recién subidas primero, y las ordenadas a mano
+      // (orden_nuevo) en el orden que el admin les dio.
+      const fijadas = allGuides.filter(g => g.pin_nuevo).sort((a,b) => a.pin_nuevo - b.pin_nuevo);
+      const gratisNuevo = allGuides.filter(g => !g.es_premium).sort((a,b) => {
+        if (a.orden_nuevo == null && b.orden_nuevo == null) return new Date(b.created_at) - new Date(a.created_at);
+        if (a.orden_nuevo == null) return -1;
+        if (b.orden_nuevo == null) return 1;
+        return a.orden_nuevo - b.orden_nuevo;
+      });
+      const byNew = [...fijadas, ...gratisNuevo];
       const premium = allGuides.filter(g=>g.es_premium).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
       document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
-      document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías Premium.</p>';
+      document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías de pago.</p>';
       // Tendencias reales: aperturas de los últimos 30 días; a igual conteo, la más nueva primero
       const porTendencia = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
       document.getElementById('rowTendencias').innerHTML= porTendencia.slice(0,10).length ? porTendencia.slice(0,10).map((g,i)=>makeCard(g,i+1,true)).join('') : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
@@ -1535,6 +1708,7 @@
         document.getElementById('btnNewGuide').classList.remove('hidden');
         document.getElementById('btnPanelAdmin').classList.remove('hidden');
         document.getElementById('btnBonos').classList.remove('hidden');
+        document.getElementById('btnEditarNuevo').classList.remove('hidden');
         document.getElementById('heroEditBtn').classList.remove('hidden');
       }
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
