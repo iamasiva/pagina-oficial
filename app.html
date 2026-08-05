@@ -171,16 +171,18 @@
     /* ── Vista de lista (Ver catálogo): un recurso por fila ── */
     #filteredSection.modo-lista .scroll-arrow { display: none; }
     .app-track.vista-lista { display: block; overflow-x: visible; padding: 24px 14px; }
-    .lista-item { display: flex; gap: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(47,107,255,0.16); border-radius: 14px; padding: 14px; margin: 0 auto 12px; max-width: 860px; }
-    .lista-item img { width: 110px; height: 158px; object-fit: cover; border-radius: 10px; flex-shrink: 0; background: rgba(255,255,255,0.06); }
+    .lista-item { display: flex; gap: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(47,107,255,0.16); border-radius: 16px; padding: 16px; margin: 0 auto 14px; max-width: 860px; }
+    .lista-item img { width: 190px; height: 274px; object-fit: cover; border-radius: 12px; flex-shrink: 0; background: rgba(255,255,255,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
     .lista-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    .lista-info h3 { font-size: 1.02rem; font-weight: 800; margin-bottom: 6px; }
-    .lista-info p { color: var(--gray); font-size: 0.88rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .lista-ver { align-self: flex-end; margin-top: auto; background: var(--blue-elec); color: var(--white); border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: background 0.2s; }
+    .lista-info h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
+    .lista-info p { color: var(--gray); font-size: 0.9rem; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+    .lista-ver { align-self: flex-end; margin-top: auto; background: var(--blue-elec); color: var(--white); border: none; border-radius: 8px; padding: 10px 24px; font-size: 0.88rem; font-weight: 800; cursor: pointer; transition: background 0.2s; }
     .lista-ver:hover { background: #4d7fff; }
     @media (max-width: 720px) {
-      .lista-item img { width: 84px; height: 121px; }
-      .lista-info p { -webkit-line-clamp: 2; }
+      .lista-item { gap: 14px; }
+      .lista-item img { width: 128px; height: 184px; }
+      .lista-info h3 { font-size: 0.98rem; }
+      .lista-info p { -webkit-line-clamp: 3; font-size: 0.84rem; }
     }
     #mainSections.filtered { display: none; }
 
