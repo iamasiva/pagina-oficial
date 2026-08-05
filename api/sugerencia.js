@@ -1,10 +1,7 @@
 // POST /api/sugerencia
-// Recibe la sugerencia de un usuario con sesión. La guarda en la tabla
-// sugerencias (red de seguridad: jamás se pierde una idea) y, si hay
-// credenciales de Gmail configuradas, la envía a creativoiamasiva@gmail.com.
+// Recibe la sugerencia de un usuario con sesión y la guarda en la tabla
+// sugerencias. El admin las lee desde la pestaña Sugerencias del panel.
 import { adminClient, userFromRequest } from './_lib.js';
-
-const DESTINO = 'creativoiamasiva@gmail.com';
 
 export default async function handler(req, res) {
   try {
@@ -31,24 +28,6 @@ export default async function handler(req, res) {
       texto,
     });
     if (error) throw new Error(error.message);
-
-    // Correo: solo si las credenciales están configuradas en Vercel.
-    // Si falla, la sugerencia igual quedó guardada.
-    if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-      try {
-        const { default: nodemailer } = await import('nodemailer');
-        const transporte = nodemailer.createTransport({
-          service: 'gmail',
-          auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-        });
-        await transporte.sendMail({
-          from: `"IA MASIVA · Sugerencias" <${process.env.GMAIL_USER}>`,
-          to: DESTINO,
-          subject: 'Nueva sugerencia de recurso',
-          text: `De: ${user.email ?? 'usuario sin correo'}\n\n${texto}`,
-        });
-      } catch (_) { /* la tabla es la fuente de verdad */ }
-    }
 
     return res.status(200).json({ ok: true });
   } catch (err) {

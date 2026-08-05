@@ -50,6 +50,12 @@
     td.destacado { color: var(--white); font-weight: 800; }
     .estado { text-align: center; color: #9aacbf; padding: 30px 0; }
     .oculto { display: none !important; }
+    .caja-encabezado { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .csv-btn { flex-shrink: 0; background: none; border: 1px solid rgba(47,107,255,0.45); color: #9aacbf; border-radius: 999px; padding: 9px 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .csv-btn:hover { color: var(--white); border-color: var(--blue-elec); }
+    #tablaSugerencias th, #tablaSugerencias td { text-align: left; }
+    #tablaSugerencias td:first-child { white-space: nowrap; font-weight: 400; color: #9aacbf; }
+    #tablaSugerencias td.sugerencia-texto { color: var(--white); white-space: pre-wrap; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -72,6 +78,7 @@
     <button class="tab activa" data-tab="vistaRecursos">Recursos</button>
     <button class="tab" data-tab="vistaProductos">Info productos de pago</button>
     <button class="tab" data-tab="vistaCanales">Canales</button>
+    <button class="tab" data-tab="vistaSugerencias">Sugerencias</button>
   </div>
 
   <div class="caja" id="vistaRecursos">
@@ -118,6 +125,24 @@
     <div id="vacioCanales" class="estado oculto">Aún no hay tráfico registrado. Apenas llegue la primera visita, aparece aquí.</div>
   </div>
 
+  <div class="caja oculto" id="vistaSugerencias">
+    <div class="caja-encabezado">
+      <div>
+        <h1>Sugerencias de recursos</h1>
+        <p class="sub">Lo que los usuarios piden desde "Sugerir recurso". El filtro de fechas de arriba también aplica aquí.</p>
+      </div>
+      <button id="btnCsvSugerencias" class="csv-btn oculto">Descargar CSV</button>
+    </div>
+    <div id="cargandoSugerencias" class="estado">Cargando…</div>
+    <div class="tabla-scroll">
+      <table id="tablaSugerencias" class="oculto">
+        <thead><tr><th>Fecha</th><th>Usuario</th><th>Sugerencia</th></tr></thead>
+        <tbody id="filasSugerencias"></tbody>
+      </table>
+    </div>
+    <div id="vacioSugerencias" class="estado oculto">No hay sugerencias en este período.</div>
+  </div>
+
   <script>
     const sb = supabase.createClient(
       'https://iyiygnfaxiejtlgkkivs.supabase.co',
@@ -127,13 +152,32 @@
 
     document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(b => b.classList.toggle('activa', b === btn));
-      for (const id of ['vistaRecursos', 'vistaProductos', 'vistaCanales']) {
+      for (const id of ['vistaRecursos', 'vistaProductos', 'vistaCanales', 'vistaSugerencias']) {
         document.getElementById(id).classList.toggle('oculto', id !== btn.dataset.tab);
       }
     }));
 
     const dineroUsd = (c) => '$' + ((c ?? 0) / 100).toLocaleString('es-CO', { maximumFractionDigits: 2 });
     const dineroCop = (c) => Math.round((c ?? 0) / 100).toLocaleString('es-CO') + ' COP';
+    let sugerenciasActuales = [];
+
+    // Descarga CSV de las sugerencias del período filtrado (separador ; para Excel en español)
+    document.getElementById('btnCsvSugerencias').addEventListener('click', () => {
+      const filas = [['Fecha', 'Correo', 'Sugerencia'],
+        ...sugerenciasActuales.map(s => [
+          new Date(s.creada_en).toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+          s.email ?? '',
+          s.texto ?? '',
+        ])];
+      const csv = '\uFEFF' + filas.map(f => f.map(v => '"' + String(v).replaceAll('"', '""') + '"').join(';')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const d = document.getElementById('fDesde').value, h = document.getElementById('fHasta').value;
+      a.download = (d || h) ? `sugerencias-${d || 'inicio'}-a-${h || 'hoy'}.csv` : 'sugerencias-todas.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
 
     // Llama la función con fechas; si el SQL de fechas aún no se corrió,
     // cae a la versión sin parámetros (cifras de todo el tiempo).
@@ -211,6 +255,35 @@
         </tr>
       `).join('');
       document.getElementById('tablaProductos').classList.remove('oculto');
+
+      // Pestaña sugerencias: lectura directa con RLS (solo el admin ve filas);
+      // el rango de fechas se convierte a días de Colombia
+      let consultaSug = sb.from('sugerencias').select('creada_en, email, texto')
+        .order('creada_en', { ascending: false }).limit(500);
+      if (desde) consultaSug = consultaSug.gte('creada_en', new Date(desde + 'T00:00:00-05:00').toISOString());
+      if (hasta) {
+        const fin = new Date(hasta + 'T00:00:00-05:00');
+        fin.setDate(fin.getDate() + 1);
+        consultaSug = consultaSug.lt('creada_en', fin.toISOString());
+      }
+      const { data: sugerencias } = await consultaSug;
+      sugerenciasActuales = sugerencias ?? [];
+      document.getElementById('cargandoSugerencias').classList.add('oculto');
+      document.getElementById('btnCsvSugerencias').classList.toggle('oculto', !sugerenciasActuales.length);
+      if (!sugerenciasActuales.length) {
+        document.getElementById('tablaSugerencias').classList.add('oculto');
+        document.getElementById('vacioSugerencias').classList.remove('oculto');
+      } else {
+        document.getElementById('vacioSugerencias').classList.add('oculto');
+        document.getElementById('filasSugerencias').innerHTML = sugerenciasActuales.map(s => `
+          <tr>
+            <td>${new Date(s.creada_en).toLocaleString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'short', timeStyle: 'short' })}</td>
+            <td>${escapar(s.email ?? 'sin correo')}</td>
+            <td class="sugerencia-texto">${escapar(s.texto)}</td>
+          </tr>
+        `).join('');
+        document.getElementById('tablaSugerencias').classList.remove('oculto');
+      }
 
       // Pestaña canales (atribución UTM)
       document.getElementById('cargandoCanales').classList.add('oculto');
