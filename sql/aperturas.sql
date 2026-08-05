@@ -40,23 +40,27 @@ create or replace view public.tendencias_guias as
 
 grant select on public.tendencias_guias to anon, authenticated;
 
--- Resumen para el panel del admin: por recurso, últimas 24 h / 7 días / 30 días / total.
+-- Resumen para el panel del admin: por recurso, últimas 24 h / 7 días / 30 días /
+-- total de aperturas + cuántas personas lo tienen en favoritos.
 -- security definer con verificación explícita de admin adentro: a cualquier
--- otro usuario le devuelve cero filas.
+-- otro usuario le devuelve cero filas. Parte de guides para que un recurso
+-- con favoritos pero sin aperturas también aparezca.
+drop function if exists public.panel_aperturas();
 create or replace function public.panel_aperturas()
-returns table (guide_id uuid, titulo text, ultimas24h bigint, dias7 bigint, dias30 bigint, total bigint)
+returns table (guide_id uuid, titulo text, ultimas24h bigint, dias7 bigint, dias30 bigint, total bigint, favoritos bigint)
 language sql
 security definer
 set search_path = public
 as $$
   select g.id, g.titulo,
-         count(*) filter (where a.abierta_en > now() - interval '24 hours'),
-         count(*) filter (where a.abierta_en > now() - interval '7 days'),
-         count(*) filter (where a.abierta_en > now() - interval '30 days'),
-         count(*)
-  from public.aperturas a
-  left join public.products p on p.id = a.product_id
-  join public.guides g on g.id = coalesce(a.guide_id, p.guide_id)
+         count(a.id) filter (where a.abierta_en > now() - interval '24 hours'),
+         count(a.id) filter (where a.abierta_en > now() - interval '7 days'),
+         count(a.id) filter (where a.abierta_en > now() - interval '30 days'),
+         count(a.id),
+         (select count(*) from public.user_guia_favoritos f where f.guide_id = g.id)
+  from public.guides g
+  left join public.products p on p.guide_id = g.id
+  left join public.aperturas a on a.guide_id = g.id or a.product_id = p.id
   where exists (select 1 from public.profiles pr where pr.id = auth.uid() and pr.es_admin)
   group by g.id, g.titulo
   order by 5 desc;

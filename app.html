@@ -873,10 +873,17 @@
     }
     window.goToHeroSlide = goToHeroSlide;
 
+    let heroFirma = null;
     function buildHeroCarousel() {
-      heroSlides = heroSlidesRaw
+      const nuevas = heroSlidesRaw
         .filter(s => s.activo)
         .map(s => ({ imgDesktop: s.imagen_desktop_url, imgTablet: s.imagen_tablet_url, imgMobile: s.imagen_mobile_url, ctaTexto: s.cta_texto, ctaUrl: s.cta_url }));
+      // Si el hero no cambió, no se reconstruye: evita el parpadeo entre la
+      // pintada desde caché, la del contenido fresco y la recarga del admin.
+      const firma = JSON.stringify(nuevas);
+      if (firma === heroFirma) return;
+      heroFirma = firma;
+      heroSlides = nuevas;
 
       const hero = document.getElementById('appHero');
       const heroContent = hero.querySelector('.app-hero-content');

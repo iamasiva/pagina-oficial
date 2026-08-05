@@ -45,7 +45,7 @@
     <div class="tabla-scroll">
       <table id="tabla" style="display:none">
         <thead>
-          <tr><th>Recurso</th><th>Últimas 24 h</th><th>7 días</th><th>30 días</th><th>Total</th></tr>
+          <tr><th>Recurso</th><th>Últimas 24 h</th><th>7 días</th><th>30 días</th><th>Total</th><th>★ Favoritos</th></tr>
         </thead>
         <tbody id="filas"></tbody>
       </table>
@@ -79,6 +79,7 @@
           <td>${f.dias7}</td>
           <td class="destacado">${f.dias30}</td>
           <td>${f.total}</td>
+          <td class="destacado">${f.favoritos}</td>
         </tr>
       `).join('');
       document.getElementById('tabla').style.display = '';
