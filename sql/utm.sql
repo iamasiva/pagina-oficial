@@ -25,11 +25,14 @@ as $$
     'visitas_landing', (select count(*) from public.eventos where tipo = 'visita_landing'),
     'clics_comprar',   (select count(*) from public.eventos where tipo = 'clic_comprar'),
     'ventas',          (select count(*) from public.purchases where estado = 'APROBADA' and gateway <> 'bundle'),
+    'ventas_usd_centavos', (select coalesce(sum(monto_usd_centavos), 0) from public.purchases where estado = 'APROBADA' and gateway <> 'bundle'),
+    'ventas_cop_centavos', (select coalesce(sum(monto_centavos), 0) from public.purchases where estado = 'APROBADA' and gateway <> 'bundle'),
     'productos', (select coalesce(json_agg(fila), '[]'::json) from (
         select p.id, p.nombre,
           (select count(*) from public.eventos e where e.tipo = 'visita_landing' and e.product_id = p.id) as visitas,
           (select count(*) from public.eventos e where e.tipo = 'clic_comprar' and e.product_id = p.id) as clics,
-          (select count(*) from public.purchases c where c.product_id = p.id and c.estado = 'APROBADA' and c.gateway <> 'bundle') as compras
+          (select count(*) from public.purchases c where c.product_id = p.id and c.estado = 'APROBADA' and c.gateway <> 'bundle') as compras,
+          (select coalesce(sum(monto_usd_centavos), 0) from public.purchases c where c.product_id = p.id and c.estado = 'APROBADA' and c.gateway <> 'bundle') as usd_centavos
         from public.products p
         where p.activo
         order by p.nombre

@@ -79,7 +79,7 @@
     <div class="tabla-scroll">
       <table id="tablaProductos" class="oculto">
         <thead>
-          <tr><th>Producto</th><th>Visitas landing</th><th>Clics en comprar</th><th>Compras</th></tr>
+          <tr><th>Producto</th><th>Visitas landing</th><th>Clics en comprar</th><th>Compras</th><th>$ Vendido (USD)</th></tr>
         </thead>
         <tbody id="filasProductos"></tbody>
       </table>
@@ -127,14 +127,17 @@
       ]);
 
       // Cards de resumen general
+      const dineroUsd = (c) => '$' + ((c ?? 0) / 100).toLocaleString('es-CO', { maximumFractionDigits: 2 });
+      const dineroCop = (c) => Math.round((c ?? 0) / 100).toLocaleString('es-CO') + ' COP';
       if (resumen) {
         document.getElementById('cards').innerHTML = [
-          [resumen.visitas_sitio, 'Visitas a la página (una por sesión)'],
-          [resumen.registros, 'Registros en la página'],
-          [resumen.visitas_landing, 'Visitas a landings de venta'],
-          [resumen.clics_comprar, 'Clics en botón de compra'],
-          [resumen.ventas, 'Ventas efectuadas'],
-        ].map(([n, texto]) => `<div class="card"><b>${n ?? 0}</b><span>${texto}</span></div>`).join('');
+          [resumen.visitas_sitio ?? 0, 'Visitas a la página (una por sesión)'],
+          [resumen.registros ?? 0, 'Registros en la página'],
+          [resumen.visitas_landing ?? 0, 'Visitas a landings de venta'],
+          [resumen.clics_comprar ?? 0, 'Clics en botón de compra'],
+          [resumen.ventas ?? 0, 'Ventas efectuadas'],
+          [dineroUsd(resumen.ventas_usd_centavos) + ' USD', `Dinero vendido (${dineroCop(resumen.ventas_cop_centavos)} cobrados)`],
+        ].map(([n, texto]) => `<div class="card"><b>${n}</b><span>${texto}</span></div>`).join('');
       }
 
       // Pestaña recursos (aperturas + favoritos)
@@ -164,6 +167,7 @@
           <td>${p.visitas}</td>
           <td>${p.clics}</td>
           <td class="destacado">${p.compras}</td>
+          <td class="destacado">${dineroUsd(p.usd_centavos)}</td>
         </tr>
       `).join('');
       document.getElementById('tablaProductos').classList.remove('oculto');
