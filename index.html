@@ -400,14 +400,19 @@
     .card-info {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      padding: 52px 14px 16px;
+      padding: 8px 12px 12px;
     }
 
     .card-title {
-      font-size: 0.88rem;
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--white);
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .card-tag {
@@ -665,8 +670,8 @@
       transition: opacity 0.65s ease, transform 0.65s ease;
     }
 
-    .guide-card .card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .guide-card .card-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,5,5,0.15) 0%, transparent 35%, rgba(5,5,5,0.92) 100%); }
+    .guide-card .card-cover { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 58px); object-fit: cover; }
+    .guide-card .card-scrim { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 58px); background: linear-gradient(180deg, rgba(5,5,5,0.25) 0%, transparent 45%); }
     .guide-card .card-rank, .guide-card .card-badge, .guide-card .card-info { z-index: 2; }
     .stagger.visible > * { opacity: 1; transform: none; }
 
@@ -1625,7 +1630,7 @@
           card.addEventListener('click', () => {
             const productId = productoDeGuia.get(card.dataset.guia);
             if (productId) { window.location.href = `producto.html?p=${productId}`; return; }
-            openModal('viewRegister');
+            openModal('viewLogin');
           });
         });
       } catch (_) {}
