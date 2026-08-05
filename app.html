@@ -792,6 +792,7 @@
         document.getElementById('filteredSection').classList.remove('active');
         document.getElementById('mainSections').classList.remove('filtered');
         document.getElementById('navCollapse').classList.remove('open');
+        document.getElementById('appHero').style.display = '';
         return;
       }
 
@@ -820,6 +821,8 @@
       // "Ver catálogo" se muestra como lista vertical: portada, nombre,
       // descripción y botón Ver recurso, para recorrerlo uno por uno
       const modoLista = type === 'catalogo';
+      // En "Ver catálogo" el hero se oculta: la lista manda
+      document.getElementById('appHero').style.display = modoLista ? 'none' : '';
       document.getElementById('filteredSection').classList.toggle('modo-lista', modoLista);
       document.getElementById('rowFiltered').classList.toggle('vista-lista', modoLista);
       document.getElementById('rowFiltered').innerHTML = filtered.length
