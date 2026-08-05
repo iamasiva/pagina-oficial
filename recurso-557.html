@@ -2925,6 +2925,9 @@ ${clean}`;
       },
     };
 
+    // Apertura registrada para tendencias reales; si falla no molesta a nadie
+    sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
+
     document.getElementById('imCargando').classList.add('im-oculto');
     __initApp();
   })();

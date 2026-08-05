@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Panel · IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue-elec: #2F6BFF; --white: #FFFFFF; --gray: #D1D5DB; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%);
+      color: var(--white); min-height: 100vh; padding: 24px;
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; max-width: 860px; margin: 0 auto 30px; }
+    .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; }
+    .nav a { color: #9aacbf; font-size: 0.85rem; text-decoration: none; border: 1px solid rgba(47,107,255,0.4); padding: 8px 16px; border-radius: 8px; }
+    .nav a:hover { color: var(--white); border-color: var(--blue-elec); }
+    .caja { max-width: 860px; margin: 0 auto; background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.25); border-radius: 16px; padding: 28px; backdrop-filter: blur(10px); }
+    h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; }
+    .sub { color: #9aacbf; font-size: 0.85rem; margin-bottom: 22px; }
+    .tabla-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 560px; }
+    th { text-align: right; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #8fa0b5; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    th:first-child, td:first-child { text-align: left; }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.07); color: var(--gray); text-align: right; font-variant-numeric: tabular-nums; }
+    td:first-child { color: var(--white); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    td.destacado { color: var(--white); font-weight: 800; }
+    .estado { text-align: center; color: #9aacbf; padding: 30px 0; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <span class="logo">IA MASIVA</span>
+    <a href="app.html">← Volver al catálogo</a>
+  </nav>
+
+  <div class="caja">
+    <h1>Aperturas de recursos</h1>
+    <p class="sub">Cada vez que un usuario abre una guía o entra a un recurso premium, cuenta aquí. "Tendencias" del catálogo se ordena con los últimos 30 días.</p>
+    <div id="cargando" class="estado">Cargando…</div>
+    <div class="tabla-scroll">
+      <table id="tabla" style="display:none">
+        <thead>
+          <tr><th>Recurso</th><th>Últimas 24 h</th><th>7 días</th><th>30 días</th><th>Total</th></tr>
+        </thead>
+        <tbody id="filas"></tbody>
+      </table>
+    </div>
+    <div id="vacio" class="estado" style="display:none">Aún no hay aperturas registradas. Apenas alguien abra un recurso, aparece aquí.</div>
+  </div>
+
+  <script>
+    const sb = supabase.createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+    const escapar = (t) => { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; };
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'index.html'; return; }
+      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
+      if (!perfil?.es_admin) { window.location.href = 'app.html'; return; }
+
+      const { data: resumen, error } = await sb.rpc('panel_aperturas');
+      document.getElementById('cargando').style.display = 'none';
+      if (error || !resumen?.length) {
+        document.getElementById('vacio').style.display = '';
+        return;
+      }
+      document.getElementById('filas').innerHTML = resumen.map(f => `
+        <tr>
+          <td>${escapar(f.titulo)}</td>
+          <td>${f.ultimas24h}</td>
+          <td>${f.dias7}</td>
+          <td class="destacado">${f.dias30}</td>
+          <td>${f.total}</td>
+        </tr>
+      `).join('');
+      document.getElementById('tabla').style.display = '';
+    })();
+  </script>
+</body>
+</html>

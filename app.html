@@ -279,6 +279,7 @@
           </button>
           <div class="user-menu" id="userMenu">
             <button class="hidden" id="btnNewGuide">+ Nueva guía</button>
+            <button class="hidden" id="btnPanelAdmin" onclick="window.location.href='panel.html'">Panel</button>
             <button onclick="abrirPanelUsuario('favoritos')">❤ Favoritos</button>
             <button onclick="abrirPanelUsuario('compras')">Mis compras</button>
             <button id="appLogout">Salir</button>
@@ -531,6 +532,7 @@
     ];
 
     let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
+    let tendenciasConteo = new Map(), usuarioActualId = null;
     let favoritosSet = new Set();
 
     // Pintura instantánea: lo último que el navegador vio, mientras llega lo fresco
@@ -554,9 +556,13 @@
       sb.from('guides').select('*').eq('publicada', true).order('created_at', { ascending: false }),
       sb.from('hero_slides').select('*').order('orden', { ascending: true }),
       sb.from('products').select('*').eq('activo', true),
-    ]).then(([g, s, p]) => {
+      sb.from('tendencias_guias').select('*'),
+    ]).then(([g, s, p, t]) => {
       if (g.error) return false;
       allGuides = g.data ?? []; heroSlidesRaw = s.data ?? []; allProducts = p.data ?? [];
+      // Aperturas reales de los últimos 30 días; si la vista aún no existe, Tendencias
+      // cae al orden por fecha sin romper nada.
+      tendenciasConteo = new Map((t.error ? [] : t.data ?? []).map(f => [f.guide_id, f.aperturas]));
       renderAll();
       guardarCacheContenido();
       return true;
@@ -796,6 +802,8 @@
         document.getElementById('guideFrame').srcdoc = html;
         document.getElementById('guideOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
+        // Apertura registrada para tendencias reales; si falla no molesta a nadie
+        if (usuarioActualId) sb.from('aperturas').insert({ user_id: usuarioActualId, guide_id: id }).then(() => {}, () => {});
         return true;
       } catch(e) {
         alert('No se pudo cargar la guía. Intenta de nuevo.');
@@ -899,7 +907,9 @@
 
       document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
       document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías Premium.</p>';
-      document.getElementById('rowTendencias').innerHTML= allGuides.slice(0,10).length ? allGuides.slice(0,10).map((g,i)=>makeCard(g,i+1,true)).join('') : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
+      // Tendencias reales: aperturas de los últimos 30 días; a igual conteo, la más nueva primero
+      const porTendencia = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
+      document.getElementById('rowTendencias').innerHTML= porTendencia.slice(0,10).length ? porTendencia.slice(0,10).map((g,i)=>makeCard(g,i+1,true)).join('') : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
 
       // Categorías: top 6 por cantidad de guías
       const catCount = {};
@@ -1228,6 +1238,7 @@
 
     // ── INIT ──────────────────────────────────────────────────
     async function initApp(session) {
+      usuarioActualId = session.user.id;
       const nombre=session.user.user_metadata?.nombre||session.user.user_metadata?.full_name||session.user.email;
       document.getElementById('appNavName').textContent=nombre;
 
@@ -1241,6 +1252,7 @@
       isAdmin=!!profile?.es_admin;
       if(isAdmin) {
         document.getElementById('btnNewGuide').classList.remove('hidden');
+        document.getElementById('btnPanelAdmin').classList.remove('hidden');
         document.getElementById('heroEditBtn').classList.remove('hidden');
       }
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
