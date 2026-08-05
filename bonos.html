@@ -54,6 +54,13 @@
     .estado-carga { text-align: center; color: #9aacbf; padding: 26px 0; }
     .oculto { display: none !important; }
     input[type="file"] { display: none; }
+    .tabs { max-width: 860px; margin: 0 auto 14px; display: flex; gap: 8px; }
+    .tab { background: none; border: 1px solid rgba(47,107,255,0.35); color: #9aacbf; padding: 9px 18px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .tab.activa { background: var(--blue-elec); border-color: var(--blue-elec); color: var(--white); }
+    .fechas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .fechas label { font-size: 0.82rem; color: #9aacbf; display: flex; align-items: center; gap: 6px; }
+    .fechas input[type="date"] { background: rgba(5,5,5,0.5); border: 1px solid rgba(47,107,255,0.35); color: var(--white); border-radius: 8px; padding: 7px 10px; font-family: inherit; font-size: 0.82rem; color-scheme: dark; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body>
@@ -65,6 +72,12 @@
     </div>
   </nav>
 
+  <div class="tabs">
+    <button class="tab activa" data-tab="vistaGestion">Gestionar bonos</button>
+    <button class="tab" data-tab="vistaStats">Estadísticas</button>
+  </div>
+
+  <div id="vistaGestion">
   <div class="caja">
     <h1>Otorgar bonos</h1>
     <p class="sub">Habilita productos de pago como bono. Si el correo aún no tiene cuenta, el bono queda esperando y se activa solo cuando esa persona se registre con ese correo.</p>
@@ -106,6 +119,33 @@
     </div>
     <div id="vacioBonos" class="estado-carga oculto">Aún no has otorgado bonos.</div>
   </div>
+  </div>
+
+  <div id="vistaStats" class="oculto">
+    <div class="caja">
+      <h1>Bonos regalados por producto</h1>
+      <p class="sub">Cuántos bonos has otorgado de cada producto. Sin fechas muestra el total histórico; filtra por período o por productos para analizar.</p>
+
+      <div class="fechas">
+        <label>Desde <input type="date" id="sDesde" /></label>
+        <label>Hasta <input type="date" id="sHasta" /></label>
+        <button class="btn" id="btnStatsAplicar" style="padding: 9px 18px; font-size: 0.82rem; border-radius: 999px;">Aplicar</button>
+        <button class="btn-sec" id="btnStatsTodo" style="padding: 8px 16px; border-radius: 999px; font-size: 0.82rem;">Todo</button>
+      </div>
+
+      <label class="campo">Productos</label>
+      <div class="prods" id="prodsStats" style="margin-bottom: 16px;"></div>
+
+      <div class="tabla-scroll">
+        <table id="tablaStats">
+          <thead>
+            <tr><th>Producto</th><th class="num">Bonos regalados</th><th class="num">Cuentas activas</th><th class="num">Pendientes de registro</th></tr>
+          </thead>
+          <tbody id="filasStats"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <script>
     const sb = supabase.createClient(
@@ -117,6 +157,56 @@
     let token = null;
     let nombreProducto = {};
     let bonosPorCorreo = new Map();
+    let bonosTodos = [];
+
+    document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('activa', b === btn));
+      for (const id of ['vistaGestion', 'vistaStats']) {
+        $(id).classList.toggle('oculto', id !== btn.dataset.tab);
+      }
+    }));
+
+    // Estadísticas: conteo por producto con filtro de fechas (días de Colombia)
+    // y filtro de productos. Sin fechas = total histórico.
+    function pintarStats() {
+      const desde = $('sDesde').value || null;
+      const hasta = $('sHasta').value || null;
+      const dLim = desde ? new Date(desde + 'T00:00:00-05:00') : null;
+      let hLim = null;
+      if (hasta) { hLim = new Date(hasta + 'T00:00:00-05:00'); hLim.setDate(hLim.getDate() + 1); }
+      const elegidos = [...document.querySelectorAll('.stats-prod-cb:checked')].map(cb => cb.value);
+
+      const conteo = new Map();
+      for (const b of bonosTodos) {
+        if (!elegidos.includes(b.product_id)) continue;
+        const fecha = new Date(b.purchased_at);
+        if (dLim && fecha < dLim) continue;
+        if (hLim && fecha >= hLim) continue;
+        if (!conteo.has(b.product_id)) conteo.set(b.product_id, { total: 0, activos: 0 });
+        const c = conteo.get(b.product_id);
+        c.total++;
+        if (b.user_id) c.activos++;
+      }
+
+      const filas = elegidos
+        .map(id => ({ id, nombre: nombreProducto[id] ?? 'Producto', ...(conteo.get(id) ?? { total: 0, activos: 0 }) }))
+        .sort((a, b) => b.total - a.total);
+      const total = filas.reduce((t, f) => t + f.total, 0);
+      $('filasStats').innerHTML = filas.map(f => `
+        <tr>
+          <td class="correo">${escapar(f.nombre)}</td>
+          <td class="num" style="color:#fff; font-weight:800;">${f.total}</td>
+          <td class="num">${f.activos}</td>
+          <td class="num">${f.total - f.activos}</td>
+        </tr>
+      `).join('') + (filas.length > 1 ? `
+        <tr>
+          <td class="correo" style="color:#8fa0b5;">Total</td>
+          <td class="num" style="color:#fff; font-weight:800;">${total}</td>
+          <td class="num">${filas.reduce((t, f) => t + f.activos, 0)}</td>
+          <td class="num">${filas.reduce((t, f) => t + (f.total - f.activos), 0)}</td>
+        </tr>` : '');
+    }
 
     function extraerCorreos(texto) {
       return [...new Set(texto.split(/[\s,;]+/).map(c => c.trim().toLowerCase()).filter(c => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)))];
@@ -165,6 +255,8 @@
       const res = await fetch('/api/bonos', { headers: { Authorization: `Bearer ${token}` } });
       const body = await res.json();
       const bonos = body.bonos ?? [];
+      bonosTodos = bonos;
+      pintarStats();
       bonosPorCorreo = new Map();
       for (const b of bonos) {
         const correo = (b.email_comprador ?? 'sin correo').toLowerCase();
@@ -219,6 +311,14 @@
       $('prodsOtorgar').innerHTML = individuales.map(p => `
         <label><input type="checkbox" class="prod-cb" value="${p.id}" /> ${escapar(p.nombre)}</label>
       `).join('');
+
+      // Filtro de productos de la pestaña Estadísticas (todos marcados por defecto)
+      $('prodsStats').innerHTML = individuales.map(p => `
+        <label><input type="checkbox" class="stats-prod-cb" value="${p.id}" checked /> ${escapar(p.nombre)}</label>
+      `).join('');
+      document.querySelectorAll('.stats-prod-cb').forEach(cb => cb.addEventListener('change', pintarStats));
+      $('btnStatsAplicar').addEventListener('click', pintarStats);
+      $('btnStatsTodo').addEventListener('click', () => { $('sDesde').value = ''; $('sHasta').value = ''; pintarStats(); });
 
       $('btnOtorgar').addEventListener('click', async () => {
         const correos = extraerCorreos($('correosOtorgar').value);
