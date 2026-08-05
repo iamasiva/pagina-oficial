@@ -169,6 +169,10 @@
     #filteredSection.active { display: block; }
 
     /* ── Vista de lista (Ver catálogo): un recurso por fila ── */
+    .filtered-encabezado { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-right: 14px; }
+    .btn-volver-lista { display: none; background: none; border: 1px solid rgba(47,107,255,0.4); color: var(--gray); border-radius: 8px; padding: 8px 18px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+    .btn-volver-lista:hover { color: var(--white); border-color: var(--blue-elec); }
+    #filteredSection.modo-lista .btn-volver-lista { display: inline-block; }
     #filteredSection.modo-lista .scroll-arrow { display: none; }
     .app-track.vista-lista { display: block; overflow-x: visible; padding: 24px 14px; }
     .lista-item { display: flex; gap: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(47,107,255,0.16); border-radius: 16px; padding: 16px; margin: 0 auto 14px; max-width: 860px; }
@@ -353,7 +357,10 @@
     <!-- Vista filtrada -->
     <div id="filteredSection">
       <div class="app-row">
-        <h2 class="app-row-title" id="filteredTitle">Resultados</h2>
+        <div class="filtered-encabezado">
+          <h2 class="app-row-title" id="filteredTitle">Resultados</h2>
+          <button class="btn-volver-lista" id="btnVolverLista" onclick="irInicio()">← Volver</button>
+        </div>
         <div class="scroll-wrapper">
           <button class="scroll-arrow left"  onclick="scrollRow('rowFiltered',-1)">&#8592;</button>
           <div class="app-track" id="rowFiltered"></div>
@@ -713,6 +720,9 @@
       document.getElementById('userMenu').classList.remove('open');
       document.getElementById('navCollapse').classList.remove('open');
       setFilter(tipo);
+      // El catálogo abre arriba de todo (el hero se oculta y encoge la página:
+      // un scroll suave aterrizaría a mitad de lista)
+      if (tipo === 'catalogo') { window.scrollTo(0, 0); return; }
       document.getElementById('filteredSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     window.abrirPanelUsuario = abrirPanelUsuario;
