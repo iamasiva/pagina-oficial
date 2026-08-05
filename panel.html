@@ -54,6 +54,7 @@
   <div class="tabs">
     <button class="tab activa" data-tab="vistaRecursos">Recursos</button>
     <button class="tab" data-tab="vistaProductos">Info productos de pago</button>
+    <button class="tab" data-tab="vistaCanales">Canales</button>
   </div>
 
   <div class="caja" id="vistaRecursos">
@@ -85,6 +86,21 @@
     </div>
   </div>
 
+  <div class="caja oculto" id="vistaCanales">
+    <h1>De dónde llega la gente</h1>
+    <p class="sub">Cada visitante que llega con un link marcado queda atribuido a su canal por 30 días; su compra también. Sin marca cuenta como "directo".</p>
+    <div id="cargandoCanales" class="estado">Cargando…</div>
+    <div class="tabla-scroll">
+      <table id="tablaCanales" class="oculto">
+        <thead>
+          <tr><th>Canal</th><th>Visitas</th><th>Clics en comprar</th><th>Ventas</th></tr>
+        </thead>
+        <tbody id="filasCanales"></tbody>
+      </table>
+    </div>
+    <div id="vacioCanales" class="estado oculto">Aún no hay tráfico registrado. Apenas llegue la primera visita, aparece aquí.</div>
+  </div>
+
   <script>
     const sb = supabase.createClient(
       'https://iyiygnfaxiejtlgkkivs.supabase.co',
@@ -94,7 +110,7 @@
 
     document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(b => b.classList.toggle('activa', b === btn));
-      for (const id of ['vistaRecursos', 'vistaProductos']) {
+      for (const id of ['vistaRecursos', 'vistaProductos', 'vistaCanales']) {
         document.getElementById(id).classList.toggle('oculto', id !== btn.dataset.tab);
       }
     }));
@@ -151,6 +167,23 @@
         </tr>
       `).join('');
       document.getElementById('tablaProductos').classList.remove('oculto');
+
+      // Pestaña canales (atribución UTM)
+      document.getElementById('cargandoCanales').classList.add('oculto');
+      const canales = resumen?.canales ?? [];
+      if (!canales.length) {
+        document.getElementById('vacioCanales').classList.remove('oculto');
+      } else {
+        document.getElementById('filasCanales').innerHTML = canales.map(c => `
+          <tr>
+            <td>${escapar(c.canal)}</td>
+            <td>${c.visitas}</td>
+            <td>${c.clics}</td>
+            <td class="destacado">${c.ventas}</td>
+          </tr>
+        `).join('');
+        document.getElementById('tablaCanales').classList.remove('oculto');
+      }
     })();
   </script>
 </body>

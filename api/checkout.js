@@ -56,8 +56,20 @@ export default async function handler(req, res) {
       .update(`${reference}${amountInCents}${currency}${process.env.WOMPI_INTEGRITY_SECRET}`)
       .digest('hex');
 
+    // Canal de origen de la venta (UTM del navegador del comprador).
+    // Texto controlado por el visitante: se limpia y se acota.
+    const limpiarUtm = (v) => {
+      const t = String(v ?? '').trim().toLowerCase().slice(0, 60);
+      return t || null;
+    };
+    const utm = {
+      utm_source: limpiarUtm(req.query.utm_source),
+      utm_medium: limpiarUtm(req.query.utm_medium),
+      utm_campaign: limpiarUtm(req.query.utm_campaign),
+    };
+
     // Registro PENDIENTE: deja auditoría de la TRM y el monto ofrecidos.
-    const { error: insertError } = await db.from('purchases').insert({
+    const fila = {
       user_id: user?.id ?? null,
       product_id: productId,
       guide_id: product.guide_id,
@@ -69,7 +81,12 @@ export default async function handler(req, res) {
       monto_usd_centavos: precioEfectivo,
       trm_aplicada: trm,
       consintio_acceso: new Date().toISOString(),
-    });
+    };
+    let { error: insertError } = await db.from('purchases').insert({ ...fila, ...utm });
+    // Si las columnas UTM aún no existen, la venta jamás se pierde por eso.
+    if (insertError) {
+      ({ error: insertError } = await db.from('purchases').insert(fila));
+    }
     if (insertError) throw new Error(insertError.message);
 
     const origin = `https://${req.headers['x-forwarded-host'] || req.headers.host}`;

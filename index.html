@@ -1356,16 +1356,44 @@
 
     // ── SUPABASE AUTH ─────────────────────────────────────────────
     const { createClient } = supabase;
-    const sb = createClient(
-      'https://iyiygnfaxiejtlgkkivs.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
-    );
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = createClient('https://iyiygnfaxiejtlgkkivs.supabase.co', SUPABASE_ANON);
 
-    // Visita al sitio: una por sesión de navegador (index y app comparten la marca)
+    // ── Canal de origen (UTM): se captura al llegar y persigue al visitante 30 días ──
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get('utm_source')) {
+        localStorage.setItem('im_utm', JSON.stringify({
+          source: q.get('utm_source').trim().toLowerCase().slice(0, 60),
+          medium: (q.get('utm_medium') || '').trim().toLowerCase().slice(0, 60) || null,
+          campaign: (q.get('utm_campaign') || '').trim().toLowerCase().slice(0, 60) || null,
+          guardado: Date.now(),
+        }));
+      }
+    } catch (_) {}
+    function utmActual() {
+      try {
+        const u = JSON.parse(localStorage.getItem('im_utm') ?? 'null');
+        if (!u?.source || Date.now() - u.guardado > 30 * 24 * 3600 * 1000) return null;
+        return u;
+      } catch (_) { return null; }
+    }
+
+    // Visita al sitio: una por sesión de navegador (index y app comparten la marca).
+    // keepalive: el registro sobrevive aunque la página redirija de inmediato.
     try {
       if (!sessionStorage.getItem('im_visita')) {
         sessionStorage.setItem('im_visita', '1');
-        sb.from('eventos').insert({ tipo: 'visita_sitio' }).then(() => {}, () => {});
+        const u = utmActual();
+        const base = { tipo: 'visita_sitio' };
+        const cuerpo = u ? { ...base, utm_source: u.source, utm_medium: u.medium, utm_campaign: u.campaign } : base;
+        const enviarVisita = (datos) => fetch('https://iyiygnfaxiejtlgkkivs.supabase.co/rest/v1/eventos', {
+          method: 'POST',
+          keepalive: true,
+          headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify(datos),
+        });
+        enviarVisita(cuerpo).then(r => { if (!r.ok && u) enviarVisita(base).catch(() => {}); }).catch(() => {});
       }
     } catch (_) {}
 

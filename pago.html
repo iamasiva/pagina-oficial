@@ -98,6 +98,26 @@
     const $ = (id) => document.getElementById(id);
     const productId = new URLSearchParams(location.search).get('p');
 
+    // ── Canal de origen (UTM): se captura al llegar y persigue al visitante 30 días ──
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get('utm_source')) {
+        localStorage.setItem('im_utm', JSON.stringify({
+          source: q.get('utm_source').trim().toLowerCase().slice(0, 60),
+          medium: (q.get('utm_medium') || '').trim().toLowerCase().slice(0, 60) || null,
+          campaign: (q.get('utm_campaign') || '').trim().toLowerCase().slice(0, 60) || null,
+          guardado: Date.now(),
+        }));
+      }
+    } catch (_) {}
+    function utmActual() {
+      try {
+        const u = JSON.parse(localStorage.getItem('im_utm') ?? 'null');
+        if (!u?.source || Date.now() - u.guardado > 30 * 24 * 3600 * 1000) return null;
+        return u;
+      } catch (_) { return null; }
+    }
+
     function mostrar(id) {
       for (const s of ['cargando', 'yaComprado', 'checkout']) $(s).classList.add('oculto');
       $(id).classList.remove('oculto');
@@ -155,7 +175,12 @@
         $('msjError').classList.add('oculto');
         try {
           const cab = session ? { Authorization: `Bearer ${session.access_token}` } : {};
-          const res = await fetch(`/api/checkout?product=${productId}&consent=1`, { headers: cab });
+          // El canal de origen viaja con el checkout y queda pegado a la venta
+          const u = utmActual();
+          const utmQs = u
+            ? `&utm_source=${encodeURIComponent(u.source)}${u.medium ? `&utm_medium=${encodeURIComponent(u.medium)}` : ''}${u.campaign ? `&utm_campaign=${encodeURIComponent(u.campaign)}` : ''}`
+            : '';
+          const res = await fetch(`/api/checkout?product=${productId}&consent=1${utmQs}`, { headers: cab });
           const body = await res.json();
           if (!res.ok) throw new Error(body.error || 'No se pudo iniciar el pago');
           sessionStorage.setItem('compra_ref', body.reference);

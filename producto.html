@@ -583,16 +583,42 @@
       r.setProperty('--card-claro-fondo', t.cardClaroFondo); r.setProperty('--card-claro-ink', t.cardClaroInk); r.setProperty('--card-claro-muted', t.cardClaroMuted);
     }
 
-    // Evento del embudo de ventas. keepalive: el envío sobrevive aunque la
-    // página navegue de inmediato (clic de compra rumbo a la pasarela).
-    function registrarEvento(tipo, productIdEvento) {
+    // ── Canal de origen (UTM): se captura al llegar y persigue al visitante 30 días ──
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get('utm_source')) {
+        localStorage.setItem('im_utm', JSON.stringify({
+          source: q.get('utm_source').trim().toLowerCase().slice(0, 60),
+          medium: (q.get('utm_medium') || '').trim().toLowerCase().slice(0, 60) || null,
+          campaign: (q.get('utm_campaign') || '').trim().toLowerCase().slice(0, 60) || null,
+          guardado: Date.now(),
+        }));
+      }
+    } catch (_) {}
+    function utmActual() {
       try {
-        fetch('https://iyiygnfaxiejtlgkkivs.supabase.co/rest/v1/eventos', {
-          method: 'POST',
-          keepalive: true,
-          headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-          body: JSON.stringify({ tipo, product_id: productIdEvento ?? null }),
-        }).catch(() => {});
+        const u = JSON.parse(localStorage.getItem('im_utm') ?? 'null');
+        if (!u?.source || Date.now() - u.guardado > 30 * 24 * 3600 * 1000) return null;
+        return u;
+      } catch (_) { return null; }
+    }
+
+    // Evento del embudo de ventas, marcado con su canal. keepalive: el envío
+    // sobrevive aunque la página navegue de inmediato (clic rumbo a la pasarela).
+    async function registrarEvento(tipo, productIdEvento) {
+      const base = { tipo, product_id: productIdEvento ?? null };
+      const u = utmActual();
+      const cuerpo = u ? { ...base, utm_source: u.source, utm_medium: u.medium, utm_campaign: u.campaign } : base;
+      const enviar = (datos) => fetch('https://iyiygnfaxiejtlgkkivs.supabase.co/rest/v1/eventos', {
+        method: 'POST',
+        keepalive: true,
+        headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify(datos),
+      });
+      try {
+        const r = await enviar(cuerpo);
+        // Si las columnas UTM aún no existen, el evento no se pierde
+        if (!r.ok && u) enviar(base).catch(() => {});
       } catch (_) {}
     }
 
