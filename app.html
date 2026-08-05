@@ -54,7 +54,16 @@
     .filter-btn:hover { background: rgba(255,255,255,0.14); color: var(--white); }
     .filter-btn.active { background: var(--white); color: #050F3A; border-color: var(--white); }
     .cat-dropdown { position: relative; }
-    .cat-menu { position: absolute; top: calc(100% + 8px); left: 0; background: #0b1535; border: 1px solid rgba(47,107,255,0.22); border-radius: 10px; padding: 8px 0; min-width: 220px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; z-index: 200; max-height: 320px; overflow-y: auto; }
+    .cat-menu { position: absolute; top: calc(100% + 8px); left: 0; background: #0b1535; border: 1px solid rgba(47,107,255,0.22); border-radius: 10px; padding: 8px 0; min-width: 220px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; z-index: 200; }
+    .cat-rama { position: relative; }
+    .cat-rama-titulo { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 700; }
+    .rama-flecha { color: #8fa0b5; font-size: 0.8rem; }
+    .cat-submenu { display: none; }
+    .cat-rama.abierta .cat-rama-titulo { color: var(--white); background: rgba(47,107,255,0.1); }
+    .cat-rama.abierta .cat-submenu { display: block; position: absolute; left: 100%; top: 0; min-width: 230px; background: #0b1535; border: 1px solid rgba(47,107,255,0.22); border-radius: 10px; padding: 8px 0; box-shadow: 0 16px 40px rgba(0,0,0,0.6); max-height: 55vh; overflow-y: auto; }
+    @media (max-width: 720px) {
+      .cat-rama.abierta .cat-submenu { position: static; border: none; box-shadow: none; border-radius: 0; padding: 0 0 6px 14px; max-height: none; }
+    }
     .cat-menu.open { display: flex; }
     .cat-menu-item { padding: 10px 18px; font-size: 0.86rem; color: var(--gray); cursor: pointer; transition: background 0.15s, color 0.15s; }
     .cat-menu-item:hover { background: rgba(47,107,255,0.1); color: var(--white); }
@@ -299,6 +308,8 @@
             <button class="hidden" id="btnPanelAdmin" onclick="window.location.href='panel.html'">Panel</button>
             <button onclick="abrirPanelUsuario('favoritos')">❤ Favoritos</button>
             <button onclick="abrirPanelUsuario('compras')">Mis compras</button>
+            <button onclick="abrirPanelUsuario('catalogo')">Ver catálogo</button>
+            <button onclick="abrirSugerencia()">Sugerir recurso</button>
             <button id="appLogout">Salir</button>
           </div>
         </div>
@@ -389,6 +400,28 @@
       <button class="guide-close" onclick="closeGuideViewer()">✕ Cerrar</button>
     </div>
     <iframe class="guide-frame" id="guideFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  </div>
+
+  <!-- ═══ SUGERIR RECURSO ══════════════════════════════════════ -->
+  <div class="modal-overlay" id="sugerenciaModal">
+    <div class="modal" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Sugerir recurso</h2>
+        <button class="modal-close" id="sugerenciaCerrar">&times;</button>
+      </div>
+      <div id="sugerenciaForm">
+        <div class="form-field">
+          <label for="sugerenciaTexto">¿Qué recurso o guía te gustaría que existiera?</label>
+          <textarea id="sugerenciaTexto" rows="5" maxlength="2000" placeholder="Cuéntanos tu idea: qué problema resolvería, para qué la usarías..."></textarea>
+        </div>
+        <button class="btn" id="sugerenciaEnviar" style="width:100%; background: var(--blue-elec); color: var(--white); border: none; padding: 14px; border-radius: 10px; font-size: 0.98rem; font-weight: 800; cursor: pointer;">Enviar sugerencia</button>
+        <p id="sugerenciaError" class="hidden" style="margin-top:10px; color:#ff6b6b; font-size:0.85rem; text-align:center;"></p>
+      </div>
+      <div id="sugerenciaGracias" class="hidden" style="text-align:center; padding: 18px 0;">
+        <div style="font-size:2.4rem; margin-bottom:10px;">🙌</div>
+        <p style="color: var(--gray);">¡Gracias! Tu sugerencia nos llegó. Las leemos todas.</p>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ ADMIN MODAL ══════════════════════════════════════════ -->
@@ -666,6 +699,51 @@
     }
     window.abrirPanelUsuario = abrirPanelUsuario;
 
+    // ── SUGERIR RECURSO ───────────────────────────────────────
+    function abrirSugerencia() {
+      document.getElementById('userMenu').classList.remove('open');
+      document.getElementById('navCollapse').classList.remove('open');
+      document.getElementById('sugerenciaTexto').value = '';
+      document.getElementById('sugerenciaError').classList.add('hidden');
+      document.getElementById('sugerenciaForm').classList.remove('hidden');
+      document.getElementById('sugerenciaGracias').classList.add('hidden');
+      document.getElementById('sugerenciaModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('sugerenciaTexto').focus(), 50);
+    }
+    window.abrirSugerencia = abrirSugerencia;
+    function cerrarSugerencia() {
+      document.getElementById('sugerenciaModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('sugerenciaCerrar').addEventListener('click', cerrarSugerencia);
+    document.getElementById('sugerenciaModal').addEventListener('click', e => { if (e.target.id === 'sugerenciaModal') cerrarSugerencia(); });
+    document.getElementById('sugerenciaEnviar').addEventListener('click', async () => {
+      const texto = document.getElementById('sugerenciaTexto').value.trim();
+      const error = document.getElementById('sugerenciaError');
+      error.classList.add('hidden');
+      if (texto.length < 5) { error.textContent = 'Cuéntanos un poquito más para poder entenderla.'; error.classList.remove('hidden'); return; }
+      const btn = document.getElementById('sugerenciaEnviar');
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch('/api/sugerencia', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ texto }),
+        });
+        if (!res.ok) throw new Error();
+        document.getElementById('sugerenciaForm').classList.add('hidden');
+        document.getElementById('sugerenciaGracias').classList.remove('hidden');
+        setTimeout(cerrarSugerencia, 2200);
+      } catch (_) {
+        error.textContent = 'No se pudo enviar. Intenta de nuevo en un momento.';
+        error.classList.remove('hidden');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Enviar sugerencia';
+      }
+    });
+
     // ── NAVBAR SCROLL ─────────────────────────────────────────
     window.addEventListener('scroll', () => {
       document.getElementById('appNav').classList.toggle('scrolled', window.scrollY > 20);
@@ -701,10 +779,13 @@
       if (type === 'favoritos') filtered = allGuides.filter(g => favoritosSet.has(g.id));
       if (type === 'compras')   filtered = allGuides.filter(g => userPurchases.includes(g.id));
       if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias||[]).includes(cat));
+      // Catálogo completo: del más abierto (últimos 30 días) al menos abierto
+      if (type === 'catalogo') filtered = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
 
       document.getElementById('filteredTitle').textContent =
         type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías Premium'
-        : type === 'favoritos' ? 'Tus favoritos' : type === 'compras' ? 'Tus compras' : cat;
+        : type === 'favoritos' ? 'Tus favoritos' : type === 'compras' ? 'Tus compras'
+        : type === 'catalogo' ? 'Todo el catálogo' : cat;
 
       const vacios = {
         favoritos: 'Aún no guardas favoritos. Toca el corazón de cualquier guía y quedará aquí, a un clic.',
@@ -727,7 +808,7 @@
     }
 
     function toggleCatMenu() { document.getElementById('catMenu').classList.toggle('open'); }
-    function closeCatMenu()  { document.getElementById('catMenu').classList.remove('open'); }
+    function closeCatMenu()  { document.getElementById('catMenu').classList.remove('open'); document.querySelectorAll('.cat-rama').forEach(r => r.classList.remove('abierta')); }
     document.addEventListener('click', e => { if (!e.target.closest('.cat-dropdown')) closeCatMenu(); });
 
     function toggleMobileMenu() { document.getElementById('navCollapse').classList.toggle('open'); }
@@ -1009,22 +1090,34 @@
         catRows.appendChild(div);
       });
 
-      // Menú categorías (todas con guías), agrupadas Por herramienta / Por área
+      // Menú categorías en dos niveles: primero eliges la rama (Por herramienta /
+      // Por área) y su lista se abre al lado. Así el menú nunca se vuelve un chorizo.
       const catMenu = document.getElementById('catMenu');
       catMenu.innerHTML = '';
       const nombresCat = Object.keys(catCount).sort();
       for (const [tipo, titulo] of GRUPOS_CATEGORIA) {
         const grupo = nombresCat.filter(cat => tipoDeCategoria(cat) === tipo);
         if (!grupo.length) continue;
-        const encabezado = document.createElement('div');
-        encabezado.className = 'cat-menu-grupo'; encabezado.textContent = titulo;
-        catMenu.appendChild(encabezado);
+        const rama = document.createElement('div');
+        rama.className = 'cat-rama';
+        const padre = document.createElement('div');
+        padre.className = 'cat-menu-item cat-rama-titulo';
+        padre.innerHTML = `${titulo} <span class="rama-flecha">▸</span>`;
+        padre.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.cat-rama').forEach(r => { if (r !== rama) r.classList.remove('abierta'); });
+          rama.classList.toggle('abierta');
+        };
+        const sub = document.createElement('div');
+        sub.className = 'cat-submenu';
         grupo.forEach(cat => {
           const item = document.createElement('div');
           item.className='cat-menu-item'; item.textContent=cat; item.dataset.cat=cat;
           item.onclick=()=>setFilter('cat',cat);
-          catMenu.appendChild(item);
+          sub.appendChild(item);
         });
+        rama.append(padre, sub);
+        catMenu.appendChild(rama);
       }
 
       buildHeroCarousel();
