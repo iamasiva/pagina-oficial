@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Bonos · IA MASIVA</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue-elec: #2F6BFF; --white: #FFFFFF; --gray: #D1D5DB; --red: #ff6b6b; --green: #00FF9C; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%);
+      color: var(--white); min-height: 100vh; padding: 24px;
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; max-width: 860px; margin: 0 auto 26px; }
+    .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; }
+    .nav a { color: #9aacbf; font-size: 0.85rem; text-decoration: none; border: 1px solid rgba(47,107,255,0.4); padding: 8px 16px; border-radius: 8px; margin-left: 8px; }
+    .nav a:hover { color: var(--white); border-color: var(--blue-elec); }
+    .caja { max-width: 860px; margin: 0 auto 18px; background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.25); border-radius: 16px; padding: 28px; backdrop-filter: blur(10px); }
+    h1 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+    .sub { color: #9aacbf; font-size: 0.85rem; margin-bottom: 18px; }
+    label.campo { display: block; font-size: 0.8rem; font-weight: 700; color: #9aacbf; margin: 14px 0 6px; }
+    textarea { width: 100%; min-height: 90px; background: rgba(5,5,5,0.5); border: 1px solid rgba(47,107,255,0.35); border-radius: 10px; color: var(--white); padding: 12px; font-family: inherit; font-size: 0.9rem; resize: vertical; }
+    .prods { display: flex; flex-wrap: wrap; gap: 14px; }
+    .prods label { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--gray); cursor: pointer; }
+    .prods input { width: 16px; height: 16px; accent-color: var(--blue-elec); }
+    .fila-acciones { display: flex; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .btn { background: var(--blue-elec); border: none; color: var(--white); border-radius: 10px; padding: 12px 24px; font-size: 0.9rem; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .btn:hover { background: #4d7fff; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sec { background: none; border: 1px solid rgba(47,107,255,0.4); color: #9aacbf; border-radius: 10px; padding: 11px 18px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-sec:hover { color: var(--white); border-color: var(--blue-elec); }
+    .btn-rojo { background: none; border: 1px solid rgba(255,107,107,0.5); color: var(--red); border-radius: 10px; padding: 11px 18px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-rojo:hover { background: rgba(255,107,107,0.12); }
+    .msj { margin-top: 12px; font-size: 0.87rem; }
+    .msj.ok { color: var(--green); }
+    .msj.error { color: var(--red); }
+    .tabla-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 560px; }
+    th { text-align: left; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #8fa0b5; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.07); color: var(--gray); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td.correo { color: var(--white); font-weight: 600; }
+    .estado-chip { display: inline-block; font-size: 0.7rem; font-weight: 800; border-radius: 999px; padding: 3px 10px; margin-top: 4px; }
+    .estado-chip.activo { background: rgba(0,255,156,0.12); color: var(--green); }
+    .estado-chip.pendiente { background: rgba(255,209,102,0.12); color: #ffd166; }
+    .prod-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(47,107,255,0.15); border: 1px solid rgba(47,107,255,0.35); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; margin: 2px 4px 2px 0; }
+    .prod-chip button { background: none; border: none; color: #8fa0b5; cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 0; }
+    .prod-chip button:hover { color: var(--red); }
+    input[type="checkbox"].sel { width: 16px; height: 16px; accent-color: var(--blue-elec); }
+    .estado-carga { text-align: center; color: #9aacbf; padding: 26px 0; }
+    .oculto { display: none !important; }
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <span class="logo">IA MASIVA</span>
+    <div>
+      <a href="panel.html">Panel</a>
+      <a href="app.html">← Volver al catálogo</a>
+    </div>
+  </nav>
+
+  <div class="caja">
+    <h1>Otorgar bonos</h1>
+    <p class="sub">Habilita productos de pago como bono. Si el correo aún no tiene cuenta, el bono queda esperando y se activa solo cuando esa persona se registre con ese correo.</p>
+
+    <label class="campo">Productos a otorgar</label>
+    <div class="prods" id="prodsOtorgar"></div>
+
+    <label class="campo">Correos (uno por línea, o pegados con comas)</label>
+    <textarea id="correosOtorgar" placeholder="correo1@gmail.com&#10;correo2@gmail.com"></textarea>
+
+    <div class="fila-acciones">
+      <button class="btn" id="btnOtorgar">Otorgar bonos</button>
+      <button class="btn-sec" id="btnExcelOtorgar">Importar Excel</button>
+      <input type="file" id="fileOtorgar" accept=".xlsx,.xls,.csv" />
+      <span style="color:#8fa0b5; font-size:0.78rem;">Excel: encabezado "correos" en A1 y los correos hacia abajo</span>
+    </div>
+    <p class="msj oculto" id="msjOtorgar"></p>
+  </div>
+
+  <div class="caja">
+    <h1>Bonos otorgados</h1>
+    <p class="sub">Retira el bono de un producto con la × de su chip, o selecciona correos y retíralos completos. Retirar solo elimina bonos: las compras reales nunca se tocan.</p>
+
+    <div class="fila-acciones" style="margin: 0 0 14px;">
+      <button class="btn-rojo" id="btnRetirarSel">Retirar seleccionados</button>
+      <button class="btn-sec" id="btnExcelRetirar">Retirar por Excel</button>
+      <input type="file" id="fileRetirar" accept=".xlsx,.xls,.csv" />
+      <span class="msj oculto" id="msjRetirar" style="margin:0;"></span>
+    </div>
+
+    <div id="cargandoBonos" class="estado-carga">Cargando…</div>
+    <div class="tabla-scroll">
+      <table id="tablaBonos" class="oculto">
+        <thead>
+          <tr><th><input type="checkbox" class="sel" id="selTodos" /></th><th>Correo</th><th>Productos con bono</th></tr>
+        </thead>
+        <tbody id="filasBonos"></tbody>
+      </table>
+    </div>
+    <div id="vacioBonos" class="estado-carga oculto">Aún no has otorgado bonos.</div>
+  </div>
+
+  <script>
+    const sb = supabase.createClient(
+      'https://iyiygnfaxiejtlgkkivs.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
+    );
+    const $ = (id) => document.getElementById(id);
+    const escapar = (t) => { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; };
+    let token = null;
+    let nombreProducto = {};
+    let bonosPorCorreo = new Map();
+
+    function extraerCorreos(texto) {
+      return [...new Set(texto.split(/[\s,;]+/).map(c => c.trim().toLowerCase()).filter(c => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)))];
+    }
+
+    // Lee el Excel/CSV: encabezado "correos" en A1, correos hacia abajo
+    function leerExcel(archivo) {
+      return new Promise((resolver, rechazar) => {
+        const lector = new FileReader();
+        lector.onload = (e) => {
+          try {
+            const libro = XLSX.read(e.target.result, { type: 'array' });
+            const hoja = libro.Sheets[libro.SheetNames[0]];
+            const filas = XLSX.utils.sheet_to_json(hoja, { header: 1 });
+            const encabezado = String(filas?.[0]?.[0] ?? '').trim().toLowerCase();
+            if (encabezado !== 'correos') { rechazar(new Error('El Excel debe tener "correos" en la celda A1')); return; }
+            const correos = filas.slice(1).map(f => String(f?.[0] ?? '').trim().toLowerCase())
+              .filter(c => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c));
+            resolver([...new Set(correos)]);
+          } catch (err) { rechazar(err); }
+        };
+        lector.onerror = () => rechazar(new Error('No se pudo leer el archivo'));
+        lector.readAsArrayBuffer(archivo);
+      });
+    }
+
+    function aviso(id, texto, ok) {
+      const el = $(id);
+      el.textContent = texto;
+      el.classList.remove('oculto', 'ok', 'error');
+      el.classList.add(ok ? 'ok' : 'error');
+    }
+
+    async function llamarApi(cuerpo) {
+      const res = await fetch('/api/bonos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(cuerpo),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Error');
+      return body;
+    }
+
+    async function cargarBonos() {
+      const res = await fetch('/api/bonos', { headers: { Authorization: `Bearer ${token}` } });
+      const body = await res.json();
+      const bonos = body.bonos ?? [];
+      bonosPorCorreo = new Map();
+      for (const b of bonos) {
+        const correo = (b.email_comprador ?? 'sin correo').toLowerCase();
+        if (!bonosPorCorreo.has(correo)) bonosPorCorreo.set(correo, { reclamado: false, items: [] });
+        const grupo = bonosPorCorreo.get(correo);
+        if (b.user_id) grupo.reclamado = true;
+        grupo.items.push(b);
+      }
+      $('cargandoBonos').classList.add('oculto');
+      if (!bonosPorCorreo.size) {
+        $('tablaBonos').classList.add('oculto');
+        $('vacioBonos').classList.remove('oculto');
+        return;
+      }
+      $('vacioBonos').classList.add('oculto');
+      $('filasBonos').innerHTML = [...bonosPorCorreo.entries()].map(([correo, g]) => `
+        <tr>
+          <td><input type="checkbox" class="sel sel-correo" value="${escapar(correo)}" /></td>
+          <td class="correo">${escapar(correo)}<br/>
+            <span class="estado-chip ${g.reclamado ? 'activo' : 'pendiente'}">${g.reclamado ? 'Cuenta activa' : 'Pendiente de registro'}</span>
+          </td>
+          <td>${g.items.map(b => `
+            <span class="prod-chip">${escapar(nombreProducto[b.product_id] ?? 'Producto')}
+              <button title="Retirar este bono" onclick="retirarUno('${escapar(correo)}','${b.product_id}')">&times;</button>
+            </span>`).join('')}
+          </td>
+        </tr>
+      `).join('');
+      $('tablaBonos').classList.remove('oculto');
+    }
+
+    async function retirarUno(correo, productId) {
+      if (!confirm(`¿Retirar este bono de ${correo}?`)) return;
+      try {
+        await llamarApi({ accion: 'retirar', correos: [correo], productos: [productId] });
+        await cargarBonos();
+      } catch (e) { aviso('msjRetirar', e.message, false); }
+    }
+    window.retirarUno = retirarUno;
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.href = 'index.html'; return; }
+      token = session.access_token;
+      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
+      if (!perfil?.es_admin) { location.href = 'app.html'; return; }
+
+      // Productos otorgables: los individuales activos (el bundle no aplica como bono)
+      const { data: productos } = await sb.from('products').select('id, nombre, tipo').eq('activo', true);
+      const individuales = (productos ?? []).filter(p => p.tipo !== 'bundle' && !/bundle/i.test(p.nombre));
+      for (const p of individuales) nombreProducto[p.id] = p.nombre;
+      $('prodsOtorgar').innerHTML = individuales.map(p => `
+        <label><input type="checkbox" class="prod-cb" value="${p.id}" /> ${escapar(p.nombre)}</label>
+      `).join('');
+
+      $('btnOtorgar').addEventListener('click', async () => {
+        const correos = extraerCorreos($('correosOtorgar').value);
+        const prods = [...document.querySelectorAll('.prod-cb:checked')].map(cb => cb.value);
+        if (!correos.length) { aviso('msjOtorgar', 'Escribe al menos un correo válido.', false); return; }
+        if (!prods.length) { aviso('msjOtorgar', 'Elige al menos un producto.', false); return; }
+        if (!confirm(`¿Otorgar ${prods.length} producto(s) a ${correos.length} correo(s)?`)) return;
+        $('btnOtorgar').disabled = true;
+        try {
+          const r = await llamarApi({ accion: 'otorgar', correos, productos: prods });
+          aviso('msjOtorgar', `Listo: ${r.otorgados} bonos otorgados${r.saltados ? `, ${r.saltados} saltados (ya lo tenían)` : ''}.`, true);
+          $('correosOtorgar').value = '';
+          await cargarBonos();
+        } catch (e) { aviso('msjOtorgar', e.message, false); }
+        finally { $('btnOtorgar').disabled = false; }
+      });
+
+      $('btnExcelOtorgar').addEventListener('click', () => $('fileOtorgar').click());
+      $('fileOtorgar').addEventListener('change', async (e) => {
+        const archivo = e.target.files[0]; e.target.value = '';
+        if (!archivo) return;
+        try {
+          const correos = await leerExcel(archivo);
+          if (!correos.length) { aviso('msjOtorgar', 'El Excel no tiene correos válidos.', false); return; }
+          $('correosOtorgar').value = correos.join('\n');
+          aviso('msjOtorgar', `${correos.length} correos importados. Revisa la lista, elige productos y dale a Otorgar.`, true);
+        } catch (err) { aviso('msjOtorgar', err.message, false); }
+      });
+
+      $('selTodos').addEventListener('change', () => {
+        document.querySelectorAll('.sel-correo').forEach(cb => { cb.checked = $('selTodos').checked; });
+      });
+
+      $('btnRetirarSel').addEventListener('click', async () => {
+        const correos = [...document.querySelectorAll('.sel-correo:checked')].map(cb => cb.value);
+        if (!correos.length) { aviso('msjRetirar', 'Selecciona al menos un correo.', false); return; }
+        if (!confirm(`¿Retirar TODOS los bonos de ${correos.length} correo(s)?`)) return;
+        try {
+          const r = await llamarApi({ accion: 'retirar', correos, productos: [] });
+          aviso('msjRetirar', `${r.retirados} bonos retirados.`, true);
+          await cargarBonos();
+        } catch (e) { aviso('msjRetirar', e.message, false); }
+      });
+
+      $('btnExcelRetirar').addEventListener('click', () => $('fileRetirar').click());
+      $('fileRetirar').addEventListener('change', async (e) => {
+        const archivo = e.target.files[0]; e.target.value = '';
+        if (!archivo) return;
+        try {
+          const correos = await leerExcel(archivo);
+          if (!correos.length) { aviso('msjRetirar', 'El Excel no tiene correos válidos.', false); return; }
+          if (!confirm(`¿Retirar TODOS los bonos de los ${correos.length} correos del Excel?`)) return;
+          const r = await llamarApi({ accion: 'retirar', correos, productos: [] });
+          aviso('msjRetirar', `${r.retirados} bonos retirados.`, true);
+          await cargarBonos();
+        } catch (err) { aviso('msjRetirar', err.message, false); }
+      });
+
+      await cargarBonos();
+    })();
+  </script>
+</body>
+</html>

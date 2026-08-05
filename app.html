@@ -328,6 +328,7 @@
             <button onclick="irInicio()">Inicio</button>
             <button class="hidden" id="btnNewGuide">+ Nueva guía</button>
             <button class="hidden" id="btnPanelAdmin" onclick="window.location.href='panel.html'">Panel</button>
+            <button class="hidden" id="btnBonos" onclick="window.location.href='bonos.html'">Otorgar bono</button>
             <button onclick="abrirPanelUsuario('favoritos')">❤ Favoritos</button>
             <button onclick="abrirPanelUsuario('compras')">Mis compras</button>
             <button onclick="abrirPanelUsuario('catalogo')">Ver catálogo</button>
@@ -1533,6 +1534,7 @@
       if(isAdmin) {
         document.getElementById('btnNewGuide').classList.remove('hidden');
         document.getElementById('btnPanelAdmin').classList.remove('hidden');
+        document.getElementById('btnBonos').classList.remove('hidden');
         document.getElementById('heroEditBtn').classList.remove('hidden');
       }
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
