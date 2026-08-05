@@ -24,6 +24,15 @@
     .card b { display: block; font-size: 1.55rem; font-weight: 900; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
     .card span { color: #9aacbf; font-size: 0.76rem; line-height: 1.35; display: block; }
 
+    .fechas { max-width: 860px; margin: 0 auto 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .fechas label { font-size: 0.82rem; color: #9aacbf; display: flex; align-items: center; gap: 6px; }
+    .fechas input[type="date"] { background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.35); color: var(--white); border-radius: 8px; padding: 7px 10px; font-family: inherit; font-size: 0.82rem; color-scheme: dark; }
+    .fechas button { background: var(--blue-elec); border: none; color: var(--white); border-radius: 999px; padding: 8px 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .fechas button.sec { background: none; border: 1px solid rgba(47,107,255,0.35); color: #9aacbf; }
+    .fechas #rangoNota { font-size: 0.78rem; color: #8fa0b5; }
+    #tablaRecursos.rango th:nth-child(2), #tablaRecursos.rango td:nth-child(2),
+    #tablaRecursos.rango th:nth-child(3), #tablaRecursos.rango td:nth-child(3),
+    #tablaRecursos.rango th:nth-child(4), #tablaRecursos.rango td:nth-child(4) { display: none; }
     .tabs { max-width: 860px; margin: 0 auto 14px; display: flex; gap: 8px; }
     .tab { background: none; border: 1px solid rgba(47,107,255,0.35); color: #9aacbf; padding: 9px 18px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .tab.activa { background: var(--blue-elec); border-color: var(--blue-elec); color: var(--white); }
@@ -49,6 +58,14 @@
     <a href="app.html">← Volver al catálogo</a>
   </nav>
 
+  <div class="fechas">
+    <label>Desde <input type="date" id="fDesde" /></label>
+    <label>Hasta <input type="date" id="fHasta" /></label>
+    <button id="btnAplicarFechas">Aplicar</button>
+    <button id="btnTodoFechas" class="sec">Todo</button>
+    <span id="rangoNota"></span>
+  </div>
+
   <div class="cards" id="cards"></div>
 
   <div class="tabs">
@@ -64,7 +81,7 @@
     <div class="tabla-scroll">
       <table id="tablaRecursos" class="oculto">
         <thead>
-          <tr><th>Recurso</th><th>Últimas 24 h</th><th>7 días</th><th>30 días</th><th>Total</th><th>★ Favoritos</th></tr>
+          <tr><th>Recurso</th><th>Últimas 24 h</th><th>7 días</th><th>30 días</th><th id="thTotalRecursos">Total</th><th>★ Favoritos</th></tr>
         </thead>
         <tbody id="filasRecursos"></tbody>
       </table>
@@ -115,20 +132,38 @@
       }
     }));
 
-    (async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) { window.location.href = 'index.html'; return; }
-      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
-      if (!perfil?.es_admin) { window.location.href = 'app.html'; return; }
+    const dineroUsd = (c) => '$' + ((c ?? 0) / 100).toLocaleString('es-CO', { maximumFractionDigits: 2 });
+    const dineroCop = (c) => Math.round((c ?? 0) / 100).toLocaleString('es-CO') + ' COP';
 
-      const [{ data: recursos }, { data: resumen }] = await Promise.all([
-        sb.rpc('panel_aperturas'),
-        sb.rpc('panel_resumen'),
+    // Llama la función con fechas; si el SQL de fechas aún no se corrió,
+    // cae a la versión sin parámetros (cifras de todo el tiempo).
+    let sinSoporteFechas = false;
+    async function rpcPanel(nombre, args) {
+      let { data, error } = await sb.rpc(nombre, args);
+      if (error) {
+        sinSoporteFechas = true;
+        ({ data, error } = await sb.rpc(nombre));
+      }
+      return error ? null : data;
+    }
+
+    async function cargarDatos() {
+      const desde = document.getElementById('fDesde').value || null;
+      const hasta = document.getElementById('fHasta').value || null;
+      const rango = !!(desde || hasta);
+      sinSoporteFechas = false;
+
+      const args = rango ? { p_desde: desde, p_hasta: hasta } : {};
+      const [recursos, resumen] = await Promise.all([
+        rpcPanel('panel_aperturas', args),
+        rpcPanel('panel_resumen', args),
       ]);
 
+      document.getElementById('rangoNota').textContent = !rango ? ''
+        : sinSoporteFechas ? 'El filtro de fechas necesita el SQL nuevo (mostrando todo el tiempo)'
+        : `Mostrando del ${desde ?? 'inicio'} al ${hasta ?? 'hoy'}`;
+
       // Cards de resumen general
-      const dineroUsd = (c) => '$' + ((c ?? 0) / 100).toLocaleString('es-CO', { maximumFractionDigits: 2 });
-      const dineroCop = (c) => Math.round((c ?? 0) / 100).toLocaleString('es-CO') + ' COP';
       if (resumen) {
         document.getElementById('cards').innerHTML = [
           [resumen.visitas_sitio ?? 0, 'Visitas a la página (una por sesión)'],
@@ -140,18 +175,23 @@
         ].map(([n, texto]) => `<div class="card"><b>${n}</b><span>${texto}</span></div>`).join('');
       }
 
-      // Pestaña recursos (aperturas + favoritos)
+      // Pestaña recursos: con rango activo solo se muestran Aperturas y Favoritos
+      const modoRango = rango && !sinSoporteFechas;
+      document.getElementById('tablaRecursos').classList.toggle('rango', modoRango);
+      document.getElementById('thTotalRecursos').textContent = modoRango ? 'Aperturas' : 'Total';
       document.getElementById('cargandoRecursos').classList.add('oculto');
       if (!recursos?.length) {
+        document.getElementById('tablaRecursos').classList.add('oculto');
         document.getElementById('vacioRecursos').classList.remove('oculto');
       } else {
+        document.getElementById('vacioRecursos').classList.add('oculto');
         document.getElementById('filasRecursos').innerHTML = recursos.map(f => `
           <tr>
             <td>${escapar(f.titulo)}</td>
             <td>${f.ultimas24h}</td>
             <td>${f.dias7}</td>
             <td class="destacado">${f.dias30}</td>
-            <td>${f.total}</td>
+            <td class="${modoRango ? 'destacado' : ''}">${f.total}</td>
             <td class="destacado">${f.favoritos}</td>
           </tr>
         `).join('');
@@ -176,8 +216,10 @@
       document.getElementById('cargandoCanales').classList.add('oculto');
       const canales = resumen?.canales ?? [];
       if (!canales.length) {
+        document.getElementById('tablaCanales').classList.add('oculto');
         document.getElementById('vacioCanales').classList.remove('oculto');
       } else {
+        document.getElementById('vacioCanales').classList.add('oculto');
         document.getElementById('filasCanales').innerHTML = canales.map(c => `
           <tr>
             <td>${escapar(c.canal)}</td>
@@ -188,6 +230,21 @@
         `).join('');
         document.getElementById('tablaCanales').classList.remove('oculto');
       }
+    }
+
+    document.getElementById('btnAplicarFechas').addEventListener('click', cargarDatos);
+    document.getElementById('btnTodoFechas').addEventListener('click', () => {
+      document.getElementById('fDesde').value = '';
+      document.getElementById('fHasta').value = '';
+      cargarDatos();
+    });
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'index.html'; return; }
+      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
+      if (!perfil?.es_admin) { window.location.href = 'app.html'; return; }
+      cargarDatos();
     })();
   </script>
 </body>

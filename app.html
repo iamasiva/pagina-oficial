@@ -59,6 +59,8 @@
     .cat-menu-item { padding: 10px 18px; font-size: 0.86rem; color: var(--gray); cursor: pointer; transition: background 0.15s, color 0.15s; }
     .cat-menu-item:hover { background: rgba(47,107,255,0.1); color: var(--white); }
     .cat-menu-item.active { color: var(--blue-elec); font-weight: 700; }
+    .cat-menu-grupo { padding: 10px 18px 4px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #8fa0b5; }
+    .cat-menu-grupo:not(:first-child) { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; }
 
     /* ─── HERO ───────────────────────────────────────────────── */
     .app-hero { position: relative; width: 100%; min-height: max(72vh, 460px); display: flex; align-items: flex-end; padding: 0 5vw 14px; overflow: hidden; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 55%, #1E3A8A 100%); padding-top: 24px; }
@@ -197,6 +199,15 @@
     .cats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .cat-check { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--gray); cursor: pointer; }
     .cat-check input { accent-color: var(--blue-elec); width: 15px; height: 15px; }
+    .cat-grupo-titulo { grid-column: 1 / -1; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #8fa0b5; margin-top: 6px; }
+    .cat-grupo-titulo:first-child { margin-top: 0; }
+    .cat-quitar { background: none; border: none; color: #5b6b80; font-size: 1rem; line-height: 1; padding: 0 4px; cursor: pointer; }
+    .cat-quitar:hover { color: var(--red, #ff6b6b); }
+    .cat-nueva { display: flex; gap: 8px; margin-top: 12px; }
+    .cat-nueva input[type="text"] { flex: 1; min-width: 0; }
+    .cat-nueva select { max-width: 170px; }
+    .cat-nueva button { background: rgba(47,107,255,0.18); border: 1px solid rgba(47,107,255,0.45); color: var(--white); border-radius: 8px; padding: 0 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+    .cat-nueva button:hover { background: rgba(47,107,255,0.35); }
     .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
     .btn-primary { background: var(--blue-elec); color: var(--white); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; transition: background 0.2s; }
     .btn-primary:hover { background: #4d7fff; }
@@ -411,6 +422,14 @@
         <div class="form-field">
           <label>Categorías</label>
           <div class="cats-grid" id="catsGrid"></div>
+          <div class="cat-nueva">
+            <input type="text" id="nuevaCategoria" placeholder="Nueva categoría" maxlength="40" />
+            <select id="nuevaCategoriaTipo">
+              <option value="herramienta">Por herramienta</option>
+              <option value="area" selected>Por área</option>
+            </select>
+            <button type="button" id="btnAgregarCategoria">Agregar</button>
+          </div>
         </div>
 
         <div class="form-field">
@@ -529,11 +548,15 @@
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
     const sb = createClient('https://iyiygnfaxiejtlgkkivs.supabase.co', SUPABASE_ANON);
 
-    const CATEGORIAS = [
+    // Lista de arranque; la real vive en la tabla categorias (el admin la
+    // gestiona desde el formulario de guías). tipo: 'herramienta' | 'area'.
+    let CATEGORIAS = [
       'LLM','Imagen y diseño','Video y animación','Audio, voz y música',
       'Investigación','Coding','Automatización','Marketing',
       'Atención al cliente','Finanzas','Desarrollo','Análisis de datos','Creación de contenido'
-    ];
+    ].map(nombre => ({ nombre, tipo: 'area' }));
+    const GRUPOS_CATEGORIA = [['herramienta', 'Por herramienta'], ['area', 'Por área']];
+    const tipoDeCategoria = (nombre) => CATEGORIAS.find(c => c.nombre === nombre)?.tipo ?? 'area';
 
     let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
     let tendenciasConteo = new Map(), usuarioActualId = null;
@@ -584,12 +607,13 @@
         const c = JSON.parse(localStorage.getItem(CACHE_CONTENIDO) || 'null');
         if (!c || !c.guides?.length) return;
         allGuides = c.guides; heroSlidesRaw = c.slides || []; allProducts = c.products || [];
+        if (c.categorias?.length) { CATEGORIAS = c.categorias; pintarCategorias(); }
         renderAll();
       } catch (_) {}
     }
     function guardarCacheContenido() {
       try {
-        localStorage.setItem(CACHE_CONTENIDO, JSON.stringify({ guides: allGuides, slides: heroSlidesRaw, products: allProducts }));
+        localStorage.setItem(CACHE_CONTENIDO, JSON.stringify({ guides: allGuides, slides: heroSlidesRaw, products: allProducts, categorias: CATEGORIAS }));
       } catch (_) {}
     }
 
@@ -599,12 +623,15 @@
       sb.from('hero_slides').select('*').order('orden', { ascending: true }),
       sb.from('products').select('*').eq('activo', true),
       sb.from('tendencias_guias').select('*'),
-    ]).then(([g, s, p, t]) => {
+      sb.from('categorias').select('nombre, tipo').order('nombre'),
+    ]).then(([g, s, p, t, cat]) => {
       if (g.error) return false;
       allGuides = g.data ?? []; heroSlidesRaw = s.data ?? []; allProducts = p.data ?? [];
       // Aperturas reales de los últimos 30 días; si la vista aún no existe, Tendencias
       // cae al orden por fecha sin romper nada.
       tendenciasConteo = new Map((t.error ? [] : t.data ?? []).map(f => [f.guide_id, f.aperturas]));
+      // Categorías de la tabla (si aún no existe, se queda la lista de arranque)
+      if (!cat.error && cat.data?.length) { CATEGORIAS = cat.data; pintarCategorias(); }
       renderAll();
       guardarCacheContenido();
       return true;
@@ -982,15 +1009,23 @@
         catRows.appendChild(div);
       });
 
-      // Menú categorías (todas con guías)
+      // Menú categorías (todas con guías), agrupadas Por herramienta / Por área
       const catMenu = document.getElementById('catMenu');
       catMenu.innerHTML = '';
-      Object.keys(catCount).sort().forEach(cat=>{
-        const item = document.createElement('div');
-        item.className='cat-menu-item'; item.textContent=cat; item.dataset.cat=cat;
-        item.onclick=()=>setFilter('cat',cat);
-        catMenu.appendChild(item);
-      });
+      const nombresCat = Object.keys(catCount).sort();
+      for (const [tipo, titulo] of GRUPOS_CATEGORIA) {
+        const grupo = nombresCat.filter(cat => tipoDeCategoria(cat) === tipo);
+        if (!grupo.length) continue;
+        const encabezado = document.createElement('div');
+        encabezado.className = 'cat-menu-grupo'; encabezado.textContent = titulo;
+        catMenu.appendChild(encabezado);
+        grupo.forEach(cat => {
+          const item = document.createElement('div');
+          item.className='cat-menu-item'; item.textContent=cat; item.dataset.cat=cat;
+          item.onclick=()=>setFilter('cat',cat);
+          catMenu.appendChild(item);
+        });
+      }
 
       buildHeroCarousel();
     }
@@ -998,14 +1033,60 @@
     // ── ADMIN MODAL ───────────────────────────────────────────
     const adminModal = document.getElementById('adminModal');
 
-    // Generar checkboxes de categorías
-    const catsGrid = document.getElementById('catsGrid');
-    CATEGORIAS.forEach(cat=>{
-      const label = document.createElement('label');
-      label.className='cat-check';
-      label.innerHTML=`<input type="checkbox" value="${cat}" class="cat-cb"/> ${cat}`;
-      catsGrid.appendChild(label);
-    });
+    // Checkboxes de categorías agrupados (Por herramienta / Por área), con
+    // gestión del admin aquí mismo: agregar abajo, quitar con la x de cada una.
+    function pintarCategorias() {
+      const grid = document.getElementById('catsGrid');
+      const marcadas = new Set([...grid.querySelectorAll('.cat-cb:checked')].map(cb => cb.value));
+      grid.innerHTML = '';
+      for (const [tipo, titulo] of GRUPOS_CATEGORIA) {
+        const grupo = CATEGORIAS.filter(c => (c.tipo ?? 'area') === tipo);
+        if (!grupo.length) continue;
+        const h = document.createElement('div');
+        h.className = 'cat-grupo-titulo'; h.textContent = titulo;
+        grid.appendChild(h);
+        grupo.forEach(({ nombre }) => {
+          const label = document.createElement('label');
+          label.className = 'cat-check';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox'; cb.value = nombre; cb.className = 'cat-cb';
+          cb.checked = marcadas.has(nombre);
+          const quitar = document.createElement('button');
+          quitar.type = 'button'; quitar.className = 'cat-quitar'; quitar.textContent = '×';
+          quitar.title = 'Quitar de la lista (las guías que ya la usan no cambian)';
+          quitar.addEventListener('click', (e) => { e.preventDefault(); quitarCategoria(nombre); });
+          label.append(cb, document.createTextNode(' ' + nombre + ' '), quitar);
+          grid.appendChild(label);
+        });
+      }
+    }
+    pintarCategorias();
+
+    async function recargarCategorias() {
+      const { data, error } = await sb.from('categorias').select('nombre, tipo').order('nombre');
+      if (!error && data?.length) { CATEGORIAS = data; pintarCategorias(); guardarCacheContenido(); renderAll(); }
+    }
+
+    async function agregarCategoria() {
+      const input = document.getElementById('nuevaCategoria');
+      const nombre = input.value.trim();
+      if (!nombre) { input.focus(); return; }
+      const tipo = document.getElementById('nuevaCategoriaTipo').value;
+      const { error } = await sb.from('categorias').insert({ nombre, tipo });
+      if (error) { alert(error.code === '23505' ? 'Esa categoría ya existe.' : 'No se pudo agregar: ' + error.message); return; }
+      input.value = '';
+      await recargarCategorias();
+      document.querySelectorAll('.cat-cb').forEach(cb => { if (cb.value === nombre) cb.checked = true; });
+    }
+
+    async function quitarCategoria(nombre) {
+      if (!confirm(`¿Quitar "${nombre}" de la lista? Las guías que ya la usan no cambian.`)) return;
+      const { data, error } = await sb.from('categorias').delete().eq('nombre', nombre).select('nombre');
+      if (error || !data?.length) { alert('No se pudo quitar la categoría.'); return; }
+      await recargarCategorias();
+    }
+    document.getElementById('btnAgregarCategoria').addEventListener('click', agregarCategoria);
+    document.getElementById('nuevaCategoria').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); agregarCategoria(); } });
 
     function openAdminModal() { adminModal.classList.add('active'); document.body.style.overflow='hidden'; }
     function closeAdminModal() { adminModal.classList.remove('active'); document.body.style.overflow=''; resetForm(); }
