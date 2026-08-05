@@ -279,10 +279,8 @@
   </footer>
 
   <script>
-    const sb = supabase.createClient(
-      'https://iyiygnfaxiejtlgkkivs.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc'
-    );
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://iyiygnfaxiejtlgkkivs.supabase.co', SUPABASE_ANON);
 
     const PAGINAS = {
       '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',
@@ -585,6 +583,19 @@
       r.setProperty('--card-claro-fondo', t.cardClaroFondo); r.setProperty('--card-claro-ink', t.cardClaroInk); r.setProperty('--card-claro-muted', t.cardClaroMuted);
     }
 
+    // Evento del embudo de ventas. keepalive: el envío sobrevive aunque la
+    // página navegue de inmediato (clic de compra rumbo a la pasarela).
+    function registrarEvento(tipo, productIdEvento) {
+      try {
+        fetch('https://iyiygnfaxiejtlgkkivs.supabase.co/rest/v1/eventos', {
+          method: 'POST',
+          keepalive: true,
+          headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ tipo, product_id: productIdEvento ?? null }),
+        }).catch(() => {});
+      } catch (_) {}
+    }
+
     async function init() {
       const { data: productos } = await sb.from('products').select('*');
       const producto = (productos ?? []).find(p => p.id === productId);
@@ -592,6 +603,8 @@
       const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
       const cfg = esBundle ? LANDINGS.__bundle__ : LANDINGS[producto.id];
       if (!cfg) { location.href = 'app.html'; return; }
+
+      registrarEvento('visita_landing', producto.id);
 
       pintarTema(cfg.tema);
       document.title = `${cfg.corto} · IA MASIVA`;
@@ -718,7 +731,10 @@
       const destino = comprado ? (PAGINAS[producto.id] || 'app.html') : `pago.html?p=${producto.id}`;
       for (const btn of [$('pCtaTop'), $('pCtaBottom')]) {
         btn.textContent = comprado ? 'IR AL RECURSO' : 'COMPRAR AHORA';
-        btn.addEventListener('click', () => { location.href = destino; });
+        btn.addEventListener('click', () => {
+          if (!comprado) registrarEvento('clic_comprar', producto.id);
+          location.href = destino;
+        });
       }
     }
 

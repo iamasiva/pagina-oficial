@@ -533,6 +533,14 @@
 
     let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
     let tendenciasConteo = new Map(), usuarioActualId = null;
+
+    // Visita al sitio: una por sesión de navegador (index y app comparten la marca)
+    try {
+      if (!sessionStorage.getItem('im_visita')) {
+        sessionStorage.setItem('im_visita', '1');
+        sb.from('eventos').insert({ tipo: 'visita_sitio' }).then(() => {}, () => {});
+      }
+    } catch (_) {}
     let favoritosSet = new Set();
 
     // Pintura instantánea: lo último que el navegador vio, mientras llega lo fresco

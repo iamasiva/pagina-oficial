@@ -14,13 +14,23 @@
       background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%);
       color: var(--white); min-height: 100vh; padding: 24px;
     }
-    .nav { display: flex; align-items: center; justify-content: space-between; max-width: 860px; margin: 0 auto 30px; }
+    .nav { display: flex; align-items: center; justify-content: space-between; max-width: 860px; margin: 0 auto 26px; }
     .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; }
     .nav a { color: #9aacbf; font-size: 0.85rem; text-decoration: none; border: 1px solid rgba(47,107,255,0.4); padding: 8px 16px; border-radius: 8px; }
     .nav a:hover { color: var(--white); border-color: var(--blue-elec); }
+
+    .cards { max-width: 860px; margin: 0 auto 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .card { background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.25); border-radius: 14px; padding: 16px 14px; backdrop-filter: blur(10px); }
+    .card b { display: block; font-size: 1.55rem; font-weight: 900; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+    .card span { color: #9aacbf; font-size: 0.76rem; line-height: 1.35; display: block; }
+
+    .tabs { max-width: 860px; margin: 0 auto 14px; display: flex; gap: 8px; }
+    .tab { background: none; border: 1px solid rgba(47,107,255,0.35); color: #9aacbf; padding: 9px 18px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .tab.activa { background: var(--blue-elec); border-color: var(--blue-elec); color: var(--white); }
+
     .caja { max-width: 860px; margin: 0 auto; background: rgba(5,5,5,0.45); border: 1px solid rgba(47,107,255,0.25); border-radius: 16px; padding: 28px; backdrop-filter: blur(10px); }
-    h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; }
-    .sub { color: #9aacbf; font-size: 0.85rem; margin-bottom: 22px; }
+    h1 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+    .sub { color: #9aacbf; font-size: 0.85rem; margin-bottom: 20px; }
     .tabla-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 560px; }
     th { text-align: right; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #8fa0b5; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.15); }
@@ -30,6 +40,7 @@
     tr:last-child td { border-bottom: none; }
     td.destacado { color: var(--white); font-weight: 800; }
     .estado { text-align: center; color: #9aacbf; padding: 30px 0; }
+    .oculto { display: none !important; }
   </style>
 </head>
 <body>
@@ -38,19 +49,40 @@
     <a href="app.html">← Volver al catálogo</a>
   </nav>
 
-  <div class="caja">
-    <h1>Aperturas de recursos</h1>
+  <div class="cards" id="cards"></div>
+
+  <div class="tabs">
+    <button class="tab activa" data-tab="vistaRecursos">Recursos</button>
+    <button class="tab" data-tab="vistaProductos">Info productos de pago</button>
+  </div>
+
+  <div class="caja" id="vistaRecursos">
+    <h1>Aperturas y favoritos por recurso</h1>
     <p class="sub">Cada vez que un usuario abre una guía o entra a un recurso premium, cuenta aquí. "Tendencias" del catálogo se ordena con los últimos 30 días.</p>
-    <div id="cargando" class="estado">Cargando…</div>
+    <div id="cargandoRecursos" class="estado">Cargando…</div>
     <div class="tabla-scroll">
-      <table id="tabla" style="display:none">
+      <table id="tablaRecursos" class="oculto">
         <thead>
           <tr><th>Recurso</th><th>Últimas 24 h</th><th>7 días</th><th>30 días</th><th>Total</th><th>★ Favoritos</th></tr>
         </thead>
-        <tbody id="filas"></tbody>
+        <tbody id="filasRecursos"></tbody>
       </table>
     </div>
-    <div id="vacio" class="estado" style="display:none">Aún no hay aperturas registradas. Apenas alguien abra un recurso, aparece aquí.</div>
+    <div id="vacioRecursos" class="estado oculto">Aún no hay aperturas registradas. Apenas alguien abra un recurso, aparece aquí.</div>
+  </div>
+
+  <div class="caja oculto" id="vistaProductos">
+    <h1>Embudo por producto de pago</h1>
+    <p class="sub">Visitas a la landing de venta, clics en el botón de compra y compras efectuadas de cada producto.</p>
+    <div id="cargandoProductos" class="estado">Cargando…</div>
+    <div class="tabla-scroll">
+      <table id="tablaProductos" class="oculto">
+        <thead>
+          <tr><th>Producto</th><th>Visitas landing</th><th>Clics en comprar</th><th>Compras</th></tr>
+        </thead>
+        <tbody id="filasProductos"></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -60,29 +92,65 @@
     );
     const escapar = (t) => { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; };
 
+    document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('activa', b === btn));
+      for (const id of ['vistaRecursos', 'vistaProductos']) {
+        document.getElementById(id).classList.toggle('oculto', id !== btn.dataset.tab);
+      }
+    }));
+
     (async () => {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'index.html'; return; }
       const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).single();
       if (!perfil?.es_admin) { window.location.href = 'app.html'; return; }
 
-      const { data: resumen, error } = await sb.rpc('panel_aperturas');
-      document.getElementById('cargando').style.display = 'none';
-      if (error || !resumen?.length) {
-        document.getElementById('vacio').style.display = '';
-        return;
+      const [{ data: recursos }, { data: resumen }] = await Promise.all([
+        sb.rpc('panel_aperturas'),
+        sb.rpc('panel_resumen'),
+      ]);
+
+      // Cards de resumen general
+      if (resumen) {
+        document.getElementById('cards').innerHTML = [
+          [resumen.visitas_sitio, 'Visitas a la página (una por sesión)'],
+          [resumen.registros, 'Registros en la página'],
+          [resumen.visitas_landing, 'Visitas a landings de venta'],
+          [resumen.clics_comprar, 'Clics en botón de compra'],
+          [resumen.ventas, 'Ventas efectuadas'],
+        ].map(([n, texto]) => `<div class="card"><b>${n ?? 0}</b><span>${texto}</span></div>`).join('');
       }
-      document.getElementById('filas').innerHTML = resumen.map(f => `
+
+      // Pestaña recursos (aperturas + favoritos)
+      document.getElementById('cargandoRecursos').classList.add('oculto');
+      if (!recursos?.length) {
+        document.getElementById('vacioRecursos').classList.remove('oculto');
+      } else {
+        document.getElementById('filasRecursos').innerHTML = recursos.map(f => `
+          <tr>
+            <td>${escapar(f.titulo)}</td>
+            <td>${f.ultimas24h}</td>
+            <td>${f.dias7}</td>
+            <td class="destacado">${f.dias30}</td>
+            <td>${f.total}</td>
+            <td class="destacado">${f.favoritos}</td>
+          </tr>
+        `).join('');
+        document.getElementById('tablaRecursos').classList.remove('oculto');
+      }
+
+      // Pestaña productos de pago (embudo)
+      document.getElementById('cargandoProductos').classList.add('oculto');
+      const productos = resumen?.productos ?? [];
+      document.getElementById('filasProductos').innerHTML = productos.map(p => `
         <tr>
-          <td>${escapar(f.titulo)}</td>
-          <td>${f.ultimas24h}</td>
-          <td>${f.dias7}</td>
-          <td class="destacado">${f.dias30}</td>
-          <td>${f.total}</td>
-          <td class="destacado">${f.favoritos}</td>
+          <td>${escapar(p.nombre)}</td>
+          <td>${p.visitas}</td>
+          <td>${p.clics}</td>
+          <td class="destacado">${p.compras}</td>
         </tr>
       `).join('');
-      document.getElementById('tabla').style.display = '';
+      document.getElementById('tablaProductos').classList.remove('oculto');
     })();
   </script>
 </body>
