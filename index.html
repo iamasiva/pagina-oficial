@@ -448,28 +448,19 @@
     .benefit-card:nth-child(3) { background: #07102d; }
     .benefit-card:nth-child(4) { background: #0c1232; }
 
-    .benefit-card:nth-child(4) .benefit-icon {
-      width: 210px;
-      height: 210px;
-      top: 50%;
-      right: 44px;
-      transform: translateY(-62%);
-    }
-
     /* no overlay — card bg must be identical to icon bg */
     .benefit-card::before { display: none; }
 
-    /* floating icon — top-right corner, large */
+    /* icono de línea, mismo tamaño y posición en las 4 cards */
     .benefit-icon {
       position: absolute;
       top: 50%;
-      right: 28px;
+      right: 52px;
       transform: translateY(-50%);
-      width: 240px;
-      height: 240px;
-      object-fit: contain;
-      opacity: 1;
-      transition: transform 0.3s;
+      width: 96px;
+      height: 96px;
+      color: var(--blue-elec);
+      filter: drop-shadow(0 0 16px rgba(47,107,255,0.5));
       pointer-events: none;
     }
 
@@ -661,8 +652,7 @@
       .card-rank { font-size: 4.5rem; }
       .benefits-grid { grid-template-columns: 1fr; gap: 1px; }
       .benefit-card { min-height: 130px; padding: 28px 120px 28px 24px; }
-      .benefit-icon { width: 180px; height: 180px; right: 12px; }
-      .benefit-card:nth-child(4) .benefit-icon { width: 180px; height: 180px; right: 8px; }
+      .benefit-icon { width: 64px; height: 64px; right: 24px; }
       .tendencias { padding-top: 32px; }
       section { padding: 48px 5vw; }
       .scroll-arrow { display: none; }
@@ -674,6 +664,11 @@
       transform: translateY(24px);
       transition: opacity 0.65s ease, transform 0.65s ease;
     }
+
+    .guide-card .card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .guide-card .card-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,5,5,0.15) 0%, transparent 35%, rgba(5,5,5,0.92) 100%); }
+    .guide-card .card-rank, .guide-card .card-badge, .guide-card .card-info { z-index: 2; }
+    .stagger.visible > * { opacity: 1; transform: none; }
 
     .reveal.visible {
       opacity: 1;
@@ -1077,25 +1072,25 @@
     <div class="benefits-grid stagger">
 
       <div class="benefit-card">
-        <img src="icons/thunder.png" class="benefit-icon" alt="" loading="lazy" decoding="async" />
+        <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         <h3>Aprende haciendo</h3>
-        <p>Guías paso a paso<br>para aplicar IA<br class="mob">en casos reales.</p>
+        <p>Guías paso a paso<br>para aplicar IA <br class="mob">en casos reales.</p>
       </div>
 
       <div class="benefit-card">
-        <img src="icons/padlock.png" class="benefit-icon" alt="" loading="lazy" decoding="async" />
+        <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         <h3>Acceso inmediato</h3>
-        <p>Empieza gratis y avanza<br>a contenido más completo<br class="mob">cuando quieras.</p>
+        <p>Empieza gratis y avanza<br>a contenido más completo <br class="mob">cuando quieras.</p>
       </div>
 
       <div class="benefit-card">
-        <img src="icons/smart phone.png" class="benefit-icon" alt="" loading="lazy" decoding="async" />
+        <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12" y2="18.01"></line></svg>
         <h3>Desde cualquier lugar</h3>
-        <p>Accede desde tu celular,<br>tablet o computador<br class="mob">cuando lo necesites.</p>
+        <p>Accede desde tu celular,<br>tablet o computador <br class="mob">cuando lo necesites.</p>
       </div>
 
       <div class="benefit-card">
-        <img src="icons/dartboard.png" class="benefit-icon" alt="" loading="lazy" decoding="async" />
+        <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
         <h3>Para todos los niveles</h3>
         <p>Desde principiante hasta avanzado,<br> con rutas claras<br class="mob"> para avanzar.</p>
       </div>
@@ -1594,6 +1589,47 @@
 
     // ── LOGOUT ────────────────────────────────────────────────────
     document.getElementById('navbarLogout').addEventListener('click', () => sb.auth.signOut());
+
+    // ── TENDENCIAS REALES ─────────────────────────────────────────
+    // Mismo orden que el catálogo logeado: aperturas de los últimos 30 días
+    // (vista pública de solo conteos) y a igual conteo, la más nueva primero.
+    // Clic: recurso de pago → su landing de venta; gratuita → registro.
+    (async () => {
+      try {
+        const [g, t, p] = await Promise.all([
+          sb.from('guides').select('id, titulo, categorias, es_premium, portada_url, created_at').eq('publicada', true),
+          sb.from('tendencias_guias').select('*'),
+          sb.from('products').select('id, guide_id').eq('activo', true),
+        ]);
+        if (g.error || !g.data?.length) return;
+        const conteo = new Map((t.error ? [] : t.data ?? []).map(f => [f.guide_id, f.aperturas]));
+        const productoDeGuia = new Map((p.error ? [] : p.data ?? []).filter(x => x.guide_id).map(x => [x.guide_id, x.id]));
+        const esc = (s) => String(s ?? '').replace(/</g, '&lt;');
+        const orden = [...g.data]
+          .sort((a, b) => (conteo.get(b.id) || 0) - (conteo.get(a.id) || 0) || new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 10);
+        const pista = document.getElementById('cardsTrack');
+        pista.innerHTML = orden.map((guia, i) => `
+          <div class="guide-card" data-guia="${guia.id}">
+            ${guia.portada_url ? `<img class="card-cover" src="${guia.portada_url}" alt="" loading="lazy" decoding="async" />` : ''}
+            <div class="card-scrim"></div>
+            <div class="card-rank">${i + 1}</div>
+            <div class="card-badge">${guia.es_premium ? 'De pago' : 'Gratis'}</div>
+            <div class="card-info">
+              <div class="card-title">${esc(guia.titulo)}</div>
+              <div class="card-tag">${esc((guia.categorias ?? []).slice(0, 2).join(' · '))}</div>
+            </div>
+          </div>
+        `).join('');
+        pista.querySelectorAll('.guide-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const productId = productoDeGuia.get(card.dataset.guia);
+            if (productId) { window.location.href = `producto.html?p=${productId}`; return; }
+            openModal('viewRegister');
+          });
+        });
+      } catch (_) {}
+    })();
   </script>
 
 </body>
