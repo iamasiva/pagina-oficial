@@ -42,6 +42,11 @@
     .resumen .precio .tachado { font-size: 0.95rem; font-weight: 700; color: #8fa0b5; text-decoration: line-through; margin-right: 8px; }
     .cop { color: #9aacbf; font-size: 0.85rem; text-align: right; margin-bottom: 22px; }
     .nota-bundle { color: #9aacbf; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.5; }
+    .upsell { display: flex; gap: 12px; align-items: flex-start; background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.5); border-radius: 10px; padding: 14px; margin-bottom: 16px; cursor: pointer; }
+    .upsell input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+    .upsell span { font-size: 0.9rem; color: #dbe4f0; line-height: 1.55; }
+    .upsell b { color: var(--white); }
+    .tachado-suave { color: #8fa0b5; text-decoration: line-through; margin-left: 4px; }
     .consent { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; margin-bottom: 20px; cursor: pointer; }
     .consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--blue-elec); cursor: pointer; flex-shrink: 0; }
     .consent span { font-size: 0.85rem; color: #c3cede; line-height: 1.55; }
@@ -79,6 +84,10 @@
         <span class="precio" id="prodPrecio"></span>
       </div>
       <p class="cop" id="prodCop"></p>
+      <label class="upsell oculto" id="upsellBox">
+        <input type="checkbox" id="chkBundle" />
+        <span id="upsellTexto"></span>
+      </label>
       <p class="nota-bundle oculto" id="notaBundle"></p>
       <label class="consent">
         <input type="checkbox" id="chkConsent" />
@@ -129,6 +138,8 @@
       $(id).classList.remove('oculto');
     }
 
+    const precioEfectivo = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
+
     async function init() {
       if (!productId) { location.href = 'app.html'; return; }
       $('linkVolver').href = `producto.html?p=${productId}`;
@@ -136,9 +147,12 @@
       // La sesión es opcional: cualquiera con el link puede comprar
       const { data: { session } } = await sb.auth.getSession();
 
-      const { data: producto } = await sb.from('products')
-        .select('*').eq('id', productId).maybeSingle();
+      const { data: productos } = await sb.from('products').select('*').eq('activo', true);
+      const producto = (productos ?? []).find(p => p.id === productId);
       if (!producto) { location.href = 'app.html'; return; }
+      const esBundlePagina = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
+      const bundle = esBundlePagina ? null
+        : (productos ?? []).find(p => p.tipo === 'bundle' || /bundle/i.test(p.nombre)) ?? null;
 
       if (session) {
         const { data: compra } = await sb.from('purchases').select('id')
@@ -150,29 +164,56 @@
         }
       }
 
-      $('prodNombre').textContent = producto.nombre;
-      const promo = producto.precio_promo_usd_centavos ?? null;
-      const efectivo = promo ?? producto.precio_usd_centavos;
-      $('prodPrecio').innerHTML = promo
-        ? `<span class="tachado">$${producto.precio_usd_centavos / 100}</span>$${promo / 100} USD`
-        : '$' + (producto.precio_usd_centavos / 100) + ' USD';
+      // Los recursos que el comprador ya posee (para avisar solapamiento con el bundle)
+      let previas = [];
+      if (session) {
+        const { data } = await sb.from('purchases').select('product_id')
+          .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
+        previas = data ?? [];
+      }
+
+      // La compra activa: el producto elegido, o el bundle si marca la mejora
+      let productoActivo = producto;
+      let trmHoy = null;
+
+      function pintarResumen() {
+        const p = productoActivo;
+        const promo = p.precio_promo_usd_centavos ?? null;
+        $('prodNombre').textContent = p.nombre;
+        $('prodPrecio').innerHTML = promo
+          ? `<span class="tachado">$${p.precio_usd_centavos / 100}</span>$${promo / 100} USD`
+          : '$' + (p.precio_usd_centavos / 100) + ' USD';
+        $('prodCop').textContent = trmHoy
+          ? `Se cobra en pesos: ≈ ${Math.round(precioEfectivo(p) * trmHoy / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`
+          : '';
+        const avisarSolape = (p.tipo === 'bundle' || /bundle/i.test(p.nombre)) && previas.length;
+        $('notaBundle').textContent = avisarSolape
+          ? `Ojo: ya tienes ${previas.length} de los 3 recursos: el bundle no descuenta lo ya comprado.` : '';
+        $('notaBundle').classList.toggle('oculto', !avisarSolape);
+      }
+
+      // Mejora a los 3 recursos: check que actualiza el total en vivo
+      if (bundle) {
+        const individuales = Object.keys(PAGINAS)
+          .map(id => (productos ?? []).find(p => p.id === id))
+          .filter(Boolean);
+        const sumaIndividual = individuales.reduce((t, p) => t + precioEfectivo(p), 0);
+        const ahorro = sumaIndividual - precioEfectivo(bundle);
+        $('upsellTexto').innerHTML = `Llévate los <b>3 recursos premium</b> por <b>$${precioEfectivo(bundle) / 100} USD</b> <span class="tachado-suave">$${sumaIndividual / 100}</span>${ahorro > 0 ? ` · te ahorras $${ahorro / 100}` : ''}`;
+        $('upsellBox').classList.remove('oculto');
+        $('chkBundle').addEventListener('change', () => {
+          productoActivo = $('chkBundle').checked ? bundle : producto;
+          pintarResumen();
+        });
+      }
+
+      pintarResumen();
       try {
         const r = await fetch('https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=1');
         const [fila] = await r.json();
         const trm = Number(fila?.valor);
-        if (trm) $('prodCop').textContent = `Se cobra en pesos: ≈ ${Math.round(efectivo * trm / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`;
+        if (trm) { trmHoy = trm; pintarResumen(); }
       } catch (_) {}
-
-      // Bundle: avisar si ya posee alguno de los componentes (solo con sesión)
-      const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
-      if (esBundle && session) {
-        const { data: previas } = await sb.from('purchases').select('product_id')
-          .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
-        if (previas?.length) {
-          $('notaBundle').textContent = `Ojo: ya tienes ${previas.length} de los 3 recursos: el bundle no descuenta lo ya comprado.`;
-          $('notaBundle').classList.remove('oculto');
-        }
-      }
 
       $('chkConsent').addEventListener('change', () => { $('btnPagar').disabled = !$('chkConsent').checked; });
 
@@ -186,7 +227,8 @@
           const utmQs = u
             ? `&utm_source=${encodeURIComponent(u.source)}${u.medium ? `&utm_medium=${encodeURIComponent(u.medium)}` : ''}${u.campaign ? `&utm_campaign=${encodeURIComponent(u.campaign)}` : ''}`
             : '';
-          const res = await fetch(`/api/checkout?product=${productId}&consent=1${utmQs}`, { headers: cab });
+          // Se cobra el producto elegido: el individual o el bundle si marcó la mejora
+          const res = await fetch(`/api/checkout?product=${productoActivo.id}&consent=1${utmQs}`, { headers: cab });
           const body = await res.json();
           if (!res.ok) throw new Error(body.error || 'No se pudo iniciar el pago');
           sessionStorage.setItem('compra_ref', body.reference);
@@ -203,7 +245,7 @@
       // Meta Pixel: llegó a la página de pago con el valor real
       if (window.fbq) fbq('track', 'InitiateCheckout', {
         content_ids: [productId], content_name: producto.nombre,
-        content_type: 'product', value: efectivo / 100, currency: 'USD',
+        content_type: 'product', value: precioEfectivo(producto) / 100, currency: 'USD',
       });
     }
 
