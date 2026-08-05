@@ -577,7 +577,7 @@
         <div class="sidebar-links">
           <a class="sidebar-link" href="app.html" style="text-decoration:none;">
             <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            <span>← IA MASIVA</span>
+            <span id="imSalirLink">Salir</span>
           </a>
         </div>
       </div>
@@ -2052,7 +2052,7 @@ ${clean}`;
 
       const IM_TEXT = {
         es: {
-          tabFav: 'Favoritos', tabMis: 'Mis configuraciones', tabCuad: 'Mis cuadernos', espacio: 'Tu espacio',
+          tabFav: 'Favoritos', tabMis: 'Mis configuraciones', tabCuad: 'Mis cuadernos', espacio: 'Tu espacio', salir: 'Salir',
           favTitulo: 'Tus configuraciones favoritas.', favCopy: 'Márcalas con la estrella dentro de cualquier configuración y quedan siempre a la mano aquí.', favVacio: 'Aún no tienes favoritos. Abre una configuración y tócale la estrella.',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
@@ -2063,7 +2063,7 @@ ${clean}`;
           datosFaltan: 'El título y el link son obligatorios', generaPrimero: 'Primero genera una configuración', nombreVacio: 'Escribe un nombre', confirmaEliminar: '¿Eliminar definitivamente?', sinCategoria: 'Sin categoría',
         },
         en: {
-          tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space',
+          tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space', salir: 'Exit',
           favTitulo: 'Your favorite configurations.', favCopy: 'Star them inside any configuration and they stay one tap away here.', favVacio: 'No favorites yet. Open a configuration and tap the star.',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
@@ -2790,6 +2790,7 @@ ${clean}`;
       // ── Idioma: textos propios sincronizados con el selector de la app ──
       function actualizarTextosIM() {
         const x = tt();
+        $('imSalirLink').textContent = x.salir;
         $('imTabFav').textContent = x.tabFav;
         $('imTabMis').textContent = x.tabMis;
         $('imTabCuad').textContent = x.tabCuad;
