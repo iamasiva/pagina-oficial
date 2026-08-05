@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const db = adminClient();
     const { data: compra, error } = await db
       .from('purchases')
-      .select('estado, product_id, user_id')
+      .select('estado, product_id, user_id, monto_usd_centavos')
       .eq('referencia', ref)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -26,6 +26,7 @@ export default async function handler(req, res) {
       estado: compra.estado,
       product_id: compra.product_id,
       de_invitado: compra.user_id === null,
+      monto_usd_centavos: compra.monto_usd_centavos ?? null,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

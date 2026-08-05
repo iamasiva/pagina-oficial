@@ -6,6 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>IA MASIVA · Recurso Premium</title>
+  <!-- Meta Pixel (IA Masiva Event Data) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '4305759369641678');
+    fbq('track', 'PageView');
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -651,6 +657,12 @@
       // Promoción activa: ancla tachada + precio de compra (se apaga vaciando el campo en la base)
       const promo = producto.precio_promo_usd_centavos ?? null;
       const efectivo = promo ?? producto.precio_usd_centavos;
+
+      // Meta Pixel: vista de la landing con el valor real del producto
+      if (window.fbq) fbq('track', 'ViewContent', {
+        content_ids: [producto.id], content_name: producto.nombre,
+        content_type: 'product', value: efectivo / 100, currency: 'USD',
+      });
       const htmlPrecio = promo
         ? `<span class="tachado">$${producto.precio_usd_centavos / 100} USD</span>${usd(promo)}`
         : usd(producto.precio_usd_centavos);

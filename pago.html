@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Pago seguro · IA MASIVA</title>
+  <!-- Meta Pixel (IA Masiva Event Data) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '4305759369641678');
+    fbq('track', 'PageView');
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -193,6 +199,12 @@
       });
 
       mostrar('checkout');
+
+      // Meta Pixel: llegó a la página de pago con el valor real
+      if (window.fbq) fbq('track', 'InitiateCheckout', {
+        content_ids: [productId], content_name: producto.nombre,
+        content_type: 'product', value: efectivo / 100, currency: 'USD',
+      });
     }
 
     init();
