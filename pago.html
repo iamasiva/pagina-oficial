@@ -42,11 +42,6 @@
     .resumen .precio .tachado { font-size: 0.95rem; font-weight: 700; color: #8fa0b5; text-decoration: line-through; margin-right: 8px; }
     .cop { color: #9aacbf; font-size: 0.85rem; text-align: right; margin-bottom: 22px; }
     .nota-bundle { color: #9aacbf; font-size: 0.85rem; margin-bottom: 18px; line-height: 1.5; }
-    .upsell { display: flex; gap: 12px; align-items: flex-start; background: rgba(47,107,255,0.12); border: 1px solid rgba(47,107,255,0.5); border-radius: 10px; padding: 14px; margin-bottom: 16px; cursor: pointer; }
-    .upsell input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
-    .upsell span { font-size: 0.9rem; color: #dbe4f0; line-height: 1.55; }
-    .upsell b { color: var(--white); }
-    .tachado-suave { color: #8fa0b5; text-decoration: line-through; margin-left: 4px; }
     .consent { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; margin-bottom: 20px; cursor: pointer; }
     .consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--blue-elec); cursor: pointer; flex-shrink: 0; }
     .consent span { font-size: 0.85rem; color: #c3cede; line-height: 1.55; }
@@ -84,10 +79,6 @@
         <span class="precio" id="prodPrecio"></span>
       </div>
       <p class="cop" id="prodCop"></p>
-      <label class="upsell oculto" id="upsellBox">
-        <input type="checkbox" id="chkBundle" />
-        <span id="upsellTexto"></span>
-      </label>
       <p class="nota-bundle oculto" id="notaBundle"></p>
       <label class="consent">
         <input type="checkbox" id="chkConsent" />
@@ -150,9 +141,6 @@
       const { data: productos } = await sb.from('products').select('*').eq('activo', true);
       const producto = (productos ?? []).find(p => p.id === productId);
       if (!producto) { location.href = 'app.html'; return; }
-      const esBundlePagina = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
-      const bundle = esBundlePagina ? null
-        : (productos ?? []).find(p => p.tipo === 'bundle' || /bundle/i.test(p.nombre)) ?? null;
 
       if (session) {
         const { data: compra } = await sb.from('purchases').select('id')
@@ -190,21 +178,6 @@
         $('notaBundle').textContent = avisarSolape
           ? `Ojo: ya tienes ${previas.length} de los 3 recursos: el bundle no descuenta lo ya comprado.` : '';
         $('notaBundle').classList.toggle('oculto', !avisarSolape);
-      }
-
-      // Mejora a los 3 recursos: check que actualiza el total en vivo
-      if (bundle) {
-        const individuales = Object.keys(PAGINAS)
-          .map(id => (productos ?? []).find(p => p.id === id))
-          .filter(Boolean);
-        const sumaIndividual = individuales.reduce((t, p) => t + precioEfectivo(p), 0);
-        const ahorro = sumaIndividual - precioEfectivo(bundle);
-        $('upsellTexto').innerHTML = `Llévate los <b>3 recursos premium</b> por <b>$${precioEfectivo(bundle) / 100} USD</b> <span class="tachado-suave">$${sumaIndividual / 100}</span>${ahorro > 0 ? ` · te ahorras $${ahorro / 100}` : ''}`;
-        $('upsellBox').classList.remove('oculto');
-        $('chkBundle').addEventListener('change', () => {
-          productoActivo = $('chkBundle').checked ? bundle : producto;
-          pintarResumen();
-        });
       }
 
       pintarResumen();

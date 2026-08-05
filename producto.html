@@ -45,6 +45,28 @@
     .cta:hover { filter: brightness(1.12); transform: translateY(-2px); }
     .micro { margin-top: 12px; color: var(--muted); font-size: 0.82rem; }
 
+    /* ── Popup de promoción (bundle): toma la identidad de cada producto ── */
+    .promo-overlay { position: fixed; inset: 0; background: rgba(3,6,18,0.82); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px; }
+    .promo-overlay.activa { display: flex; }
+    .promo-caja { position: relative; background: var(--fondo); border: 1px solid var(--borde); border-radius: 18px; max-width: 440px; width: 100%; padding: 36px 28px 26px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.65); animation: promoEntra .25s ease; }
+    @keyframes promoEntra { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
+    .promo-cerrar { position: absolute; top: 10px; right: 14px; background: none; border: none; color: var(--muted); font-size: 1.5rem; line-height: 1; }
+    .promo-cerrar:hover { color: var(--ink); }
+    .promo-titulo { font-size: 1.18rem; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; line-height: 1.4; margin-bottom: 16px; }
+    .promo-titulo span { color: var(--acento); }
+    .promo-intro { color: var(--muted); font-size: 0.95rem; margin-bottom: 12px; }
+    .promo-intro b { color: var(--ink); }
+    .promo-lista { list-style: none; margin: 0 auto 20px; max-width: 330px; text-align: left; }
+    .promo-lista li { display: flex; gap: 10px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--borde); font-size: 0.96rem; font-weight: 700; }
+    .promo-lista li:last-child { border-bottom: none; }
+    .promo-lista li::before { content: '+'; color: var(--acento); font-weight: 900; font-size: 1.1rem; }
+    .promo-precio { font-size: 1rem; color: var(--muted); margin-bottom: 20px; }
+    .promo-precio s { margin: 0 6px; }
+    .promo-precio b { color: var(--ink); font-size: 1.8rem; font-weight: 900; }
+    .promo-cta { width: 100%; padding: 16px; font-size: 1.02rem; }
+    .promo-no { display: block; width: 100%; margin-top: 12px; background: none; border: none; color: var(--muted); font-size: 0.88rem; text-decoration: underline; padding: 6px; }
+    .promo-no:hover { color: var(--ink); }
+
     section { padding: 56px 5vw; }
     .contenido { max-width: 980px; margin: 0 auto; }
     .eyebrow-sec { text-align: center; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acento); margin-bottom: 12px; }
@@ -283,6 +305,19 @@
     <a href="terminos.html">Términos y condiciones</a>
     <a href="privacidad.html">Política de privacidad</a>
   </footer>
+
+  <!-- ═══ POPUP DE PROMOCIÓN (bundle) ══════════════════════════ -->
+  <div class="promo-overlay" id="promoOverlay">
+    <div class="promo-caja">
+      <button class="promo-cerrar" id="promoCerrar" aria-label="Cerrar">&times;</button>
+      <h3 class="promo-titulo">Tenemos una <span>promoción especial</span> para ti</h3>
+      <p class="promo-intro" id="promoIntro"></p>
+      <ul class="promo-lista" id="promoLista"></ul>
+      <p class="promo-precio">Lleva los 3 productos por <s id="promoAncla"></s> <b id="promoPrecio"></b></p>
+      <button class="cta promo-cta" id="promoTomar">TOMAR PROMOCIÓN</button>
+      <button class="promo-no" id="promoNo">Continuar con mi compra</button>
+    </div>
+  </div>
 
   <script>
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
@@ -767,10 +802,40 @@
         comprado = !!compra;
       }
       const destino = comprado ? (PAGINAS[producto.id] || 'app.html') : `pago.html?p=${producto.id}`;
+
+      // Popup de promoción: antes del pago se ofrece el bundle presentando
+      // los otros dos productos por su nombre. Cerrar el popup = quedarse
+      // en la landing; los dos botones sí continúan el proceso.
+      const bundleActivo = esBundle ? null
+        : (productos ?? []).find(p => p.tipo === 'bundle' || /bundle/i.test(p.nombre)) ?? null;
+      let promoLista = false;
+      if (!comprado && bundleActivo) {
+        const ARTICULO = {
+          '656f61d7-37b2-4e9c-8cf3-67065484493c': 'las',
+          '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'las',
+          '2c296299-d9a4-4409-bc99-67b4999e47f8': 'los',
+        };
+        const otros = Object.keys(PAGINAS).filter(id => id !== producto.id);
+        $('promoIntro').innerHTML = `Además de ${ARTICULO[producto.id] ?? ''} <b>${cfg.corto}</b>, adquiere:`;
+        $('promoLista').innerHTML = otros
+          .map(id => `<li>${LANDINGS[id]?.corto ?? ((productos ?? []).find(p => p.id === id)?.nombre ?? '')}</li>`)
+          .join('');
+        const efectivoBundle = bundleActivo.precio_promo_usd_centavos ?? bundleActivo.precio_usd_centavos;
+        const ancla = bundleActivo.precio_promo_usd_centavos ? bundleActivo.precio_usd_centavos : null;
+        $('promoAncla').textContent = ancla ? `$${ancla / 100}` : '';
+        $('promoPrecio').textContent = `$${efectivoBundle / 100} USD`;
+        $('promoTomar').addEventListener('click', () => { location.href = `pago.html?p=${bundleActivo.id}`; });
+        $('promoNo').addEventListener('click', () => { location.href = destino; });
+        $('promoCerrar').addEventListener('click', () => $('promoOverlay').classList.remove('activa'));
+        $('promoOverlay').addEventListener('click', e => { if (e.target.id === 'promoOverlay') $('promoOverlay').classList.remove('activa'); });
+        promoLista = true;
+      }
+
       for (const btn of [$('pCtaTop'), $('pCtaBottom')]) {
         btn.textContent = comprado ? 'IR AL RECURSO' : 'COMPRAR AHORA';
         btn.addEventListener('click', () => {
           if (!comprado) registrarEvento('clic_comprar', producto.id);
+          if (promoLista) { $('promoOverlay').classList.add('activa'); return; }
           location.href = destino;
         });
       }
