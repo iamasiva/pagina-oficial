@@ -978,9 +978,31 @@ setUiLanguage(savedLanguage);
     if (!session) { window.location.href = 'index.html'; return; }
 
     // El RLS es el candado: sin compra aprobada (o admin) no llegan filas.
-    const { data, error } = await sb.from('premium_items').select('item_num, id, data')
-      .eq('product_id', PRODUCT_ID).order('item_num').range(0, 249);
-    const filas = error ? [] : (data ?? []);
+    // Copia local: las visitas repetidas pintan al instante y el catálogo se
+    // refresca en segundo plano. El candado sigue siendo el RLS del refresco.
+    const CACHE_KEY = 'im_catalogo_200_v1';
+    async function traerCatalogo() {
+      const { data, error } = await sb.from('premium_items').select('item_num, id, data')
+        .eq('product_id', PRODUCT_ID).order('item_num').range(0, 249);
+      return error ? null : (data ?? []);
+    }
+    function guardarCache(nuevas) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ userId: session.user.id, filas: nuevas })); } catch (_) {}
+    }
+    let filas = null;
+    try {
+      const cache = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null');
+      if (cache?.userId === session.user.id && Array.isArray(cache.filas) && cache.filas.length) filas = cache.filas;
+    } catch (_) {}
+    if (filas) {
+      traerCatalogo().then(frescas => {
+        if (frescas?.length) guardarCache(frescas);
+        else if (frescas) localStorage.removeItem(CACHE_KEY); // acceso revocado
+      });
+    } else {
+      filas = await traerCatalogo() ?? [];
+      if (filas.length) guardarCache(filas);
+    }
 
     if (!filas.length) {
       document.getElementById('imCargando').classList.add('im-oculto');

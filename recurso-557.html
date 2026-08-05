@@ -2015,6 +2015,35 @@ ${clean}`;
     updateCustomOutput();
     bindEvents();
 
+    // ═══ IA MASIVA · Plantillas bajo demanda ═══
+    // El catálogo llega sin plantillas: al abrir un grupo se precargan las de
+    // sus variantes, y el botón Generar espera la suya si aún no ha llegado.
+    const imDrawerSinPlantillas = openDrawer;
+    openDrawer = function (groupId) {
+      imDrawerSinPlantillas(groupId);
+      const grupo = state.selectedGroup;
+      if (!grupo || !window.__IM?.traerPlantilla) return;
+      grupo.variants.forEach(v => {
+        if (!v.config.config_template) {
+          window.__IM.traerPlantilla(v.config.id).then(p => { if (p) v.config.config_template = p; });
+        }
+      });
+    };
+    (function () {
+      const btnAnterior = document.getElementById('generateConfig');
+      const btnGenerar = btnAnterior.cloneNode(true);
+      btnAnterior.parentNode.replaceChild(btnGenerar, btnAnterior);
+      btnGenerar.addEventListener('click', async () => {
+        const cfg = state.selected;
+        if (cfg && !cfg.config_template && window.__IM?.traerPlantilla) {
+          btnGenerar.disabled = true;
+          try { cfg.config_template = await window.__IM.traerPlantilla(cfg.id); }
+          finally { btnGenerar.disabled = false; }
+        }
+        generateConfig();
+      });
+    })();
+
     // ═══ IA MASIVA · Etapa 2: Favoritos, Mis configuraciones, Mis cuadernos ═══
     (function imEspacioPersonal() {
       const IM = window.__IM;
@@ -2812,21 +2841,55 @@ ${clean}`;
     if (!session) { window.location.href = 'index.html'; return; }
 
     // El RLS es el candado: sin compra aprobada (o admin) no llegan filas.
-    const filas = [];
-    for (const [desde, hasta] of [[0, 499], [500, 999]]) {
-      const { data, error } = await sb.from('premium_items').select('*')
-        .eq('product_id', PRODUCT_ID).order('item_num').range(desde, hasta);
-      if (error) break;
-      filas.push(...(data ?? []));
+    // Rendimiento: solo baja el catálogo liviano (sin plantillas, 6 veces
+    // menos datos) en dos consultas paralelas, y guarda una copia local para
+    // que las visitas siguientes pinten al instante. La plantilla de cada
+    // configuración llega bajo demanda con traerPlantilla.
+    const CATALOGO_COLS = 'id,item_num,code,nombre,categoria,subcategoria,familia,icono,descripcion,defaults:data->defaults,sensitivity:data->>sensitivity,description_en:data->>description_en';
+    const CACHE_KEY = 'im_catalogo_557_v1';
+
+    async function traerCatalogo() {
+      const res = await Promise.all([[0, 499], [500, 999]].map(([desde, hasta]) =>
+        sb.from('premium_items').select(CATALOGO_COLS)
+          .eq('product_id', PRODUCT_ID).order('item_num').range(desde, hasta)
+      ));
+      const todas = [];
+      for (const { data, error } of res) {
+        if (error) return null;
+        todas.push(...(data ?? []));
+      }
+      return todas;
     }
 
-    if (!filas.length) {
+    function guardarCache(nuevas) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ userId: session.user.id, filas: nuevas })); } catch (_) {}
+    }
+
+    let filas = null;
+    try {
+      const cache = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null');
+      if (cache?.userId === session.user.id && Array.isArray(cache.filas) && cache.filas.length) filas = cache.filas;
+    } catch (_) {}
+
+    if (filas) {
+      // Copia local: pinta ya y refresca en segundo plano para la próxima visita
+      traerCatalogo().then(frescas => {
+        if (frescas?.length) guardarCache(frescas);
+        else if (frescas) localStorage.removeItem(CACHE_KEY); // acceso revocado
+      });
+    } else {
+      filas = await traerCatalogo();
+      if (filas?.length) guardarCache(filas);
+    }
+
+    if (!filas || !filas.length) {
       document.getElementById('imCargando').classList.add('im-oculto');
       document.getElementById('imSinAcceso').classList.remove('im-oculto');
       return;
     }
 
-    // Reconstruir la forma exacta que espera la app original
+    // Reconstruir la forma exacta que espera la app original. Las plantillas
+    // quedan en '' hasta que traerPlantilla las llena al abrir cada una.
     window.__CONFIGS = filas.map(f => ({
       id: f.item_num,
       code: f.code,
@@ -2836,20 +2899,30 @@ ${clean}`;
       subcategory: f.subcategoria,
       subcategory_es: f.subcategoria,
       family: f.familia,
-      sensitivity: f.data?.sensitivity ?? null,
+      sensitivity: f.sensitivity ?? null,
       icon: f.icono,
       description: f.descripcion,
       description_es: f.descripcion,
-      description_en: f.data?.description_en ?? null,
-      defaults: f.data?.defaults ?? {},
-      config_template: f.data?.config_template ?? '',
+      description_en: f.description_en ?? null,
+      defaults: f.defaults ?? {},
+      config_template: '',
     }));
 
+    const plantillas = new Map();
     window.__IM = {
       sb,
       userId: session.user.id,
       productId: PRODUCT_ID,
       uuidByNum: new Map(filas.map(f => [f.item_num, f.id])),
+      traerPlantilla: async (itemNum) => {
+        if (plantillas.has(itemNum)) return plantillas.get(itemNum);
+        const { data } = await sb.from('premium_items')
+          .select('config_template:data->>config_template')
+          .eq('product_id', PRODUCT_ID).eq('item_num', itemNum).maybeSingle();
+        const plantilla = data?.config_template ?? '';
+        if (plantilla) plantillas.set(itemNum, plantilla);
+        return plantilla;
+      },
     };
 
     document.getElementById('imCargando').classList.add('im-oculto');
