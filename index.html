@@ -42,6 +42,13 @@
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
 
+    /* ── Cortina de entrada (idéntica a la del catálogo: transición continua) ── */
+    #imSplash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+    #imSplash.activa { display: flex; }
+    .splash-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 0.12em; color: var(--white); }
+    .splash-spin { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.18); border-top-color: var(--blue-elec); border-radius: 50%; animation: splashGira 0.9s linear infinite; }
+    @keyframes splashGira { to { transform: rotate(360deg); } }
+
     /* ─── NAVBAR ───────────────────────────────────────────────────── */
     .navbar {
       position: fixed;
@@ -939,6 +946,12 @@
 </head>
 <body>
 
+  <!-- Cortina de entrada: aparece al autenticarse y empalma con la del catálogo -->
+  <div id="imSplash">
+    <div class="splash-logo">IA MASIVA</div>
+    <div class="splash-spin"></div>
+  </div>
+
   <!-- ═══ NAVBAR ═══════════════════════════════════════════════════ -->
   <nav class="navbar" id="navbar">
     <span class="navbar-logo">IA MASIVA</span>
@@ -1589,12 +1602,16 @@
       if (event === 'PASSWORD_RECOVERY') {
         openModal('viewResetPass');
       } else if (event === 'SIGNED_IN' && !isRecoveryFlow) {
+        document.getElementById('imSplash').classList.add('activa');
         window.location.href = 'app.html';
       }
     });
 
     sb.auth.getSession().then(({ data: { session } }) => {
-      if (session && !isRecoveryFlow) window.location.href = 'app.html';
+      if (session && !isRecoveryFlow) {
+        document.getElementById('imSplash').classList.add('activa');
+        window.location.href = 'app.html';
+      }
     });
 
     // ── LOGOUT ────────────────────────────────────────────────────

@@ -26,6 +26,13 @@
     button { cursor: pointer; font-family: inherit; }
     .hidden { display: none !important; }
 
+    /* ── Cortina de entrada (misma en index y app: la transición se siente continua) ── */
+    #imSplash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; transition: opacity 0.35s ease; }
+    #imSplash.oculta { opacity: 0; pointer-events: none; }
+    .splash-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 0.12em; color: var(--white); }
+    .splash-spin { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.18); border-top-color: var(--blue-elec); border-radius: 50%; animation: splashGira 0.9s linear infinite; }
+    @keyframes splashGira { to { transform: rotate(360deg); } }
+
     /* ─── NAVBAR (incluye filtros) ───────────────────────────── */
     .app-nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; padding: 0 5vw; height: 70px; background: rgba(5,15,58,0.98); border-bottom: 1px solid rgba(47,107,255,0.12); transition: background 0.3s; }
     .app-nav.scrolled { background: rgba(5,15,58,0.98); }
@@ -320,6 +327,12 @@
   </style>
 </head>
 <body>
+
+  <!-- Cortina de entrada: cubre hasta que el catálogo esté pintado y listo -->
+  <div id="imSplash">
+    <div class="splash-logo">IA MASIVA</div>
+    <div class="splash-spin"></div>
+  </div>
 
   <!-- ═══ NAVBAR (logo + filtros) ═════════════════════════════ -->
   <nav class="app-nav" id="appNav">
@@ -700,6 +713,19 @@
     } catch (_) {}
     let favoritosSet = new Set();
 
+    // La cortina se retira cuando el catálogo ya está pintado (desde la copia
+    // local o desde la base); red de seguridad a los 2,5s pase lo que pase.
+    let splashRetirado = false;
+    function ocultarSplash() {
+      if (splashRetirado) return;
+      splashRetirado = true;
+      const s = document.getElementById('imSplash');
+      if (!s) return;
+      s.classList.add('oculta');
+      setTimeout(() => s.remove(), 450);
+    }
+    setTimeout(ocultarSplash, 2500);
+
     // Pintura instantánea: lo último que el navegador vio, mientras llega lo fresco
     const CACHE_CONTENIDO = 'im_contenido_v1';
     function pintarDesdeCache() {
@@ -709,6 +735,7 @@
         allGuides = c.guides; heroSlidesRaw = c.slides || []; allProducts = c.products || [];
         if (c.categorias?.length) { CATEGORIAS = c.categorias; pintarCategorias(); }
         renderAll();
+        ocultarSplash();
       } catch (_) {}
     }
     function guardarCacheContenido() {
@@ -733,6 +760,7 @@
       // Categorías de la tabla (si aún no existe, se queda la lista de arranque)
       if (!cat.error && cat.data?.length) { CATEGORIAS = cat.data; pintarCategorias(); }
       renderAll();
+      ocultarSplash();
       guardarCacheContenido();
       return true;
     }).catch(() => false);

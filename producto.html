@@ -26,6 +26,11 @@
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
     .oculto { display: none !important; }
+    #pSplash { position: fixed; inset: 0; z-index: 400; background: var(--fondo); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; transition: opacity 0.35s ease; }
+    #pSplash.oculta { opacity: 0; pointer-events: none; }
+    #pSplash .splash-logo { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.12em; color: var(--ink); }
+    #pSplash .splash-spin { width: 30px; height: 30px; border: 3px solid color-mix(in srgb, var(--acento) 25%, transparent); border-top-color: var(--acento); border-radius: 50%; animation: pSplashGira 0.9s linear infinite; }
+    @keyframes pSplashGira { to { transform: rotate(360deg); } }
 
     .nav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 60px; background: color-mix(in srgb, var(--fondo) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--borde); }
     .nav-logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; }
@@ -154,6 +159,12 @@
   </style>
 </head>
 <body>
+  <!-- Cortina: la landing se revela completa cuando el hero está listo -->
+  <div id="pSplash">
+    <div class="splash-logo">IA MASIVA</div>
+    <div class="splash-spin"></div>
+  </div>
+
   <nav class="nav">
     <span class="nav-logo">IA MASIVA</span>
     <a class="volver" href="app.html">← Volver al catálogo</a>
@@ -613,6 +624,14 @@
     };
 
     const $ = (id) => document.getElementById(id);
+
+    function ocultarCortina() {
+      const c = document.getElementById('pSplash');
+      if (!c) return;
+      c.classList.add('oculta');
+      setTimeout(() => c.remove(), 450);
+    }
+    setTimeout(ocultarCortina, 3000); // red de seguridad
     const productId = new URLSearchParams(location.search).get('p');
     const usd = (c) => `$${c / 100} <small>USD</small>`;
 
@@ -842,6 +861,14 @@
           location.href = destino;
         });
       }
+
+      // La landing se revela completa: se espera a que el hero esté decodificado
+      // (máximo 1,8s) para que no aparezca por pedazos
+      const heroImg = $('pHeroImg');
+      if (heroImg?.src) {
+        try { await Promise.race([heroImg.decode(), new Promise(r => setTimeout(r, 1800))]); } catch (_) {}
+      }
+      ocultarCortina();
     }
 
     init();
