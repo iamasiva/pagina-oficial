@@ -112,7 +112,7 @@
     /* ─── CARDS ──────────────────────────────────────────────── */
     .app-card { flex: 0 0 200px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); background: rgba(255,255,255,0.035); display: flex; flex-direction: column; transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
     .app-card-arte { position: relative; height: 288px; flex-shrink: 0; overflow: hidden; }
-    .app-card-pie { display: flex; align-items: center; padding: 8px 10px; }
+    .app-card-pie { display: flex; align-items: center; padding: 8px 10px; position: relative; z-index: 2; }
     .fav-estrella { position: absolute; left: 8px; bottom: 8px; z-index: 3; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
     .fav-estrella:hover { transform: scale(1.2); color: #ffd166; }
     .fav-estrella.activo { color: #ffd166; }
@@ -152,7 +152,7 @@
     .app-card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .app-card-arte::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.2) 0%, transparent 65%), linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%); }
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
-    .app-card-rank { position: absolute; bottom: -12px; left: -2px; font-size: 5.8rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,0.06); letter-spacing: -0.06em; user-select: none; pointer-events: none; z-index: 2; }
+    .app-card-rank { position: absolute; bottom: -14px; left: -2px; font-size: 6rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,0.06); letter-spacing: -0.06em; user-select: none; pointer-events: none; z-index: 1; }
     .app-card-badge { position: absolute; top: 11px; right: 11px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; z-index: 3; }
     .badge-premium { background: rgba(47,107,255,0.14); border: 1px solid rgba(47,107,255,0.35); font-size: 0.85rem; letter-spacing: normal; text-transform: none; padding: 2px 6px; line-height: 1; }
     .badge-tuya    { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
@@ -1080,7 +1080,6 @@
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
             ${locked ? '<div class="app-card-lock">De pago</div>' : ''}
-            ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
             <button class="fav-estrella${esFav ? ' activo' : ''}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
             <div class="app-card-info">
               <div class="app-card-tag">${cats}</div>
@@ -1089,6 +1088,7 @@
           <div class="app-card-pie">
             <span class="app-card-nombre">${guide.titulo}</span>
           </div>
+          ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
         </div>`;
     }
 
