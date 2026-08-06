@@ -328,7 +328,7 @@
     /* ─── GUIDE CARDS ──────────────────────────────────────────────── */
     .guide-card {
       flex: 0 0 190px;
-      height: 270px;
+      height: 366px;
       border-radius: 10px;
       position: relative;
       overflow: hidden;
@@ -407,7 +407,7 @@
     .card-info {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 68px;
+      height: 92px;
       padding: 7px 10px;
       overflow: hidden;
     }
@@ -419,7 +419,7 @@
       letter-spacing: 0.02em;
       line-height: 1.3;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -665,7 +665,9 @@
       .capture-form { flex-direction: column; align-items: stretch; }
       .capture-form input[type="email"] { max-width: 100%; }
       .btn-primary { width: 100%; text-align: center; }
-      .guide-card { flex: 0 0 158px; height: 228px; }
+      .guide-card { flex: 0 0 158px; height: 308px; }
+      .guide-card .card-cover, .guide-card .card-scrim { height: calc(100% - 80px); }
+      .card-info { height: 80px; }
       .card-rank { font-size: 4.5rem; }
       .benefits-grid { grid-template-columns: 1fr; gap: 1px; }
       .benefit-card { min-height: 130px; padding: 28px 120px 28px 24px; }
@@ -682,8 +684,8 @@
       transition: opacity 0.65s ease, transform 0.65s ease;
     }
 
-    .guide-card .card-cover { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 68px); object-fit: cover; }
-    .guide-card .card-scrim { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 68px); background: linear-gradient(180deg, rgba(5,5,5,0.25) 0%, transparent 45%); }
+    .guide-card .card-cover { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 92px); object-fit: cover; }
+    .guide-card .card-scrim { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 92px); background: linear-gradient(180deg, rgba(5,5,5,0.25) 0%, transparent 45%); }
     .guide-card .card-rank, .guide-card .card-badge, .guide-card .card-info { z-index: 2; }
     .stagger.visible > * { opacity: 1; transform: none; }
 
