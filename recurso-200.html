@@ -768,6 +768,25 @@ setUiLanguage(savedLanguage);
 
   const catsPlanas = () => [...new Set(misDisenos.map(d => d.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
+  function menuMisHtml(d) {
+    return `
+            <div class="im-menu">
+              <button type="button" data-imaccion="editar" data-mid="${d.id}">${escapeHtml(t('imEditar'))}</button>
+              <button type="button" data-imaccion="datos" data-mid="${d.id}">${escapeHtml(t('imDatos'))}</button>
+              <button type="button" data-imaccion="eliminar" data-mid="${d.id}">${escapeHtml(t('imEliminar'))}</button>
+            </div>`;
+  }
+
+  // Abrir/cerrar el menú toca solo su nodo: re-renderizar la grilla replay-ea
+  // el lift del hover del card y se ve como si el card entero se hundiera.
+  function pintarMenuMis() {
+    document.querySelectorAll('#imMisGrid .im-menu').forEach(n => n.remove());
+    if (menuMis === null) return;
+    const btn = document.querySelector(`#imMisGrid .im-menu-btn[data-immenu="${menuMis}"]`);
+    const d = misDisenos.find(x => x.id === menuMis);
+    if (btn && d) btn.insertAdjacentHTML('afterend', menuMisHtml(d));
+  }
+
   function cardMis(d) {
     const it = itemDe(d);
     return `
@@ -775,12 +794,7 @@ setUiLanguage(savedLanguage);
         <div class="preview-wrap"><img loading="lazy" decoding="async" src="${escapeHtml(it?.preview ?? '')}" alt="${escapeHtml(d.nombre)}"></div>
         <div class="card-body">
           <button class="im-menu-btn" type="button" data-immenu="${d.id}">⋮</button>
-          ${menuMis === d.id ? `
-            <div class="im-menu">
-              <button type="button" data-imaccion="editar" data-mid="${d.id}">${escapeHtml(t('imEditar'))}</button>
-              <button type="button" data-imaccion="datos" data-mid="${d.id}">${escapeHtml(t('imDatos'))}</button>
-              <button type="button" data-imaccion="eliminar" data-mid="${d.id}">${escapeHtml(t('imEliminar'))}</button>
-            </div>` : ''}
+          ${menuMis === d.id ? menuMisHtml(d) : ''}
           <div class="badges">${d.categoria ? `<span class="badge">${escapeHtml(d.categoria)}</span>` : ''}</div>
           <h3>${escapeHtml(d.nombre)}</h3>
           <p class="im-base">${it ? escapeHtml(format(t('imBase'), {name: itemName(it)})) : ''}</p>
@@ -953,11 +967,11 @@ setUiLanguage(savedLanguage);
     const chip = e.target.closest('[data-imchip]');
     if (chip) { catActiva = chip.dataset.imchip; menuMis = null; renderMis(); return; }
     const mb = e.target.closest('[data-immenu]');
-    if (mb) { menuMis = menuMis === mb.dataset.immenu ? null : mb.dataset.immenu; renderMis(); e.stopPropagation(); return; }
+    if (mb) { menuMis = menuMis === mb.dataset.immenu ? null : mb.dataset.immenu; pintarMenuMis(); e.stopPropagation(); return; }
     const acc = e.target.closest('[data-imaccion]');
     if (acc) {
       const d = misDisenos.find(x => x.id === acc.dataset.mid);
-      menuMis = null; renderMis();
+      menuMis = null; pintarMenuMis();
       if (!d) return;
       if (acc.dataset.imaccion === 'editar') editarDiseno(d);
       if (acc.dataset.imaccion === 'datos') abrirModalDatos(d);
@@ -970,11 +984,11 @@ setUiLanguage(savedLanguage);
       if (!d) return;
       await copiarTexto(d.contenido);
       cp.textContent = t('imCopiado');
-      setTimeout(() => renderMis(), 1600);
+      setTimeout(() => { cp.textContent = t('imCopiar'); }, 1600);
     }
   });
   document.addEventListener('click', (e) => {
-    if (menuMis && !e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn')) { menuMis = null; renderMis(); }
+    if (menuMis && !e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn')) { menuMis = null; pintarMenuMis(); }
   });
 
   $('imMisBtn').addEventListener('click', () => setVistaMis($('im-mis').hidden));
