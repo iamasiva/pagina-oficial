@@ -158,8 +158,7 @@
     .badge-tuya    { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
     .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 13px 10px 32px; z-index: 3; }
     .app-card-tag  { font-size: 0.68rem; color: #4a6080; }
-    .app-card.locked .app-card-arte::before { background: rgba(5,5,5,0.4); }
-    .app-card-lock { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -65%); font-size: 1.4rem; opacity: 0.45; z-index: 3; }
+    .app-card-lock { position: absolute; top: 8px; right: 8px; z-index: 3; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: rgba(5,8,20,0.72); border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 4px 9px; backdrop-filter: blur(4px); }
     .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; }
 
     /* ─── ADMIN CARD CONTROLS ────────────────────────────────── */
@@ -1080,7 +1079,7 @@
           <div class="app-card-arte">
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
-            ${locked ? '<div class="app-card-lock">&#128274;</div>' : ''}
+            ${locked ? '<div class="app-card-lock">De pago</div>' : ''}
             ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
             <button class="fav-estrella${esFav ? ' activo' : ''}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
             <div class="app-card-info">
