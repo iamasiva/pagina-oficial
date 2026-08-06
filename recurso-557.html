@@ -527,6 +527,7 @@
     .im-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
     .im-chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 20px; padding: 7px 15px; font-size: 0.84rem; font-weight: 600; color: var(--muted); cursor: pointer; }
     .im-chip.activo { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); }
+    .im-fav-select { display: block; width: 100%; max-width: 380px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; min-height: 42px; padding: 0 12px; font: inherit; font-weight: 600; margin-bottom: 12px; cursor: pointer; }
     /* navegador de cuadernos */
     .im-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
     .im-toolbar .im-ubicacion { font-weight: 800; font-size: 0.95rem; color: var(--ink); }
@@ -2089,6 +2090,7 @@ ${clean}`;
         es: {
           tabFav: 'Favoritos', tabMis: 'Mis configuraciones', tabCuad: 'Mis cuadernos', espacio: 'Tu espacio', salir: 'Salir',
           favTitulo: 'Tus configuraciones favoritas.', favCopy: 'Márcalas con la estrella dentro de cualquier configuración y quedan siempre a la mano aquí.', favVacio: 'Aún no tienes favoritos. Abre una configuración y tócale la estrella.',
+          favTodasCat: 'Todas las categorías', favTodasSub: 'Todas',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
           lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: '¿Para qué es? (opcional)',
@@ -2100,6 +2102,7 @@ ${clean}`;
         en: {
           tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space', salir: 'Exit',
           favTitulo: 'Your favorite configurations.', favCopy: 'Star them inside any configuration and they stay one tap away here.', favVacio: 'No favorites yet. Open a configuration and tap the star.',
+          favTodasCat: 'All categories', favTodasSub: 'All',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
           lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'What is it for? (optional)',
@@ -2116,6 +2119,8 @@ ${clean}`;
       // ── Favoritos (a nivel de configuración/grupo; se guarda la variante canónica) ──
       let favoritos = new Set();
       let imGrupoActualId = null;
+      let imFavCat = null;
+      let imFavSub = null;
       const uuidDeGrupo = (g) => IM.uuidByNum.get(g.variants[0].config.id);
       const numByUuid = new Map([...IM.uuidByNum].map(([n, u]) => [u, n]));
       const grupoDeUuid = (uuid) => {
@@ -2165,7 +2170,30 @@ ${clean}`;
         const grupos = [...favoritos].map(grupoDeUuid).filter(Boolean);
         $('imFavVacio').style.display = grupos.length ? 'none' : 'block';
         $('imFavVacio').textContent = tt().favVacio;
-        $('imFavList').innerHTML = grupos.map(g => `
+        const cats = [...new Set(grupos.map(g => g.category))].sort((a, b) => a.localeCompare(b));
+        if (imFavCat && !cats.includes(imFavCat)) { imFavCat = null; imFavSub = null; }
+        let filtros = '';
+        if (grupos.length) {
+          filtros = `
+            <select class="im-fav-select" id="imFavCatSel" aria-label="${escapeHtml(tt().favTodasCat)}">
+              <option value="">${escapeHtml(tt().favTodasCat)} (${grupos.length})</option>
+              ${cats.map(c => `<option value="${escapeHtml(c)}" ${imFavCat === c ? 'selected' : ''}>${escapeHtml(categoryLabel(c))} (${grupos.filter(g => g.category === c).length})</option>`).join('')}
+            </select>`;
+          if (imFavCat) {
+            const enCat = grupos.filter(g => g.category === imFavCat);
+            const fams = [...new Set(enCat.map(g => g.family))].sort((a, b) => a.localeCompare(b));
+            if (imFavSub && !fams.includes(imFavSub)) imFavSub = null;
+            filtros += `
+              <div class="im-chips">
+                <button class="im-chip ${!imFavSub ? 'activo' : ''}" type="button" data-imfavsub="">${escapeHtml(tt().favTodasSub)} (${enCat.length})</button>
+                ${fams.map(f => `<button class="im-chip ${imFavSub === f ? 'activo' : ''}" type="button" data-imfavsub="${escapeHtml(f)}">${escapeHtml(f)} (${enCat.filter(g => g.family === f).length})</button>`).join('')}
+              </div>`;
+          }
+        }
+        const visibles = grupos
+          .filter(g => !imFavCat || g.category === imFavCat)
+          .filter(g => !imFavSub || g.family === imFavSub);
+        $('imFavList').innerHTML = filtros + visibles.map(g => `
           <button class="config-row-rich" type="button" data-imfav="${g.groupId}">
             <h3>${escapeHtml(groupDisplayName(g))}</h3>
             <p>${escapeHtml(groupDisplayDescription(g))}</p>
@@ -2174,10 +2202,18 @@ ${clean}`;
       }
 
       $('imFavList').addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-imfavsub]');
+        if (chip) { imFavSub = chip.dataset.imfavsub || null; renderFavoritos(); return; }
         const btn = e.target.closest('[data-imfav]');
         if (!btn) return;
         switchTab('library');
         openDrawer(btn.dataset.imfav);
+      });
+      $('imFavList').addEventListener('change', (e) => {
+        if (e.target.id !== 'imFavCatSel') return;
+        imFavCat = e.target.value || null;
+        imFavSub = null;
+        renderFavoritos();
       });
 
       // ── Mis configuraciones ──
