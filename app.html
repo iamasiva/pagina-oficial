@@ -345,6 +345,9 @@
     .leer-mas { background: none; border: none; padding: 0; margin: -4px 0 2px; color: var(--blue-elec); font-weight: 700; font-size: 0.85rem; cursor: pointer; align-self: flex-start; }
   
     .lista-fav { position: static; font-size: 1.3rem; margin-left: 10px; vertical-align: 1px; text-shadow: none; }
+  
+    .guide-topbar-brand { font-weight: 900; letter-spacing: 0.03em; color: var(--white); cursor: pointer; flex-shrink: 0; }
+    .guide-topbar-title { flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 16px; }
   </style>
 </head>
 <body>
@@ -477,6 +480,7 @@
 
   <div class="guide-overlay" id="guideOverlay">
     <div class="guide-topbar">
+      <span class="guide-topbar-brand" onclick="closeGuideViewer();irInicio();">IA MASIVA</span>
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
       <button class="guide-close" onclick="closeGuideViewer()">✕ Cerrar</button>
     </div>
