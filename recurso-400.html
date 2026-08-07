@@ -428,6 +428,10 @@
       .code-output { min-height: 220px; }
       .intro h2 { font-size: 32px; }
     }
+  
+    .busq-caja { margin-top: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .busq-caja .primary-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; border-radius: var(--radius); font-weight: 800; text-decoration: none; }
+    .busq-nota { color: var(--muted); font-size: 13px; margin: 0; }
   </style>
 </head>
 <body>
@@ -554,6 +558,10 @@
           <button class="sidebar-link active" data-nav="library">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
             Biblioteca de gemas
+          </button>
+          <button class="sidebar-link" data-nav="busqueda">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path><path d="M11 8.2l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"></path></svg>
+            Búsqueda guiada
           </button>
         </div>
         <button class="tree-root" id="treeRootBtn" type="button">
@@ -978,6 +986,18 @@
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-busqueda">
+          <div class="hero"><div class="intro">
+            <p class="eyebrow">Búsqueda guiada</p>
+            <h2>¿No sabes cuál gema necesitas?</h2>
+            <p>Cuéntale al Bibliotecario del 400 lo que quieres lograr y te responde con el nombre exacto de la gema que te sirve (o te describe la que deberías crear con la Gema para crear gemas si no existe). Pega ese nombre en el buscador de la biblioteca y listo.</p>
+          </div></div>
+          <div class="busq-caja">
+            <a class="primary-btn" href="https://gemini.google.com/gem/1kQIJy4nNb3xBfatu48c4sx11ztMtIR_g?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
+            <p class="busq-nota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
           </div>
         </section>
 
