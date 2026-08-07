@@ -200,6 +200,13 @@
     h1 { text-transform: uppercase; letter-spacing: .012em; line-height: 1.02; }
     .tema-btn { border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #e8d7ba; border-radius: 10px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
     .tema-btn:hover { background: rgba(255,255,255,.16); }
+  
+    #imMejorarTexto { width: 100%; min-height: 110px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 11px 12px; font: inherit; resize: vertical; }
+    .im-mejorar-acciones { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+    .im-mejorar-acciones .im-btn { min-height: 42px; border: none; cursor: pointer; font: inherit; font-weight: 700; border-radius: 8px; background: var(--accent); color: #fff; padding: 0 18px; }
+    .im-mejorar-cancelar { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; min-height: 42px; cursor: pointer; font: inherit; color: var(--muted); }
+    #imMejorarError { color: var(--danger, #b3261e); font-size: 13px; margin: 8px 0 0; }
+    #imMejorarGracias { margin: 6px 0 0; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -217,6 +224,7 @@
       <div class="brand"><span class="brand-mark">P</span> Presenta</div>
       <div class="nav-actions">
         <button class="im-mis-btn" id="imMisBtn" type="button" data-i18n="misDisenos">Mis diseños</button>
+        <button class="im-mis-btn" id="imMejorarBtn" type="button">Ayúdanos a mejorar</button>
         <a class="im-mis-btn" id="imSalirBtn" href="app.html" style="text-decoration:none;" data-i18n="imSalir">Salir</a>
         <button type="button" class="tema-btn" id="imTemaBtn">☾</button>
           <label class="interface-language"><span data-i18n="interfaceLanguage">Interfaz</span>
@@ -1103,6 +1111,90 @@ setUiLanguage(savedLanguage);
     document.documentElement.dataset.tema = nuevo;
     try { localStorage.setItem('im_tema', nuevo); } catch (e) {}
     pintar();
+  });
+  document.getElementById('ui-language')?.addEventListener('change', pintar);
+  pintar();
+})();
+</script>
+<div class="im-modal" id="imMejorarModal">
+    <div class="im-modal-caja">
+      <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
+      <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
+      <div id="imMejorarForm">
+        <textarea id="imMejorarTexto" maxlength="2000"></textarea>
+        <p id="imMejorarError" style="display:none;"></p>
+        <div class="im-mejorar-acciones">
+          <button class="im-btn" id="imMejorarEnviar" type="button">Enviar</button>
+          <button class="im-mejorar-cancelar" id="imMejorarCancelar" type="button">Cancelar</button>
+        </div>
+      </div>
+      <p id="imMejorarGracias" style="display:none;"></p>
+    </div>
+  </div>
+  <script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const modal = $('imMejorarModal');
+  const btn = $('imMejorarBtn');
+  if (!modal || !btn) return;
+  const PRODUCTO = '2c296299-d9a4-4409-bc99-67b4999e47f8';
+  const T = {"es": {"tab": "Ayúdanos a mejorar", "copy": "¿Qué mejorarías de este recurso? Cuéntanos: cada sugerencia se lee y se tiene en cuenta.", "placeholder": "Escribe tu sugerencia aquí...", "enviar": "Enviar", "enviando": "Enviando…", "cancelar": "Cancelar", "gracias": "¡Gracias! Tu sugerencia quedó guardada.", "corto": "Cuéntanos un poquito más para poder entenderla.", "fallo": "No se pudo enviar. Intenta de nuevo en un momento."}, "en": {"tab": "Help us improve", "copy": "What would you improve in this resource? Tell us: every suggestion gets read and considered.", "placeholder": "Write your suggestion here...", "enviar": "Send", "enviando": "Sending…", "cancelar": "Cancel", "gracias": "Thank you! Your suggestion was saved.", "corto": "Tell us a bit more so we can understand it.", "fallo": "Could not send. Please try again in a moment."}, "pt": {"tab": "Ajude-nos a melhorar", "copy": "O que você melhoraria neste recurso? Conte para a gente: cada sugestão é lida e considerada.", "placeholder": "Escreva sua sugestão aqui...", "enviar": "Enviar", "enviando": "Enviando…", "cancelar": "Cancelar", "gracias": "Obrigado! Sua sugestão foi salva.", "corto": "Conte um pouco mais para podermos entender.", "fallo": "Não foi possível enviar. Tente novamente em instantes."}, "fr": {"tab": "Aidez-nous à améliorer", "copy": "Que amélioreriez-vous dans cette ressource ? Dites-le-nous : chaque suggestion est lue et prise en compte.", "placeholder": "Écrivez votre suggestion ici...", "enviar": "Envoyer", "enviando": "Envoi…", "cancelar": "Annuler", "gracias": "Merci ! Votre suggestion a bien été enregistrée.", "corto": "Dites-nous en un peu plus pour que nous puissions comprendre.", "fallo": "L'envoi a échoué. Réessayez dans un instant."}, "de": {"tab": "Hilf uns, besser zu werden", "copy": "Was würdest du an dieser Ressource verbessern? Sag es uns: jeder Vorschlag wird gelesen und berücksichtigt.", "placeholder": "Schreibe deinen Vorschlag hier...", "enviar": "Senden", "enviando": "Wird gesendet…", "cancelar": "Abbrechen", "gracias": "Danke! Dein Vorschlag wurde gespeichert.", "corto": "Erzähl uns etwas mehr, damit wir es verstehen können.", "fallo": "Senden fehlgeschlagen. Versuche es gleich noch einmal."}, "it": {"tab": "Aiutaci a migliorare", "copy": "Cosa miglioreresti in questa risorsa? Raccontacelo: ogni suggerimento viene letto e considerato.", "placeholder": "Scrivi qui il tuo suggerimento...", "enviar": "Invia", "enviando": "Invio…", "cancelar": "Annulla", "gracias": "Grazie! Il tuo suggerimento è stato salvato.", "corto": "Raccontaci qualcosa in più per capire meglio.", "fallo": "Invio non riuscito. Riprova tra un attimo."}};
+  const idioma = () => (T[document.getElementById('ui-language')?.value] ? document.getElementById('ui-language').value : 'es');
+  const t = () => T[idioma()] || T.es;
+  const pintar = () => {
+    const x = t();
+    const tab = $('imMejorarTab');
+    if (tab) tab.textContent = x.tab; else btn.textContent = x.tab;
+    $('imMejorarTitulo').textContent = x.tab;
+    $('imMejorarCopy').textContent = x.copy;
+    $('imMejorarTexto').placeholder = x.placeholder;
+    $('imMejorarEnviar').textContent = x.enviar;
+    $('imMejorarCancelar').textContent = x.cancelar;
+    $('imMejorarGracias').textContent = x.gracias;
+  };
+  const cerrar = () => modal.classList.remove('abierto');
+  btn.addEventListener('click', (e) => {
+    e.stopImmediatePropagation();
+    pintar();
+    $('imMejorarForm').style.display = '';
+    $('imMejorarGracias').style.display = 'none';
+    $('imMejorarError').style.display = 'none';
+    $('imMejorarTexto').value = '';
+    $('imMejorarEnviar').disabled = false;
+    modal.classList.add('abierto');
+    $('imMejorarTexto').focus();
+  });
+  $('imMejorarCancelar').addEventListener('click', cerrar);
+  modal.addEventListener('click', (e) => { if (e.target === modal) cerrar(); });
+  $('imMejorarEnviar').addEventListener('click', async () => {
+    const x = t();
+    const texto = $('imMejorarTexto').value.trim();
+    const err = $('imMejorarError');
+    err.style.display = 'none';
+    if (texto.length < 5) { err.textContent = x.corto; err.style.display = 'block'; return; }
+    const enviar = $('imMejorarEnviar');
+    enviar.disabled = true; enviar.textContent = x.enviando;
+    try {
+      const sesion = await window.__IM.sb.auth.getSession();
+      const token = sesion?.data?.session?.access_token;
+      if (!token) throw new Error('');
+      const res = await fetch('/api/sugerencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ texto, product_id: PRODUCTO }),
+      });
+      if (!res.ok) {
+        const cuerpo = await res.json().catch(() => null);
+        throw new Error(cuerpo?.error || '');
+      }
+      $('imMejorarForm').style.display = 'none';
+      $('imMejorarGracias').style.display = 'block';
+      setTimeout(cerrar, 2200);
+    } catch (e2) {
+      err.textContent = (e2 && e2.message) || x.fallo;
+      err.style.display = 'block';
+      enviar.disabled = false; enviar.textContent = x.enviar;
+    }
   });
   document.getElementById('ui-language')?.addEventListener('change', pintar);
   pintar();

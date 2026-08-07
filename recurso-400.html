@@ -432,6 +432,13 @@
     .busq-caja { margin-top: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
     .busq-caja .primary-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; border-radius: var(--radius); font-weight: 800; text-decoration: none; }
     .busq-nota { color: var(--muted); font-size: 13px; margin: 0; }
+  
+    #imMejorarTexto { width: 100%; min-height: 110px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 11px 12px; font: inherit; resize: vertical; }
+    .im-mejorar-acciones { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+    .im-mejorar-acciones .primary-btn { min-height: 42px; border: none; cursor: pointer; font: inherit; font-weight: 700; border-radius: 8px; background: var(--accent); color: #fff; padding: 0 18px; }
+    .im-mejorar-cancelar { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; min-height: 42px; cursor: pointer; font: inherit; color: var(--muted); }
+    #imMejorarError { color: var(--danger, #b3261e); font-size: 13px; margin: 8px 0 0; }
+    #imMejorarGracias { margin: 6px 0 0; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -585,6 +592,10 @@
           <button class="sidebar-link" data-nav="guide">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             Guía de uso
+          </button>
+          <button class="sidebar-link" id="imMejorarBtn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+            Ayúdanos a mejorar
           </button>
         </div>
         <div class="sidebar-divider"></div>
@@ -2787,5 +2798,89 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     __initApp();
   })();
   </script>
+<div class="im-modal" id="imMejorarModal">
+    <div class="im-modal-caja">
+      <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
+      <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
+      <div id="imMejorarForm">
+        <textarea id="imMejorarTexto" maxlength="2000"></textarea>
+        <p id="imMejorarError" style="display:none;"></p>
+        <div class="im-mejorar-acciones">
+          <button class="primary-btn" id="imMejorarEnviar" type="button">Enviar</button>
+          <button class="im-mejorar-cancelar" id="imMejorarCancelar" type="button">Cancelar</button>
+        </div>
+      </div>
+      <p id="imMejorarGracias" style="display:none;"></p>
+    </div>
+  </div>
+  <script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const modal = $('imMejorarModal');
+  const btn = $('imMejorarBtn');
+  if (!modal || !btn) return;
+  const PRODUCTO = '0f0d6926-5328-4e3e-89a4-92b36ef13996';
+  const T = {"es": {"tab": "Ayúdanos a mejorar", "copy": "¿Qué mejorarías de este recurso? Cuéntanos: cada sugerencia se lee y se tiene en cuenta.", "placeholder": "Escribe tu sugerencia aquí...", "enviar": "Enviar", "enviando": "Enviando…", "cancelar": "Cancelar", "gracias": "¡Gracias! Tu sugerencia quedó guardada.", "corto": "Cuéntanos un poquito más para poder entenderla.", "fallo": "No se pudo enviar. Intenta de nuevo en un momento."}};
+  const idioma = () => 'es';
+  const t = () => T[idioma()] || T.es;
+  const pintar = () => {
+    const x = t();
+    const tab = $('imMejorarTab');
+    if (tab) tab.textContent = x.tab; else btn.textContent = x.tab;
+    $('imMejorarTitulo').textContent = x.tab;
+    $('imMejorarCopy').textContent = x.copy;
+    $('imMejorarTexto').placeholder = x.placeholder;
+    $('imMejorarEnviar').textContent = x.enviar;
+    $('imMejorarCancelar').textContent = x.cancelar;
+    $('imMejorarGracias').textContent = x.gracias;
+  };
+  const cerrar = () => modal.classList.remove('abierto');
+  btn.addEventListener('click', (e) => {
+    e.stopImmediatePropagation();
+    pintar();
+    $('imMejorarForm').style.display = '';
+    $('imMejorarGracias').style.display = 'none';
+    $('imMejorarError').style.display = 'none';
+    $('imMejorarTexto').value = '';
+    $('imMejorarEnviar').disabled = false;
+    modal.classList.add('abierto');
+    $('imMejorarTexto').focus();
+  });
+  $('imMejorarCancelar').addEventListener('click', cerrar);
+  modal.addEventListener('click', (e) => { if (e.target === modal) cerrar(); });
+  $('imMejorarEnviar').addEventListener('click', async () => {
+    const x = t();
+    const texto = $('imMejorarTexto').value.trim();
+    const err = $('imMejorarError');
+    err.style.display = 'none';
+    if (texto.length < 5) { err.textContent = x.corto; err.style.display = 'block'; return; }
+    const enviar = $('imMejorarEnviar');
+    enviar.disabled = true; enviar.textContent = x.enviando;
+    try {
+      const sesion = await window.__IM.sb.auth.getSession();
+      const token = sesion?.data?.session?.access_token;
+      if (!token) throw new Error('');
+      const res = await fetch('/api/sugerencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ texto, product_id: PRODUCTO }),
+      });
+      if (!res.ok) {
+        const cuerpo = await res.json().catch(() => null);
+        throw new Error(cuerpo?.error || '');
+      }
+      $('imMejorarForm').style.display = 'none';
+      $('imMejorarGracias').style.display = 'block';
+      setTimeout(cerrar, 2200);
+    } catch (e2) {
+      err.textContent = (e2 && e2.message) || x.fallo;
+      err.style.display = 'block';
+      enviar.disabled = false; enviar.textContent = x.enviar;
+    }
+  });
+  
+  pintar();
+})();
+</script>
 </body>
 </html>
