@@ -46,8 +46,10 @@ export default async function handler(req, res) {
     const trm = await trmDelDia();
     // Si hay promoción activa se cobra el precio promocional; si no, el regular.
     const precioEfectivo = product.precio_promo_usd_centavos ?? product.precio_usd_centavos;
-    // centavos USD × TRM = centavos COP. Cobro exacto al centavo.
-    const amountInCents = Math.round(precioEfectivo * trm);
+    // centavos USD × TRM = centavos COP, redondeado a PESO COMPLETO:
+    // las tarjetas vía Wompi rechazan montos con centavos
+    // ("El método de pago escogido no soporta montos con centavos").
+    const amountInCents = Math.round((precioEfectivo * trm) / 100) * 100;
     const currency = 'COP';
     const reference = `${productId}__${user ? user.id : 'guest'}__${Date.now()}`;
 
