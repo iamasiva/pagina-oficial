@@ -2161,7 +2161,7 @@ ${clean}`;
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
-          arbolBtn: 'Árbol', arbolCopiar: 'Copiar árbol', arbolCopiado: 'Árbol copiado', arbolVacio: 'Esta categoría aún no tiene cuadernos.',
+          arbolBtn: 'Árbol', arbolCopiar: 'Copiar árbol', arbolCopiado: 'Árbol copiado', arbolVacio: 'Esta categoría aún no tiene cuadernos.', arbolSinSub: 'Sin subcategoría',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
           lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: '¿Para qué es? (opcional)',
@@ -2177,7 +2177,7 @@ ${clean}`;
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
-          arbolBtn: 'Tree', arbolCopiar: 'Copy tree', arbolCopiado: 'Tree copied', arbolVacio: 'This category has no notebooks yet.',
+          arbolBtn: 'Tree', arbolCopiar: 'Copy tree', arbolCopiado: 'Tree copied', arbolVacio: 'This category has no notebooks yet.', arbolSinSub: 'No subcategory',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
           lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'What is it for? (optional)',
@@ -2465,15 +2465,13 @@ ${clean}`;
           const chats = chatsDe(c.id);
           chats.forEach((ch, j) => lineas.push(pref + (j === chats.length - 1 ? '└── ' : '├── ') + ch.titulo));
         };
-        const hijos = [
-          ...subsDe(cat.id).map(s => ({ nombre: s.nombre, cuads: cuadEn(s.id) })),
-          ...cuadEn(cat.id).map(c => ({ cuaderno: c })),
-        ];
+        const hijos = subsDe(cat.id).map(s => ({ nombre: s.nombre, cuads: cuadEn(s.id) }));
+        const sueltos = cuadEn(cat.id);
+        if (sueltos.length) hijos.push({ nombre: tt().arbolSinSub, cuads: sueltos });
         hijos.forEach((h, i) => {
           const ult = i === hijos.length - 1;
           const rama = ult ? '└── ' : '├── ';
           const pref = ult ? '    ' : '│   ';
-          if (h.cuaderno) { lineas.push(rama + h.cuaderno.titulo); pintarChats(pref, h.cuaderno); return; }
           lineas.push(rama + h.nombre);
           h.cuads.forEach((c, j) => {
             const ultc = j === h.cuads.length - 1;
