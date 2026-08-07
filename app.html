@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="preconnect" href="https://iyiygnfaxiejtlgkkivs.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://api.iamasiva.co" crossorigin>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
@@ -680,7 +680,7 @@
     // ── SUPABASE ──────────────────────────────────────────────
     const { createClient } = supabase;
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
-    const sb = createClient('https://iyiygnfaxiejtlgkkivs.supabase.co', SUPABASE_ANON);
+    const sb = createClient('https://api.iamasiva.co', SUPABASE_ANON);
 
     // Lista de arranque; la real vive en la tabla categorias (el admin la
     // gestiona desde el formulario de guías). tipo: 'herramienta' | 'area'.
@@ -723,7 +723,7 @@
         const u = utmActual();
         const base = { tipo: 'visita_sitio' };
         const cuerpo = u ? { ...base, utm_source: u.source, utm_medium: u.medium, utm_campaign: u.campaign } : base;
-        const enviarVisita = (datos) => fetch('https://iyiygnfaxiejtlgkkivs.supabase.co/rest/v1/eventos', {
+        const enviarVisita = (datos) => fetch('https://api.iamasiva.co/rest/v1/eventos', {
           method: 'POST',
           keepalive: true,
           headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },

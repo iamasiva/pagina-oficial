@@ -1396,7 +1396,7 @@
     // ── SUPABASE AUTH ─────────────────────────────────────────────
     const { createClient } = supabase;
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
-    const sb = createClient('https://iyiygnfaxiejtlgkkivs.supabase.co', SUPABASE_ANON);
+    const sb = createClient('https://api.iamasiva.co', SUPABASE_ANON);
 
     // ── Canal de origen (UTM): se captura al llegar y persigue al visitante 30 días ──
     try {
@@ -1426,7 +1426,7 @@
         const u = utmActual();
         const base = { tipo: 'visita_sitio' };
         const cuerpo = u ? { ...base, utm_source: u.source, utm_medium: u.medium, utm_campaign: u.campaign } : base;
-        const enviarVisita = (datos) => fetch('https://iyiygnfaxiejtlgkkivs.supabase.co/rest/v1/eventos', {
+        const enviarVisita = (datos) => fetch('https://api.iamasiva.co/rest/v1/eventos', {
           method: 'POST',
           keepalive: true,
           headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
