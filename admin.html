@@ -191,7 +191,14 @@
           </div>
         </div>
 
-        <!-- Categorías -->
+        <!-- Links de redes (opcionales) -->
+            <div class="form-field">
+              <label>Video en redes (opcional)</label>
+              <input type="url" id="fYoutube" placeholder="Link de YouTube" style="margin-bottom:8px;" />
+              <input type="url" id="fInstagram" placeholder="Link de Instagram" style="margin-bottom:8px;" />
+              <input type="url" id="fTiktok" placeholder="Link de TikTok" />
+            </div>
+            <!-- Categorías -->
         <div class="form-field">
           <label>Categorías</label>
           <div class="cats-grid" id="catsGrid"></div>
@@ -369,6 +376,9 @@
       document.getElementById('modalTitle').textContent = 'Editar guía';
       document.getElementById('fId').value = g.id;
       document.getElementById('fTitulo').value = g.titulo || '';
+      document.getElementById('fYoutube').value = g.link_youtube || '';
+      document.getElementById('fInstagram').value = g.link_instagram || '';
+      document.getElementById('fTiktok').value = g.link_tiktok || '';
       document.getElementById('fDesc').value = g.descripcion || '';
       document.getElementById('fPremium').checked = !!g.es_premium;
       document.getElementById('fPublicada').checked = !!g.publicada;
@@ -456,7 +466,11 @@
           es_premium: premium,
           publicada: pub,
           categorias: cats,
-        };
+        
+        link_youtube: document.getElementById('fYoutube').value.trim() || null,
+        link_instagram: document.getElementById('fInstagram').value.trim() || null,
+        link_tiktok: document.getElementById('fTiktok').value.trim() || null,
+      };
 
         if (portFile) payload.portada_url   = await uploadFile('portadas', portFile);
         if (htmlFile) payload.contenido_url = await uploadFile(premium ? 'contenido-premium' : 'contenido', htmlFile);

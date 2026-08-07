@@ -348,6 +348,11 @@
   
     .guide-topbar-brand { font-weight: 900; letter-spacing: 0.03em; color: var(--white); cursor: pointer; flex-shrink: 0; }
     .guide-topbar-title { flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 16px; }
+  
+    .ficha-redes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .ficha-redes-label { color: #8fa3bd; font-size: 0.8rem; font-weight: 700; }
+    .ficha-red { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 6px 12px; color: #fff; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: background .15s; }
+    .ficha-red:hover { background: rgba(255,255,255,0.1); }
   </style>
 </head>
 <body>
@@ -474,6 +479,7 @@
         <h3 id="fichaTitulo"></h3>
         <p id="fichaDesc"></p>
         <button class="ficha-ver" id="fichaVer">Ver Recurso</button>
+        <div class="ficha-redes" id="fichaRedes"></div>
       </div>
     </div>
   </div>
@@ -1206,6 +1212,15 @@
       document.getElementById('fichaPortada').alt = g.titulo;
       document.getElementById('fichaTitulo').textContent = g.titulo;
       document.getElementById('fichaDesc').textContent = g.descripcion || '';
+      const redesDef = [
+        ['link_youtube', 'YouTube', '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.5a4 4 0 0 0-2.8-2.9C18.2 4 12 4 12 4s-6.2 0-8.2.6A4 4 0 0 0 1 7.5 41 41 0 0 0 .5 12 41 41 0 0 0 1 16.5a4 4 0 0 0 2.8 2.9C5.8 20 12 20 12 20s6.2 0 8.2-.6a4 4 0 0 0 2.8-2.9A41 41 0 0 0 23.5 12 41 41 0 0 0 23 7.5zM9.8 15.3V8.7L15.9 12z"/></svg>'],
+        ['link_instagram', 'Instagram', '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect><circle cx="12" cy="12" r="4.5"></circle><circle cx="17.8" cy="6.2" r="1.3" fill="currentColor" stroke="none"></circle></svg>'],
+        ['link_tiktok', 'TikTok', '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 3c.4 2.1 1.8 3.6 4 3.9v3c-1.6 0-3-.5-4-1.3v6.6a6.2 6.2 0 1 1-6.2-6.2c.3 0 .7 0 1 .1v3.2a3 3 0 1 0 2.1 2.9V3z"/></svg>'],
+      ].filter(([k]) => g[k]);
+      document.getElementById('fichaRedes').innerHTML = redesDef.length
+        ? '<span class="ficha-redes-label">Míralo en:</span>' + redesDef.map(([k, nom, ico]) =>
+            `<a class="ficha-red" href="${g[k]}" target="_blank" rel="noopener">${ico}${nom}</a>`).join('')
+        : '';
       document.getElementById('fichaOverlay').classList.add('active');
       requestAnimationFrame(() => {
         document.getElementById('fichaDesc').scrollTop = 0;
