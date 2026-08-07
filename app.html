@@ -353,6 +353,15 @@
     .ficha-redes-label { color: #8fa3bd; font-size: 0.8rem; font-weight: 700; }
     .ficha-red { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 6px 12px; color: #fff; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: background .15s; }
     .ficha-red:hover { background: rgba(255,255,255,0.1); }
+  
+    .app-buscador { position: relative; display: flex; align-items: center; flex: 1 1 260px; max-width: 340px; margin-right: 14px; }
+    .app-buscador svg { position: absolute; left: 12px; width: 15px; height: 15px; color: #7d90ad; pointer-events: none; }
+    .app-buscador input { width: 100%; height: 38px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); color: var(--white); font-size: 0.88rem; padding: 0 32px 0 34px; outline: none; transition: border-color .2s, background .2s; }
+    .app-buscador input::placeholder { color: #7d90ad; }
+    .app-buscador input:focus { border-color: rgba(47,107,255,0.6); background: rgba(255,255,255,0.1); }
+    .app-buscador input::-webkit-search-cancel-button { display: none; }
+    #appBuscarLimpiar { position: absolute; right: 8px; width: 22px; height: 22px; border: none; border-radius: 50%; background: rgba(255,255,255,0.12); color: var(--white); font-size: 0.95rem; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+    @media (max-width: 900px) { .app-buscador { max-width: none; margin: 0 10px 0 0; flex-basis: 150px; } }
   </style>
 </head>
 <body>
@@ -366,7 +375,12 @@
   <!-- ═══ NAVBAR (logo + filtros) ═════════════════════════════ -->
   <nav class="app-nav" id="appNav">
     <span class="app-nav-logo" onclick="irInicio()" style="cursor:pointer;">IA MASIVA</span>
-    <div class="app-nav-filters">
+    <div class="app-buscador">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>
+          <input type="search" id="appBuscar" placeholder="Buscar guía, tema o herramienta..." autocomplete="off" aria-label="Buscar en el catálogo" />
+          <button type="button" id="appBuscarLimpiar" aria-label="Limpiar búsqueda" hidden>&times;</button>
+        </div>
+        <div class="app-nav-filters">
       <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
       <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
       <button class="filter-btn"        id="filterPremium" onclick="setFilter('premium')">De pago</button>
@@ -829,6 +843,8 @@
     window.abrirPanelUsuario = abrirPanelUsuario;
 
     function irInicio() {
+      const caja = document.getElementById('appBuscar');
+      if (caja) { caja.value = ''; document.getElementById('appBuscarLimpiar').hidden = true; }
       document.getElementById('userMenu').classList.remove('open');
       document.getElementById('navCollapse').classList.remove('open');
       setFilter('all');
@@ -1089,6 +1105,19 @@
       closeCatMenu();
       document.getElementById('navCollapse').classList.remove('open');
     }
+
+    document.getElementById('appBuscar').addEventListener('input', (e) => {
+      clearTimeout(temporizadorBusqueda);
+      const consulta = e.target.value.trim();
+      temporizadorBusqueda = setTimeout(() => ejecutarBusqueda(consulta), 160);
+    });
+    document.getElementById('appBuscar').addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.target.value = ''; ejecutarBusqueda(''); e.target.blur(); }
+    });
+    document.getElementById('appBuscarLimpiar').addEventListener('click', () => {
+      const input = document.getElementById('appBuscar');
+      input.value = ''; ejecutarBusqueda(''); input.focus();
+    });
 
     function toggleCatMenu() { document.getElementById('catMenu').classList.toggle('open'); }
     function closeCatMenu()  { document.getElementById('catMenu').classList.remove('open'); document.querySelectorAll('.cat-rama').forEach(r => r.classList.remove('abierta')); }
@@ -1376,6 +1405,74 @@
         });
         p.after(b);
       });
+    }
+
+    // ── BUSCADOR ──────────────────────────────────────────────
+    // Índice precomputado por guía (título, descripción y categorías sin
+    // acentos): buscar es recorrer texto ya normalizado, sin costo por tecla.
+    const sinTildes = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    function indiceDe(g) {
+      if (!g.__idx) {
+        g.__idx = {
+          titulo: sinTildes(g.titulo),
+          cats: sinTildes((g.categorias || []).join(' ')),
+          desc: sinTildes(g.descripcion),
+        };
+      }
+      return g.__idx;
+    }
+    // Puntaje: título pesa más que categoría, y categoría más que descripción.
+    // Palabra completa vale más que coincidencia parcial. Todos los términos
+    // deben aparecer en algún campo (AND), para que "gemini video" no traiga
+    // todo lo de Gemini.
+    function puntuar(g, terminos) {
+      const idx = indiceDe(g);
+      let total = 0;
+      for (const t of terminos) {
+        const exacta = new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`);
+        let p = 0;
+        if (exacta.test(idx.titulo)) p = 100;
+        else if (idx.titulo.includes(t)) p = 60;
+        else if (exacta.test(idx.cats)) p = 45;
+        else if (idx.cats.includes(t)) p = 30;
+        else if (exacta.test(idx.desc)) p = 20;
+        else if (idx.desc.includes(t)) p = 10;
+        if (!p) return 0;              // término sin match: la guía no aplica
+        total += p;
+      }
+      return total;
+    }
+    function buscarGuias(consulta) {
+      const terminos = sinTildes(consulta).split(/\s+/).filter(t => t.length > 1);
+      if (!terminos.length) return null;
+      return allGuides
+        .map(g => ({ g, p: puntuar(g, terminos) }))
+        .filter(x => x.p > 0)
+        .sort((a, b) => b.p - a.p || (b.g.es_premium ? 1 : 0) - (a.g.es_premium ? 1 : 0))
+        .map(x => x.g);
+    }
+
+    let temporizadorBusqueda = null;
+    function ejecutarBusqueda(consulta) {
+      const limpiar = document.getElementById('appBuscarLimpiar');
+      limpiar.hidden = !consulta;
+      const resultados = buscarGuias(consulta);
+      if (!resultados) { setFilter('all'); return; }
+      pintarResultados(resultados, consulta);
+    }
+    function pintarResultados(lista, consulta) {
+      ['filterAll','filterGratis','filterPremium','filterCatBtn'].forEach(id =>
+        document.getElementById(id)?.classList.remove('active'));
+      document.getElementById('appHero').style.display = 'none';
+      document.getElementById('filteredSection').classList.remove('modo-lista');
+      document.getElementById('rowFiltered').classList.remove('vista-lista');
+      document.getElementById('filteredTitle').textContent =
+        `${lista.length} resultado${lista.length === 1 ? '' : 's'} para "${consulta}"`;
+      document.getElementById('rowFiltered').innerHTML = lista.length
+        ? lista.map((g, i) => makeCard(g, i + 1, false)).join('')
+        : '<p class="app-empty">No encontramos nada con esas palabras. Prueba con el nombre de una herramienta (Gemini, ChatGPT, Claude) o un tema (prompts, video, finanzas).</p>';
+      document.getElementById('filteredSection').classList.add('active');
+      document.getElementById('mainSections').classList.add('filtered');
     }
 
     function renderAll() {
