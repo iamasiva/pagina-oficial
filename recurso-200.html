@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Lato&family=Poppins&family=Montserrat&family=Bebas+Neue&family=Playfair+Display&family=Merriweather&family=Orbitron&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20%C2%B7" rel="stylesheet">
   <script>document.documentElement.dataset.tema = localStorage.getItem('im_tema') === 'oscuro' ? 'oscuro' : 'claro';</script>
   <style>
     :root {
@@ -207,6 +208,8 @@
     .im-mejorar-cancelar { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; min-height: 42px; cursor: pointer; font: inherit; color: var(--muted); }
     #imMejorarError { color: var(--danger, #b3261e); font-size: 13px; margin: 8px 0 0; }
     #imMejorarGracias { margin: 6px 0 0; font-weight: 600; }
+  
+    .font-muestra { margin-top: 6px; font-size: 1.1rem; color: var(--ink); border: 1px dashed var(--line); border-radius: 8px; padding: 8px 12px; background: var(--surface); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   </style>
 </head>
 <body>
@@ -608,8 +611,37 @@ function fieldMarkup([key, labelKey, type]) {
   const isStandard = type.includes(value);
   const selected = isDefault ? '__default__' : (isStandard ? value : '__other__');
   const choices = ['__default__', ...type.filter(option => option !== defaultValues[key]), '__other__'];
-  return `<div class="field"><label for="${key}">${escapeHtml(label)}</label><select id="${key}" data-key="${key}">${choices.map(option => `<option value="${escapeHtml(option)}" ${option === selected ? 'selected' : ''}>${escapeHtml(optionLabel(key, option))}</option>`).join('')}</select><input data-custom-for="${key}" type="text" value="${isStandard ? '' : escapeHtml(value)}" placeholder="${escapeHtml(t('otherPlaceholder'))}" aria-label="${escapeHtml(`${label}: ${t('other')}`)}" ${selected === '__other__' ? '' : 'hidden'}></div>`;
+  const esFuente = key === 'TITLE_FONT' || key === 'BODY_FONT';
+  const estiloDe = (option) => {
+    if (!esFuente || option === '__other__') return '';
+    const fuente = option === '__default__' ? defaultValues[key] : option;
+    return ` style="font-family:'${escapeHtml(fuente)}'"`;
+  };
+  const muestra = esFuente
+    ? `<div class="font-muestra" data-font-sample="${key}" style="font-family:'${escapeHtml(value)}'">${escapeHtml(value)} · Aa Bb 123</div>`
+    : '';
+  return `<div class="field"><label for="${key}">${escapeHtml(label)}</label><select id="${key}" data-key="${key}">${choices.map(option => `<option value="${escapeHtml(option)}" ${option === selected ? 'selected' : ''}${estiloDe(option)}>${escapeHtml(optionLabel(key, option))}</option>`).join('')}</select><input data-custom-for="${key}" type="text" value="${isStandard ? '' : escapeHtml(value)}" placeholder="${escapeHtml(t('otherPlaceholder'))}" aria-label="${escapeHtml(`${label}: ${t('other')}`)}" ${selected === '__other__' ? '' : 'hidden'}>${muestra}</div>`;
 }
+
+// La muestra de tipografía se actualiza en vivo al cambiar el select o el campo "Otro"
+function actualizarMuestraFuente(key) {
+  const sel = document.getElementById(key);
+  const muestra = document.querySelector(`[data-font-sample="${key}"]`);
+  if (!sel || !muestra) return;
+  let fuente = sel.value;
+  if (fuente === '__default__') fuente = defaultValues[key];
+  if (fuente === '__other__') fuente = document.querySelector(`[data-custom-for="${key}"]`)?.value?.trim() || defaultValues[key];
+  muestra.style.fontFamily = `'${fuente}'`;
+  muestra.textContent = `${fuente} · Aa Bb 123`;
+}
+document.addEventListener('change', (e) => {
+  const k = e.target?.dataset?.key || e.target?.dataset?.customFor;
+  if (k === 'TITLE_FONT' || k === 'BODY_FONT') actualizarMuestraFuente(k);
+});
+document.addEventListener('input', (e) => {
+  const k = e.target?.dataset?.customFor;
+  if (k === 'TITLE_FONT' || k === 'BODY_FONT') actualizarMuestraFuente(k);
+});
 
 function renderForm() {
   form.innerHTML = fieldConfig.map(fieldMarkup).join('');
