@@ -357,7 +357,7 @@
 
   <!-- ═══ NAVBAR (logo + filtros) ═════════════════════════════ -->
   <nav class="app-nav" id="appNav">
-    <span class="app-nav-logo">IA MASIVA</span>
+    <span class="app-nav-logo" onclick="irInicio()" style="cursor:pointer;">IA MASIVA</span>
     <div class="app-nav-filters">
       <button class="filter-btn active" id="filterAll"     onclick="setFilter('all')">Todo</button>
       <button class="filter-btn"        id="filterGratis"  onclick="setFilter('gratis')">Gratis</button>
@@ -1202,9 +1202,11 @@
       document.getElementById('fichaPortada').alt = g.titulo;
       document.getElementById('fichaTitulo').textContent = g.titulo;
       document.getElementById('fichaDesc').textContent = g.descripcion || '';
-      document.getElementById('fichaDesc').scrollTop = 0;
-      document.querySelector('.ficha-caja').scrollTop = 0;
       document.getElementById('fichaOverlay').classList.add('active');
+      requestAnimationFrame(() => {
+        document.getElementById('fichaDesc').scrollTop = 0;
+        document.querySelector('.ficha-caja').scrollTop = 0;
+      });
       document.body.style.overflow = 'hidden';
     }
     function cerrarFicha() {
