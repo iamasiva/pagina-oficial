@@ -494,6 +494,15 @@
     .im-mejorar-cancelar { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; min-height: 42px; cursor: pointer; font: inherit; color: var(--muted); }
     #imMejorarError { color: var(--danger, #b3261e); font-size: 13px; margin: 8px 0 0; }
     #imMejorarGracias { margin: 6px 0 0; font-weight: 600; }
+  
+    .im-arbol-fondo { display: none; position: fixed; inset: 0; background: rgba(7, 10, 32, 0.5); z-index: 88; }
+    .im-arbol-fondo.abierto { display: block; }
+    .im-arbol-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 92vw); background: var(--surface); border-left: 1px solid var(--line); box-shadow: -18px 0 50px rgba(20, 18, 46, .25); z-index: 89; transform: translateX(100%); transition: transform .25s ease; display: flex; flex-direction: column; padding: 18px; gap: 12px; }
+    .im-arbol-panel.abierto { transform: translateX(0); }
+    .im-arbol-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .im-arbol-cab h3 { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+    #imArbolPre { flex: 1; overflow: auto; margin: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--ink); white-space: pre; }
+    #imArbolCopiar { min-height: 44px; border: none; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -1033,6 +1042,7 @@
         <div class="im-toolbar">
           <button id="imCuadVolver" class="secondary-btn" type="button" style="display:none"><span>← Volver</span></button>
           <div class="im-toolbar-acciones">
+            <button id="imBtnArbol" class="secondary-btn" type="button" style="display:none"><span>Árbol</span></button>
             <button id="imBtnNuevaCat" class="secondary-btn" type="button"><span>Crear categoría</span></button>
             <button id="imBtnNuevoCuad" class="primary-btn" type="button"><span>Agregar cuaderno</span></button>
           </div>
@@ -1199,6 +1209,32 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite">Copiado</div>
 
+
+  <div class="im-arbol-fondo" id="imArbolFondo"></div>
+  <aside class="im-arbol-panel" id="imArbolPanel">
+    <div class="im-arbol-cab">
+      <h3 id="imArbolTitulo"></h3>
+      <button class="im-menu-btn" id="imArbolCerrar" type="button" aria-label="Cerrar">✕</button>
+    </div>
+    <pre id="imArbolPre"></pre>
+    <button class="primary-btn" id="imArbolCopiar" type="button">Copiar árbol</button>
+  </aside>
+
+  <div class="im-modal" id="imMejorarModal">
+    <div class="im-modal-caja">
+      <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
+      <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
+      <div id="imMejorarForm">
+        <textarea id="imMejorarTexto" maxlength="2000"></textarea>
+        <p id="imMejorarError" style="display:none;"></p>
+        <div class="im-mejorar-acciones">
+          <button class="primary-btn" id="imMejorarEnviar" type="button">Enviar</button>
+          <button class="im-mejorar-cancelar" id="imMejorarCancelar" type="button">Cancelar</button>
+        </div>
+      </div>
+      <p id="imMejorarGracias" style="display:none;"></p>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
@@ -2125,6 +2161,7 @@ ${clean}`;
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
+          arbolBtn: 'Árbol', arbolCopiar: 'Copiar árbol', arbolCopiado: 'Árbol copiado', arbolVacio: 'Esta categoría aún no tiene cuadernos.',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
           lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: '¿Para qué es? (opcional)',
@@ -2140,6 +2177,7 @@ ${clean}`;
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
+          arbolBtn: 'Tree', arbolCopiar: 'Copy tree', arbolCopiado: 'Tree copied', arbolVacio: 'This category has no notebooks yet.',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
           lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'What is it for? (optional)',
@@ -2415,6 +2453,56 @@ ${clean}`;
 
       const chatsDe = (cuadernoId) => chatsC.filter(ch => ch.cuaderno_id === cuadernoId);
 
+      // ── Árbol copiable de la categoría (para replicar la estructura en el computador) ──
+      const catDeVista = () => {
+        if (cuadVista.t === 'cat') return nodoDe(cuadVista.id);
+        if (cuadVista.t === 'sub') return nodoDe(nodoDe(cuadVista.id)?.parent_id);
+        return null;
+      };
+      function textoArbol(cat) {
+        const lineas = [cat.nombre];
+        const pintarChats = (pref, c) => {
+          const chats = chatsDe(c.id);
+          chats.forEach((ch, j) => lineas.push(pref + (j === chats.length - 1 ? '└── ' : '├── ') + ch.titulo));
+        };
+        const hijos = [
+          ...subsDe(cat.id).map(s => ({ nombre: s.nombre, cuads: cuadEn(s.id) })),
+          ...cuadEn(cat.id).map(c => ({ cuaderno: c })),
+        ];
+        hijos.forEach((h, i) => {
+          const ult = i === hijos.length - 1;
+          const rama = ult ? '└── ' : '├── ';
+          const pref = ult ? '    ' : '│   ';
+          if (h.cuaderno) { lineas.push(rama + h.cuaderno.titulo); pintarChats(pref, h.cuaderno); return; }
+          lineas.push(rama + h.nombre);
+          h.cuads.forEach((c, j) => {
+            const ultc = j === h.cuads.length - 1;
+            lineas.push(pref + (ultc ? '└── ' : '├── ') + c.titulo);
+            pintarChats(pref + (ultc ? '    ' : '│   '), c);
+          });
+        });
+        return lineas.join('\n');
+      }
+      function abrirArbol() {
+        const cat = catDeVista();
+        if (!cat) return;
+        const x = tt();
+        $('imArbolTitulo').textContent = cat.nombre;
+        const hayAlgo = subsDe(cat.id).length || cuadEn(cat.id).length;
+        $('imArbolPre').textContent = hayAlgo ? textoArbol(cat) : x.arbolVacio;
+        $('imArbolCopiar').textContent = x.arbolCopiar;
+        $('imArbolFondo').classList.add('abierto');
+        $('imArbolPanel').classList.add('abierto');
+      }
+      const cerrarArbol = () => {
+        $('imArbolFondo').classList.remove('abierto');
+        $('imArbolPanel').classList.remove('abierto');
+      };
+      $('imBtnArbol').addEventListener('click', abrirArbol);
+      $('imArbolCerrar').addEventListener('click', cerrarArbol);
+      $('imArbolFondo').addEventListener('click', cerrarArbol);
+      $('imArbolCopiar').addEventListener('click', () => copyText($('imArbolPre').textContent, tt().arbolCopiado));
+
       async function cargarCuadernos() {
         const [cu, no, ch] = await Promise.all([
           db.from('user_cuadernos').select('*').order('created_at', { ascending: false }),
@@ -2531,6 +2619,7 @@ ${clean}`;
           titLista.style.display = '';
         } else titLista.style.display = 'none';
         $('imBtnNuevaCat').style.display = mostrarBtnCat ? '' : 'none';
+        $('imBtnArbol').style.display = cuadVista.t === 'root' ? 'none' : '';
         $('imBtnNuevaCat').querySelector('span').textContent = btnCatLabel;
         $('imBtnNuevoCuad').querySelector('span').textContent = x.agregarCuad;
         $('imCuadVolver').querySelector('span').textContent = '← ' + (state.interfaceLanguage === 'en' ? 'Back' : 'Volver');
@@ -2908,6 +2997,8 @@ ${clean}`;
         $('imBusqCopy').textContent = x.busqCopy;
         $('imBusqBtn').textContent = x.busqBtn;
         $('imBusqNota').textContent = x.busqNota;
+        $('imBtnArbol').querySelector('span').textContent = x.arbolBtn;
+        $('imArbolCopiar').textContent = x.arbolCopiar;
         $('imFavEyebrow').textContent = x.espacio; $('imMisEyebrow').textContent = x.espacio; $('imCuadEyebrow').textContent = x.espacio;
         $('imFavTitulo').textContent = x.favTitulo; $('imFavCopy').textContent = x.favCopy;
         $('imMisTitulo').textContent = x.misTitulo; $('imMisCopy').textContent = x.misCopy;
@@ -3070,22 +3161,7 @@ ${clean}`;
   pintar();
 })();
 </script>
-<div class="im-modal" id="imMejorarModal">
-    <div class="im-modal-caja">
-      <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
-      <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
-      <div id="imMejorarForm">
-        <textarea id="imMejorarTexto" maxlength="2000"></textarea>
-        <p id="imMejorarError" style="display:none;"></p>
-        <div class="im-mejorar-acciones">
-          <button class="primary-btn" id="imMejorarEnviar" type="button">Enviar</button>
-          <button class="im-mejorar-cancelar" id="imMejorarCancelar" type="button">Cancelar</button>
-        </div>
-      </div>
-      <p id="imMejorarGracias" style="display:none;"></p>
-    </div>
-  </div>
-  <script>
+    <script>
 (() => {
   const $ = (id) => document.getElementById(id);
   const modal = $('imMejorarModal');
