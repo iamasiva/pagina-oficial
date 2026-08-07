@@ -1,7 +1,11 @@
+# Material de trabajo que NO va al repo público
+Guías con Portada/
+IDENTIDAD DE MARCA PRODUCTOS/
+ejemplos landing seria/
 credenciales_privadas.txt
-sql_setup.sql
+*.MOV
+*.xlsx
+plan-produccion-ia-masiva.md
 .DS_Store
 node_modules/
-www_netflix_com.html
-Plan_IA_MASIVA.docx
-.vercel
+*.docx

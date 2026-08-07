@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /producto.html
+Allow: /557.html
+Allow: /400.html
+Allow: /200.html
+Allow: /bundle.html
+Allow: /terminos.html
+Allow: /privacidad.html
+Disallow: /app.html
+Disallow: /admin.html
+Disallow: /panel.html
+Disallow: /bonos.html
+Disallow: /pago.html
+Disallow: /confirmacion.html
+Disallow: /recurso-
+Disallow: /api/
+
+Sitemap: https://iamasiva.co/sitemap.xml
