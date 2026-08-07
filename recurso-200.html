@@ -591,7 +591,7 @@ function renderGallery() {
   resultCount.textContent = `${visible.length} ${visible.length === 1 ? t('styleOne') : t('styleMany')}`;
   gallery.innerHTML = visible.length ? visible.map(item => `
     <article class="card">
-      <div class="preview-wrap"><img loading="lazy" decoding="async" src="${escapeHtml(item.preview)}" alt="${escapeHtml(format(t('previewOf'), {name:itemName(item)}))}"></div>
+      <div class="preview-wrap"><img loading="lazy" decoding="async" src="${escapeHtml(item.preview_mini || item.preview)}" onerror="this.onerror=null;this.src='${escapeHtml(item.preview)}'" alt="${escapeHtml(format(t('previewOf'), {name:itemName(item)}))}"></div>
       <div class="card-body">
         <div class="badges">${item.categorias.map(category => `<span class="badge">${escapeHtml(categoryLabel(category))}</span>`).join('')}</div>
         <h3>${escapeHtml(itemName(item))}</h3>
@@ -831,7 +831,7 @@ setUiLanguage(savedLanguage);
     const it = itemDe(d);
     return `
       <article class="card im-card-mis" data-mid="${d.id}">
-        <div class="preview-wrap"><img loading="lazy" decoding="async" src="${escapeHtml(it?.preview ?? '')}" alt="${escapeHtml(d.nombre)}"></div>
+        <div class="preview-wrap"><img loading="lazy" decoding="async" src="${escapeHtml(it?.preview_mini || it?.preview || '')}" onerror="this.onerror=null;this.src='${escapeHtml(it?.preview ?? '')}'" alt="${escapeHtml(d.nombre)}"></div>
         <div class="card-body">
           <button class="im-menu-btn" type="button" data-immenu="${d.id}">⋮</button>
           ${menuMis === d.id ? menuMisHtml(d) : ''}
@@ -1103,6 +1103,7 @@ setUiLanguage(savedLanguage);
     const disenos = filas.map(f => {
       const d = f.data;
       d.preview = PREVIEWS_BASE + String(d.preview || '').split('/').pop();
+          d.preview_mini = d.preview.replace('/previews-200/', '/previews-200/mini/');
       return d;
     });
     // textContent vía DOM es inerte: no re-parsea HTML, no hay riesgo de romper el tag
