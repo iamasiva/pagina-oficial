@@ -483,6 +483,10 @@
     .sidebar-footer { flex-wrap: wrap; }
     .tema-btn { flex: 1 1 100%; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.85); border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; }
     .tema-btn:hover { background: rgba(255,255,255,.16); }
+  
+    .busq-caja { margin-top: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .busq-caja .primary-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; }
+    .busq-nota { color: var(--muted); font-size: 13px; margin: 0; }
   </style>
 </head>
 <body>
@@ -587,6 +591,10 @@
         <div id="sidebarTree" class="sidebar-tree-list"></div>
         <div class="sidebar-divider"></div>
         <div class="sidebar-links">
+          <button class="sidebar-link" data-tab="busqueda" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path><path d="M11 8.2l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"></path></svg>
+            <span id="imTabBusqueda">Búsqueda guiada</span>
+          </button>
           <button class="sidebar-link" data-tab="builder" type="button">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
             <span>Crea tu configuración</span>
@@ -970,6 +978,18 @@
             </div>
             </div>
           </article>
+        </div>
+      </section>
+
+      <section id="busqueda" class="section">
+        <div class="hero"><div class="intro">
+          <p class="eyebrow" id="imBusqEyebrow">Búsqueda guiada</p>
+          <h2 id="imBusqTitulo">¿No sabes cuál configuración necesitas?</h2>
+          <p id="imBusqCopy">Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.</p>
+        </div></div>
+        <div class="busq-caja">
+          <a class="primary-btn" id="imBusqBtn" href="https://gemini.google.com/gem/12SRZ1JGpNGIbARoG2qGHOVoYaai-4nSh?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
+          <p class="busq-nota" id="imBusqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
         </div>
       </section>
 
@@ -2091,6 +2111,9 @@ ${clean}`;
           tabFav: 'Favoritos', tabMis: 'Mis configuraciones', tabCuad: 'Mis cuadernos', espacio: 'Tu espacio', salir: 'Salir',
           favTitulo: 'Tus configuraciones favoritas.', favCopy: 'Márcalas con la estrella dentro de cualquier configuración y quedan siempre a la mano aquí.', favVacio: 'Aún no tienes favoritos. Abre una configuración y tócale la estrella.',
           favTodasCat: 'Todas las categorías', favTodasSub: 'Todas',
+          busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
+          busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.',
+          busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
           lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: '¿Para qué es? (opcional)',
@@ -2103,6 +2126,9 @@ ${clean}`;
           tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space', salir: 'Exit',
           favTitulo: 'Your favorite configurations.', favCopy: 'Star them inside any configuration and they stay one tap away here.', favVacio: 'No favorites yet. Open a configuration and tap the star.',
           favTodasCat: 'All categories', favTodasSub: 'All',
+          busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
+          busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set.',
+          busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
           lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'What is it for? (optional)',
@@ -2865,6 +2891,12 @@ ${clean}`;
         $('imTabFav').textContent = x.tabFav;
         $('imTabMis').textContent = x.tabMis;
         $('imTabCuad').textContent = x.tabCuad;
+        $('imTabBusqueda').textContent = x.busqTab;
+        $('imBusqEyebrow').textContent = x.busqEyebrow;
+        $('imBusqTitulo').textContent = x.busqTitulo;
+        $('imBusqCopy').textContent = x.busqCopy;
+        $('imBusqBtn').textContent = x.busqBtn;
+        $('imBusqNota').textContent = x.busqNota;
         $('imFavEyebrow').textContent = x.espacio; $('imMisEyebrow').textContent = x.espacio; $('imCuadEyebrow').textContent = x.espacio;
         $('imFavTitulo').textContent = x.favTitulo; $('imFavCopy').textContent = x.favCopy;
         $('imMisTitulo').textContent = x.misTitulo; $('imMisCopy').textContent = x.misCopy;
