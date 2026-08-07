@@ -343,6 +343,8 @@
   
     .lista-info p.desc-expandida { -webkit-line-clamp: unset; }
     .leer-mas { background: none; border: none; padding: 0; margin: -4px 0 2px; color: var(--blue-elec); font-weight: 700; font-size: 0.85rem; cursor: pointer; align-self: flex-start; }
+  
+    .lista-fav { position: static; font-size: 1.3rem; margin-left: 10px; vertical-align: 1px; text-shadow: none; }
   </style>
 </head>
 <body>
@@ -1027,6 +1029,8 @@
       if (type === 'favoritos') filtered = allGuides.filter(g => favoritosSet.has(g.id));
       if (type === 'compras')   filtered = allGuides.filter(g => userPurchases.includes(g.id));
       if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias||[]).includes(cat));
+      // En categoría, los recursos de pago siempre encabezan la lista
+      if (type === 'cat') filtered.sort((a, b) => (b.es_premium ? 1 : 0) - (a.es_premium ? 1 : 0));
       // Catálogo completo: del más abierto (últimos 30 días) al menos abierto
       if (type === 'catalogo') filtered = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
 
@@ -1054,7 +1058,7 @@
                   <div class="lista-item">
                     <img src="${g.portada_url || g.imagen_url || ''}" alt="" loading="lazy" />
                     <div class="lista-info">
-                      <h3>${g.titulo}</h3>
+                      <h3>${g.titulo}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '★' : '☆'}</button></h3>
                       <p>${g.descripcion || ''}</p>
                       <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado})">Ver recurso</button>
                     </div>
@@ -1063,6 +1067,7 @@
             : filtered.map((g,i) => makeCard(g,i+1,false)).join(''))
         : `<p class="app-empty">${vacios[type] || 'No hay guías aquí aún.'}</p>`;
 
+      requestAnimationFrame(agregarLeerMas);
       document.getElementById('filteredSection').classList.add('active');
       document.getElementById('mainSections').classList.add('filtered');
 
@@ -1100,7 +1105,7 @@
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
             ${locked ? '<div class="app-card-lock">De pago</div>' : ''}
-            <button class="fav-estrella${esFav ? ' activo' : ''}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
+            <button class="fav-estrella${esFav ? ' activo' : ''}" data-guia="${guide.id}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
             <div class="app-card-info">
               <div class="app-card-tag">${cats}</div>
             </div>
@@ -1125,6 +1130,12 @@
         if (error) { alert('No se pudo guardar en favoritos'); return; }
         favoritosSet.add(guideId);
       }
+      document.querySelectorAll(`.fav-estrella[data-guia="${guideId}"]`).forEach(b => {
+        const activo = favoritosSet.has(guideId);
+        b.classList.toggle('activo', activo);
+        b.textContent = activo ? '★' : '☆';
+        b.title = activo ? 'Quitar de favoritos' : 'Guardar en favoritos';
+      });
       renderAll();
       // Si está viendo el panel de favoritos, refrescarlo también
       if (document.getElementById('filteredTitle').textContent === 'Tus favoritos' &&
@@ -1191,6 +1202,8 @@
       document.getElementById('fichaPortada').alt = g.titulo;
       document.getElementById('fichaTitulo').textContent = g.titulo;
       document.getElementById('fichaDesc').textContent = g.descripcion || '';
+      document.getElementById('fichaDesc').scrollTop = 0;
+      document.querySelector('.ficha-caja').scrollTop = 0;
       document.getElementById('fichaOverlay').classList.add('active');
       document.body.style.overflow = 'hidden';
     }
@@ -1359,7 +1372,6 @@
       const premium = allGuides.filter(g=>g.es_premium).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
       document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
-      requestAnimationFrame(agregarLeerMas);
       document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías de pago.</p>';
       // Tendencias reales: aperturas de los últimos 30 días; a igual conteo, la más nueva primero
       const porTendencia = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
