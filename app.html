@@ -128,7 +128,7 @@
     .app-card-arte { position: relative; height: 288px; flex-shrink: 0; overflow: hidden; }
     .app-card-pie { display: flex; align-items: center; padding: 8px 10px; position: relative; z-index: 2; }
     .app-card.con-rank .app-card-pie { min-height: 92px; align-items: flex-start; }
-    .fav-estrella { position: absolute; left: 8px; bottom: 8px; z-index: 3; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
+    .fav-estrella { position: absolute; left: 8px; bottom: 8px; z-index: 4; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
     .fav-estrella:hover { transform: scale(1.2); color: #ffd166; }
     .fav-estrella.activo { color: #ffd166; }
     .app-card-nombre { width: 100%; font-size: 0.76rem; font-weight: 600; color: var(--gray); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
@@ -172,7 +172,7 @@
     .app-card-badge { position: absolute; top: 11px; right: 11px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; z-index: 3; }
     .badge-premium { background: rgba(47,107,255,0.14); border: 1px solid rgba(47,107,255,0.35); font-size: 0.85rem; letter-spacing: normal; text-transform: none; padding: 2px 6px; line-height: 1; }
     .badge-tuya    { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
-    .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 13px 10px 32px; z-index: 3; }
+    .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 13px 10px 32px; z-index: 3; pointer-events: none; }
     .app-card-tag  { font-size: 0.68rem; color: #4a6080; }
     .app-card-lock { position: absolute; top: 8px; right: 8px; z-index: 3; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: rgba(5,8,20,0.72); border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 4px 9px; backdrop-filter: blur(4px); }
     .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; }
