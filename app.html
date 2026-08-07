@@ -1809,5 +1809,15 @@
       else renderAll();
     }
   </script>
+<script>
+(() => {
+  // Tras el login con Google, "Atrás" llevaría a la pantalla de cuentas de
+  // Google (quedó en el historial y no se puede borrar). Se intercepta ese
+  // primer Atrás y se lleva al inicio del sitio, que es lo que uno espera.
+  if (!document.referrer.includes('.supabase.co')) return;
+  history.pushState(null, '');
+  window.addEventListener('popstate', () => location.replace('index.html'), { once: true });
+})();
+</script>
 </body>
 </html>
