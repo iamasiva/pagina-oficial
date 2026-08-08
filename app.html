@@ -35,7 +35,7 @@
       --gray: #D1D5DB; --cyan: #00E5FF; --green: #00FF9C;
     }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); line-height: 1.6; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); line-height: 1.6; overflow-x: clip; }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
     .hidden { display: none !important; }
@@ -116,7 +116,7 @@
     .app-row { margin-bottom: 44px; }
     .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
-    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; padding: 36px 14px 24px; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; padding: 36px 14px 24px; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     .scroll-arrow:hover { background: rgba(47,107,255,0.25); border-color: var(--blue-elec); box-shadow: 0 0 16px rgba(47,107,255,0.35); }
@@ -132,7 +132,9 @@
     .fav-estrella:hover { transform: scale(1.2); color: #ffd166; }
     .fav-estrella.activo { color: #ffd166; }
     .app-card-nombre { width: 100%; font-size: 0.76rem; font-weight: 600; color: var(--gray); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-    .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
+    @media (hover: hover) and (pointer: fine) {
+      .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
+    }
     .app-card:nth-child(1)  { background: linear-gradient(160deg, #060c2a 0%, #0e1f5c 100%); }
     .app-card:nth-child(2)  { background: linear-gradient(160deg, #050b26 0%, #091749 100%); }
     .app-card:nth-child(3)  { background: linear-gradient(160deg, #07102e 0%, #101d5e 100%); }
@@ -151,7 +153,7 @@
     .ficha-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .ficha-info h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; padding-right: 26px; }
     .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
-    .ficha-info p.expandida { -webkit-line-clamp: unset; overflow: visible; }
+    .ficha-info p.expandida { display: block; -webkit-line-clamp: none; overflow: visible; max-height: none; }
     .ficha-leer { background: none; border: none; padding: 0; margin: 6px 0 0; color: var(--blue-elec); font-weight: 700; font-size: 0.85rem; cursor: pointer; align-self: flex-start; }
     .ficha-ver { margin-top: auto; align-self: flex-start; background: var(--blue-elec); color: #fff; border: none; border-radius: 8px; padding: 13px 34px; font-weight: 800; font-size: 0.95rem; margin-top: 18px; }
     .ficha-ver:hover { background: #4d7fff; }
@@ -340,7 +342,7 @@
       .app-card-rank { font-size: 3.2rem; }
       .app-card-tag { display: none; }
       .app-track { padding: 10px 4vw 16px; scroll-padding-left: 4vw; }
-      .app-card { scroll-snap-align: start; }
+      
       .scroll-arrow { display: none; }
       .cats-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
@@ -380,8 +382,10 @@
     #appBuscarLimpiar { display: none; position: absolute; right: 8px; width: 22px; height: 22px; border: none; border-radius: 50%; background: rgba(255,255,255,0.14); color: var(--white); font-size: 1rem; line-height: 1; cursor: pointer; place-items: center; }
     .app-buscador.abierto #appBuscarLimpiar { display: grid; }
     @media (max-width: 720px) {
-      .app-buscador.abierto { position: fixed; inset: 12px 4vw auto 4vw; z-index: 120; }
+      .app-buscador { order: 0; }
+      .app-buscador.abierto { flex: 1 0 100%; order: 2; margin: 4px 0 0; }
       .app-buscador.abierto input { width: 100%; }
+      .app-nav-filters { order: 3; }
     }
   
     .footer-redes { display: flex; gap: 14px; align-items: center; justify-content: center; margin: 4px 0 2px; }
@@ -1163,6 +1167,57 @@
       closeCatMenu();
       document.getElementById('navCollapse').classList.remove('open');
     }
+
+    // En celular la lupa vive junto al logo (primera fila del nav); en escritorio,
+    // junto a Categorías. Se mueve el nodo real: así al expandirse ocupa el hueco
+    // libre y nunca se superpone al logo ni a la hamburguesa.
+    function ubicarBuscador() {
+      const caja = document.getElementById('appBuscador');
+      const nav = document.getElementById('appNav');
+      const filtros = document.querySelector('.app-nav-filters');
+      const logo = document.querySelector('.app-nav-logo');
+      if (!caja || !nav || !filtros || !logo) return;
+      const movil = window.matchMedia('(max-width: 720px)').matches;
+      if (movil && caja.parentElement !== nav) nav.insertBefore(caja, logo.nextSibling);
+      if (!movil && caja.parentElement !== filtros) filtros.appendChild(caja);
+      document.getElementById('appBuscar').placeholder = movil ? 'Buscar...' : 'Buscar guía, tema o herramienta...';
+    }
+    ubicarBuscador();
+    window.addEventListener('resize', ubicarBuscador);
+
+    // Arrastre con el puntero en las filas de recursos: garantiza el deslizamiento
+    // en táctil y también permite arrastrar con el mouse en escritorio.
+    document.querySelectorAll('.app-track').forEach(track => {
+      let activo = false, xInicial = 0, scrollInicial = 0, movido = 0;
+      let yInicial = 0, eje = null;
+      track.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        activo = true; movido = 0; eje = null;
+        xInicial = e.clientX; yInicial = e.clientY; scrollInicial = track.scrollLeft;
+      });
+      track.addEventListener('pointermove', (e) => {
+        if (!activo) return;
+        const dx = e.clientX - xInicial, dy = e.clientY - yInicial;
+        // Primero decidir el eje: si el gesto es vertical, soltar el control
+        // para que la página siga desplazándose con normalidad.
+        if (!eje && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+          eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+          if (eje === 'y') { activo = false; return; }
+        }
+        if (eje !== 'x') return;
+        movido = Math.abs(dx);
+        track.scrollLeft = scrollInicial - dx;
+        if (e.pointerType === 'mouse') e.preventDefault();
+      });
+      const soltar = () => { activo = false; setTimeout(() => { movido = 0; }, 0); };
+      track.addEventListener('pointerup', soltar);
+      track.addEventListener('pointercancel', soltar);
+      track.addEventListener('pointerleave', soltar);
+      // Si el dedo arrastró, el toque no debe abrir la guía
+      track.addEventListener('click', (e) => {
+        if (movido > 8) { e.stopPropagation(); e.preventDefault(); }
+      }, true);
+    });
 
     document.getElementById('appBuscar').addEventListener('input', (e) => {
       clearTimeout(temporizadorBusqueda);
