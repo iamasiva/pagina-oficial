@@ -2115,5 +2115,48 @@
   window.addEventListener('popstate', () => location.replace('index.html'), { once: true });
 })();
 </script>
+<script>
+// Panel de diagnóstico: solo aparece con ?diag=1 en la URL. Sirve para medir
+// el layout real en el celular del usuario cuando algo no se puede reproducir.
+(() => {
+  if (!location.search.includes('diag=1')) return;
+  const pinta = () => {
+    const tr = document.querySelector('.app-track');
+    if (!tr) return setTimeout(pinta, 500);
+    const s = getComputedStyle(tr);
+    const anchos = [];
+    document.querySelectorAll('body *').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.width > window.innerWidth + 2 && el.offsetParent !== null)
+        anchos.push((el.tagName + '.' + String(el.className).split(' ')[0]).slice(0, 26) + '=' + Math.round(r.width));
+    });
+    let mueve = '?';
+    const antes = tr.scrollLeft;
+    tr.scrollLeft = 120;
+    mueve = tr.scrollLeft > 0 ? 'SI' : 'NO';
+    tr.scrollLeft = antes;
+    const filas = [
+      'pantalla=' + window.innerWidth + ' doc=' + document.documentElement.scrollWidth,
+      'track ancho=' + tr.clientWidth + ' contenido=' + tr.scrollWidth,
+      'overflowX=' + s.overflowX + ' touch=' + s.touchAction,
+      'scroll por codigo=' + mueve,
+      'bodyOverflowX=' + getComputedStyle(document.body).overflowX,
+      'anchos>pantalla: ' + (anchos.length ? anchos.slice(0,3).join(' ') : 'ninguno'),
+      'UA=' + navigator.userAgent.slice(0, 42),
+    ];
+    let caja = document.getElementById('imDiag');
+    if (!caja) {
+      caja = document.createElement('div');
+      caja.id = 'imDiag';
+      caja.style.cssText = 'position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;background:#000;color:#0f0;font:11px/1.45 monospace;padding:10px;border:2px solid #0f0;border-radius:8px;white-space:pre-wrap;word-break:break-all';
+      document.body.appendChild(caja);
+    }
+    caja.textContent = filas.join('\n');
+  };
+  setTimeout(pinta, 2200);
+  // se refresca al tocar el panel, por si quieres medir tras deslizar
+  document.addEventListener('click', e => { if (e.target.id === 'imDiag') pinta(); });
+})();
+</script>
 </body>
 </html>
