@@ -2128,6 +2128,17 @@
       c.addEventListener('scroll', () => { c.dataset.movio = Math.round(c.scrollLeft); }, { passive: true });
     }
     const pb = document.getElementById('imPruebaB'), pc = document.getElementById('imPruebaC');
+    // ¿responden al desplazamiento por código? (distingue bloqueo de layout vs de gestos)
+    const porCodigo = (el) => {
+      if (!el) return '-';
+      const a = el.scrollLeft;
+      el.style.scrollBehavior = 'auto';
+      el.scrollLeft = 150;
+      const r = el.scrollLeft > 0 ? 'SI' : 'NO';
+      el.scrollLeft = a;
+      return r;
+    };
+    const codA = porCodigo(prueba), codB = porCodigo(pb), codC = porCodigo(pc), codReal = porCodigo(tr);
 
     // ¿Qué elemento recibe realmente el dedo en el centro de la fila?
     const rt = tr.getBoundingClientRect();
@@ -2175,7 +2186,8 @@
       'GESTOS: inicio=' + esp.inicio + ' mueve=' + esp.mueve + ' dxMax=' + Math.round(esp.dxMax) + ' scrollVisto=' + Math.round(esp.scrollVisto) + ' cancel=' + esp.cancelado,
       'cadena: ' + (ancestros.join(' | ') || 'todo limpio'),
       'bajo el dedo: ' + quien,
-      'A amarilla(suelta)=' + (prueba.dataset.movio || 0) + ' B cian(mismo sitio)=' + (pb.dataset.movio || 0) + ' C magenta(clase real)=' + (pc.dataset.movio || 0),
+      'dedo:  A=' + (prueba.dataset.movio || 0) + ' B=' + (pb.dataset.movio || 0) + ' C=' + (pc.dataset.movio || 0),
+      'codigo: A=' + codA + ' B=' + codB + ' C=' + codC + ' REAL=' + codReal,
       'UA=' + navigator.userAgent.slice(0, 42),
     ];
     let caja = document.getElementById('imDiag');
