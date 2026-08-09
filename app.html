@@ -1230,41 +1230,7 @@
     ubicarBuscador();
     window.addEventListener('resize', ubicarBuscador);
 
-    // Arrastre con el puntero en las filas de recursos: garantiza el deslizamiento
-    // en táctil y también permite arrastrar con el mouse en escritorio.
-    document.querySelectorAll('.app-track').forEach(track => {
-      let activo = false, xInicial = 0, scrollInicial = 0, movido = 0;
-      let yInicial = 0, eje = null;
-      track.addEventListener('pointerdown', (e) => {
-        // En táctil manda el scroll nativo del navegador: conserva la inercia.
-        if (e.pointerType !== 'mouse' || e.button !== 0) return;
-        activo = true; movido = 0; eje = null;
-        xInicial = e.clientX; yInicial = e.clientY; scrollInicial = track.scrollLeft;
-      });
-      track.addEventListener('pointermove', (e) => {
-        if (!activo) return;
-        const dx = e.clientX - xInicial, dy = e.clientY - yInicial;
-        // Primero decidir el eje: si el gesto es vertical, soltar el control
-        // para que la página siga desplazándose con normalidad.
-        if (!eje && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-          eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-          if (eje === 'y') { activo = false; return; }
-        }
-        if (eje !== 'x') return;
-        movido = Math.abs(dx);
-        track.scrollLeft = scrollInicial - dx;
-        if (e.pointerType === 'mouse') e.preventDefault();
-      });
-      const soltar = () => { activo = false; setTimeout(() => { movido = 0; }, 0); };
-      track.addEventListener('pointerup', soltar);
-      track.addEventListener('pointercancel', soltar);
-      track.addEventListener('pointerleave', soltar);
-      // Si el dedo arrastró, el toque no debe abrir la guía
-      track.addEventListener('click', (e) => {
-        if (movido > 8) { e.stopPropagation(); e.preventDefault(); }
-      }, true);
-    });
-
+    
     document.getElementById('appBuscar').addEventListener('input', (e) => {
       clearTimeout(temporizadorBusqueda);
       const consulta = e.target.value.trim();
