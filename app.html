@@ -2121,8 +2121,11 @@
 (() => {
   if (!location.search.includes('diag=1')) return;
   const pinta = () => {
-    const tr = document.querySelector('.app-track');
-    if (!tr) return setTimeout(pinta, 500);
+    // medir la fila VISIBLE con tarjetas, no la de resultados que está oculta
+    const tr = [...document.querySelectorAll('.app-track')]
+      .filter(t => t.querySelector('.app-card') && t.clientWidth > 0)
+      .sort((a, b) => b.scrollWidth - a.scrollWidth)[0];
+    if (!tr) return setTimeout(pinta, 600);
     const s = getComputedStyle(tr);
     const anchos = [];
     document.querySelectorAll('body *').forEach(el => {
@@ -2142,6 +2145,8 @@
       'scroll por codigo=' + mueve,
       'bodyOverflowX=' + getComputedStyle(document.body).overflowX,
       'anchos>pantalla: ' + (anchos.length ? anchos.slice(0,3).join(' ') : 'ninguno'),
+      'id=' + (tr.id || '?') + ' tarjetas=' + tr.querySelectorAll('.app-card').length + ' anchoTarjeta=' + Math.round(tr.querySelector('.app-card').getBoundingClientRect().width),
+      'padre=' + getComputedStyle(tr.parentElement).overflow + ' contenedor=' + getComputedStyle(tr.parentElement.parentElement).overflow,
       'UA=' + navigator.userAgent.slice(0, 42),
     ];
     let caja = document.getElementById('imDiag');
