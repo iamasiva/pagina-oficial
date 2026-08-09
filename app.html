@@ -2092,6 +2092,25 @@
       .filter(t => t.querySelector('.app-card') && t.clientWidth > 0)
       .sort((a, b) => b.scrollWidth - a.scrollWidth)[0];
     if (!tr) return setTimeout(pinta, 600);
+
+    // EXPERIMENTO: un carrusel de prueba con el código más simple posible.
+    // Si este desliza y el real no, la diferencia está en el real. Si ninguno
+    // desliza, el bloqueo es de toda la página.
+    if (!document.getElementById('imPrueba')) {
+      const p = document.createElement('div');
+      p.id = 'imPrueba';
+      p.style.cssText = 'position:fixed;left:0;right:0;top:120px;z-index:99998;display:flex;gap:8px;overflow-x:auto;padding:8px;background:#111;border:3px solid yellow';
+      p.innerHTML = Array.from({length: 14}, (_, i) =>
+        `<div style="flex:0 0 100px;height:70px;background:hsl(${i*26},70%,45%);color:#fff;font:bold 22px monospace;display:grid;place-items:center">${i+1}</div>`).join('');
+      document.body.appendChild(p);
+      p.addEventListener('scroll', () => { p.dataset.movio = Math.round(p.scrollLeft); }, { passive: true });
+    }
+    const prueba = document.getElementById('imPrueba');
+
+    // ¿Qué elemento recibe realmente el dedo en el centro de la fila?
+    const rt = tr.getBoundingClientRect();
+    const enPunto = document.elementFromPoint(rt.left + rt.width / 2, rt.top + rt.height / 2);
+    const quien = enPunto ? (enPunto.tagName + '.' + String(enPunto.className).split(' ')[0]).slice(0, 30) : 'nada';
     // Espía de gestos: cuenta los toques que REALMENTE llegan a la fila
     if (!tr.__espia) {
       tr.__espia = { inicio: 0, mueve: 0, dxMax: 0, scrollVisto: 0, cancelado: 0 };
@@ -2133,6 +2152,8 @@
       'overflowY=' + s.overflowY + ' scrollTopMax=' + (tr.scrollHeight - tr.clientHeight),
       'GESTOS: inicio=' + esp.inicio + ' mueve=' + esp.mueve + ' dxMax=' + Math.round(esp.dxMax) + ' scrollVisto=' + Math.round(esp.scrollVisto) + ' cancel=' + esp.cancelado,
       'cadena: ' + (ancestros.join(' | ') || 'todo limpio'),
+      'bajo el dedo: ' + quien,
+      'PRUEBA AMARILLA movio=' + (prueba.dataset.movio || 0) + ' (deslizala)',
       'UA=' + navigator.userAgent.slice(0, 42),
     ];
     let caja = document.getElementById('imDiag');
