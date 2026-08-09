@@ -2126,6 +2126,24 @@
       .filter(t => t.querySelector('.app-card') && t.clientWidth > 0)
       .sort((a, b) => b.scrollWidth - a.scrollWidth)[0];
     if (!tr) return setTimeout(pinta, 600);
+    // Espía de gestos: cuenta los toques que REALMENTE llegan a la fila
+    if (!tr.__espia) {
+      tr.__espia = { inicio: 0, mueve: 0, dxMax: 0, scrollVisto: 0, cancelado: 0 };
+      const e = tr.__espia;
+      tr.addEventListener('touchstart', ev => { e.inicio++; e.x0 = ev.touches[0].clientX; e.s0 = tr.scrollLeft; }, { passive: true });
+      tr.addEventListener('touchmove', ev => { e.mueve++; e.dxMax = Math.max(e.dxMax, Math.abs(ev.touches[0].clientX - (e.x0 || 0))); e.scrollVisto = Math.abs(tr.scrollLeft - (e.s0 || 0)); }, { passive: true });
+      tr.addEventListener('touchcancel', () => { e.cancelado++; }, { passive: true });
+      tr.addEventListener('scroll', () => { e.scrollVisto = Math.max(e.scrollVisto, Math.round(tr.scrollLeft)); }, { passive: true });
+    }
+    const esp = tr.__espia;
+    const ancestros = [];
+    let el = tr;
+    while (el && el !== document.documentElement) {
+      const cs = getComputedStyle(el);
+      if (cs.touchAction !== 'auto' || cs.overflow !== 'visible')
+        ancestros.push((el.tagName + '.' + String(el.className).split(' ')[0]).slice(0, 18) + ':' + cs.touchAction + '/' + cs.overflowX + ',' + cs.overflowY);
+      el = el.parentElement;
+    }
     const s = getComputedStyle(tr);
     const anchos = [];
     document.querySelectorAll('body *').forEach(el => {
@@ -2146,7 +2164,9 @@
       'bodyOverflowX=' + getComputedStyle(document.body).overflowX,
       'anchos>pantalla: ' + (anchos.length ? anchos.slice(0,3).join(' ') : 'ninguno'),
       'id=' + (tr.id || '?') + ' tarjetas=' + tr.querySelectorAll('.app-card').length + ' anchoTarjeta=' + Math.round(tr.querySelector('.app-card').getBoundingClientRect().width),
-      'padre=' + getComputedStyle(tr.parentElement).overflow + ' contenedor=' + getComputedStyle(tr.parentElement.parentElement).overflow,
+      'overflowY=' + s.overflowY + ' scrollTopMax=' + (tr.scrollHeight - tr.clientHeight),
+      'GESTOS: inicio=' + esp.inicio + ' mueve=' + esp.mueve + ' dxMax=' + Math.round(esp.dxMax) + ' scrollVisto=' + Math.round(esp.scrollVisto) + ' cancel=' + esp.cancelado,
+      'cadena: ' + (ancestros.join(' | ') || 'todo limpio'),
       'UA=' + navigator.userAgent.slice(0, 42),
     ];
     let caja = document.getElementById('imDiag');
