@@ -2107,6 +2107,28 @@
     }
     const prueba = document.getElementById('imPrueba');
 
+    // PRUEBA B: mismo contenedor que la fila real, contenido simple.
+    // PRUEBA C: clase real (.app-track), contenido simple.
+    if (!document.getElementById('imPruebaB')) {
+      const cuadros = (n) => Array.from({length: 14}, (_, i) =>
+        `<div style="flex:0 0 100px;height:60px;background:hsl(${i*26 + n},70%,45%);color:#fff;font:bold 20px monospace;display:grid;place-items:center">${i+1}</div>`).join('');
+      const b = document.createElement('div');
+      b.id = 'imPruebaB';
+      b.style.cssText = 'display:flex;gap:8px;overflow-x:auto;padding:8px;background:#111;border:3px solid cyan;margin:8px 0';
+      b.innerHTML = cuadros(0);
+      tr.parentElement.appendChild(b);
+      b.addEventListener('scroll', () => { b.dataset.movio = Math.round(b.scrollLeft); }, { passive: true });
+
+      const c = document.createElement('div');
+      c.id = 'imPruebaC';
+      c.className = 'app-track';
+      c.style.cssText = 'border:3px solid magenta;margin:8px 0';
+      c.innerHTML = cuadros(120);
+      tr.parentElement.appendChild(c);
+      c.addEventListener('scroll', () => { c.dataset.movio = Math.round(c.scrollLeft); }, { passive: true });
+    }
+    const pb = document.getElementById('imPruebaB'), pc = document.getElementById('imPruebaC');
+
     // ¿Qué elemento recibe realmente el dedo en el centro de la fila?
     const rt = tr.getBoundingClientRect();
     const enPunto = document.elementFromPoint(rt.left + rt.width / 2, rt.top + rt.height / 2);
@@ -2153,7 +2175,7 @@
       'GESTOS: inicio=' + esp.inicio + ' mueve=' + esp.mueve + ' dxMax=' + Math.round(esp.dxMax) + ' scrollVisto=' + Math.round(esp.scrollVisto) + ' cancel=' + esp.cancelado,
       'cadena: ' + (ancestros.join(' | ') || 'todo limpio'),
       'bajo el dedo: ' + quien,
-      'PRUEBA AMARILLA movio=' + (prueba.dataset.movio || 0) + ' (deslizala)',
+      'A amarilla(suelta)=' + (prueba.dataset.movio || 0) + ' B cian(mismo sitio)=' + (pb.dataset.movio || 0) + ' C magenta(clase real)=' + (pc.dataset.movio || 0),
       'UA=' + navigator.userAgent.slice(0, 42),
     ];
     let caja = document.getElementById('imDiag');
