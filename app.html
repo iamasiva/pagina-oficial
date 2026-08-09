@@ -35,7 +35,7 @@
       --gray: #D1D5DB; --cyan: #00E5FF; --green: #00FF9C;
     }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); line-height: 1.6; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--black); color: var(--white); line-height: 1.6; overflow-x: hidden; }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; }
     .hidden { display: none !important; }
@@ -121,7 +121,7 @@
     .app-row { margin-bottom: 44px; }
     .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
-    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; touch-action: pan-x pan-y; padding: 36px 14px 24px; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: visible; padding: 36px 14px 24px; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     
@@ -350,7 +350,7 @@
       .app-card:hover { transform: none; }
       .app-card-rank { font-size: 3.2rem; }
       .app-card-tag { display: none; }
-      .app-track { padding: 10px 4vw 16px; scroll-padding-left: 4vw; }
+      .app-track { padding: 10px 4vw 16px; }
       
       .scroll-arrow { display: none; }
       .cats-grid { grid-template-columns: 1fr; }
