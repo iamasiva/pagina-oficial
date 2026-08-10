@@ -129,7 +129,7 @@
     .scroll-arrow.right { right: -20px; }
 
     /* ─── CARDS ──────────────────────────────────────────────── */
-    .app-card { flex: 0 0 190px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); background: rgba(255,255,255,0.035); display: flex; flex-direction: column; transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
+    .app-card { flex: 0 0 190px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); background: linear-gradient(160deg, #060c2a 0%, #0e1f5c 100%); display: flex; flex-direction: column; transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
     .app-card-arte { position: relative; height: 274px; flex-shrink: 0; overflow: hidden; }
     .app-card-pie { display: flex; align-items: flex-start; padding: 8px 10px; position: relative; z-index: 2; }
     .app-card.con-rank .app-card-pie { min-height: 92px; align-items: flex-start; }
@@ -140,16 +140,6 @@
     @media (hover: hover) and (pointer: fine) {
       .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
     }
-    .app-card:nth-child(1)  { background: linear-gradient(160deg, #060c2a 0%, #0e1f5c 100%); }
-    .app-card:nth-child(2)  { background: linear-gradient(160deg, #050b26 0%, #091749 100%); }
-    .app-card:nth-child(3)  { background: linear-gradient(160deg, #07102e 0%, #101d5e 100%); }
-    .app-card:nth-child(4)  { background: linear-gradient(160deg, #060a25 0%, #0c1852 100%); }
-    .app-card:nth-child(5)  { background: linear-gradient(160deg, #07102f 0%, #111f62 100%); }
-    .app-card:nth-child(6)  { background: linear-gradient(160deg, #050d2a 0%, #0a1a55 100%); }
-    .app-card:nth-child(7)  { background: linear-gradient(160deg, #060f2e 0%, #0f1e5f 100%); }
-    .app-card:nth-child(8)  { background: linear-gradient(160deg, #050b26 0%, #0b1a50 100%); }
-    .app-card:nth-child(9)  { background: linear-gradient(160deg, #060e2c 0%, #101d5c 100%); }
-    .app-card:nth-child(10) { background: linear-gradient(160deg, #060c28 0%, #0e1c5a 100%); }
     .ficha-overlay { position: fixed; inset: 0; z-index: 210; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.75); backdrop-filter: blur(6px); padding: 20px; touch-action: none; }
     .ficha-overlay.active { display: flex; }
     .ficha-caja { position: relative; display: flex; flex-direction: column; width: min(760px, 100%); max-height: 88vh; background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
