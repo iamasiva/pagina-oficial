@@ -1645,6 +1645,9 @@
       track.addEventListener('touchcancel', fin, { passive: true });
     }
     function activarDeslizamientos() {
+      // Prueba: dejar el deslizamiento al navegador, que trae inercia natural.
+      // Si no responde, se reactiva el propio quitando este return.
+      return;
       document.querySelectorAll('.app-track').forEach(activarDeslizamiento);
     }
 
