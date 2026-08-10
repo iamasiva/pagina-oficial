@@ -74,6 +74,9 @@
     .filter-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: var(--gray); padding: 8px 20px; border-radius: 20px; font-size: 0.88rem; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
     
     .filter-btn.active { background: var(--white); color: #050F3A; border-color: var(--white); }
+    /* Menú desplegado: el botón queda marcado para saber dónde estás */
+    .filter-btn.desplegado { border-color: var(--blue-elec); color: var(--white); background: rgba(47,107,255,0.22); box-shadow: 0 0 0 1px rgba(47,107,255,0.45); }
+    .hamburger-btn.desplegado { border-color: var(--blue-elec); background: rgba(47,107,255,0.22); box-shadow: 0 0 0 1px rgba(47,107,255,0.45); }
     .cat-dropdown { position: relative; }
     .cat-menu { position: absolute; top: calc(100% + 8px); left: 0; background: #0b1535; border: 1px solid rgba(47,107,255,0.22); border-radius: 10px; padding: 8px 0; min-width: 220px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; z-index: 200; }
     .cat-rama { position: relative; }
@@ -1117,6 +1120,11 @@
       }
     });
 
+    // Al recargar se arranca desde arriba: el navegador restauraba la posición
+    // anterior y no se sentía como un refresco de verdad.
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
     // ── NAVBAR SCROLL ─────────────────────────────────────────
     window.addEventListener('scroll', () => {
       document.getElementById('appNav').classList.toggle('scrolled', window.scrollY > 20);
@@ -1253,13 +1261,25 @@
         document.getElementById('appBuscador').classList.remove('abierto');
     });
 
-    function toggleCatMenu() { document.getElementById('catMenu').classList.toggle('open'); }
-    function closeCatMenu()  { document.getElementById('catMenu').classList.remove('open'); document.querySelectorAll('.cat-rama').forEach(r => r.classList.remove('abierta')); }
+    function toggleCatMenu() {
+      const abierto = document.getElementById('catMenu').classList.toggle('open');
+      document.getElementById('filterCatBtn').classList.toggle('desplegado', abierto);
+    }
+    function closeCatMenu()  { document.getElementById('catMenu').classList.remove('open');
+      document.getElementById('filterCatBtn')?.classList.remove('desplegado'); document.querySelectorAll('.cat-rama').forEach(r => r.classList.remove('abierta')); }
     document.addEventListener('click', e => { if (!e.target.closest('.cat-dropdown')) closeCatMenu(); });
 
-    function toggleMobileMenu() { document.getElementById('navCollapse').classList.toggle('open'); }
+    function toggleMobileMenu() {
+      const abierto = document.getElementById('navCollapse').classList.toggle('open');
+      document.getElementById('hamburgerBtn').classList.toggle('desplegado', abierto);
+    }
     window.toggleMobileMenu = toggleMobileMenu;
-    document.addEventListener('click', e => { if (!e.target.closest('.app-nav')) document.getElementById('navCollapse').classList.remove('open'); });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.app-nav')) {
+        document.getElementById('navCollapse').classList.remove('open');
+        document.getElementById('hamburgerBtn')?.classList.remove('desplegado');
+      }
+    });
 
     // ── CARD BUILDER ──────────────────────────────────────────
     function makeCard(guide, rank, showRank = false) {
