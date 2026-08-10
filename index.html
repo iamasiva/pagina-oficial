@@ -554,7 +554,8 @@
       letter-spacing: 0.01em;
     }
 
-    .faq-question:hover { color: var(--blue-elec); }
+    @media (hover: hover) and (pointer: fine) { .faq-question:hover { color: var(--blue-elec); } }
+    .faq-item.open .faq-question { color: var(--blue-elec); }
 
     .faq-icon {
       flex-shrink: 0;
@@ -632,40 +633,44 @@
 
     /* ─── FOOTER ───────────────────────────────────────────────────── */
     footer {
-      background: #030308;
-      border-top: 1px solid rgba(47,107,255,0.1);
-      padding: 64px 5vw 36px;
+      margin-top: 60px;
+      padding: 40px 5vw 34px;
+      border-top: 1px solid rgba(47,107,255,0.14);
+      background: rgba(5,15,58,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
     }
 
     .footer-brand {
-      font-size: 1.4rem;
       font-weight: 900;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.04em;
+      font-size: 1.05rem;
       color: var(--white);
-      margin-bottom: 32px;
-      display: inline-block;
+      cursor: pointer;
     }
 
     .footer-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px 32px;
-      margin-bottom: 40px;
+      gap: 20px;
+      justify-content: center;
     }
 
     .footer-links a {
-      font-size: 0.83rem;
-      color: #3d5268;
+      font-size: 0.86rem;
+      color: #b9c6d8;
+      text-decoration: none;
       transition: color 0.2s;
     }
 
-    .footer-links a:hover { color: var(--gray); }
+    .footer-links a:hover { color: #fff; }
 
     .footer-copy {
       font-size: 0.78rem;
-      color: #253245;
-      border-top: 1px solid rgba(47,107,255,0.08);
-      padding-top: 22px;
+      color: #6b7d99;
     }
 
     /* ─── RESPONSIVE ───────────────────────────────────────────────── */
