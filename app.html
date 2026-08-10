@@ -121,7 +121,7 @@
     .app-row { margin-bottom: 44px; }
     .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
-    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: visible; padding: 36px 14px 24px; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: visible; touch-action: pan-y; padding: 36px 14px 24px; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     
@@ -1629,25 +1629,50 @@
       if (track.__desliza) return;
       track.__desliza = true;
       let x0 = 0, y0 = 0, s0 = 0, activo = false, eje = null;
+      let ultX = 0, ultT = 0, vel = 0, animacion = null;
+
       track.addEventListener('touchstart', (e) => {
-        activo = true; eje = null;
-        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; s0 = track.scrollLeft;
+        if (animacion) { cancelAnimationFrame(animacion); animacion = null; }
+        activo = true; eje = null; vel = 0;
+        x0 = ultX = e.touches[0].clientX;
+        y0 = e.touches[0].clientY;
+        s0 = track.scrollLeft;
+        ultT = performance.now();
       }, { passive: true });
+
       track.addEventListener('touchmove', (e) => {
         if (!activo) return;
-        const dx = e.touches[0].clientX - x0;
-        const dy = e.touches[0].clientY - y0;
-        if (!eje && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-        if (eje === 'x') track.scrollLeft = s0 - dx;   // el gesto vertical se deja a la página
+        const x = e.touches[0].clientX, y = e.touches[0].clientY;
+        const dx = x - x0, dy = y - y0;
+        // Decidir el eje pronto: si es vertical, la página manda
+        if (!eje && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (eje !== 'x') return;
+        track.scrollLeft = s0 - dx;
+        // velocidad para la inercia (píxeles por milisegundo)
+        const t = performance.now(), dt = t - ultT;
+        if (dt > 0) vel = (x - ultX) / dt;
+        ultX = x; ultT = t;
       }, { passive: true });
-      const fin = () => { activo = false; };
-      track.addEventListener('touchend', fin, { passive: true });
-      track.addEventListener('touchcancel', fin, { passive: true });
+
+      // Al soltar, la fila sigue corriendo y frena suave, como el desplazamiento nativo
+      const soltar = () => {
+        if (!activo) return;
+        activo = false;
+        if (eje !== 'x' || Math.abs(vel) < 0.04) return;
+        let v = vel * 16;
+        const paso = () => {
+          v *= 0.94;
+          const antes = track.scrollLeft;
+          track.scrollLeft -= v;
+          if (Math.abs(v) > 0.25 && track.scrollLeft !== antes) animacion = requestAnimationFrame(paso);
+          else animacion = null;
+        };
+        animacion = requestAnimationFrame(paso);
+      };
+      track.addEventListener('touchend', soltar, { passive: true });
+      track.addEventListener('touchcancel', soltar, { passive: true });
     }
     function activarDeslizamientos() {
-      // Prueba: dejar el deslizamiento al navegador, que trae inercia natural.
-      // Si no responde, se reactiva el propio quitando este return.
-      return;
       document.querySelectorAll('.app-track').forEach(activarDeslizamiento);
     }
 
