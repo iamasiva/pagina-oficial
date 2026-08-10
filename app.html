@@ -150,11 +150,12 @@
     .ficha-caja { position: relative; display: flex; flex-direction: column; width: min(760px, 100%); height: min(88vh, 620px); background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
     .ficha-cuerpo { display: flex; gap: 24px; align-items: stretch; flex: 1 1 auto; min-height: 0; overflow: hidden; }
     .ficha-acciones { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-top: 16px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .ficha-portada { flex: 0 0 44%; display: flex; align-items: flex-start; }
-    .ficha-portada img { width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
+    .ficha-portada { flex: 0 0 44%; display: flex; min-height: 0; }
+    .ficha-portada img { width: 100%; height: 100%; object-fit: contain; object-position: top; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
     .ficha-info { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
     .ficha-info h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; padding-right: 26px; }
-    .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; margin: 0; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; }
+    .ficha-desc-caja { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-right: 8px; }
+    .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; margin: 0; }
     .ficha-ver { margin-top: auto; align-self: flex-start; background: var(--blue-elec); color: #fff; border: none; border-radius: 8px; padding: 13px 34px; font-weight: 800; font-size: 0.95rem; margin-top: 18px; }
     
     .ficha-ver:disabled { opacity: 0.75; cursor: wait; }
@@ -586,7 +587,7 @@
         <div class="ficha-portada"><img id="fichaPortada" src="" alt=""></div>
         <div class="ficha-info">
           <h3 id="fichaTitulo"></h3>
-          <p id="fichaDesc"></p>
+          <div class="ficha-desc-caja"><p id="fichaDesc"></p></div>
           </div>
       </div>
       <div class="ficha-acciones">
@@ -1403,17 +1404,19 @@
         : '';
       document.getElementById('fichaOverlay').classList.add('active');
       requestAnimationFrame(() => {
-        document.getElementById('fichaDesc').scrollTop = 0;
+        document.querySelector('.ficha-desc-caja').scrollTop = 0;
         document.querySelector('.ficha-caja').scrollTop = 0;
       });
       // Se bloquea el desplazamiento del fondo mientras el popup está abierto
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+      document.body.style.overscrollBehavior = 'none';
     }
     function cerrarFicha() {
       document.getElementById('fichaOverlay').classList.remove('active');
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      document.body.style.overscrollBehavior = '';
     }
     document.getElementById('fichaCerrar').addEventListener('click', cerrarFicha);
     document.getElementById('fichaOverlay').addEventListener('click', (e) => { if (e.target.id === 'fichaOverlay') cerrarFicha(); });
