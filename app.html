@@ -121,7 +121,7 @@
     .app-row { margin-bottom: 44px; }
     .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
-    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: visible; touch-action: pan-y; padding: 36px 14px 24px; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 14px; overflow-x: auto; overflow-y: visible; touch-action: pan-y; padding: 8px 0 14px; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     
@@ -129,14 +129,14 @@
     .scroll-arrow.right { right: -20px; }
 
     /* ─── CARDS ──────────────────────────────────────────────── */
-    .app-card { flex: 0 0 200px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); background: rgba(255,255,255,0.035); display: flex; flex-direction: column; transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
-    .app-card-arte { position: relative; height: 288px; flex-shrink: 0; overflow: hidden; }
-    .app-card-pie { display: flex; align-items: center; padding: 8px 10px; position: relative; z-index: 2; }
+    .app-card { flex: 0 0 190px; border-radius: 10px; position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(47,107,255,0.1); background: rgba(255,255,255,0.035); display: flex; flex-direction: column; transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.2s; }
+    .app-card-arte { position: relative; height: 274px; flex-shrink: 0; overflow: hidden; }
+    .app-card-pie { display: flex; align-items: flex-start; padding: 8px 10px; position: relative; z-index: 2; }
     .app-card.con-rank .app-card-pie { min-height: 92px; align-items: flex-start; }
-    .fav-estrella { position: absolute; left: 8px; bottom: 8px; z-index: 4; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
+    .fav-estrella { position: absolute; right: 6px; bottom: 5px; z-index: 4; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
     
     .fav-estrella.activo { color: #ffd166; }
-    .app-card-nombre { width: 100%; font-size: 0.76rem; font-weight: 600; color: var(--gray); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .app-card-nombre { width: 100%; padding-right: 20px; font-size: 0.76rem; font-weight: 600; color: var(--gray); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     @media (hover: hover) and (pointer: fine) {
       .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
     }
@@ -181,7 +181,7 @@
       .ficha-ver { padding: 12px 22px; font-size: 0.9rem; align-self: stretch; text-align: center; }
     }
     .app-card-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; }
-    .app-card-arte::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 10%, rgba(47,107,255,0.2) 0%, transparent 65%), linear-gradient(180deg, transparent 38%, rgba(5,5,5,0.95) 100%); }
+    .app-card-arte::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(5,5,5,0.28) 0%, transparent 45%); }
     .app-card::after { content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1.5px; background: linear-gradient(90deg, transparent, var(--blue-elec), transparent); opacity: 0.55; z-index: 2; }
     .app-card-rank { position: absolute; bottom: -14px; left: -2px; font-size: 6rem; font-weight: 900; line-height: 1; color: rgba(255,255,255,0.06); letter-spacing: -0.06em; user-select: none; pointer-events: none; z-index: 1; }
     .app-card-badge { position: absolute; top: 11px; right: 11px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; z-index: 3; }
@@ -341,16 +341,16 @@
       .app-hero { min-height: max(58vh, 400px); padding-bottom: 10px; padding-top: 16px; }
       .app-hero-dots { margin-top: 10px; }
       .hero-edit-btn { top: 12px; right: 4vw; }
-      .app-card { flex: 0 0 122px; }
-      .app-card.con-rank .app-card-pie { min-height: 74px; }
-      .app-card-arte { height: 176px; }
+      .app-card { flex: 0 0 158px; }
+      .app-card.con-rank .app-card-pie { min-height: 80px; }
+      .app-card-arte { height: 228px; }
       .app-card-pie { padding: 6px 8px; gap: 5px; }
-      .app-card-nombre { font-size: 0.66rem; }
+      .app-card-nombre { font-size: 0.7rem; }
       .fav-estrella { font-size: 0.95rem; }
       .app-card:hover { transform: none; }
       .app-card-rank { font-size: 3.2rem; }
       .app-card-tag { display: none; }
-      .app-track { padding: 10px 4vw 16px; }
+      .app-track { padding: 8px 0 14px; }
       
       .scroll-arrow { display: none; }
       .cats-grid { grid-template-columns: 1fr; }
@@ -1281,13 +1281,13 @@
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
             ${locked ? '<div class="app-card-lock">De pago</div>' : ''}
-            <button class="fav-estrella${esFav ? ' activo' : ''}" data-guia="${guide.id}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
             <div class="app-card-info">
               <div class="app-card-tag">${cats}</div>
             </div>
           </div>
           <div class="app-card-pie">
             <span class="app-card-nombre">${guide.titulo}</span>
+            <button class="fav-estrella${esFav ? ' activo' : ''}" data-guia="${guide.id}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
           </div>
           ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
         </div>`;
