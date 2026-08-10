@@ -1645,14 +1645,17 @@
         const x = e.touches[0].clientX, y = e.touches[0].clientY;
         const dx = x - x0, dy = y - y0;
         // Decidir el eje pronto: si es vertical, la página manda
-        if (!eje && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (!eje && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
         if (eje !== 'x') return;
+        // Gesto horizontal: se congela el desplazamiento vertical mientras dura,
+        // igual que hace el navegador con sus propios carruseles.
+        if (e.cancelable) e.preventDefault();
         track.scrollLeft = s0 - dx;
         // velocidad para la inercia (píxeles por milisegundo)
         const t = performance.now(), dt = t - ultT;
         if (dt > 0) vel = (x - ultX) / dt;
         ultX = x; ultT = t;
-      }, { passive: true });
+      }, { passive: false });
 
       // Al soltar, la fila sigue corriendo y frena suave, como el desplazamiento nativo
       const soltar = () => {
