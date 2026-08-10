@@ -147,16 +147,14 @@
     }
     .ficha-overlay { position: fixed; inset: 0; z-index: 210; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.75); backdrop-filter: blur(6px); padding: 20px; }
     .ficha-overlay.active { display: flex; }
-    .ficha-caja { position: relative; display: flex; flex-direction: column; width: min(760px, 100%); max-height: 88vh; background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
-    .ficha-cuerpo { display: flex; gap: 24px; align-items: flex-start; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+    .ficha-caja { position: relative; display: flex; flex-direction: column; width: min(760px, 100%); height: min(88vh, 620px); background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
+    .ficha-cuerpo { display: flex; gap: 24px; align-items: stretch; flex: 1 1 auto; min-height: 0; overflow: hidden; }
     .ficha-acciones { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-top: 16px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .ficha-portada { flex: 0 0 44%; display: flex; }
-    .ficha-portada img { width: 100%; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
-    .ficha-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .ficha-portada { flex: 0 0 44%; display: flex; align-items: flex-start; }
+    .ficha-portada img { width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
+    .ficha-info { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
     .ficha-info h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; padding-right: 26px; }
-    .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; margin: 0; }
-    .ficha-info p.expandida { display: block; -webkit-line-clamp: none; overflow: visible; max-height: none; }
-    .ficha-leer { background: none; border: none; padding: 0; margin: 6px 0 0; color: var(--blue-elec); font-weight: 700; font-size: 0.85rem; cursor: pointer; align-self: flex-start; }
+    .ficha-info p { color: #b9c6d8; font-size: 0.92rem; line-height: 1.6; margin: 0; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; }
     .ficha-ver { margin-top: auto; align-self: flex-start; background: var(--blue-elec); color: #fff; border: none; border-radius: 8px; padding: 13px 34px; font-weight: 800; font-size: 0.95rem; margin-top: 18px; }
     
     .ficha-ver:disabled { opacity: 0.75; cursor: wait; }
@@ -164,13 +162,13 @@
     @keyframes girar-bolita { to { transform: rotate(360deg); } }
     .ficha-cerrar { position: absolute; top: 12px; right: 12px; z-index: 5; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; }
     @media (max-width: 560px) {
-      .ficha-caja { padding: 16px; max-height: 90vh; }
+      .ficha-caja { padding: 16px; height: 86vh; }
       .ficha-cuerpo { flex-direction: column; gap: 12px; padding-bottom: 4px; }
       
       
-      .ficha-portada { flex: none; width: 100%; justify-content: center; }
+      .ficha-portada { flex: 0 0 auto; width: 100%; justify-content: center; }
       .ficha-acciones { align-items: stretch; }
-    .ficha-portada img { width: auto; max-width: 100%; max-height: 34vh; object-fit: contain; margin: 0 auto; }
+    .ficha-portada img { width: auto; max-width: 100%; max-height: 30vh; object-fit: contain; margin: 0 auto; }
       .ficha-info h3 { font-size: 1rem; }
       .ficha-info p { font-size: 0.85rem; }
       .ficha-ver { padding: 12px 22px; font-size: 0.9rem; align-self: stretch; text-align: center; }
@@ -589,8 +587,7 @@
         <div class="ficha-info">
           <h3 id="fichaTitulo"></h3>
           <p id="fichaDesc"></p>
-          <button class="ficha-leer" id="fichaLeer" hidden>Leer más</button>
-        </div>
+          </div>
       </div>
       <div class="ficha-acciones">
         <button class="ficha-ver" id="fichaVer">Ver Recurso</button>
@@ -1408,11 +1405,6 @@
       requestAnimationFrame(() => {
         document.getElementById('fichaDesc').scrollTop = 0;
         document.querySelector('.ficha-caja').scrollTop = 0;
-        const leer = document.getElementById('fichaLeer');
-        const d = document.getElementById('fichaDesc');
-        d.classList.remove('expandida');
-        leer.textContent = 'Leer más';
-        leer.hidden = d.scrollHeight <= d.clientHeight + 4;
       });
       // Se bloquea el desplazamiento del fondo mientras el popup está abierto
       document.documentElement.style.overflow = 'hidden';
@@ -1423,11 +1415,6 @@
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
     }
-    document.getElementById('fichaLeer').addEventListener('click', (e) => {
-      const d = document.getElementById('fichaDesc');
-      const abierta = d.classList.toggle('expandida');
-      e.target.textContent = abierta ? 'Leer menos' : 'Leer más';
-    });
     document.getElementById('fichaCerrar').addEventListener('click', cerrarFicha);
     document.getElementById('fichaOverlay').addEventListener('click', (e) => { if (e.target.id === 'fichaOverlay') cerrarFicha(); });
     document.getElementById('fichaVer').addEventListener('click', async () => {
