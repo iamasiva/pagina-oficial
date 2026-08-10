@@ -150,8 +150,8 @@
     .ficha-caja { position: relative; display: flex; flex-direction: column; width: min(760px, 100%); height: min(88vh, 620px); background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
     .ficha-cuerpo { display: flex; gap: 24px; align-items: stretch; flex: 1 1 auto; min-height: 0; overflow: hidden; }
     .ficha-acciones { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-top: 16px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .ficha-portada { flex: 0 0 44%; display: flex; min-height: 0; }
-    .ficha-portada img { width: 100%; height: 100%; object-fit: contain; object-position: top; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
+    .ficha-portada { flex: 0 0 44%; display: flex; min-height: 0; justify-content: center; }
+    .ficha-portada img { height: 100%; width: auto; max-width: 100%; object-fit: contain; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
     .ficha-info { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
     .ficha-info h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 10px; padding-right: 26px; }
     .ficha-desc-caja { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-right: 8px; }
@@ -181,7 +181,7 @@
     .app-card-badge { position: absolute; top: 11px; right: 11px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; z-index: 3; }
     .badge-premium { background: rgba(47,107,255,0.14); border: 1px solid rgba(47,107,255,0.35); font-size: 0.85rem; letter-spacing: normal; text-transform: none; padding: 2px 6px; line-height: 1; }
     .badge-tuya    { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.35); color: var(--cyan); }
-    .app-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 13px 10px 32px; z-index: 3; pointer-events: none; }
+    .app-card-info { display: none; }
     .app-card-tag  { font-size: 0.68rem; color: #4a6080; }
     .app-card-lock { position: absolute; top: 8px; right: 8px; z-index: 3; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: rgba(5,8,20,0.72); border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 4px 9px; backdrop-filter: blur(4px); }
     .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; }
@@ -1278,6 +1278,14 @@
         document.getElementById('hamburgerBtn')?.classList.remove('desplegado');
       }
     });
+    // Al elegir una opción del menú, este se cierra y el botón se apaga.
+    // El chip del usuario se excluye: solo despliega su submenú.
+    document.getElementById('navCollapse').addEventListener('click', (e) => {
+      if (!e.target.closest('button, a')) return;
+      if (e.target.closest('#userChip')) return;
+      document.getElementById('navCollapse').classList.remove('open');
+      document.getElementById('hamburgerBtn')?.classList.remove('desplegado');
+    }, true);
 
     // ── CARD BUILDER ──────────────────────────────────────────
     function makeCard(guide, rank, showRank = false) {
@@ -1405,6 +1413,7 @@
       document.getElementById('fichaOverlay').classList.add('active');
       requestAnimationFrame(() => {
         document.querySelector('.ficha-desc-caja').scrollTop = 0;
+        activarDeslizamientoTexto();
         document.querySelector('.ficha-caja').scrollTop = 0;
       });
       // Se bloquea el desplazamiento del fondo mientras el popup está abierto
@@ -1412,6 +1421,32 @@
       document.body.style.overflow = 'hidden';
       document.body.style.overscrollBehavior = 'none';
     }
+    // El texto del popup se desplaza con su propio manejo del gesto: en iPhone
+    // el desplazamiento nativo de este contenedor no responde y el dedo se iba
+    // al fondo de la página.
+    function activarDeslizamientoTexto() {
+      const caja = document.querySelector('.ficha-desc-caja');
+      if (!caja || caja.__desliza) return;
+      caja.__desliza = true;
+      let y0 = 0, s0 = 0, activo = false;
+      caja.addEventListener('touchstart', (e) => {
+        activo = true;
+        y0 = e.touches[0].clientY;
+        s0 = caja.scrollTop;
+      }, { passive: true });
+      caja.addEventListener('touchmove', (e) => {
+        if (!activo) return;
+        const dy = e.touches[0].clientY - y0;
+        const antes = caja.scrollTop;
+        caja.scrollTop = s0 - dy;
+        // si el texto todavía puede moverse, el gesto es suyo y no del fondo
+        if (caja.scrollTop !== antes && e.cancelable) e.preventDefault();
+      }, { passive: false });
+      const fin = () => { activo = false; };
+      caja.addEventListener('touchend', fin, { passive: true });
+      caja.addEventListener('touchcancel', fin, { passive: true });
+    }
+
     function cerrarFicha() {
       document.getElementById('fichaOverlay').classList.remove('active');
       document.documentElement.style.overflow = '';
