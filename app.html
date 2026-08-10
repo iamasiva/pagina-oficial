@@ -148,7 +148,7 @@
     .ficha-overlay { position: fixed; inset: 0; z-index: 210; display: none; align-items: center; justify-content: center; background: rgba(5,5,5,0.75); backdrop-filter: blur(6px); padding: 20px; }
     .ficha-overlay.active { display: flex; }
     .ficha-caja { position: relative; display: flex; flex-direction: column; width: min(760px, 100%); max-height: 88vh; background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; padding: 24px; }
-    .ficha-cuerpo { display: flex; gap: 24px; align-items: flex-start; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+    .ficha-cuerpo { display: flex; gap: 24px; align-items: flex-start; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
     .ficha-acciones { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-top: 16px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
     .ficha-portada { flex: 0 0 44%; display: flex; }
     .ficha-portada img { width: 100%; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
@@ -162,7 +162,7 @@
     .ficha-ver:disabled { opacity: 0.75; cursor: wait; }
     .ficha-ver .bolita { display: inline-block; width: 14px; height: 14px; margin-left: 10px; vertical-align: -2px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: girar-bolita 0.8s linear infinite; }
     @keyframes girar-bolita { to { transform: rotate(360deg); } }
-    .ficha-cerrar { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; }
+    .ficha-cerrar { position: absolute; top: 12px; right: 12px; z-index: 5; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; }
     @media (max-width: 560px) {
       .ficha-caja { padding: 16px; max-height: 90vh; }
       .ficha-cuerpo { flex-direction: column; gap: 12px; padding-bottom: 4px; }
@@ -1414,27 +1414,14 @@
         leer.textContent = 'Leer más';
         leer.hidden = d.scrollHeight <= d.clientHeight + 4;
       });
-      // Congelar el fondo: en iPhone 'overflow: hidden' no basta, hay que fijar
-      // el cuerpo en su posición actual.
-      scrollDeFondo = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollDeFondo}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
+      // Se bloquea el desplazamiento del fondo mientras el popup está abierto
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
     }
-    let scrollDeFondo = 0;
     function cerrarFicha() {
       document.getElementById('fichaOverlay').classList.remove('active');
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      // Restaurar sin animación: con desplazamiento suave se veía el salto
-      // de subir al tope y volver.
-      const suave = document.documentElement.style.scrollBehavior;
-      document.documentElement.style.scrollBehavior = 'auto';
-      window.scrollTo(0, scrollDeFondo);
-      document.documentElement.style.scrollBehavior = suave;
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     }
     document.getElementById('fichaLeer').addEventListener('click', (e) => {
       const d = document.getElementById('fichaDesc');
