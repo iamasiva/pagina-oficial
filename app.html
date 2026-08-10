@@ -121,7 +121,7 @@
     .app-row { margin-bottom: 44px; }
     .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
     .scroll-wrapper { position: relative; }
-    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: visible; padding: 36px 14px 24px; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 10px; overflow-x: auto; overflow-y: visible; padding: 36px 14px 24px; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     
@@ -1201,6 +1201,7 @@
 
       requestAnimationFrame(agregarLeerMas);
       document.getElementById('filteredSection').classList.add('active');
+      activarDeslizamientos();
       document.getElementById('mainSections').classList.add('filtered');
 
       if (cat) {
@@ -1616,7 +1617,35 @@
         ? lista.map((g, i) => makeCard(g, i + 1, false)).join('')
         : '<p class="app-empty">No encontramos nada con esas palabras. Prueba con el nombre de una herramienta (Gemini, ChatGPT, Claude) o un tema (prompts, video, finanzas).</p>';
       document.getElementById('filteredSection').classList.add('active');
+      activarDeslizamientos();
       document.getElementById('mainSections').classList.add('filtered');
+    }
+
+    // Deslizamiento táctil de las filas. Los oyentes son PASIVOS: no interfieren
+    // con el desplazamiento nativo. Y como la posición se calcula desde donde
+    // empezó el dedo, si el navegador ya movió la fila el valor coincide y no
+    // se duplica el movimiento.
+    function activarDeslizamiento(track) {
+      if (track.__desliza) return;
+      track.__desliza = true;
+      let x0 = 0, y0 = 0, s0 = 0, activo = false, eje = null;
+      track.addEventListener('touchstart', (e) => {
+        activo = true; eje = null;
+        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; s0 = track.scrollLeft;
+      }, { passive: true });
+      track.addEventListener('touchmove', (e) => {
+        if (!activo) return;
+        const dx = e.touches[0].clientX - x0;
+        const dy = e.touches[0].clientY - y0;
+        if (!eje && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) eje = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (eje === 'x') track.scrollLeft = s0 - dx;   // el gesto vertical se deja a la página
+      }, { passive: true });
+      const fin = () => { activo = false; };
+      track.addEventListener('touchend', fin, { passive: true });
+      track.addEventListener('touchcancel', fin, { passive: true });
+    }
+    function activarDeslizamientos() {
+      document.querySelectorAll('.app-track').forEach(activarDeslizamiento);
     }
 
     function renderAll() {
@@ -1634,6 +1663,7 @@
       const premium = allGuides.filter(g=>g.es_premium).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 
       document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
+      requestAnimationFrame(activarDeslizamientos);
       document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías de pago.</p>';
       // Tendencias reales: aperturas de los últimos 30 días; a igual conteo, la más nueva primero
       const porTendencia = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
@@ -2079,129 +2109,6 @@
   if (!document.referrer.includes('.supabase.co')) return;
   history.pushState(null, '');
   window.addEventListener('popstate', () => location.replace('index.html'), { once: true });
-})();
-</script>
-<script>
-// Panel de diagnóstico: solo aparece con ?diag=1 en la URL. Sirve para medir
-// el layout real en el celular del usuario cuando algo no se puede reproducir.
-(() => {
-  if (!location.search.includes('diag=1')) return;
-  const pinta = () => {
-    // medir la fila VISIBLE con tarjetas, no la de resultados que está oculta
-    const tr = [...document.querySelectorAll('.app-track')]
-      .filter(t => t.querySelector('.app-card') && t.clientWidth > 0)
-      .sort((a, b) => b.scrollWidth - a.scrollWidth)[0];
-    if (!tr) return setTimeout(pinta, 600);
-
-    // EXPERIMENTO: un carrusel de prueba con el código más simple posible.
-    // Si este desliza y el real no, la diferencia está en el real. Si ninguno
-    // desliza, el bloqueo es de toda la página.
-    if (!document.getElementById('imPrueba')) {
-      const p = document.createElement('div');
-      p.id = 'imPrueba';
-      p.style.cssText = 'position:fixed;left:0;right:0;top:120px;z-index:99998;display:flex;gap:8px;overflow-x:auto;padding:8px;background:#111;border:3px solid yellow';
-      p.innerHTML = Array.from({length: 14}, (_, i) =>
-        `<div style="flex:0 0 100px;height:70px;background:hsl(${i*26},70%,45%);color:#fff;font:bold 22px monospace;display:grid;place-items:center">${i+1}</div>`).join('');
-      document.body.appendChild(p);
-      p.addEventListener('scroll', () => { p.dataset.movio = Math.round(p.scrollLeft); }, { passive: true });
-    }
-    const prueba = document.getElementById('imPrueba');
-
-    // PRUEBA B: mismo contenedor que la fila real, contenido simple.
-    // PRUEBA C: clase real (.app-track), contenido simple.
-    if (!document.getElementById('imPruebaB')) {
-      const cuadros = (n) => Array.from({length: 14}, (_, i) =>
-        `<div style="flex:0 0 100px;height:60px;background:hsl(${i*26 + n},70%,45%);color:#fff;font:bold 20px monospace;display:grid;place-items:center">${i+1}</div>`).join('');
-      const b = document.createElement('div');
-      b.id = 'imPruebaB';
-      b.style.cssText = 'display:flex;gap:8px;overflow-x:auto;padding:8px;background:#111;border:3px solid cyan;margin:8px 0';
-      b.innerHTML = cuadros(0);
-      tr.parentElement.appendChild(b);
-      b.addEventListener('scroll', () => { b.dataset.movio = Math.round(b.scrollLeft); }, { passive: true });
-
-      const c = document.createElement('div');
-      c.id = 'imPruebaC';
-      c.className = 'app-track';
-      c.style.cssText = 'border:3px solid magenta;margin:8px 0';
-      c.innerHTML = cuadros(120);
-      tr.parentElement.appendChild(c);
-      c.addEventListener('scroll', () => { c.dataset.movio = Math.round(c.scrollLeft); }, { passive: true });
-    }
-    const pb = document.getElementById('imPruebaB'), pc = document.getElementById('imPruebaC');
-    // ¿responden al desplazamiento por código? (distingue bloqueo de layout vs de gestos)
-    const porCodigo = (el) => {
-      if (!el) return '-';
-      const a = el.scrollLeft;
-      el.style.scrollBehavior = 'auto';
-      el.scrollLeft = 150;
-      const r = el.scrollLeft > 0 ? 'SI' : 'NO';
-      el.scrollLeft = a;
-      return r;
-    };
-    const codA = porCodigo(prueba), codB = porCodigo(pb), codC = porCodigo(pc), codReal = porCodigo(tr);
-
-    // ¿Qué elemento recibe realmente el dedo en el centro de la fila?
-    const rt = tr.getBoundingClientRect();
-    const enPunto = document.elementFromPoint(rt.left + rt.width / 2, rt.top + rt.height / 2);
-    const quien = enPunto ? (enPunto.tagName + '.' + String(enPunto.className).split(' ')[0]).slice(0, 30) : 'nada';
-    // Espía de gestos: cuenta los toques que REALMENTE llegan a la fila
-    if (!tr.__espia) {
-      tr.__espia = { inicio: 0, mueve: 0, dxMax: 0, scrollVisto: 0, cancelado: 0 };
-      const e = tr.__espia;
-      tr.addEventListener('touchstart', ev => { e.inicio++; e.x0 = ev.touches[0].clientX; e.s0 = tr.scrollLeft; }, { passive: true });
-      tr.addEventListener('touchmove', ev => { e.mueve++; e.dxMax = Math.max(e.dxMax, Math.abs(ev.touches[0].clientX - (e.x0 || 0))); e.scrollVisto = Math.abs(tr.scrollLeft - (e.s0 || 0)); }, { passive: true });
-      tr.addEventListener('touchcancel', () => { e.cancelado++; }, { passive: true });
-      tr.addEventListener('scroll', () => { e.scrollVisto = Math.max(e.scrollVisto, Math.round(tr.scrollLeft)); }, { passive: true });
-    }
-    const esp = tr.__espia;
-    const ancestros = [];
-    let el = tr;
-    while (el && el !== document.documentElement) {
-      const cs = getComputedStyle(el);
-      if (cs.touchAction !== 'auto' || cs.overflow !== 'visible')
-        ancestros.push((el.tagName + '.' + String(el.className).split(' ')[0]).slice(0, 18) + ':' + cs.touchAction + '/' + cs.overflowX + ',' + cs.overflowY);
-      el = el.parentElement;
-    }
-    const s = getComputedStyle(tr);
-    const anchos = [];
-    document.querySelectorAll('body *').forEach(el => {
-      const r = el.getBoundingClientRect();
-      if (r.width > window.innerWidth + 2 && el.offsetParent !== null)
-        anchos.push((el.tagName + '.' + String(el.className).split(' ')[0]).slice(0, 26) + '=' + Math.round(r.width));
-    });
-    let mueve = '?';
-    const antes = tr.scrollLeft;
-    tr.scrollLeft = 120;
-    mueve = tr.scrollLeft > 0 ? 'SI' : 'NO';
-    tr.scrollLeft = antes;
-    const filas = [
-      'pantalla=' + window.innerWidth + ' doc=' + document.documentElement.scrollWidth,
-      'track ancho=' + tr.clientWidth + ' contenido=' + tr.scrollWidth,
-      'overflowX=' + s.overflowX + ' touch=' + s.touchAction,
-      'scroll por codigo=' + mueve,
-      'bodyOverflowX=' + getComputedStyle(document.body).overflowX,
-      'anchos>pantalla: ' + (anchos.length ? anchos.slice(0,3).join(' ') : 'ninguno'),
-      'id=' + (tr.id || '?') + ' tarjetas=' + tr.querySelectorAll('.app-card').length + ' anchoTarjeta=' + Math.round(tr.querySelector('.app-card').getBoundingClientRect().width),
-      'overflowY=' + s.overflowY + ' scrollTopMax=' + (tr.scrollHeight - tr.clientHeight),
-      'GESTOS: inicio=' + esp.inicio + ' mueve=' + esp.mueve + ' dxMax=' + Math.round(esp.dxMax) + ' scrollVisto=' + Math.round(esp.scrollVisto) + ' cancel=' + esp.cancelado,
-      'cadena: ' + (ancestros.join(' | ') || 'todo limpio'),
-      'bajo el dedo: ' + quien,
-      'dedo:  A=' + (prueba.dataset.movio || 0) + ' B=' + (pb.dataset.movio || 0) + ' C=' + (pc.dataset.movio || 0),
-      'codigo: A=' + codA + ' B=' + codB + ' C=' + codC + ' REAL=' + codReal,
-      'UA=' + navigator.userAgent.slice(0, 42),
-    ];
-    let caja = document.getElementById('imDiag');
-    if (!caja) {
-      caja = document.createElement('div');
-      caja.id = 'imDiag';
-      caja.style.cssText = 'position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;background:#000;color:#0f0;font:11px/1.45 monospace;padding:10px;border:2px solid #0f0;border-radius:8px;white-space:pre-wrap;word-break:break-all';
-      document.body.appendChild(caja);
-    }
-    caja.textContent = filas.join('\n');
-  };
-  setTimeout(pinta, 2200);
-  // se refresca al tocar el panel, por si quieres medir tras deslizar
-  document.addEventListener('click', e => { if (e.target.id === 'imDiag') pinta(); });
 })();
 </script>
 </body>
