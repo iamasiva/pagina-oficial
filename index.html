@@ -1630,7 +1630,7 @@
         const ok = document.getElementById('resetSuccess');
         ok.textContent = '¡Contraseña actualizada correctamente! Entrando...';
         ok.classList.remove('hidden');
-        setTimeout(() => { window.location.href = 'app.html'; }, 1800);
+        setTimeout(() => { window.location.replace('app.html'); }, 1800);
       }
     });
 
@@ -1670,9 +1670,12 @@
 
     // Si acabamos de contar un registro, le damos un instante al pixel para
     // que alcance a enviarlo antes de que la página cambie.
+    // Se reemplaza el paso en vez de empujarlo: con sesión abierta esta página
+    // rebota al catálogo, así que dejarla en el historial hacía que "Atrás"
+    // mostrara la pantalla de registro antes de devolverte donde estabas.
     function entrarAlCatalogo(session) {
       const registro = marcarRegistro(session?.user);
-      setTimeout(() => { window.location.href = 'app.html'; }, registro ? 350 : 0);
+      setTimeout(() => { window.location.replace('app.html'); }, registro ? 350 : 0);
     }
 
     // ── LOGOUT ────────────────────────────────────────────────────

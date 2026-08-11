@@ -601,7 +601,7 @@
     <div class="guide-topbar">
       <span class="guide-topbar-brand" onclick="closeGuideViewer();irInicio();">IA MASIVA</span>
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
-      <button class="guide-close" onclick="closeGuideViewer()">✕ Cerrar</button>
+      <button class="guide-close" onclick="cerrarCapa(closeGuideViewer)">✕ Cerrar</button>
     </div>
     <iframe class="guide-frame" id="guideFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
   </div>
@@ -1361,6 +1361,25 @@
       window.location.href = `producto.html?p=${product.id}`;
     }
 
+    // ── ATRÁS DEL NAVEGADOR ────────────────────────────────────
+    // La ficha y el visor se abren encima del catálogo sin cambiar de página,
+    // así que el navegador no los ve y "Atrás" saltaba fuera del catálogo. Se
+    // les da un paso propio del historial: al terminar de leer una guía, Atrás
+    // la cierra y te deja donde estabas, que es lo que uno espera.
+    function capaAbierta() {
+      return document.getElementById('guideOverlay').classList.contains('active')
+          || document.getElementById('fichaOverlay').classList.contains('active');
+    }
+    function marcarCapa() {
+      if (!history.state?.capa) history.pushState({ capa: true }, '');
+    }
+    // Al cerrar con la X se sale por el historial para que el paso no quede
+    // colgando; si no lo hay (por lo que sea) se cierra directo.
+    function cerrarCapa(cerrar) {
+      if (history.state?.capa) history.back();
+      else cerrar();
+    }
+
     async function openGuide(id, locked) {
       if (locked) { await comprarGuia(id); return; }
       // Productos-app comprados: se navega a su página propia, no al visor
@@ -1387,6 +1406,7 @@
         document.getElementById('guideViewerTitle').textContent = g.titulo;
         document.getElementById('guideFrame').srcdoc = html;
         document.getElementById('guideOverlay').classList.add('active');
+        marcarCapa();
         document.body.style.overflow = 'hidden';
       } catch(e) {
         alert('No se pudo cargar la guía. Intenta de nuevo.');
@@ -1411,6 +1431,7 @@
             `<a class="ficha-red" href="${g[k]}" target="_blank" rel="noopener">${ico}${nom}</a>`).join('')
         : '';
       document.getElementById('fichaOverlay').classList.add('active');
+      marcarCapa();
       requestAnimationFrame(() => {
         document.querySelector('.ficha-desc-caja').scrollTop = 0;
         activarDeslizamientoTexto();
@@ -1460,8 +1481,8 @@
       document.body.style.overflow = '';
       document.body.style.overscrollBehavior = '';
     }
-    document.getElementById('fichaCerrar').addEventListener('click', cerrarFicha);
-    document.getElementById('fichaOverlay').addEventListener('click', (e) => { if (e.target.id === 'fichaOverlay') cerrarFicha(); });
+    document.getElementById('fichaCerrar').addEventListener('click', () => cerrarCapa(cerrarFicha));
+    document.getElementById('fichaOverlay').addEventListener('click', (e) => { if (e.target.id === 'fichaOverlay') cerrarCapa(cerrarFicha); });
     document.getElementById('fichaVer').addEventListener('click', async () => {
       const btn = document.getElementById('fichaVer');
       btn.disabled = true;
@@ -1481,6 +1502,7 @@
         document.getElementById('guideViewerTitle').textContent = g.titulo;
         document.getElementById('guideFrame').srcdoc = html;
         document.getElementById('guideOverlay').classList.add('active');
+        marcarCapa();
         document.body.style.overflow = 'hidden';
         // Apertura registrada para tendencias reales; si falla no molesta a nadie
         if (usuarioActualId) sb.from('aperturas').insert({ user_id: usuarioActualId, guide_id: id }).then(() => {}, () => {});
@@ -2189,9 +2211,14 @@
   // Tras el login con Google, "Atrás" llevaría a la pantalla de cuentas de
   // Google (quedó en el historial y no se puede borrar). Se intercepta ese
   // primer Atrás y se lleva al inicio del sitio, que es lo que uno espera.
-  if (!document.referrer.includes('.supabase.co')) return;
-  history.pushState(null, '');
-  window.addEventListener('popstate', () => location.replace('index.html'), { once: true });
+  let rescatarDeGoogle = document.referrer.includes('.supabase.co');
+  if (rescatarDeGoogle) history.pushState(null, '');
+  // Un solo manejador de Atrás para toda la página: las capas abiertas mandan,
+  // porque cerrarlas es lo que el usuario está pidiendo al dar Atrás.
+  window.addEventListener('popstate', () => {
+    if (capaAbierta()) { closeGuideViewer(); cerrarFicha(); return; }
+    if (rescatarDeGoogle) { rescatarDeGoogle = false; location.replace('index.html'); }
+  });
 })();
 </script>
 </body>
