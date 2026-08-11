@@ -627,7 +627,7 @@
 
   <div class="guide-overlay" id="guideOverlay">
     <div class="guide-topbar">
-      <span class="guide-topbar-brand" onclick="closeGuideViewer();irInicio();">IA MASIVA</span>
+      <span class="guide-topbar-brand" onclick="cerrarCapa(closeGuideViewer);irInicio();">IA MASIVA</span>
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
       <button class="guide-close" onclick="cerrarCapa(closeGuideViewer)">✕ Cerrar</button>
     </div>
@@ -1416,11 +1416,17 @@
     function marcarCapa() {
       if (!history.state?.capa) history.pushState({ capa: true }, '');
     }
-    // Al cerrar con la X se sale por el historial para que el paso no quede
-    // colgando; si no lo hay (por lo que sea) se cierra directo.
+    // Cerrar con la X: la capa se cierra DE INMEDIATO (si se espera al
+    // popstate, en un celular lento el usuario no ve respuesta, vuelve a tocar
+    // y el segundo history.back() lo saca del sitio). El paso del historial se
+    // consume en segundo plano una sola vez (candado popPropio).
+    let popPropio = false;
     function cerrarCapa(cerrar) {
-      if (history.state?.capa) history.back();
-      else cerrar();
+      cerrar();
+      if (history.state?.capa && !popPropio) {
+        popPropio = true;
+        history.back();
+      }
     }
 
     // El contenido de la guía va en un iframe nuevo cada vez. En WebKit
@@ -1435,6 +1441,23 @@
       f.id = 'guideFrame';
       f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
       f.srcdoc = html;
+      // Los índices internos de las guías (href="#paso-1") no pueden navegar:
+      // en un iframe con srcdoc el fragmento resuelve contra app.html, así que
+      // el clic cargaba el sitio completo dentro del visor y rompía Cerrar.
+      // Se intercepta el clic y se desplaza a mano dentro de la guía.
+      f.addEventListener('load', () => {
+        const doc = f.contentDocument;
+        if (!doc) return;
+        doc.addEventListener('click', (e) => {
+          const a = e.target.closest?.('a[href^="#"]');
+          if (!a) return;
+          e.preventDefault();
+          const id = a.getAttribute('href').slice(1);
+          if (!id) return;
+          const destino = doc.getElementById(id) || doc.querySelector(`[name="${CSS.escape(id)}"]`);
+          destino?.scrollIntoView({ behavior: 'smooth' });
+        }, true);
+      });
       document.getElementById('guideOverlay').appendChild(f);
       prepararComentarios(guiaId);
     }
@@ -2407,14 +2430,29 @@
   </script>
 <script>
 (() => {
+  // Si la página se recargó con una capa abierta (pull-to-refresh, pestaña
+  // restaurada), el estado {capa:true} sobrevive pero el paso de abajo ya no
+  // es de este documento: cerrar o dar Atrás recargaría la página entera.
+  // Se limpia al arrancar.
+  if (history.state?.capa) history.replaceState(null, '');
   // Tras el login con Google, "Atrás" llevaría a la pantalla de cuentas de
-  // Google (quedó en el historial y no se puede borrar). Se intercepta ese
-  // primer Atrás y se lleva al inicio del sitio, que es lo que uno espera.
-  let rescatarDeGoogle = document.referrer.includes('.supabase.co');
+  // Google (quedó en el historial y no se puede borrar). index.html deja la
+  // señal en sessionStorage justo antes de irse a Google; aquí se arma un
+  // colchón que devuelve ese primer Atrás al inicio del sitio.
+  let rescatarDeGoogle = false;
+  try {
+    rescatarDeGoogle = sessionStorage.getItem('im_oauth') === '1';
+    if (rescatarDeGoogle) sessionStorage.removeItem('im_oauth');
+  } catch (_) {}
   if (rescatarDeGoogle) history.pushState(null, '');
   // Un solo manejador de Atrás para toda la página: las capas abiertas mandan,
   // porque cerrarlas es lo que el usuario está pidiendo al dar Atrás.
   window.addEventListener('popstate', () => {
+    const propio = popPropio;
+    popPropio = false;
+    // Pop de un cierre con la X: la capa ya se cerró. Si en la ventana del
+    // viaje el usuario alcanzó a abrir otra, se le repone su paso.
+    if (propio) { if (capaAbierta()) marcarCapa(); return; }
     if (capaAbierta()) { closeGuideViewer(); cerrarFicha(); return; }
     if (rescatarDeGoogle) { rescatarDeGoogle = false; location.replace('index.html'); }
   });

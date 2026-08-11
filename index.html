@@ -1583,6 +1583,10 @@
     const REDIRECT = window.location.origin + window.location.pathname;
 
     async function loginWithProvider(provider) {
+      // Señal para app.html: esta sesión pasó por el proveedor externo, así
+      // que la pantalla de cuentas quedó en el historial y "Atrás" necesita
+      // el colchón que devuelve al sitio.
+      try { sessionStorage.setItem('im_oauth', '1'); } catch (_) {}
       const { error } = await sb.auth.signInWithOAuth({
         provider,
         options: { redirectTo: REDIRECT }
@@ -1673,7 +1677,13 @@
     // Se reemplaza el paso en vez de empujarlo: con sesión abierta esta página
     // rebota al catálogo, así que dejarla en el historial hacía que "Atrás"
     // mostrara la pantalla de registro antes de devolverte donde estabas.
+    // El candado evita la doble entrada (SIGNED_IN y getSession llegan casi
+    // juntos al volver de Google): la segunda llamada redirigía con 0ms y
+    // anulaba la pausa del pixel.
+    let entrandoAlCatalogo = false;
     function entrarAlCatalogo(session) {
+      if (entrandoAlCatalogo) return;
+      entrandoAlCatalogo = true;
       const registro = marcarRegistro(session?.user);
       setTimeout(() => { window.location.replace('app.html'); }, registro ? 350 : 0);
     }
