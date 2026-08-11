@@ -230,6 +230,34 @@
     
     .guide-frame { flex: 1; width: 100%; border: none; background: #fff; }
 
+    /* ─── COMENTARIOS DE LA GUÍA ─────────────────────────────── */
+    .coment-btn { position: absolute; right: 20px; bottom: 20px; z-index: 6; display: flex; align-items: center; gap: 8px; background: var(--blue-elec); color: var(--white); border: none; border-radius: 999px; padding: 12px 20px; font-size: 0.9rem; font-weight: 700; cursor: pointer; box-shadow: 0 6px 24px rgba(5,5,5,0.45); }
+    @media (hover: hover) and (pointer: fine) { .coment-btn:hover { filter: brightness(1.12); } }
+    .coment-panel { position: absolute; right: 16px; bottom: 16px; z-index: 7; display: none; flex-direction: column; width: min(420px, calc(100% - 32px)); height: min(70%, 560px); background: linear-gradient(135deg, #0B1E6D, #050F3A); border: 1px solid rgba(47,107,255,0.35); border-radius: 16px; overflow: hidden; box-shadow: 0 12px 48px rgba(5,5,5,0.6); }
+    .coment-panel.abierto { display: flex; }
+    .coment-cabeza { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+    .coment-cabeza h3 { font-size: 1rem; font-weight: 800; color: var(--white); margin: 0; }
+    .coment-cerrar { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--white); width: 30px; height: 30px; border-radius: 50%; font-size: 0.9rem; cursor: pointer; line-height: 1; }
+    .coment-lista { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 6px 18px; }
+    .coment-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .coment-item:last-child { border-bottom: none; }
+    .coment-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .coment-nombre { font-size: 0.82rem; font-weight: 700; color: var(--cyan); }
+    .coment-fecha { font-size: 0.72rem; color: var(--gray); opacity: 0.7; }
+    .coment-borrar { margin-left: auto; background: none; border: none; color: var(--gray); opacity: 0.6; cursor: pointer; font-size: 0.8rem; padding: 2px 6px; }
+    .coment-texto { font-size: 0.88rem; color: var(--gray); line-height: 1.5; margin: 0; white-space: pre-wrap; word-break: break-word; }
+    .coment-vacio { padding: 28px 0; text-align: center; font-size: 0.85rem; color: var(--gray); opacity: 0.8; }
+    .coment-form { flex-shrink: 0; display: flex; gap: 10px; padding: 12px 18px 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .coment-form textarea { flex: 1; min-width: 0; resize: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(47,107,255,0.35); border-radius: 10px; color: var(--white); padding: 10px 12px; font-size: 16px; font-family: inherit; line-height: 1.4; height: 62px; }
+    .coment-form textarea::placeholder { color: var(--gray); opacity: 0.6; }
+    .coment-form button { align-self: flex-end; background: var(--blue-elec); color: var(--white); border: none; border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+    .coment-form button:disabled { opacity: 0.55; cursor: default; }
+    .coment-aviso { flex-shrink: 0; padding: 0 18px 10px; font-size: 0.75rem; color: var(--cyan); display: none; }
+    @media (max-width: 720px) {
+      .coment-btn { right: 14px; bottom: 14px; padding: 11px 16px; font-size: 0.85rem; }
+      .coment-panel { right: 8px; left: 8px; bottom: 8px; width: auto; height: 72%; }
+    }
+
     /* ─── ADMIN MODAL ────────────────────────────────────────── */
     .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(5,5,5,0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
     .modal-overlay.active { opacity: 1; pointer-events: all; }
@@ -606,6 +634,19 @@
     <!-- El iframe de la guía se crea al abrir y se quita al cerrar (montarGuia):
          en iPhone, reutilizarlo metía su carga en el historial y "Atrás"
          dejaba la guía en blanco en vez de cerrarla -->
+    <button class="coment-btn" id="comentBtn">💬 Comentarios</button>
+    <div class="coment-panel" id="comentPanel">
+      <div class="coment-cabeza">
+        <h3>Comentarios</h3>
+        <button class="coment-cerrar" id="comentCerrar" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="coment-lista" id="comentLista"></div>
+      <div class="coment-aviso" id="comentAviso"></div>
+      <form class="coment-form" id="comentForm">
+        <textarea id="comentTexto" maxlength="600" placeholder="¿Dudas, ideas, felicitaciones? Cuéntanos..."></textarea>
+        <button type="submit" id="comentEnviar">Comentar</button>
+      </form>
+    </div>
   </div>
 
   <!-- ═══ EDITAR "NUEVO EN IA MASIVA" (admin) ══════════════════ -->
@@ -1387,7 +1428,7 @@
     // montado crea un paso más de historial, y "Atrás" retrocedía el iframe
     // (guía en blanco) en vez de cerrar el visor. Un iframe recién insertado
     // no deja rastro, y al quitarlo tampoco.
-    function montarGuia(html) {
+    function montarGuia(html, guiaId) {
       desmontarGuia();
       const f = document.createElement('iframe');
       f.className = 'guide-frame';
@@ -1395,10 +1436,147 @@
       f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
       f.srcdoc = html;
       document.getElementById('guideOverlay').appendChild(f);
+      prepararComentarios(guiaId);
     }
     function desmontarGuia() {
       document.getElementById('guideFrame')?.remove();
     }
+
+    // ── COMENTARIOS DE LA GUÍA ─────────────────────────────────
+    // Panel dentro del visor: se leen directo de Supabase (RLS) y se escriben
+    // por /api/comentario. La lista se carga la primera vez que se abre el
+    // panel de cada guía.
+    let comentGuiaId = null, comentCargada = false;
+
+    function prepararComentarios(guiaId) {
+      comentGuiaId = guiaId || null;
+      comentCargada = false;
+      document.getElementById('comentPanel').classList.remove('abierto');
+      document.getElementById('comentLista').innerHTML = '';
+      document.getElementById('comentTexto').value = '';
+      ocultarAvisoComent();
+      document.getElementById('comentBtn').style.display = comentGuiaId ? '' : 'none';
+    }
+
+    function fechaRelativa(iso) {
+      const seg = Math.max(0, (Date.now() - Date.parse(iso)) / 1000);
+      if (seg < 60) return 'hace un momento';
+      if (seg < 3600) return `hace ${Math.floor(seg / 60)} min`;
+      if (seg < 86400) return `hace ${Math.floor(seg / 3600)} h`;
+      if (seg < 86400 * 30) return `hace ${Math.floor(seg / 86400)} d`;
+      return new Date(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function nodoComentario(c) {
+      const item = document.createElement('div');
+      item.className = 'coment-item';
+      const meta = document.createElement('div');
+      meta.className = 'coment-meta';
+      const nom = document.createElement('span');
+      nom.className = 'coment-nombre';
+      nom.textContent = c.nombre || 'Anónimo';
+      const fecha = document.createElement('span');
+      fecha.className = 'coment-fecha';
+      fecha.textContent = fechaRelativa(c.creado_en);
+      meta.append(nom, fecha);
+      if (isAdmin) {
+        const borrar = document.createElement('button');
+        borrar.className = 'coment-borrar';
+        borrar.textContent = 'Borrar';
+        borrar.addEventListener('click', async () => {
+          if (!confirm('¿Borrar este comentario?')) return;
+          const { error } = await sb.from('comentarios_guia').delete().eq('id', c.id);
+          if (!error) { item.remove(); actualizarVacioComent(); }
+        });
+        meta.append(borrar);
+      }
+      const texto = document.createElement('p');
+      texto.className = 'coment-texto';
+      texto.textContent = c.texto;
+      item.append(meta, texto);
+      return item;
+    }
+
+    function actualizarVacioComent() {
+      const lista = document.getElementById('comentLista');
+      const hayItems = lista.querySelector('.coment-item');
+      let vacio = lista.querySelector('.coment-vacio');
+      if (!hayItems && !vacio) {
+        vacio = document.createElement('div');
+        vacio.className = 'coment-vacio';
+        vacio.textContent = 'Sé la primera persona en comentar esta guía.';
+        lista.append(vacio);
+      } else if (hayItems && vacio) {
+        vacio.remove();
+      }
+    }
+
+    async function cargarComentarios() {
+      if (!comentGuiaId || comentCargada) return;
+      comentCargada = true;
+      const lista = document.getElementById('comentLista');
+      lista.innerHTML = '';
+      const { data, error } = await sb.from('comentarios_guia')
+        .select('id, nombre, texto, creado_en')
+        .eq('guide_id', comentGuiaId)
+        .order('creado_en', { ascending: false })
+        .limit(100);
+      if (error) {
+        comentCargada = false;
+        const aviso = document.createElement('div');
+        aviso.className = 'coment-vacio';
+        aviso.textContent = 'No se pudieron cargar los comentarios. Cierra y vuelve a intentar.';
+        lista.append(aviso);
+        return;
+      }
+      (data || []).forEach(c => lista.append(nodoComentario(c)));
+      actualizarVacioComent();
+    }
+
+    function mostrarAvisoComent(msj) {
+      const aviso = document.getElementById('comentAviso');
+      aviso.textContent = msj;
+      aviso.style.display = 'block';
+    }
+    function ocultarAvisoComent() {
+      document.getElementById('comentAviso').style.display = 'none';
+    }
+
+    document.getElementById('comentBtn').addEventListener('click', () => {
+      document.getElementById('comentPanel').classList.add('abierto');
+      cargarComentarios();
+    });
+    document.getElementById('comentCerrar').addEventListener('click', () => {
+      document.getElementById('comentPanel').classList.remove('abierto');
+    });
+    document.getElementById('comentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const caja = document.getElementById('comentTexto');
+      const texto = caja.value.trim();
+      if (!texto || !comentGuiaId) return;
+      const btn = document.getElementById('comentEnviar');
+      btn.disabled = true;
+      ocultarAvisoComent();
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch('/api/comentario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ guide_id: comentGuiaId, texto }),
+        });
+        const body = await res.json();
+        if (!res.ok) { mostrarAvisoComent(body.error || 'No se pudo enviar. Intenta de nuevo.'); return; }
+        caja.value = '';
+        const lista = document.getElementById('comentLista');
+        lista.prepend(nodoComentario(body.comentario));
+        actualizarVacioComent();
+        lista.scrollTop = 0;
+      } catch (_) {
+        mostrarAvisoComent('No se pudo enviar. Revisa tu conexión.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
 
     async function openGuide(id, locked) {
       if (locked) { await comprarGuia(id); return; }
@@ -1424,7 +1602,7 @@
         const res  = await fetch(contentUrl);
         const html = await res.text();
         document.getElementById('guideViewerTitle').textContent = g.titulo;
-        montarGuia(html);
+        montarGuia(html, g.id);
         document.getElementById('guideOverlay').classList.add('active');
         marcarCapa();
         document.body.style.overflow = 'hidden';
@@ -1520,7 +1698,7 @@
         const res  = await fetch(g.contenido_url);
         const html = await res.text();
         document.getElementById('guideViewerTitle').textContent = g.titulo;
-        montarGuia(html);
+        montarGuia(html, g.id);
         document.getElementById('guideOverlay').classList.add('active');
         marcarCapa();
         document.body.style.overflow = 'hidden';
@@ -1535,6 +1713,7 @@
 
     function closeGuideViewer() {
       document.getElementById('guideOverlay').classList.remove('active');
+      document.getElementById('comentPanel').classList.remove('abierto');
       desmontarGuia();
       document.body.style.overflow = '';
     }
