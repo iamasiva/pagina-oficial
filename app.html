@@ -603,7 +603,9 @@
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
       <button class="guide-close" onclick="cerrarCapa(closeGuideViewer)">✕ Cerrar</button>
     </div>
-    <iframe class="guide-frame" id="guideFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+    <!-- El iframe de la guía se crea al abrir y se quita al cerrar (montarGuia):
+         en iPhone, reutilizarlo metía su carga en el historial y "Atrás"
+         dejaba la guía en blanco en vez de cerrarla -->
   </div>
 
   <!-- ═══ EDITAR "NUEVO EN IA MASIVA" (admin) ══════════════════ -->
@@ -1380,6 +1382,24 @@
       else cerrar();
     }
 
+    // El contenido de la guía va en un iframe nuevo cada vez. En WebKit
+    // (todo navegador de iPhone) cambiarle el contenido a un iframe ya
+    // montado crea un paso más de historial, y "Atrás" retrocedía el iframe
+    // (guía en blanco) en vez de cerrar el visor. Un iframe recién insertado
+    // no deja rastro, y al quitarlo tampoco.
+    function montarGuia(html) {
+      desmontarGuia();
+      const f = document.createElement('iframe');
+      f.className = 'guide-frame';
+      f.id = 'guideFrame';
+      f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+      f.srcdoc = html;
+      document.getElementById('guideOverlay').appendChild(f);
+    }
+    function desmontarGuia() {
+      document.getElementById('guideFrame')?.remove();
+    }
+
     async function openGuide(id, locked) {
       if (locked) { await comprarGuia(id); return; }
       // Productos-app comprados: se navega a su página propia, no al visor
@@ -1404,7 +1424,7 @@
         const res  = await fetch(contentUrl);
         const html = await res.text();
         document.getElementById('guideViewerTitle').textContent = g.titulo;
-        document.getElementById('guideFrame').srcdoc = html;
+        montarGuia(html);
         document.getElementById('guideOverlay').classList.add('active');
         marcarCapa();
         document.body.style.overflow = 'hidden';
@@ -1500,7 +1520,7 @@
         const res  = await fetch(g.contenido_url);
         const html = await res.text();
         document.getElementById('guideViewerTitle').textContent = g.titulo;
-        document.getElementById('guideFrame').srcdoc = html;
+        montarGuia(html);
         document.getElementById('guideOverlay').classList.add('active');
         marcarCapa();
         document.body.style.overflow = 'hidden';
@@ -1515,7 +1535,7 @@
 
     function closeGuideViewer() {
       document.getElementById('guideOverlay').classList.remove('active');
-      document.getElementById('guideFrame').srcdoc = '';
+      desmontarGuia();
       document.body.style.overflow = '';
     }
 
