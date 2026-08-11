@@ -1518,6 +1518,23 @@
       });
     });
 
+    // ── META PIXEL: REGISTRO ──────────────────────────────────────
+    // Vale para correo y para Google. Con Google el navegador se va y vuelve,
+    // así que el evento no puede dispararse en el formulario: se reconoce al
+    // regreso porque la cuenta acaba de crearse. El candado en localStorage
+    // evita contar dos veces la misma alta.
+    function marcarRegistro(user) {
+      if (!user || !window.fbq) return false;
+      const clave = 'im_reg_' + user.id;
+      try { if (localStorage.getItem(clave)) return false; } catch (_) {}
+      const creada = Date.parse(user.created_at);
+      // cuenta vieja: esto es un inicio de sesión, no un registro
+      if (!creada || Date.now() - creada > 10 * 60 * 1000) return false;
+      try { localStorage.setItem(clave, '1'); } catch (_) {}
+      fbq('track', 'CompleteRegistration');
+      return true;
+    }
+
     // ── LOGIN ─────────────────────────────────────────────────────
     document.getElementById('formLogin').addEventListener('submit', async e => {
       e.preventDefault();
@@ -1548,7 +1565,7 @@
       if (!nombre) { showErr('registerError', 'Por favor ingresa tu nombre.'); return; }
       if (pass1 !== pass2) { showErr('registerError', 'Las contraseñas no coinciden.'); return; }
       setLoading('btnRegister', true);
-      const { error } = await sb.auth.signUp({
+      const { data, error } = await sb.auth.signUp({
         email,
         password: pass1,
         options: { data: { nombre } }
@@ -1557,8 +1574,7 @@
       if (error) {
         showErr('registerError', error.message);
       } else {
-        // Meta Pixel: cuenta creada
-        if (window.fbq) fbq('track', 'CompleteRegistration');
+        marcarRegistro(data?.user);
         closeModal();
       }
     });
@@ -1641,16 +1657,23 @@
         openModal('viewResetPass');
       } else if (event === 'SIGNED_IN' && !isRecoveryFlow) {
         document.getElementById('imSplash').classList.add('activa');
-        window.location.href = 'app.html';
+        entrarAlCatalogo(session);
       }
     });
 
     sb.auth.getSession().then(({ data: { session } }) => {
       if (session && !isRecoveryFlow) {
         document.getElementById('imSplash').classList.add('activa');
-        window.location.href = 'app.html';
+        entrarAlCatalogo(session);
       }
     });
+
+    // Si acabamos de contar un registro, le damos un instante al pixel para
+    // que alcance a enviarlo antes de que la página cambie.
+    function entrarAlCatalogo(session) {
+      const registro = marcarRegistro(session?.user);
+      setTimeout(() => { window.location.href = 'app.html'; }, registro ? 350 : 0);
+    }
 
     // ── LOGOUT ────────────────────────────────────────────────────
     document.getElementById('navbarLogout').addEventListener('click', () => sb.auth.signOut());
