@@ -141,6 +141,10 @@
     .paso .num { display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; background: var(--acento); color: var(--cta-texto); font-weight: 900; margin-bottom: 12px; }
     .paso b { display: block; margin-bottom: 6px; }
     .paso span { color: var(--muted); font-size: 0.92rem; }
+    .uso-grupo { margin-top: 30px; }
+    .uso-grupo:first-child { margin-top: 0; }
+    .uso-grupo h3 { margin: 0 0 14px; font-size: 1.08rem; color: var(--ink); }
+    .uso-grupo h3::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--acento); margin-right: 10px; }
 
     .bundle-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 16px; }
     .bundle-item { background: var(--panel); border: 1px solid var(--borde); border-radius: 14px; padding: 22px; }
@@ -590,7 +594,8 @@
       // Bundle: identidad IA MASIVA
       __bundle__: {
         corto: 'Pack Gemini 3x',
-        tema: { fondo: '#050F3A', panel: 'rgba(47,107,255,0.1)', borde: 'rgba(47,107,255,0.3)', ink: '#ffffff', muted: '#9aacbf', acento: '#2F6BFF', ctaTexto: '#ffffff', cardClaroFondo: '#f5f6fa', cardClaroInk: '#1c2333', cardClaroMuted: '#4b5568' },
+        // Identidad del hero: fondo casi negro con neón azul-violeta y cristal
+        tema: { fondo: '#050510', panel: 'rgba(114,84,255,0.10)', borde: 'rgba(124,92,255,0.38)', ink: '#ffffff', muted: '#aca7cd', acento: '#6E56FF', ctaTexto: '#ffffff', cardClaroFondo: '#f5f4fb', cardClaroInk: '#1d1a33', cardClaroMuted: '#4c4768' },
         hero: { desktop: PORTADAS + 'hero-pack-desktop-promo.jpg', mobile: PORTADAS + 'hero-pack-mobile-promo.jpg' },
         dolor: {
           intro: 'Evalúa rápidamente si este producto es para ti.',
@@ -629,13 +634,24 @@
         vida: '¡Y lo mejor! Los tienes para <span>TODA LA VIDA</span>.',
         uso: {
           eyebrow: 'Tu nuevo flujo',
-          pasos: [
-            ['Configura tus cuadernos con el 557', 'Eliges la configuración experta que necesitas, la pegas en tu cuaderno y Gemini responde con criterio de especialista desde el primer mensaje.'],
-            ['Monta tus gemas con el 400', 'Copias la gema que te sirve, la pegas en Gemini y queda un mini agente listo para encargarse de esa tarea, siempre.'],
-            ['Elige tu diseño con el 200', 'Seleccionas el estilo con vista previa real, copias el prompt y NotebookLM genera tu presentación con ese diseño.'],
-            ['Todo queda guardado', 'Tus configuraciones, gemas y diseños viven en tus espacios personales, listos para la próxima vez.'],
+          grupos: [
+            ['557 Configuraciones', [
+              ['Explora o busca tu necesidad', 'Por categoría, rol o palabra clave entre las 557 configuraciones.'],
+              ['Genera la configuración final', 'Eliges la variante que se ajusta a tu situación y el generador la arma en segundos.'],
+              ['Pégala en tu cuaderno', 'NotebookLM o Gemini responde como especialista desde el primer mensaje.'],
+            ]],
+            ['400 Gemas', [
+              ['Busca la gema que te sirve', 'Por categoría, o contándole tu situación al buscador guiado.'],
+              ['Arma tu prompt con el formulario', 'Cada gema trae el suyo: lo llenas y tu prompt personalizado sale en segundos.'],
+              ['Pégala en Gemini', 'Queda un mini agente listo para encargarse de esa tarea, siempre.'],
+            ]],
+            ['200 Diseños', [
+              ['Explora los estilos con vista previa real', 'Eliges la dirección visual que va con tu contenido.'],
+              ['Personalízalo con tu marca', 'Colores y tipografía en vivo, y lo guardas para las próximas.'],
+              ['Copia el prompt en NotebookLM', 'Tu presentación sale con ese diseño, fiel al preview.'],
+            ]],
           ],
-          remate: 'De la investigación a la entrega final, <b>todo tu flujo equipado</b>.',
+          remate: 'De la investigación a la entrega final, <b>todo tu flujo equipado</b>. Y todo queda guardado en tus espacios personales.',
         },
         exclusiva: {
           eyebrow: 'Solo aquí',
@@ -809,7 +825,17 @@
       else $('pEjemplosRemate').classList.add('oculto');
 
       $('pUsoEyebrow').textContent = cfg.uso.eyebrow;
-      $('pUsoPasos').innerHTML = cfg.uso.pasos.map(([b, s], i) => `<div class="paso"><span class="num">${i + 1}</span><b>${b}</b><span>${s}</span></div>`).join('');
+      if (cfg.uso.grupos) {
+        // Un bloque por recurso, cada uno con sus propios pasos numerados
+        $('pUsoPasos').classList.remove('pasos');
+        $('pUsoPasos').innerHTML = cfg.uso.grupos.map(([nombre, pasos]) => `
+          <div class="uso-grupo">
+            <h3>${nombre}</h3>
+            <div class="pasos">${pasos.map(([b, s], i) => `<div class="paso"><span class="num">${i + 1}</span><b>${b}</b><span>${s}</span></div>`).join('')}</div>
+          </div>`).join('');
+      } else {
+        $('pUsoPasos').innerHTML = cfg.uso.pasos.map(([b, s], i) => `<div class="paso"><span class="num">${i + 1}</span><b>${b}</b><span>${s}</span></div>`).join('');
+      }
       $('pUsoRemate').innerHTML = cfg.uso.remate;
 
       $('pExcEyebrow').textContent = cfg.exclusiva.eyebrow;
