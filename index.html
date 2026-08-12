@@ -529,7 +529,6 @@
     .paq-precios { display: flex; align-items: baseline; gap: 10px; margin-top: auto; padding-top: 14px; }
     .paq-promo { font-size: 1.9rem; font-weight: 900; color: var(--white); }
     .paq-normal { font-size: 0.95rem; color: var(--gray); text-decoration: line-through; opacity: 0.7; }
-    .paq-ancla { font-size: 0.8rem; color: var(--cyan); font-weight: 700; }
     .paq-btn { display: block; text-align: center; background: var(--blue-elec); color: var(--white); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; text-decoration: none; transition: filter .2s; }
     @media (hover: hover) and (pointer: fine) { .paq-btn:hover { filter: brightness(1.15); } }
 
@@ -1778,7 +1777,6 @@
       const bundle = productos.find(p => p.id === BUNDLE_ID);
       const sueltos = productos.filter(p => p.id !== BUNDLE_ID)
         .sort((a, b) => b.precio_usd_centavos - a.precio_usd_centavos);
-      const sumaSueltos = sueltos.reduce((s, p) => s + p.precio_usd_centavos, 0);
       const lista = bundle ? [bundle, ...sueltos] : sueltos;
       grid.innerHTML = '';
       for (const p of lista) {
@@ -1802,10 +1800,6 @@
           detalle.className = 'paq-detalle';
           detalle.textContent = 'Las 557 configuraciones, las 400 gemas y los 200 diseños, juntos.';
           card.append(detalle);
-          const ancla = document.createElement('div');
-          ancla.className = 'paq-ancla';
-          ancla.textContent = `Por separado valen ${usd(sumaSueltos)}`;
-          card.append(ancla);
         }
         const precios = document.createElement('div');
         precios.className = 'paq-precios';
