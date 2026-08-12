@@ -146,6 +146,13 @@
     .bundle-item { background: var(--panel); border: 1px solid var(--borde); border-radius: 14px; padding: 22px; }
     .bundle-item b { display: block; margin-bottom: 4px; }
     .bundle-item .p-ind { color: var(--muted); font-size: 0.85rem; }
+    /* Bloques del pack: cada recurso explicado con su mockup al lado */
+    .recurso-bloque { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; align-items: center; background: var(--panel); border: 1px solid var(--borde); border-radius: 16px; padding: 28px; margin-top: 18px; }
+    .recurso-bloque h3 { margin: 0 0 10px; font-size: 1.18rem; color: var(--ink); }
+    .recurso-bloque p { color: var(--muted); line-height: 1.7; margin: 0 0 14px; }
+    .recurso-bloque img { width: 100%; border-radius: 12px; border: 1px solid var(--borde); display: block; }
+    .recurso-precio { display: inline-block; font-weight: 800; color: var(--ink); background: var(--panel); border: 1px solid var(--borde); border-radius: 999px; padding: 6px 14px; font-size: 0.9rem; }
+    @media (max-width: 760px) { .recurso-bloque { grid-template-columns: 1fr; padding: 22px; } .recurso-bloque img { order: -1; } }
     .ahorro-linea { text-align: center; color: var(--muted); }
     .ahorro-linea b { color: var(--ink); }
     .ahorro { color: var(--acento); font-weight: 900; }
@@ -232,11 +239,19 @@
     </div>
   </section>
 
+  <section id="pSecRecursos" class="oculto" style="padding-top: 12px;">
+    <div class="contenido">
+      <p class="eyebrow-sec">La oferta</p>
+      <h2>Los 3 recursos, uno por uno</h2>
+      <div id="pRecursos"></div>
+    </div>
+  </section>
+
   <section id="pSecBundle" class="oculto" style="padding-top: 12px;">
     <div class="contenido">
-      <h2>Los 3 recursos, uno por uno</h2>
+      <h2 id="pBundleTitulo">Los 3 recursos, uno por uno</h2>
       <div class="bundle-items" id="pBundleItems"></div>
-      <p class="ahorro-linea">Por separado valen <b id="pSumaIndividual"></b>; con el bundle pagas <b id="pPrecioBundle"></b>. <span class="ahorro" id="pAhorro"></span></p>
+      <p class="ahorro-linea">Por separado valen <b id="pSumaIndividual"></b>; con el pack pagas <b id="pPrecioBundle"></b>. <span class="ahorro" id="pAhorro"></span></p>
     </div>
   </section>
 
@@ -353,6 +368,8 @@
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
       '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
     };
+    // El pack se reconoce por su ID, nunca por el nombre (el nombre es libre de cambiar)
+    const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
     const PORTADAS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/';
     const MOCKUPS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/';
 
@@ -572,40 +589,51 @@
 
       // Bundle: identidad IA MASIVA
       __bundle__: {
-        corto: 'Bundle: 3 Recursos de pago',
+        corto: 'Pack Gemini 3x',
         tema: { fondo: '#050F3A', panel: 'rgba(47,107,255,0.1)', borde: 'rgba(47,107,255,0.3)', ink: '#ffffff', muted: '#9aacbf', acento: '#2F6BFF', ctaTexto: '#ffffff', cardClaroFondo: '#f5f6fa', cardClaroInk: '#1c2333', cardClaroMuted: '#4b5568' },
         hero: null,
         dolor: {
           intro: 'Evalúa rápidamente si este producto es para ti.',
           lista: [
-            '¿Cuadernos que responden como asistente genérico y chats que empiezan de cero?',
-            '¿Trabajos regados por toda la IA, sin orden ni forma de encontrarlos?',
-            '¿Presentaciones que no se parecen a tu marca?',
+            '¿Sientes que Gemini es aceptable pero no excelente?',
+            '¿Gemini se siente desordenado y se te dificulta encontrar chats antiguos que consideras importantes?',
+            '¿Todavía no tienes el control sobre las presentaciones generadas en Gemini Notebooks?',
           ],
-          giro: 'Equipar <span>todo tu flujo de trabajo con IA</span> cuesta menos que equiparlo por partes.',
+          giro: 'Gemini se convierte en <span>tu mejor aliado</span> cuando lo usas con las herramientas adecuadas.',
         },
         ejemplos: {
-          eyebrow: 'El arsenal completo',
-          titulo: 'Un solo pago, tres herramientas',
+          eyebrow: 'Convierte a Gemini en tu mejor herramienta de IA',
+          titulo: 'Las 3 cosas que debes empezar a hacer hoy',
           items: [
-            ['Investiga y decide con especialistas', 'Las 557 configuraciones convierten tus cuadernos en abogados, analistas y estrategas de guardia.'],
-            ['Ejecuta con tu equipo de gemas', '400 gemas entrenadas listas para producir con tu contexto, más la fábrica de gemas propias.'],
-            ['Presenta con dirección de arte', '200 estilos visuales con preview real para que cada entrega se vea profesional.'],
+            ['1. Trabaja en cuadernos de Gemini', 'En cada cuaderno, Gemini se puede volver experto en el tema que necesitas. Y no solo eso: cada cuaderno es un mundo al que le agregas fuentes y donde desarrollas trabajos completos que resuelven problemas específicos, que luego te ayudan a construir algo más grande.'],
+            ['2. Delega lo mecánico en mini agentes', 'Las gemas de Gemini se encargan de esas pequeñas tareas mecánicas de tu trabajo. Esas tareas te restan tiempo, y hoy en día con la IA son las que como mínimo deberías estar automatizando.'],
+            ['3. Enfócate en comunicar, no en diseñar', 'En un mundo donde la tecnología está cambiando la forma en que trabajamos, el recurso más valioso es la comunicación. Cuando presentes una idea, olvídate de gastar tiempo en el diseño: selecciona un diseño que te guste y enfócate en comunicar tus ideas de forma brillante. Y si tienes una marca, guarda esos diseños para que las siguientes presentaciones tengan el mismo estilo.'],
           ],
-          remate: 'Tres herramientas que se complementan: <b>investigar, ejecutar y presentar</b>. El ciclo completo de tu trabajo con IA.',
+          remate: 'Con tres herramientas que se complementan: <b>investigar, ejecutar y presentar</b>, construyes el ciclo completo de tu trabajo con IA en Gemini.',
         },
+        recursos: [
+          { id: '656f61d7-37b2-4e9c-8cf3-67065484493c', titulo: '557 Configuraciones para NotebookLM y Gemini',
+            texto: 'El buque insignia. Configuraciones expertas bilingües que convierten cada cuaderno en un especialista: abogados, analistas, estrategas y cientos más, listas para copiar y pegar. Con variantes según tu situación y un generador que arma la configuración final en segundos.',
+            captura: MOCKUPS + 'mockup-557-home.jpg?v=2' },
+          { id: '0f0d6926-5328-4e3e-89a4-92b36ef13996', titulo: '400 Gemas para Gemini',
+            texto: 'Tu equipo de mini agentes. Cada gema llega con su configuración exacta y un formulario que arma tu prompt personalizado en segundos. Incluye la Gema para crear gemas cuando tu caso es único, y tu espacio para guardar las tuyas.',
+            captura: MOCKUPS + 'mockup-400-home.jpg?v=2' },
+          { id: '2c296299-d9a4-4409-bc99-67b4999e47f8', titulo: '200 Diseños para Presentaciones en NotebookLM',
+            texto: 'La dirección de arte de tus presentaciones. 200 estilos visuales con vista previa real: eliges el que va con tu contenido, lo ajustas a tu marca y copias un prompt listo para que NotebookLM lo replique con fidelidad.',
+            captura: MOCKUPS + 'mockup-200-home.jpg?v=2' },
+        ],
         claimEyebrow: 'Todo IA MASIVA',
         claim: 'Los 3 recursos completos. <span>Un solo pago.</span>',
-        claimSub: 'El bundle existe para que equiparte completo sea la decisión obvia: los tres recursos quedan habilitados en tu cuenta al instante.',
+        claimSub: 'El pack existe para que equiparte completo sea la decisión obvia: los tres recursos quedan habilitados en tu cuenta al instante.',
         noNecesitas: ['Un solo pago', 'Tres recursos habilitados al instante', 'El mejor precio posible'],
         vida: '¡Y lo mejor! Los tienes para <span>TODA LA VIDA</span>.',
         uso: {
           eyebrow: 'Tu nuevo flujo',
           pasos: [
-            ['Configura tus cuadernos', 'Con el criterio experto de las 557 configuraciones.'],
-            ['Ejecuta con tus gemas', 'Especialistas de Gemini que ya saben su oficio y tu contexto.'],
-            ['Presenta tus resultados', 'Con los 200 estilos y tu identidad visual guardada.'],
-            ['Todo queda guardado', 'Tus configuraciones, gemas y diseños viven en tus espacios personales.'],
+            ['Configura tus cuadernos con el 557', 'Eliges la configuración experta que necesitas, la pegas en tu cuaderno y Gemini responde con criterio de especialista desde el primer mensaje.'],
+            ['Monta tus gemas con el 400', 'Copias la gema que te sirve, la pegas en Gemini y queda un mini agente listo para encargarse de esa tarea, siempre.'],
+            ['Elige tu diseño con el 200', 'Seleccionas el estilo con vista previa real, copias el prompt y NotebookLM genera tu presentación con ese diseño.'],
+            ['Todo queda guardado', 'Tus configuraciones, gemas y diseños viven en tus espacios personales, listos para la próxima vez.'],
           ],
           remate: 'De la investigación a la entrega final, <b>todo tu flujo equipado</b>.',
         },
@@ -626,14 +654,14 @@
           ['Acceso de por vida a los tres', 'Con todas las actualizaciones incluidas, sin pagos recurrentes.'],
           ['Soporte directo de IA MASIVA', 'Cualquier duda o situación con los productos la resuelves de primera mano con nuestro equipo.'],
         ],
-        galeriaTitulo: 'Las herramientas, por dentro',
-        capturas: [MOCKUPS + 'mockup-557-home.jpg?v=2', MOCKUPS + 'mockup-400-home.jpg?v=2', MOCKUPS + 'mockup-200-home.jpg?v=2'],
+        galeriaTitulo: '',
+        capturas: [],
         cierre: [
           'Si ya sabes que vas a trabajar con IA este año, la pregunta no es si equiparte: es si pagar más por hacerlo en partes.',
           'Tres herramientas, tres espacios personales, una decisión.',
           'Se compra una vez. <span>Se usa siempre.</span>',
         ],
-        faqExtra: ['¿Qué pasa si ya tengo uno de los recursos?', 'El bundle habilita los tres. Si ya tienes alguno, la página de pago te lo advierte antes de comprar para que decidas con claridad: el bundle no descuenta lo ya comprado.'],
+        faqExtra: ['¿Qué pasa si ya tengo uno de los recursos?', 'El pack habilita los tres. Si ya tienes alguno, la página de pago te lo advierte antes de comprar para que decidas con claridad: el pack no descuenta lo ya comprado.'],
       },
     };
 
@@ -700,7 +728,7 @@
       const { data: productos } = await sb.from('products').select('*');
       const producto = (productos ?? []).find(p => p.id === productId);
       if (!producto) { document.body.innerHTML = '<p style="padding:60px; text-align:center;">Este producto no está disponible. <a href="app.html" style="text-decoration:underline;">Volver a IA MASIVA</a></p>'; return; }
-      const esBundle = producto.tipo === 'bundle' || /bundle/i.test(producto.nombre);
+      const esBundle = producto.id === BUNDLE_ID;
       const cfg = esBundle ? LANDINGS.__bundle__ : LANDINGS[producto.id];
       if (!cfg) { location.href = 'app.html'; return; }
 
@@ -819,8 +847,27 @@
         const individuales = (productos ?? []).filter(p => LANDINGS[p.id]);
         const efectivoDe = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
         const suma = individuales.reduce((a, p) => a + efectivoDe(p), 0);
-        $('pBundleItems').innerHTML = individuales.map(p =>
-          `<div class="bundle-item"><b>${LANDINGS[p.id].corto}</b><span class="p-ind">Individual: $${efectivoDe(p) / 100} USD</span></div>`).join('');
+        // La oferta: cada recurso explicado por separado, con su mockup y su
+        // precio individual adentro. La sección de precios queda solo con la
+        // línea del ahorro.
+        if (cfg.recursos?.length) {
+          $('pSecRecursos').classList.remove('oculto');
+          const precioDe = (id) => { const p = individuales.find(x => x.id === id); return p ? efectivoDe(p) / 100 : null; };
+          $('pRecursos').innerHTML = cfg.recursos.map(r => `
+            <div class="recurso-bloque">
+              <div>
+                <h3>${r.titulo}</h3>
+                <p>${r.texto}</p>
+                ${precioDe(r.id) != null ? `<span class="recurso-precio">Individual: $${precioDe(r.id)} USD</span>` : ''}
+              </div>
+              <img loading="lazy" src="${r.captura}" alt="${r.titulo}">
+            </div>`).join('');
+          $('pBundleTitulo').classList.add('oculto');
+          $('pBundleItems').classList.add('oculto');
+        } else {
+          $('pBundleItems').innerHTML = individuales.map(p =>
+            `<div class="bundle-item"><b>${LANDINGS[p.id].corto}</b><span class="p-ind">Individual: $${efectivoDe(p) / 100} USD</span></div>`).join('');
+        }
         $('pSumaIndividual').textContent = `$${suma / 100} USD`;
         $('pPrecioBundle').textContent = `$${efectivo / 100} USD`;
         $('pAhorro').textContent = `Ahorras $${(suma - efectivo) / 100} USD.`;
@@ -840,7 +887,7 @@
       // los otros dos productos por su nombre. Cerrar el popup = quedarse
       // en la landing; los dos botones sí continúan el proceso.
       const bundleActivo = esBundle ? null
-        : (productos ?? []).find(p => p.tipo === 'bundle' || /bundle/i.test(p.nombre)) ?? null;
+        : (productos ?? []).find(p => p.id === BUNDLE_ID) ?? null;
       let promoLista = false;
       if (!comprado && bundleActivo) {
         const ARTICULO = {

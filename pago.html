@@ -177,9 +177,9 @@
         $('prodCop').textContent = trmHoy
           ? `Se cobra en pesos: ≈ ${Math.round(precioEfectivo(p) * trmHoy / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`
           : '';
-        const avisarSolape = (p.tipo === 'bundle' || /bundle/i.test(p.nombre)) && previas.length;
+        const avisarSolape = p.id === '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11' && previas.length;
         $('notaBundle').textContent = avisarSolape
-          ? `Ojo: ya tienes ${previas.length} de los 3 recursos: el bundle no descuenta lo ya comprado.` : '';
+          ? `Ojo: ya tienes ${previas.length} de los 3 recursos: el pack no descuenta lo ya comprado.` : '';
         $('notaBundle').classList.toggle('oculto', !avisarSolape);
       }
 
