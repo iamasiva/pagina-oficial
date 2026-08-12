@@ -517,6 +517,22 @@
     .benefit-card::after { display: none; }
 
     /* ─── FAQ ──────────────────────────────────────────────────────── */
+    /* ─── PAQUETES Y OFERTAS ────────────────────────────────── */
+    .paquetes-section { padding: 70px 5vw 60px; max-width: 1180px; margin: 0 auto; }
+    .paquetes-sub { text-align: center; color: var(--gray); font-size: 0.95rem; margin: -18px 0 34px; }
+    .paquetes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 18px; align-items: stretch; }
+    .paq-card { display: flex; flex-direction: column; gap: 10px; background: linear-gradient(160deg, #0B1E6D 0%, #050F3A 100%); border: 1px solid rgba(47,107,255,0.3); border-radius: 16px; padding: 26px 22px 22px; position: relative; }
+    .paq-card.destacado { border-color: rgba(0,229,255,0.65); box-shadow: 0 0 28px rgba(0,229,255,0.16); }
+    .paq-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: #04122c; font-size: 0.72rem; font-weight: 800; padding: 4px 14px; border-radius: 999px; white-space: nowrap; }
+    .paq-nombre { font-size: 1.02rem; font-weight: 800; color: var(--white); line-height: 1.35; }
+    .paq-detalle { font-size: 0.84rem; color: var(--gray); line-height: 1.5; }
+    .paq-precios { display: flex; align-items: baseline; gap: 10px; margin-top: auto; padding-top: 14px; }
+    .paq-promo { font-size: 1.9rem; font-weight: 900; color: var(--white); }
+    .paq-normal { font-size: 0.95rem; color: var(--gray); text-decoration: line-through; opacity: 0.7; }
+    .paq-ancla { font-size: 0.8rem; color: var(--cyan); font-weight: 700; }
+    .paq-btn { display: block; text-align: center; background: var(--blue-elec); color: var(--white); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; text-decoration: none; transition: filter .2s; }
+    @media (hover: hover) and (pointer: fine) { .paq-btn:hover { filter: brightness(1.15); } }
+
     .faq-section {
       background: var(--black);
       padding: 80px 5vw;
@@ -1114,6 +1130,18 @@
 
   <div class="section-divider"></div>
 
+  <!-- ═══ PAQUETES Y OFERTAS ════════════════════════════════════════
+       Vitrina viva: las tarjetas se generan desde la tabla products, así que
+       cada lanzamiento o cambio de promo aparece aquí sin tocar código. Si la
+       consulta falla, la sección entera queda oculta. -->
+  <section class="paquetes-section" id="paquetes" style="display: none;">
+    <h2 class="section-title">Paquetes y ofertas</h2>
+    <p class="paquetes-sub">Precios de lanzamiento por tiempo limitado. Tuyos para siempre, con todo lo que les sigamos sumando.</p>
+    <div class="paquetes-grid" id="paquetesGrid"></div>
+  </section>
+
+  <div class="section-divider" id="paquetesDivisor" style="display: none;"></div>
+
   <!-- ═══ BENEFITS ══════════════════════════════════════════════════ -->
   <section class="benefits">
     <h2 class="section-title reveal">Más motivos para entrar a IA MASIVA</h2>
@@ -1255,6 +1283,7 @@
           </a>
       </div>
       <nav class="footer-links">
+        <a href="#paquetes">Paquetes</a>
         <a href="mailto:contacto@iamasiva.co">Contacto</a>
         <a href="terminos.html">Términos de uso</a>
         <a href="privacidad.html">Privacidad</a>
@@ -1729,6 +1758,86 @@
             openModal('viewLogin');
           });
         });
+      } catch (_) {}
+    })();
+
+    // ── PAQUETES Y OFERTAS ────────────────────────────────────────
+    // Vitrina viva: se pinta desde la tabla products. El bundle va primero y
+    // destacado, con la suma de los individuales como ancla del descuento.
+    const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
+    const PAGINA_PAQUETE = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': '557.html',
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400.html',
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': '200.html',
+      [BUNDLE_ID]: 'bundle.html',
+    };
+    function pintarPaquetes(productos, destinoDe) {
+      const grid = document.getElementById('paquetesGrid');
+      if (!grid || !productos?.length) return false;
+      const usd = (cent) => '$' + Math.round(cent / 100);
+      const bundle = productos.find(p => p.id === BUNDLE_ID);
+      const sueltos = productos.filter(p => p.id !== BUNDLE_ID)
+        .sort((a, b) => b.precio_usd_centavos - a.precio_usd_centavos);
+      const sumaSueltos = sueltos.reduce((s, p) => s + p.precio_usd_centavos, 0);
+      const lista = bundle ? [bundle, ...sueltos] : sueltos;
+      grid.innerHTML = '';
+      for (const p of lista) {
+        const esBundle = p.id === BUNDLE_ID;
+        const promo = p.precio_promo_usd_centavos && p.precio_promo_usd_centavos < p.precio_usd_centavos
+          ? p.precio_promo_usd_centavos : null;
+        const card = document.createElement('div');
+        card.className = 'paq-card' + (esBundle ? ' destacado' : '');
+        if (esBundle) {
+          const badge = document.createElement('div');
+          badge.className = 'paq-badge';
+          badge.textContent = 'El más completo';
+          card.append(badge);
+        }
+        const nombre = document.createElement('div');
+        nombre.className = 'paq-nombre';
+        nombre.textContent = esBundle ? 'Los 3 recursos completos' : p.nombre;
+        card.append(nombre);
+        if (esBundle) {
+          const detalle = document.createElement('div');
+          detalle.className = 'paq-detalle';
+          detalle.textContent = 'Las 557 configuraciones, las 400 gemas y los 200 diseños, juntos.';
+          card.append(detalle);
+          const ancla = document.createElement('div');
+          ancla.className = 'paq-ancla';
+          ancla.textContent = `Por separado valen ${usd(sumaSueltos)}`;
+          card.append(ancla);
+        }
+        const precios = document.createElement('div');
+        precios.className = 'paq-precios';
+        const grande = document.createElement('span');
+        grande.className = 'paq-promo';
+        grande.textContent = usd(promo ?? p.precio_usd_centavos);
+        precios.append(grande);
+        if (promo) {
+          const tachado = document.createElement('span');
+          tachado.className = 'paq-normal';
+          tachado.textContent = usd(p.precio_usd_centavos);
+          precios.append(tachado);
+        }
+        card.append(precios);
+        const btn = document.createElement('a');
+        btn.className = 'paq-btn';
+        btn.href = destinoDe(p);
+        btn.textContent = esBundle ? 'Quiero los 3' : 'Ver oferta';
+        card.append(btn);
+        grid.append(card);
+      }
+      document.getElementById('paquetes').style.display = '';
+      const div = document.getElementById('paquetesDivisor');
+      if (div) div.style.display = '';
+      return true;
+    }
+    (async () => {
+      try {
+        const { data } = await sb.from('products')
+          .select('id, nombre, precio_usd_centavos, precio_promo_usd_centavos')
+          .eq('activo', true);
+        pintarPaquetes(data, (p) => PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`);
       } catch (_) {}
     })();
   </script>

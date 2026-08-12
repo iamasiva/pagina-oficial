@@ -425,6 +425,23 @@
     
     .footer-redes svg { width: 18px; height: 18px; }
   
+    /* ─── PAQUETES Y OFERTAS ────────────────────────────────── */
+    .paquetes-section { padding: 60px 5vw 30px; max-width: 1180px; margin: 0 auto; }
+    .paquetes-titulo { font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; }
+    .paquetes-sub { color: var(--gray); font-size: 0.92rem; margin-bottom: 28px; }
+    .paquetes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 18px; align-items: stretch; }
+    .paq-card { display: flex; flex-direction: column; gap: 10px; background: linear-gradient(160deg, #0B1E6D 0%, #050F3A 100%); border: 1px solid rgba(47,107,255,0.3); border-radius: 16px; padding: 26px 22px 22px; position: relative; }
+    .paq-card.destacado { border-color: rgba(0,229,255,0.65); box-shadow: 0 0 28px rgba(0,229,255,0.16); }
+    .paq-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: #04122c; font-size: 0.72rem; font-weight: 800; padding: 4px 14px; border-radius: 999px; white-space: nowrap; }
+    .paq-nombre { font-size: 1.02rem; font-weight: 800; color: var(--white); line-height: 1.35; }
+    .paq-detalle { font-size: 0.84rem; color: var(--gray); line-height: 1.5; }
+    .paq-precios { display: flex; align-items: baseline; gap: 10px; margin-top: auto; padding-top: 14px; }
+    .paq-promo { font-size: 1.9rem; font-weight: 900; color: var(--white); }
+    .paq-normal { font-size: 0.95rem; color: var(--gray); text-decoration: line-through; opacity: 0.7; }
+    .paq-ancla { font-size: 0.8rem; color: var(--cyan); font-weight: 700; }
+    .paq-btn { display: block; text-align: center; background: var(--blue-elec); color: var(--white); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; text-decoration: none; transition: filter .2s; }
+    @media (hover: hover) and (pointer: fine) { .paq-btn:hover { filter: brightness(1.15); } }
+
     .app-footer { margin-top: 60px; padding: 40px 5vw 34px; border-top: 1px solid rgba(47,107,255,0.14); background: rgba(5,15,58,0.4); display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
     .app-footer .footer-brand { font-weight: 900; letter-spacing: 0.04em; font-size: 1.05rem; cursor: pointer; }
     .app-footer .footer-links { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
@@ -508,6 +525,7 @@
             <button onclick="abrirPanelUsuario('favoritos')">❤ Favoritos</button>
             <button onclick="abrirPanelUsuario('compras')">Mis compras</button>
             <button onclick="abrirPanelUsuario('catalogo')">Ver catálogo</button>
+            <button id="btnPaquetes" onclick="irPaquetes()">Paquetes</button>
             <button onclick="abrirSugerencia()">Sugerir recurso</button>
             <button id="appLogout">Salir</button>
           </div>
@@ -587,6 +605,15 @@
 
   <!-- ═══ GUIDE VIEWER ════════════════════════════════════════ -->
   <!-- Popup de guía gratuita: portada + descripción + Ver Recurso -->
+  <!-- ═══ PAQUETES Y OFERTAS ════════════════════════════════════════
+       Vitrina viva desde la tabla products. Los recursos que el usuario ya
+       compró no se le ofrecen; si lo tiene todo, la sección no aparece. -->
+  <section class="paquetes-section" id="paquetes" style="display: none;">
+    <h2 class="paquetes-titulo">Paquetes y ofertas</h2>
+    <p class="paquetes-sub">Precios de lanzamiento por tiempo limitado. Tuyos para siempre, con todo lo que les sigamos sumando.</p>
+    <div class="paquetes-grid" id="paquetesGrid"></div>
+  </section>
+
   <footer class="app-footer">
     <span class="footer-brand" onclick="irInicio()">IA MASIVA</span>
     <div class="footer-redes">
@@ -601,6 +628,7 @@
           </a>
     </div>
     <nav class="footer-links">
+      <a href="#" onclick="irPaquetes(); return false;" id="footerPaquetes">Paquetes</a>
       <a href="mailto:contacto@iamasiva.co">Contacto</a>
       <a href="terminos.html">Términos de uso</a>
       <a href="privacidad.html">Privacidad</a>
@@ -1402,6 +1430,88 @@
       if (compra && PAGINAS_PRODUCTO[product.id]) { window.location.href = PAGINAS_PRODUCTO[product.id]; return; }
       // La compra pasa por la landing de venta (ahí están los CTAs y el pago)
       window.location.href = `producto.html?p=${product.id}`;
+    }
+
+    // ── PAQUETES Y OFERTAS ─────────────────────────────────────
+    // Vitrina viva desde allProducts. No se le ofrece lo que ya compró; el
+    // bundle solo aparece si le faltan al menos dos de los tres; si lo tiene
+    // todo, la sección y sus accesos desaparecen.
+    const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
+    const PAGINA_PAQUETE = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': '557.html',
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400.html',
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': '200.html',
+      [BUNDLE_ID]: 'bundle.html',
+    };
+    function renderizarPaquetes() {
+      const grid = document.getElementById('paquetesGrid');
+      const seccion = document.getElementById('paquetes');
+      if (!grid || !allProducts.length) return;
+      const usd = (cent) => '$' + Math.round(cent / 100);
+      const sueltos = allProducts.filter(p => p.id !== BUNDLE_ID)
+        .sort((a, b) => b.precio_usd_centavos - a.precio_usd_centavos);
+      const sumaSueltos = sueltos.reduce((s, p) => s + p.precio_usd_centavos, 0);
+      const pendientes = sueltos.filter(p => !(p.guide_id && userPurchases.includes(p.guide_id)));
+      const bundle = allProducts.find(p => p.id === BUNDLE_ID);
+      const lista = (bundle && pendientes.length >= 2) ? [bundle, ...pendientes] : pendientes;
+      const visible = lista.length > 0;
+      seccion.style.display = visible ? '' : 'none';
+      document.getElementById('btnPaquetes').style.display = visible ? '' : 'none';
+      document.getElementById('footerPaquetes').style.display = visible ? '' : 'none';
+      if (!visible) return;
+      grid.innerHTML = '';
+      for (const p of lista) {
+        const esBundle = p.id === BUNDLE_ID;
+        const promo = p.precio_promo_usd_centavos && p.precio_promo_usd_centavos < p.precio_usd_centavos
+          ? p.precio_promo_usd_centavos : null;
+        const card = document.createElement('div');
+        card.className = 'paq-card' + (esBundle ? ' destacado' : '');
+        if (esBundle) {
+          const badge = document.createElement('div');
+          badge.className = 'paq-badge';
+          badge.textContent = 'El más completo';
+          card.append(badge);
+        }
+        const nombre = document.createElement('div');
+        nombre.className = 'paq-nombre';
+        nombre.textContent = esBundle ? 'Los 3 recursos completos' : p.nombre;
+        card.append(nombre);
+        if (esBundle) {
+          const detalle = document.createElement('div');
+          detalle.className = 'paq-detalle';
+          detalle.textContent = 'Las 557 configuraciones, las 400 gemas y los 200 diseños, juntos.';
+          card.append(detalle);
+          const ancla = document.createElement('div');
+          ancla.className = 'paq-ancla';
+          ancla.textContent = `Por separado valen ${usd(sumaSueltos)}`;
+          card.append(ancla);
+        }
+        const precios = document.createElement('div');
+        precios.className = 'paq-precios';
+        const grande = document.createElement('span');
+        grande.className = 'paq-promo';
+        grande.textContent = usd(promo ?? p.precio_usd_centavos);
+        precios.append(grande);
+        if (promo) {
+          const tachado = document.createElement('span');
+          tachado.className = 'paq-normal';
+          tachado.textContent = usd(p.precio_usd_centavos);
+          precios.append(tachado);
+        }
+        card.append(precios);
+        const btn = document.createElement('a');
+        btn.className = 'paq-btn';
+        btn.href = PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`;
+        btn.textContent = esBundle ? 'Quiero los 3' : 'Ver oferta';
+        card.append(btn);
+        grid.append(card);
+      }
+    }
+    function irPaquetes() {
+      document.getElementById('userMenu').classList.remove('open');
+      document.getElementById('navCollapse').classList.remove('open');
+      document.getElementById('hamburgerBtn')?.classList.remove('desplegado');
+      document.getElementById('paquetes')?.scrollIntoView({ behavior: 'smooth' });
     }
 
     // ── ATRÁS DEL NAVEGADOR ────────────────────────────────────
@@ -2418,6 +2528,7 @@
           const { data: pr } = await sb.from('purchases').select('guide_id').eq('user_id', session.user.id).eq('estado', 'APROBADA');
           userPurchases = (pr || []).map(p => p.guide_id).filter(Boolean);
           renderAll();
+          renderizarPaquetes();
         })
         .catch(() => {});
 
@@ -2426,6 +2537,7 @@
       await cargaPublica;
       if (isAdmin) await loadAndRender();
       else renderAll();
+      renderizarPaquetes();
     }
   </script>
 <script>
