@@ -6,7 +6,7 @@
 // exacto: sin colchón ni redondeo), firma la transacción y devuelve la URL
 // del checkout de Wompi. La firma usa un secreto que solo existe aquí.
 import crypto from 'node:crypto';
-import { adminClient, userFromRequest, trmDelDia } from './_lib.js';
+import { adminClient, userFromRequest, trmDelDia, BUNDLE } from './_lib.js';
 
 export default async function handler(req, res) {
   try {
