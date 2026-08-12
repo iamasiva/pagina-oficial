@@ -23,15 +23,31 @@ export async function userFromRequest(req) {
   return data.user;
 }
 
-// El bundle desbloquea sus tres componentes al aprobarse (lo hace el webhook).
-export const BUNDLE = {
-  productId: '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11',
-  componentes: [
-    '656f61d7-37b2-4e9c-8cf3-67065484493c', // 557 Configuraciones
-    '0f0d6926-5328-4e3e-89a4-92b36ef13996', // 400 Gemas
-    '2c296299-d9a4-4409-bc99-67b4999e47f8', // 200 Diseños
-  ],
-};
+// Composición de packs: ya NO está cableada. Vive en la tabla
+// bundle_componentes (un pack contiene estos productos). Crear un pack nuevo es
+// insertar filas ahí, sin tocar código.
+
+// Los componentes de un pack, en orden. [] si el producto no es un pack.
+export async function componentesDelPack(db, bundleId) {
+  const { data } = await db
+    .from('bundle_componentes')
+    .select('componente_id, orden')
+    .eq('bundle_id', bundleId)
+    .order('orden');
+  return (data ?? []).map((r) => r.componente_id);
+}
+
+// Todos los packs con sus componentes, como { bundleId: [comp1, comp2, ...] }.
+// Una sola consulta: sirve para saber qué productos son packs y qué traen.
+export async function mapaDePacks(db) {
+  const { data } = await db
+    .from('bundle_componentes')
+    .select('bundle_id, componente_id, orden')
+    .order('orden');
+  const mapa = {};
+  for (const r of data ?? []) (mapa[r.bundle_id] ??= []).push(r.componente_id);
+  return mapa;
+}
 
 // TRM oficial (Superfinanciera) vía datos abiertos del gobierno. Gratis, sin llave.
 // La TRM solo cambia en días hábiles: cache por día en memoria de la función.

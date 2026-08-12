@@ -6,7 +6,7 @@
 // exacto: sin colchón ni redondeo), firma la transacción y devuelve la URL
 // del checkout de Wompi. La firma usa un secreto que solo existe aquí.
 import crypto from 'node:crypto';
-import { adminClient, userFromRequest, trmDelDia, BUNDLE } from './_lib.js';
+import { adminClient, userFromRequest, trmDelDia, componentesDelPack } from './_lib.js';
 
 export default async function handler(req, res) {
   try {
@@ -51,15 +51,17 @@ export default async function handler(req, res) {
     // llegar al valor del pack. Si su inversión ya lo cubre, el resto es un
     // regalo (/api/completar-pack) y aquí no hay nada que cobrar. El navegador
     // solo muestra este precio: la cifra que se cobra SIEMPRE se decide aquí.
-    if (user && productId === BUNDLE.productId) {
+    // La tabla dice si el producto es un pack y qué componentes trae.
+    const componentesPack = user ? await componentesDelPack(db, productId) : [];
+    if (componentesPack.length) {
       const { data: previas } = await db.from('purchases')
         .select('product_id')
         .eq('user_id', user.id)
-        .in('product_id', BUNDLE.componentes)
+        .in('product_id', componentesPack)
         .eq('estado', 'APROBADA');
       const propios = [...new Set((previas ?? []).map(p => p.product_id))];
-      if (propios.length >= BUNDLE.componentes.length) {
-        return res.status(409).json({ error: 'Ya tienes los tres recursos del pack' });
+      if (propios.length >= componentesPack.length) {
+        return res.status(409).json({ error: 'Ya tienes todos los recursos del pack' });
       }
       if (propios.length) {
         // El crédito es el DINERO REALMENTE PAGADO por las piezas, no su precio

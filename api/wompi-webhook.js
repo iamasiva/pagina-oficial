@@ -3,7 +3,7 @@
 // eventos antes de confiar en nada. Solo el servidor escribe estados de
 // compra — el navegador jamás toca esta tabla.
 import crypto from 'node:crypto';
-import { adminClient, BUNDLE } from './_lib.js';
+import { adminClient, componentesDelPack } from './_lib.js';
 
 // Resuelve rutas tipo "transaction.id" dentro del objeto data del evento.
 function valorPorRuta(obj, ruta) {
@@ -60,11 +60,13 @@ export default async function handler(req, res) {
           await db.from('purchases')
             .update({ estado: 'ERROR', gateway_transaction_id: tx.id })
             .eq('id', compra.id);
-        } else if (estado === 'APROBADA' && compra.product_id === BUNDLE.productId) {
-          // El bundle desbloquea sus tres componentes: una compra APROBADA por
-          // cada uno (monto 0, gateway 'bundle'). Si el usuario ya tenía alguno,
-          // ese componente se salta — el índice único lo protege igual.
-          for (const [i, componente] of BUNDLE.componentes.entries()) {
+        } else if (estado === 'APROBADA') {
+          // ¿El producto comprado es un pack? La tabla lo dice. Si lo es,
+          // desbloquea sus componentes: una compra APROBADA por cada uno
+          // (monto 0, gateway 'bundle'). Si el usuario ya tenía alguno, ese
+          // componente se salta — el índice único lo protege igual.
+          const componentes = await componentesDelPack(db, compra.product_id);
+          for (const [i, componente] of componentes.entries()) {
             // Con dueño conocido se evita duplicar lo ya comprado; el invitado
             // recibe los tres y el reclamo posterior descarta duplicados.
             if (compra.user_id) {

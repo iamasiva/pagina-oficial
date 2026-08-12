@@ -4,7 +4,9 @@
 // Gateway 'bono' (referencia 'regalo-pack__...') para que las métricas de
 // ventas no las cuenten. La condición del regalo se valida AQUÍ, nunca en el
 // navegador.
-import { adminClient, userFromRequest, BUNDLE } from './_lib.js';
+import { adminClient, userFromRequest, componentesDelPack } from './_lib.js';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function handler(req, res) {
   try {
@@ -13,22 +15,30 @@ export default async function handler(req, res) {
     const user = await userFromRequest(req);
     if (!user) return res.status(401).json({ error: 'Inicia sesión para reclamar tu regalo' });
 
+    // Cuál pack se completa (con varios packs, hay que decirlo)
+    const bundleId = String(req.query.bundle ?? req.body?.bundle ?? '');
+    if (!UUID.test(bundleId)) return res.status(400).json({ error: 'Pack inválido' });
+
     const db = adminClient();
+
+    // La tabla dice qué trae el pack; si no trae nada, no es un pack.
+    const componentes = await componentesDelPack(db, bundleId);
+    if (!componentes.length) return res.status(400).json({ error: 'Ese producto no es un pack' });
 
     const { data: previas } = await db.from('purchases')
       .select('product_id')
       .eq('user_id', user.id)
-      .in('product_id', BUNDLE.componentes)
+      .in('product_id', componentes)
       .eq('estado', 'APROBADA');
     const propios = [...new Set((previas ?? []).map(p => p.product_id))];
     if (!propios.length) return res.status(400).json({ error: 'El regalo es para quien ya tiene piezas del pack' });
-    if (propios.length >= BUNDLE.componentes.length) return res.status(409).json({ error: 'Ya tienes los tres recursos del pack' });
+    if (propios.length >= componentes.length) return res.status(409).json({ error: 'Ya tienes todos los recursos del pack' });
 
     const { data: prods } = await db.from('products')
       .select('id, guide_id, precio_usd_centavos, precio_promo_usd_centavos')
-      .in('id', [...BUNDLE.componentes, BUNDLE.productId]);
+      .in('id', [...componentes, bundleId]);
     const efectivo = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
-    const pack = (prods ?? []).find(p => p.id === BUNDLE.productId);
+    const pack = (prods ?? []).find(p => p.id === bundleId);
     if (!pack) return res.status(500).json({ error: 'Pack no disponible' });
 
     // El regalo se decide por DINERO REALMENTE PAGADO, no por precio de lista.
@@ -46,7 +56,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Tu inversión aún no cubre el valor del pack' });
     }
 
-    const faltantes = BUNDLE.componentes.filter(id => !propios.includes(id));
+    const faltantes = componentes.filter(id => !propios.includes(id));
     const ahora = new Date().toISOString();
     for (const id of faltantes) {
       const prod = prods.find(x => x.id === id);

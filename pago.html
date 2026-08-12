@@ -156,26 +156,24 @@
         }
       }
 
-      // Los recursos que el comprador ya posee: el pack se le ofrece por lo
-      // que le falta para completarlo (misma regla que aplica el servidor)
-      const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
-      const NOMBRE_CORTO = {
-        '656f61d7-37b2-4e9c-8cf3-67065484493c': '557 Configuraciones',
-        '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400 Gemas',
-        '2c296299-d9a4-4409-bc99-67b4999e47f8': '200 Diseños',
-      };
+      // ¿Este producto es un pack? La tabla lo dice, y con qué componentes.
+      // Al dueño de piezas se le ofrece completar el pack por lo que le falta.
+      const { data: comps } = await sb.from('bundle_componentes')
+        .select('componente_id, orden').eq('bundle_id', productId).order('orden');
+      const componentesPack = (comps ?? []).map(c => c.componente_id);
+      const nombreDe = (id) => (productos ?? []).find(p => p.id === id)?.nombre ?? '';
       let propios = [];
       let pagadoPorPieza = {};   // dinero REAL pagado por pieza (solo wompi)
-      if (session) {
+      if (session && componentesPack.length) {
         const { data } = await sb.from('purchases').select('product_id, monto_usd_centavos, gateway')
-          .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
+          .in('product_id', componentesPack).eq('estado', 'APROBADA');
         propios = [...new Set((data ?? []).map(x => x.product_id))];
         for (const c of data ?? []) {
           if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
         }
       }
-      // Con las tres piezas no hay nada que completar
-      if (productId === BUNDLE_ID && propios.length >= 3) {
+      // Con todas las piezas no hay nada que completar
+      if (componentesPack.length && propios.length >= componentesPack.length) {
         mostrar('yaComprado');
         $('btnIrRecurso').addEventListener('click', () => { location.href = 'app.html'; });
         return;
@@ -194,14 +192,14 @@
         // servidor valida con esta misma regla: aquí solo se muestra.
         let cobro = precioEfectivo(p);
         let esRegalo = false;
-        const completa = p.id === BUNDLE_ID && propios.length > 0;
+        const completa = componentesPack.length && propios.length > 0;
         if (completa) {
           const invertido = propios.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
           cobro = precioEfectivo(p) - invertido;
           esRegalo = cobro <= 0;
           const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];
-          const tienes = enLista(propios.map(id => NOMBRE_CORTO[id]).filter(Boolean));
-          const faltan = enLista(Object.keys(NOMBRE_CORTO).filter(id => !propios.includes(id)).map(id => NOMBRE_CORTO[id]));
+          const tienes = enLista(propios.map(nombreDe).filter(Boolean));
+          const faltan = enLista(componentesPack.filter(id => !propios.includes(id)).map(nombreDe));
           if (esRegalo) {
             cobro = 0;
             $('prodPrecio').innerHTML = `<span class="tachado">$${precioEfectivo(p) / 100}</span>GRATIS`;
@@ -242,7 +240,7 @@
         $('msjError').classList.add('oculto');
         try {
           if (!session) throw new Error('Inicia sesión para reclamar tu regalo');
-          const res = await fetch('/api/completar-pack', {
+          const res = await fetch(`/api/completar-pack?bundle=${productId}`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${session.access_token}` },
           });

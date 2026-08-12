@@ -1436,30 +1436,48 @@
     // Vitrina viva desde allProducts. No se le ofrece lo que ya compró; el
     // bundle solo aparece si le faltan al menos dos de los tres; si lo tiene
     // todo, la sección y sus accesos desaparecen.
-    const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
     const PAGINA_PAQUETE = {
       '656f61d7-37b2-4e9c-8cf3-67065484493c': '557.html',
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400.html',
       '2c296299-d9a4-4409-bc99-67b4999e47f8': '200.html',
-      [BUNDLE_ID]: 'bundle.html',
+      '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11': 'bundle.html',
     };
     // Qué logras con cada uno, para quien llega sin contexto
     const BENEFICIO_PAQUETE = {
       '656f61d7-37b2-4e9c-8cf3-67065484493c': 'Convierte cada cuaderno en un especialista: eliges el rol experto, lo pegas y Gemini responde con criterio.',
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'Mini agentes listos para encargarse de las tareas mecánicas que te quitan tiempo.',
       '2c296299-d9a4-4409-bc99-67b4999e47f8': 'Presentaciones con diseño profesional: eliges el estilo con vista previa y NotebookLM lo replica.',
-      [BUNDLE_ID]: 'Todo tu flujo con IA equipado: investigas, ejecutas y presentas con las tres herramientas juntas.',
+      '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11': 'Todo tu flujo con IA equipado: investigas, ejecutas y presentas con las tres herramientas juntas.',
     };
+    // Composición de packs (de la tabla): { idPack: [componentes] }. Se llena
+    // una vez al arrancar; un producto es pack si está aquí.
+    let packsMap = {};
+    async function cargarPacks() {
+      const { data } = await sb.from('bundle_componentes').select('bundle_id, componente_id, orden').order('orden');
+      packsMap = {};
+      for (const c of data ?? []) (packsMap[c.bundle_id] ??= []).push(c.componente_id);
+    }
     function renderizarPaquetes() {
       const grid = document.getElementById('paquetesGrid');
       const seccion = document.getElementById('paquetes');
       if (!grid || !allProducts.length) return;
       const usd = (cent) => '$' + Math.round(cent / 100);
-      const sueltos = allProducts.filter(p => p.id !== BUNDLE_ID)
+      const esPack = (id) => !!packsMap[id];
+      // ¿El usuario ya tiene este producto? (userPurchases guarda guide_ids)
+      const posee = (prodId) => {
+        const pr = allProducts.find(x => x.id === prodId);
+        return !!(pr && pr.guide_id && userPurchases.includes(pr.guide_id));
+      };
+      // Piezas sueltas que aún no tiene
+      const pendientes = allProducts.filter(p => !esPack(p.id) && !posee(p.id))
         .sort((a, b) => b.precio_usd_centavos - a.precio_usd_centavos);
-      const pendientes = sueltos.filter(p => !(p.guide_id && userPurchases.includes(p.guide_id)));
-      const bundle = allProducts.find(p => p.id === BUNDLE_ID);
-      const lista = (bundle && pendientes.length >= 2) ? [bundle, ...pendientes] : pendientes;
+      // Cada pack se ofrece solo si le faltan al menos 2 de sus componentes
+      // (si le falta 1, mejor lo completa que compra el pack entero).
+      const packs = allProducts.filter(p => {
+        const comps = packsMap[p.id] || [];
+        return comps.filter(cid => !posee(cid)).length >= 2;
+      });
+      const lista = [...packs, ...pendientes];
       const visible = lista.length > 0;
       seccion.style.display = visible ? '' : 'none';
       document.getElementById('btnPaquetes').style.display = visible ? '' : 'none';
@@ -1467,7 +1485,7 @@
       if (!visible) return;
       grid.innerHTML = '';
       for (const p of lista) {
-        const esBundle = p.id === BUNDLE_ID;
+        const esBundle = esPack(p.id);
         const promo = p.precio_promo_usd_centavos && p.precio_promo_usd_centavos < p.precio_usd_centavos
           ? p.precio_promo_usd_centavos : null;
         const card = document.createElement('div');
@@ -1480,7 +1498,7 @@
         }
         const nombre = document.createElement('div');
         nombre.className = 'paq-nombre';
-        nombre.textContent = esBundle ? 'Pack Gemini 3x' : p.nombre;
+        nombre.textContent = p.nombre;
         card.append(nombre);
         if (BENEFICIO_PAQUETE[p.id]) {
           const detalle = document.createElement('div');
@@ -1504,7 +1522,7 @@
         const btn = document.createElement('a');
         btn.className = 'paq-btn';
         btn.href = PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`;
-        btn.textContent = esBundle ? 'Quiero los 3' : 'Ver oferta';
+        btn.textContent = esBundle ? 'Quiero el pack' : 'Ver oferta';
         card.append(btn);
         grid.append(card);
       }
@@ -2543,6 +2561,7 @@
       await cargaPublica;
       if (isAdmin) await loadAndRender();
       else renderAll();
+      await cargarPacks();
       renderizarPaquetes();
     }
   </script>

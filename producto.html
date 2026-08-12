@@ -372,8 +372,8 @@
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
       '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
     };
-    // El pack se reconoce por su ID, nunca por el nombre (el nombre es libre de cambiar)
-    const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
+    // Qué productos son packs y qué traen sale de la tabla bundle_componentes,
+    // ya no de un id cableado.
     const PORTADAS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/';
     const MOCKUPS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/';
 
@@ -741,11 +741,19 @@
     }
 
     async function init() {
-      const { data: productos } = await sb.from('products').select('*');
+      const [{ data: productos }, { data: comps }] = await Promise.all([
+        sb.from('products').select('*'),
+        sb.from('bundle_componentes').select('bundle_id, componente_id, orden').order('orden'),
+      ]);
+      // Mapa de packs: { idPack: [componentes] }. Un producto es pack si está aquí.
+      const PACKS = {};
+      for (const c of comps ?? []) (PACKS[c.bundle_id] ??= []).push(c.componente_id);
       const producto = (productos ?? []).find(p => p.id === productId);
       if (!producto) { document.body.innerHTML = '<p style="padding:60px; text-align:center;">Este producto no está disponible. <a href="app.html" style="text-decoration:underline;">Volver a IA MASIVA</a></p>'; return; }
-      const esBundle = producto.id === BUNDLE_ID;
-      const cfg = esBundle ? LANDINGS.__bundle__ : LANDINGS[producto.id];
+      const esBundle = !!PACKS[producto.id];
+      const componentesEste = PACKS[producto.id] || [];
+      // Cada pack puede traer su propio copy; si no, usa la plantilla genérica.
+      const cfg = esBundle ? (LANDINGS[producto.id] ?? LANDINGS.__bundle__) : LANDINGS[producto.id];
       if (!cfg) { location.href = 'app.html'; return; }
 
       registrarEvento('visita_landing', producto.id);
@@ -901,17 +909,19 @@
 
       // Si ya lo tiene, los CTA cambian a "Ir al recurso"
       const { data: { session } } = await sb.auth.getSession();
+      const nombreDe = (id) => (productos ?? []).find(p => p.id === id)?.nombre ?? '';
       let comprado = false;
-      let propiosPack = [];
+      let poseidos = new Set();  // componentes que el usuario ya tiene
       let pagadoPorPieza = {};   // dinero REAL pagado por pieza (solo wompi)
+      const unionComponentes = [...new Set(Object.values(PACKS).flat())];
       if (session) {
         const [{ data: compra }, { data: prPack }] = await Promise.all([
           sb.from('purchases').select('id').eq('product_id', producto.id).eq('estado', 'APROBADA').maybeSingle(),
-          sb.from('purchases').select('product_id, monto_usd_centavos, gateway').in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA'),
+          sb.from('purchases').select('product_id, monto_usd_centavos, gateway').in('product_id', unionComponentes.length ? unionComponentes : ['-']).eq('estado', 'APROBADA'),
         ]);
         comprado = !!compra;
-        propiosPack = [...new Set((prPack ?? []).map(x => x.product_id))];
         for (const c of prPack ?? []) {
+          poseidos.add(c.product_id);
           if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
         }
       }
@@ -920,51 +930,45 @@
       // Completar el pack: al dueño de piezas se le muestra el precio por lo
       // que le falta (misma regla del servidor: pack menos lo ya invertido).
       // Si su inversión ya cubre el pack, lo que falta es GRATIS (regalo que
-      // se acepta en la página de pago).
+      // se acepta en la página de pago). Trabaja sobre los componentes de ESTE
+      // pack, tomados de la tabla.
       const efectivoC = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
-      const completarPack = (precioPack) => {
-        if (!propiosPack.length) return null;
-        const invertido = propiosPack.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
+      const completarPack = (precioPack, comps) => {
+        const propios = comps.filter(id => poseidos.has(id));
+        if (!propios.length) return null;
+        const invertido = propios.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
         return precioPack - invertido;
       };
-      if (esBundle && !comprado && propiosPack.length) {
-        const completado = completarPack(efectivo);
+      const propiosDeEste = componentesEste.filter(id => poseidos.has(id));
+      if (esBundle && !comprado && propiosDeEste.length) {
+        const completado = completarPack(efectivo, componentesEste);
         const htmlCompleta = completado <= 0
           ? `<span class="tachado">$${efectivo / 100} USD</span>GRATIS`
           : `<span class="tachado">$${efectivo / 100} USD</span>$${completado / 100} USD`;
         $('pPrecio').innerHTML = htmlCompleta;
         $('pPrecioFinal').innerHTML = htmlCompleta;
-        const faltantes = (productos ?? []).filter(p => LANDINGS[p.id] && !propiosPack.includes(p.id));
+        const faltantes = (productos ?? []).filter(p => componentesEste.includes(p.id) && !poseidos.has(p.id));
         const sumaFaltantes = faltantes.reduce((a, p) => a + efectivoC(p), 0);
         $('pSumaIndividual').textContent = `$${sumaFaltantes / 100} USD`;
         $('pPrecioBundle').textContent = completado <= 0 ? '$0 USD' : `$${completado / 100} USD`;
         $('pAhorro').textContent = `Ahorras $${(sumaFaltantes - Math.max(completado, 0)) / 100} USD.`;
       }
 
-      // Popup de promoción: antes del pago se ofrece el bundle presentando
-      // los otros dos productos por su nombre. Cerrar el popup = quedarse
-      // en la landing; los dos botones sí continúan el proceso.
+      // Popup de promoción: en una pieza suelta se ofrece el pack que la
+      // contiene, presentando lo que falta. Cerrar el popup = quedarse en la
+      // landing; los dos botones sí continúan el proceso.
       const bundleActivo = esBundle ? null
-        : (productos ?? []).find(p => p.id === BUNDLE_ID) ?? null;
+        : (productos ?? []).find(p => PACKS[p.id]?.includes(producto.id)) ?? null;
       let promoLista = false;
       if (!comprado && bundleActivo) {
-        const ARTICULO = {
-          '656f61d7-37b2-4e9c-8cf3-67065484493c': 'las',
-          '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'las',
-          '2c296299-d9a4-4409-bc99-67b4999e47f8': 'los',
-        };
-        const NOMBRE_PROMO = {
-          '656f61d7-37b2-4e9c-8cf3-67065484493c': '557 Configuraciones para NotebookLM y Gemini',
-          '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400 Gemas para Gemini',
-          '2c296299-d9a4-4409-bc99-67b4999e47f8': '200 Diseños para Presentaciones',
-        };
+        const compsBundle = PACKS[bundleActivo.id] || [];
         // Al dueño de piezas no se le ofrece lo que ya tiene, y el precio del
         // popup baja a lo que le falta para completar el pack
-        const otros = Object.keys(PAGINAS).filter(id => id !== producto.id && !propiosPack.includes(id));
-        $('promoIntro').innerHTML = `Además de ${ARTICULO[producto.id] ?? ''} <b>${cfg.corto}</b>, adquiere:`;
-        $('promoLista').innerHTML = otros.map(id => `<li>${NOMBRE_PROMO[id]}</li>`).join('');
+        const otros = compsBundle.filter(id => id !== producto.id && !poseidos.has(id));
+        $('promoIntro').innerHTML = `Además de <b>${cfg.corto}</b>, adquiere:`;
+        $('promoLista').innerHTML = otros.map(id => `<li>${nombreDe(id)}</li>`).join('');
         const efectivoBundle = bundleActivo.precio_promo_usd_centavos ?? bundleActivo.precio_usd_centavos;
-        const completadoPopup = completarPack(efectivoBundle);
+        const completadoPopup = completarPack(efectivoBundle, compsBundle);
         const ancla = completadoPopup != null
           ? efectivoBundle
           : (bundleActivo.precio_promo_usd_centavos ? bundleActivo.precio_usd_centavos : null);

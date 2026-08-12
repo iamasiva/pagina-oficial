@@ -1761,33 +1761,32 @@
     })();
 
     // ── PAQUETES Y OFERTAS ────────────────────────────────────────
-    // Vitrina viva: se pinta desde la tabla products. El bundle va primero y
-    // destacado, con la suma de los individuales como ancla del descuento.
-    const BUNDLE_ID = '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11';
+    // Vitrina viva: se pinta desde la tabla products. Los packs (definidos en
+    // bundle_componentes) van primero y destacados.
     const PAGINA_PAQUETE = {
       '656f61d7-37b2-4e9c-8cf3-67065484493c': '557.html',
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400.html',
       '2c296299-d9a4-4409-bc99-67b4999e47f8': '200.html',
-      [BUNDLE_ID]: 'bundle.html',
+      '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11': 'bundle.html',
     };
     // Qué logras con cada uno, para quien llega sin contexto
     const BENEFICIO_PAQUETE = {
       '656f61d7-37b2-4e9c-8cf3-67065484493c': 'Convierte cada cuaderno en un especialista: eliges el rol experto, lo pegas y Gemini responde con criterio.',
       '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'Mini agentes listos para encargarse de las tareas mecánicas que te quitan tiempo.',
       '2c296299-d9a4-4409-bc99-67b4999e47f8': 'Presentaciones con diseño profesional: eliges el estilo con vista previa y NotebookLM lo replica.',
-      [BUNDLE_ID]: 'Todo tu flujo con IA equipado: investigas, ejecutas y presentas con las tres herramientas juntas.',
+      '8dd3d7fa-f9f1-41dd-9539-098cb4c68e11': 'Todo tu flujo con IA equipado: investigas, ejecutas y presentas con las tres herramientas juntas.',
     };
-    function pintarPaquetes(productos, destinoDe) {
+    function pintarPaquetes(productos, destinoDe, esPack) {
       const grid = document.getElementById('paquetesGrid');
       if (!grid || !productos?.length) return false;
       const usd = (cent) => '$' + Math.round(cent / 100);
-      const bundle = productos.find(p => p.id === BUNDLE_ID);
-      const sueltos = productos.filter(p => p.id !== BUNDLE_ID)
+      const packs = productos.filter(p => esPack(p.id));
+      const sueltos = productos.filter(p => !esPack(p.id))
         .sort((a, b) => b.precio_usd_centavos - a.precio_usd_centavos);
-      const lista = bundle ? [bundle, ...sueltos] : sueltos;
+      const lista = [...packs, ...sueltos];
       grid.innerHTML = '';
       for (const p of lista) {
-        const esBundle = p.id === BUNDLE_ID;
+        const esBundle = esPack(p.id);
         const promo = p.precio_promo_usd_centavos && p.precio_promo_usd_centavos < p.precio_usd_centavos
           ? p.precio_promo_usd_centavos : null;
         const card = document.createElement('div');
@@ -1835,10 +1834,12 @@
     }
     (async () => {
       try {
-        const { data } = await sb.from('products')
-          .select('id, nombre, precio_usd_centavos, precio_promo_usd_centavos')
-          .eq('activo', true);
-        pintarPaquetes(data, (p) => PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`);
+        const [{ data }, { data: comps }] = await Promise.all([
+          sb.from('products').select('id, nombre, precio_usd_centavos, precio_promo_usd_centavos').eq('activo', true),
+          sb.from('bundle_componentes').select('bundle_id'),
+        ]);
+        const packs = new Set((comps ?? []).map(c => c.bundle_id));
+        pintarPaquetes(data, (p) => PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`, (id) => packs.has(id));
       } catch (_) {}
     })();
   </script>
