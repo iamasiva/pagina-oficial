@@ -1004,10 +1004,9 @@
       document.getElementById('userMenu').classList.remove('open');
       document.getElementById('navCollapse').classList.remove('open');
       setFilter(tipo);
-      // El catálogo abre arriba de todo (el hero se oculta y encoge la página:
-      // un scroll suave aterrizaría a mitad de lista)
-      if (tipo === 'catalogo') { window.scrollTo(0, 0); return; }
-      document.getElementById('filteredSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Las tres vistas ocultan el hero y la lista queda arriba de todo:
+      // se aterriza directo (el scroll suave hasta la sección se sentía brusco)
+      window.scrollTo(0, 0);
     }
     window.abrirPanelUsuario = abrirPanelUsuario;
 
@@ -1246,8 +1245,10 @@
       // "Ver catálogo" se muestra como lista vertical: portada, nombre,
       // descripción y botón Ver recurso, para recorrerlo uno por uno
       const modoLista = type === 'catalogo';
-      // En "Ver catálogo" el hero se oculta: la lista manda
-      document.getElementById('appHero').style.display = modoLista ? 'none' : '';
+      // En las vistas personales el hero se oculta: la lista queda arriba y
+      // se aterriza directo, sin viaje de scroll
+      const sinHero = modoLista || type === 'favoritos' || type === 'compras';
+      document.getElementById('appHero').style.display = sinHero ? 'none' : '';
       document.getElementById('filteredSection').classList.toggle('modo-lista', modoLista);
       document.getElementById('rowFiltered').classList.toggle('vista-lista', modoLista);
       document.getElementById('rowFiltered').innerHTML = filtered.length
