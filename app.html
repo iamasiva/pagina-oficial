@@ -1564,13 +1564,43 @@
     // montado crea un paso más de historial, y "Atrás" retrocedía el iframe
     // (guía en blanco) en vez de cerrar el visor. Un iframe recién insertado
     // no deja rastro, y al quitarlo tampoco.
+    // Parches universales inyectados en el <head> de cada guía antes de mostrarla,
+    // sin tocar los 47 archivos:
+    //  1) Shim de portapapeles: dentro de un iframe con sandbox, navigator.clipboard
+    //     lanza NotAllowedError; execCommand('copy') sí funciona. Redefinimos
+    //     writeText para usar execCommand (síncrono dentro del gesto del clic), lo
+    //     que arregla el botón de copiar en las guías que no traían respaldo.
+    //  2) Red responsive: evita que una guía sea más ancha que la pantalla en móvil
+    //     (tablas/pre/imágenes), sin overflow-x:hidden para no romper position:sticky.
+    function conParchesGuia(html) {
+      const shim =
+        '<scr' + 'ipt>(function(){function c(t){return new Promise(function(res,rej){try{' +
+        'var a=document.createElement("textarea");a.value=t==null?"":String(t);' +
+        'a.setAttribute("readonly","");a.style.position="fixed";a.style.top="-1000px";a.style.opacity="0";' +
+        '(document.body||document.documentElement).appendChild(a);a.focus();a.select();' +
+        'a.setSelectionRange(0,a.value.length);var ok=document.execCommand("copy");a.remove();' +
+        'ok?res():rej(new Error("copy-failed"));}catch(e){rej(e);}});}' +
+        'var s={writeText:c,readText:function(){return Promise.reject(new Error("no-read"));}};' +
+        'try{Object.defineProperty(navigator,"clipboard",{value:s,configurable:true});}' +
+        'catch(e){try{navigator.clipboard=s;}catch(_){}}})();</scr' + 'ipt>';
+      const css =
+        '<sty' + 'le>img{max-width:100%;height:auto;}video,canvas,svg,iframe{max-width:100%;}' +
+        'pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;}' +
+        '*{overflow-wrap:break-word;}table{display:block;max-width:100%;overflow-x:auto;}</sty' + 'le>';
+      const fix = shim + css;
+      if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + fix);
+      if (/<html[^>]*>/i.test(html)) return html.replace(/<html[^>]*>/i, (m) => m + fix);
+      if (/<!doctype[^>]*>/i.test(html)) return html.replace(/<!doctype[^>]*>/i, (m) => m + fix);
+      return fix + html;
+    }
+
     function montarGuia(html, guiaId) {
       desmontarGuia();
       const f = document.createElement('iframe');
       f.className = 'guide-frame';
       f.id = 'guideFrame';
       f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
-      f.srcdoc = html;
+      f.srcdoc = conParchesGuia(html);
       // Los índices internos de las guías (href="#paso-1") no pueden navegar:
       // en un iframe con srcdoc el fragmento resuelve contra app.html, así que
       // el clic cargaba el sitio completo dentro del visor y rompía Cerrar.
