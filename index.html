@@ -1770,6 +1770,13 @@
       '2c296299-d9a4-4409-bc99-67b4999e47f8': '200.html',
       [BUNDLE_ID]: 'bundle.html',
     };
+    // Qué logras con cada uno, para quien llega sin contexto
+    const BENEFICIO_PAQUETE = {
+      '656f61d7-37b2-4e9c-8cf3-67065484493c': 'Convierte cada cuaderno en un especialista: eliges el rol experto, lo pegas y Gemini responde con criterio.',
+      '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'Mini agentes listos para encargarse de las tareas mecánicas que te quitan tiempo.',
+      '2c296299-d9a4-4409-bc99-67b4999e47f8': 'Presentaciones con diseño profesional: eliges el estilo con vista previa y NotebookLM lo replica.',
+      [BUNDLE_ID]: 'Todo tu flujo con IA equipado: investigas, ejecutas y presentas con las tres herramientas juntas.',
+    };
     function pintarPaquetes(productos, destinoDe) {
       const grid = document.getElementById('paquetesGrid');
       if (!grid || !productos?.length) return false;
@@ -1795,10 +1802,10 @@
         nombre.className = 'paq-nombre';
         nombre.textContent = esBundle ? 'Pack Gemini 3x' : p.nombre;
         card.append(nombre);
-        if (esBundle) {
+        if (BENEFICIO_PAQUETE[p.id]) {
           const detalle = document.createElement('div');
           detalle.className = 'paq-detalle';
-          detalle.textContent = 'Las 557 configuraciones, las 400 gemas y los 200 diseños, juntos.';
+          detalle.textContent = BENEFICIO_PAQUETE[p.id];
           card.append(detalle);
         }
         const precios = document.createElement('div');
