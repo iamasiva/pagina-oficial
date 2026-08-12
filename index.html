@@ -1346,6 +1346,7 @@
             <input type="password" id="registerPassword2" placeholder="Confirmar contraseña" autocomplete="new-password" required />
           </div>
           <div id="registerError" class="auth-error hidden"></div>
+          <div id="registerSuccess" class="auth-success-msg hidden"></div>
           <button type="submit" class="btn-primary auth-submit" id="btnRegister">Crear cuenta</button>
         </form>
         <p class="auth-link">¿Ya tienes cuenta? <a href="#" id="goLoginFromRegister">Inicia sesión</a></p>
@@ -1601,9 +1602,19 @@
       setLoading('btnRegister', false);
       if (error) {
         showErr('registerError', error.message);
-      } else {
-        marcarRegistro(data?.user);
+      } else if (data?.session) {
+        // Confirmación de correo APAGADA: hay sesión al instante, entra directo.
+        marcarRegistro(data.user);
         closeModal();
+      } else {
+        // Confirmación de correo ENCENDIDA: signUp no da sesión. Se le pide
+        // revisar su correo; el pixel de registro se cuenta al confirmar (al
+        // entrar por primera vez), no aquí.
+        document.getElementById('formRegister').querySelectorAll('input, button').forEach(el => el.disabled = true);
+        hideErr('registerError');
+        const ok = document.getElementById('registerSuccess');
+        ok.innerHTML = `Te enviamos un correo a <b>${email.replace(/</g,'&lt;')}</b>. Ábrelo y confirma tu cuenta para entrar.`;
+        ok.classList.remove('hidden');
       }
     });
 
