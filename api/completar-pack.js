@@ -31,10 +31,17 @@ export default async function handler(req, res) {
     const pack = (prods ?? []).find(p => p.id === BUNDLE.productId);
     if (!pack) return res.status(500).json({ error: 'Pack no disponible' });
 
-    const invertido = propios.reduce((s, id) => {
-      const c = prods.find(x => x.id === id);
-      return s + (c ? efectivo(c) : 0);
-    }, 0);
+    // El regalo se decide por DINERO REALMENTE PAGADO, no por precio de lista.
+    // Solo cuenta pago real (gateway wompi): las piezas regaladas (bono) o
+    // incluidas en otro pack (bundle) no acumulan crédito, así nadie completa
+    // el pack gratis a punta de bonos.
+    const { data: pagos } = await db.from('purchases')
+      .select('monto_usd_centavos')
+      .eq('user_id', user.id)
+      .in('product_id', propios)
+      .eq('estado', 'APROBADA')
+      .eq('gateway', 'wompi');
+    const invertido = (pagos ?? []).reduce((s, p) => s + (p.monto_usd_centavos ?? 0), 0);
     if (invertido < efectivo(pack)) {
       return res.status(400).json({ error: 'Tu inversión aún no cubre el valor del pack' });
     }

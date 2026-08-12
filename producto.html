@@ -903,13 +903,17 @@
       const { data: { session } } = await sb.auth.getSession();
       let comprado = false;
       let propiosPack = [];
+      let pagadoPorPieza = {};   // dinero REAL pagado por pieza (solo wompi)
       if (session) {
         const [{ data: compra }, { data: prPack }] = await Promise.all([
           sb.from('purchases').select('id').eq('product_id', producto.id).eq('estado', 'APROBADA').maybeSingle(),
-          sb.from('purchases').select('product_id').in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA'),
+          sb.from('purchases').select('product_id, monto_usd_centavos, gateway').in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA'),
         ]);
         comprado = !!compra;
         propiosPack = [...new Set((prPack ?? []).map(x => x.product_id))];
+        for (const c of prPack ?? []) {
+          if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
+        }
       }
       const destino = comprado ? (PAGINAS[producto.id] || 'app.html') : `pago.html?p=${producto.id}`;
 
@@ -920,10 +924,7 @@
       const efectivoC = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
       const completarPack = (precioPack) => {
         if (!propiosPack.length) return null;
-        const invertido = propiosPack.reduce((s, id) => {
-          const c = (productos ?? []).find(x => x.id === id);
-          return s + (c ? efectivoC(c) : 0);
-        }, 0);
+        const invertido = propiosPack.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
         return precioPack - invertido;
       };
       if (esBundle && !comprado && propiosPack.length) {

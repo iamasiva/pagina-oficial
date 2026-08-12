@@ -165,10 +165,14 @@
         '2c296299-d9a4-4409-bc99-67b4999e47f8': '200 Diseños',
       };
       let propios = [];
+      let pagadoPorPieza = {};   // dinero REAL pagado por pieza (solo wompi)
       if (session) {
-        const { data } = await sb.from('purchases').select('product_id')
+        const { data } = await sb.from('purchases').select('product_id, monto_usd_centavos, gateway')
           .in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA');
         propios = [...new Set((data ?? []).map(x => x.product_id))];
+        for (const c of data ?? []) {
+          if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
+        }
       }
       // Con las tres piezas no hay nada que completar
       if (productId === BUNDLE_ID && propios.length >= 3) {
@@ -192,10 +196,7 @@
         let esRegalo = false;
         const completa = p.id === BUNDLE_ID && propios.length > 0;
         if (completa) {
-          const invertido = propios.reduce((s, id) => {
-            const c = (productos ?? []).find(x => x.id === id);
-            return s + (c ? precioEfectivo(c) : 0);
-          }, 0);
+          const invertido = propios.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
           cobro = precioEfectivo(p) - invertido;
           esRegalo = cobro <= 0;
           const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];

@@ -62,10 +62,16 @@ export default async function handler(req, res) {
         return res.status(409).json({ error: 'Ya tienes los tres recursos del pack' });
       }
       if (propios.length) {
-        const { data: comps } = await db.from('products')
-          .select('id, precio_usd_centavos, precio_promo_usd_centavos')
-          .in('id', propios);
-        const yaInvertido = (comps ?? []).reduce((s, p) => s + (p.precio_promo_usd_centavos ?? p.precio_usd_centavos), 0);
+        // El crédito es el DINERO REALMENTE PAGADO por las piezas, no su precio
+        // de lista. Solo cuenta pago real (gateway wompi): las piezas regaladas
+        // (bono) o incluidas en un pack (bundle) no dan crédito.
+        const { data: pagos } = await db.from('purchases')
+          .select('monto_usd_centavos')
+          .eq('user_id', user.id)
+          .in('product_id', propios)
+          .eq('estado', 'APROBADA')
+          .eq('gateway', 'wompi');
+        const yaInvertido = (pagos ?? []).reduce((s, p) => s + (p.monto_usd_centavos ?? 0), 0);
         const restante = precioEfectivo - yaInvertido;
         if (restante <= 0) {
           return res.status(409).json({ error: 'Lo que te falta del pack te lo regalamos: acéptalo en la página de pago' });

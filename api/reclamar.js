@@ -11,16 +11,35 @@ export default async function handler(req, res) {
     const user = await userFromRequest(req);
     if (!user?.email) return res.status(401).json({ error: 'Inicia sesión para reclamar' });
 
+    // Solo un correo VERIFICADO hereda compras. Sin esto, alguien podía
+    // registrar el correo de la víctima (que compró como invitado) y quedarse
+    // con lo que ella pagó. La verificación la exige Supabase Auth (Confirm
+    // email ON); aquí se comprueba en el servidor por si acaso.
+    if (!user.email_confirmed_at) {
+      return res.status(403).json({ error: 'Confirma tu correo para reclamar tus compras', reclamadas: 0 });
+    }
+
+    // Correo del token, normalizado. Se compara por IGUALDAD exacta, nunca como
+    // patrón: antes el correo entraba a un ILIKE y un registro con comodín
+    // ("%@gmail.com") reclamaba en masa compras ajenas.
+    const correo = String(user.email).trim().toLowerCase();
+
     const db = adminClient();
+    // El comodín del ILIKE es solo para insensibilidad de mayúsculas; los
+    // metacaracteres del correo se escapan, y además cada fila se confirma por
+    // igualdad exacta antes de tocarla (candado doble).
+    const patron = correo.replace(/([%_\\])/g, '\\$1');
     const { data: huerfanas, error } = await db
       .from('purchases')
-      .select('id, product_id')
+      .select('id, email_comprador')
       .is('user_id', null)
-      .ilike('email_comprador', user.email);
+      .ilike('email_comprador', patron);
     if (error) throw new Error(error.message);
 
     let reclamadas = 0;
     for (const compra of huerfanas ?? []) {
+      // Candado exacto: la fila debe ser del MISMO correo, no de un parecido.
+      if (String(compra.email_comprador ?? '').trim().toLowerCase() !== correo) continue;
       const { error: e } = await db
         .from('purchases')
         .update({ user_id: user.id })
