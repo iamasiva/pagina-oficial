@@ -1261,7 +1261,7 @@
                     <div class="lista-info">
                       <h3>${g.titulo}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '★' : '☆'}</button></h3>
                       <p>${g.descripcion || ''}</p>
-                      <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado})">Ver recurso</button>
+                      <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado},true)">Ver recurso</button>
                     </div>
                   </div>`;
               }).join('')
@@ -1706,15 +1706,19 @@
       }
     });
 
-    async function openGuide(id, locked) {
+    async function openGuide(id, locked, directo = false) {
       if (locked) { await comprarGuia(id); return; }
       // Productos-app comprados: se navega a su página propia, no al visor
       const productoApp = allProducts.find(p => p.guide_id === id && PAGINAS_PRODUCTO[p.id]);
       if (productoApp) { window.location.href = PAGINAS_PRODUCTO[productoApp.id]; return; }
       const g = allGuides.find(g => g.id === id);
       if (!g?.contenido_url) return;
-      // Guía gratuita: primero la ficha (portada + descripción + Ver Recurso)
-      if (!g.es_premium) { abrirFicha(g); return; }
+      // Guía gratuita: primero la ficha (portada + descripción + Ver Recurso).
+      // Desde la lista del catálogo eso ya se vio: directo al visor.
+      if (!g.es_premium) {
+        if (directo) { await abrirVisorGuia(id); return; }
+        abrirFicha(g); return;
+      }
       try {
         let contentUrl = g.contenido_url;
         if (g.es_premium) {
