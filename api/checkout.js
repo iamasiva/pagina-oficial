@@ -48,9 +48,9 @@ export default async function handler(req, res) {
     let precioEfectivo = product.precio_promo_usd_centavos ?? product.precio_usd_centavos;
 
     // Completar el pack: quien ya tiene piezas paga solo lo que le falta para
-    // llegar al valor del pack (se descuenta el precio de hoy de lo que ya
-    // posee, con piso de $5 para que el cobro exista). El navegador solo
-    // muestra este precio: la cifra que se cobra SIEMPRE se decide aquí.
+    // llegar al valor del pack. Si su inversión ya lo cubre, el resto es un
+    // regalo (/api/completar-pack) y aquí no hay nada que cobrar. El navegador
+    // solo muestra este precio: la cifra que se cobra SIEMPRE se decide aquí.
     if (user && productId === BUNDLE.productId) {
       const { data: previas } = await db.from('purchases')
         .select('product_id')
@@ -66,7 +66,11 @@ export default async function handler(req, res) {
           .select('id, precio_usd_centavos, precio_promo_usd_centavos')
           .in('id', propios);
         const yaInvertido = (comps ?? []).reduce((s, p) => s + (p.precio_promo_usd_centavos ?? p.precio_usd_centavos), 0);
-        precioEfectivo = Math.max(precioEfectivo - yaInvertido, 500);
+        const restante = precioEfectivo - yaInvertido;
+        if (restante <= 0) {
+          return res.status(409).json({ error: 'Lo que te falta del pack te lo regalamos: acéptalo en la página de pago' });
+        }
+        precioEfectivo = restante;
       }
     }
     // centavos USD × TRM = centavos COP, redondeado a PESO COMPLETO:

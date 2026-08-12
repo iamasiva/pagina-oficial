@@ -83,7 +83,8 @@
       </div>
       <p class="cop" id="prodCop"></p>
       <p class="nota-bundle oculto" id="notaBundle"></p>
-      <label class="consent">
+      <button class="btn oculto" id="btnRegalo">ACEPTAR REGALO</button>
+      <label class="consent" id="cajaConsent">
         <input type="checkbox" id="chkConsent" />
         <span>Acepto los <a href="terminos.html" target="_blank" rel="noopener">términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>. Quiero mi <b>acceso de inmediato</b> y entiendo que, al activarse, la compra queda en firme sin retracto.</span>
       </label>
@@ -184,21 +185,30 @@
         const p = productoActivo;
         const promo = p.precio_promo_usd_centavos ?? null;
         $('prodNombre').textContent = p.nombre;
-        // Completar el pack: se descuenta el precio de hoy de lo que ya tiene,
-        // con piso de $5. El servidor cobra con esta misma regla: aquí solo se muestra.
+        // Completar el pack: se descuenta el precio de hoy de lo que ya tiene.
+        // Si su inversión ya cubre el pack, lo que falta es un regalo. El
+        // servidor valida con esta misma regla: aquí solo se muestra.
         let cobro = precioEfectivo(p);
+        let esRegalo = false;
         const completa = p.id === BUNDLE_ID && propios.length > 0;
         if (completa) {
           const invertido = propios.reduce((s, id) => {
             const c = (productos ?? []).find(x => x.id === id);
             return s + (c ? precioEfectivo(c) : 0);
           }, 0);
-          cobro = Math.max(precioEfectivo(p) - invertido, 500);
-          $('prodPrecio').innerHTML = `<span class="tachado">$${precioEfectivo(p) / 100}</span>$${cobro / 100} USD`;
+          cobro = precioEfectivo(p) - invertido;
+          esRegalo = cobro <= 0;
           const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];
           const tienes = enLista(propios.map(id => NOMBRE_CORTO[id]).filter(Boolean));
           const faltan = enLista(Object.keys(NOMBRE_CORTO).filter(id => !propios.includes(id)).map(id => NOMBRE_CORTO[id]));
-          $('notaBundle').textContent = `Ya tienes ${tienes}. Lleva ${faltan} por $${cobro / 100} USD y completa tu pack.`;
+          if (esRegalo) {
+            cobro = 0;
+            $('prodPrecio').innerHTML = `<span class="tachado">$${precioEfectivo(p) / 100}</span>GRATIS`;
+            $('notaBundle').textContent = `Ya tienes ${tienes}: tu inversión ya cubre el pack completo. Te regalamos ${faltan}.`;
+          } else {
+            $('prodPrecio').innerHTML = `<span class="tachado">$${precioEfectivo(p) / 100}</span>$${cobro / 100} USD`;
+            $('notaBundle').textContent = `Ya tienes ${tienes}. Lleva ${faltan} por $${cobro / 100} USD y completa tu pack.`;
+          }
           $('notaBundle').classList.remove('oculto');
         } else {
           $('prodPrecio').innerHTML = promo
@@ -206,7 +216,11 @@
             : '$' + (p.precio_usd_centavos / 100) + ' USD';
           $('notaBundle').classList.add('oculto');
         }
-        $('prodCop').textContent = trmHoy
+        // El regalo no pasa por Wompi: fuera el consentimiento de cobro y el botón de pagar
+        $('btnRegalo').classList.toggle('oculto', !esRegalo);
+        $('cajaConsent').classList.toggle('oculto', esRegalo);
+        $('btnPagar').classList.toggle('oculto', esRegalo);
+        $('prodCop').textContent = trmHoy && !esRegalo
           ? `Se cobra en pesos: ≈ ${Math.round(cobro * trmHoy / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy)`
           : '';
       }
@@ -220,6 +234,27 @@
       } catch (_) {}
 
       $('chkConsent').addEventListener('change', () => { $('btnPagar').disabled = !$('chkConsent').checked; });
+
+      // El regalo habilita las piezas faltantes al instante, sin pasar por Wompi
+      $('btnRegalo').addEventListener('click', async () => {
+        $('btnRegalo').disabled = true;
+        $('msjError').classList.add('oculto');
+        try {
+          if (!session) throw new Error('Inicia sesión para reclamar tu regalo');
+          const res = await fetch('/api/completar-pack', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error || 'No se pudo habilitar el regalo. Intenta de nuevo.');
+          const hab = body.habilitados || [];
+          location.href = hab.length === 1 ? (PAGINAS[hab[0]] || 'app.html') : 'app.html';
+        } catch (e) {
+          $('msjError').textContent = e.message;
+          $('msjError').classList.remove('oculto');
+          $('btnRegalo').disabled = false;
+        }
+      });
 
       $('btnPagar').addEventListener('click', async () => {
         $('btnPagar').disabled = true;
