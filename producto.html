@@ -902,12 +902,40 @@
       // Si ya lo tiene, los CTA cambian a "Ir al recurso"
       const { data: { session } } = await sb.auth.getSession();
       let comprado = false;
+      let propiosPack = [];
       if (session) {
-        const { data: compra } = await sb.from('purchases').select('id')
-          .eq('product_id', producto.id).eq('estado', 'APROBADA').maybeSingle();
+        const [{ data: compra }, { data: prPack }] = await Promise.all([
+          sb.from('purchases').select('id').eq('product_id', producto.id).eq('estado', 'APROBADA').maybeSingle(),
+          sb.from('purchases').select('product_id').in('product_id', Object.keys(PAGINAS)).eq('estado', 'APROBADA'),
+        ]);
         comprado = !!compra;
+        propiosPack = [...new Set((prPack ?? []).map(x => x.product_id))];
       }
       const destino = comprado ? (PAGINAS[producto.id] || 'app.html') : `pago.html?p=${producto.id}`;
+
+      // Completar el pack: al dueño de piezas se le muestra el precio por lo
+      // que le falta (misma regla del servidor: pack menos lo ya invertido,
+      // piso de $5) y la línea del ahorro se calcula sobre sus faltantes.
+      const efectivoC = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
+      const completarPack = (precioPack) => {
+        if (!propiosPack.length) return null;
+        const invertido = propiosPack.reduce((s, id) => {
+          const c = (productos ?? []).find(x => x.id === id);
+          return s + (c ? efectivoC(c) : 0);
+        }, 0);
+        return Math.max(precioPack - invertido, 500);
+      };
+      if (esBundle && !comprado && propiosPack.length) {
+        const completado = completarPack(efectivo);
+        const htmlCompleta = `<span class="tachado">$${efectivo / 100} USD</span>$${completado / 100} USD`;
+        $('pPrecio').innerHTML = htmlCompleta;
+        $('pPrecioFinal').innerHTML = htmlCompleta;
+        const faltantes = (productos ?? []).filter(p => LANDINGS[p.id] && !propiosPack.includes(p.id));
+        const sumaFaltantes = faltantes.reduce((a, p) => a + efectivoC(p), 0);
+        $('pSumaIndividual').textContent = `$${sumaFaltantes / 100} USD`;
+        $('pPrecioBundle').textContent = `$${completado / 100} USD`;
+        $('pAhorro').textContent = `Ahorras $${(sumaFaltantes - completado) / 100} USD.`;
+      }
 
       // Popup de promoción: antes del pago se ofrece el bundle presentando
       // los otros dos productos por su nombre. Cerrar el popup = quedarse
@@ -926,13 +954,18 @@
           '0f0d6926-5328-4e3e-89a4-92b36ef13996': '400 Gemas para Gemini',
           '2c296299-d9a4-4409-bc99-67b4999e47f8': '200 Diseños para Presentaciones',
         };
-        const otros = Object.keys(PAGINAS).filter(id => id !== producto.id);
+        // Al dueño de piezas no se le ofrece lo que ya tiene, y el precio del
+        // popup baja a lo que le falta para completar el pack
+        const otros = Object.keys(PAGINAS).filter(id => id !== producto.id && !propiosPack.includes(id));
         $('promoIntro').innerHTML = `Además de ${ARTICULO[producto.id] ?? ''} <b>${cfg.corto}</b>, adquiere:`;
         $('promoLista').innerHTML = otros.map(id => `<li>${NOMBRE_PROMO[id]}</li>`).join('');
         const efectivoBundle = bundleActivo.precio_promo_usd_centavos ?? bundleActivo.precio_usd_centavos;
-        const ancla = bundleActivo.precio_promo_usd_centavos ? bundleActivo.precio_usd_centavos : null;
+        const completadoPopup = completarPack(efectivoBundle);
+        const ancla = completadoPopup != null
+          ? efectivoBundle
+          : (bundleActivo.precio_promo_usd_centavos ? bundleActivo.precio_usd_centavos : null);
         $('promoAncla').textContent = ancla ? `$${ancla / 100}` : '';
-        $('promoPrecio').textContent = `$${efectivoBundle / 100} USD`;
+        $('promoPrecio').textContent = `$${(completadoPopup ?? efectivoBundle) / 100} USD`;
         $('promoTomar').addEventListener('click', () => { location.href = `pago.html?p=${bundleActivo.id}`; });
         $('promoNo').addEventListener('click', () => { location.href = destino; });
         $('promoCerrar').addEventListener('click', () => $('promoOverlay').classList.remove('activa'));

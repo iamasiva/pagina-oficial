@@ -45,7 +45,30 @@ export default async function handler(req, res) {
 
     const trm = await trmDelDia();
     // Si hay promoción activa se cobra el precio promocional; si no, el regular.
-    const precioEfectivo = product.precio_promo_usd_centavos ?? product.precio_usd_centavos;
+    let precioEfectivo = product.precio_promo_usd_centavos ?? product.precio_usd_centavos;
+
+    // Completar el pack: quien ya tiene piezas paga solo lo que le falta para
+    // llegar al valor del pack (se descuenta el precio de hoy de lo que ya
+    // posee, con piso de $5 para que el cobro exista). El navegador solo
+    // muestra este precio: la cifra que se cobra SIEMPRE se decide aquí.
+    if (user && productId === BUNDLE.productId) {
+      const { data: previas } = await db.from('purchases')
+        .select('product_id')
+        .eq('user_id', user.id)
+        .in('product_id', BUNDLE.componentes)
+        .eq('estado', 'APROBADA');
+      const propios = [...new Set((previas ?? []).map(p => p.product_id))];
+      if (propios.length >= BUNDLE.componentes.length) {
+        return res.status(409).json({ error: 'Ya tienes los tres recursos del pack' });
+      }
+      if (propios.length) {
+        const { data: comps } = await db.from('products')
+          .select('id, precio_usd_centavos, precio_promo_usd_centavos')
+          .in('id', propios);
+        const yaInvertido = (comps ?? []).reduce((s, p) => s + (p.precio_promo_usd_centavos ?? p.precio_usd_centavos), 0);
+        precioEfectivo = Math.max(precioEfectivo - yaInvertido, 500);
+      }
+    }
     // centavos USD × TRM = centavos COP, redondeado a PESO COMPLETO:
     // las tarjetas vía Wompi rechazan montos con centavos
     // ("El método de pago escogido no soporta montos con centavos").
