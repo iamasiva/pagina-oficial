@@ -48,7 +48,7 @@
 
     .nav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 60px; background: color-mix(in srgb, var(--fondo) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--borde); }
     .nav-logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; }
-    .nav a.volver { font-size: 0.82rem; color: var(--muted); border: 1px solid var(--borde); padding: 7px 14px; border-radius: 8px; }
+    .nav a.volver { font-size: 0.95rem; font-weight: 600; color: var(--ink); border: 1px solid var(--borde); padding: 10px 18px; border-radius: 9px; }
     .nav a.volver:hover { color: var(--ink); border-color: var(--acento); }
 
     /* ── HERO: la imagen del producto manda, con el botón de compra encima del fade ── */
@@ -134,7 +134,11 @@
     .feature span { color: var(--muted); font-size: 0.92rem; }
 
     .galeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-    .galeria img { width: 100%; border-radius: 14px; border: 1px solid var(--borde); display: block; box-shadow: 0 18px 44px rgba(0,0,0,0.3); }
+    .galeria img { width: 100%; border-radius: 14px; border: 1px solid var(--borde); display: block; box-shadow: 0 18px 44px rgba(0,0,0,0.3); cursor: zoom-in; }
+    /* Lupa de la galería: clic en una captura la abre a pantalla completa */
+    .lightbox { position: fixed; inset: 0; background: rgba(3,3,10,0.93); display: none; align-items: center; justify-content: center; z-index: 999; padding: 3vw; cursor: zoom-out; }
+    .lightbox.abierto { display: flex; }
+    .lightbox img { max-width: 96vw; max-height: 92vh; border-radius: 12px; box-shadow: 0 30px 80px rgba(0,0,0,0.65); }
 
     .pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
     .paso { background: var(--panel); border: 1px solid var(--borde); border-radius: 14px; padding: 24px; }
@@ -393,6 +397,7 @@
             '¿Pierdes tus chats y tus cuadernos, sin orden ni forma de encontrarlos?',
           ],
           giro: 'El problema no eres tú. Es que nadie le ha dado a tu IA <span>el criterio de un experto</span>.',
+          giroMedio: 'Respondiste que sí a algo, y eso basta: tu IA ya se queda corta en algo que te importa. La causa es casi siempre la misma, le falta <span>el criterio de un experto</span>. Dárselo es tan fácil como copiar y pegar.',
         },
         ejemplos: {
           eyebrow: 'Así debería ser',
@@ -409,7 +414,7 @@
         },
         claimEyebrow: 'Haz la cuenta',
         claim: '557 especialistas de guardia, por menos de lo que cuesta <span>una hora de uno solo</span>',
-        claimSub: 'Abogados, estrategas, analistas, profesores, coaches. Eliges el que necesitas hoy, copias su configuración y trabajas con él al instante. En español o en inglés.',
+        claimSub: 'Piénsalo: una hora de consultoría con un especialista cuesta entre $50 y $100 USD. Aquí tienes 557 de guardia por menos de lo que vale esa hora, y para siempre: abogados, estrategas, analistas, profesores, coaches. Eliges el que necesitas hoy, copias su configuración y trabajas con él al instante. En español o en inglés.',
         noNecesitas: ['Cero conocimientos de prompts', 'Funciona en NotebookLM, Gemini, ChatGPT y Claude', 'Listo en lo que tarda un copiar y pegar'],
         vida: '¡Y lo mejor! Las tienes para <span>TODA LA VIDA</span>.',
         uso: {
@@ -464,6 +469,7 @@
             '¿Sientes que la IA te ayuda "a veces", pero no es parte de tu forma de trabajar?',
           ],
           giro: 'Lo que te falta no es otra IA. Es un equipo de <span>mini-agentes</span> que trabaje contigo todos los días.',
+          giroMedio: 'Algo de tu día ya se está yendo en trabajo que la IA debería hacer sola. Es el momento de trabajar de la mano de un equipo de <span>mini-agentes</span> que te conocen y trabajan contigo todos los días.',
         },
         ejemplos: {
           eyebrow: 'Así se trabaja hoy',
@@ -534,6 +540,7 @@
             '¿Terminas gastando en el diseño el tiempo que era para preparar tu presentación?',
           ],
           giro: 'La función es buenísima. Lo que falta es que <span>no pierdas tiempo en el diseño</span> y por eso te presentamos esta solución.',
+          giroMedio: 'Estás a nada de que el diseño se coma el tiempo de tus presentaciones, si no lo está haciendo ya. Con <span>200 diseños listos y personalizables</span>, ese tiempo lo aprovechas en lo que realmente importa: preparar tu exposición.',
         },
         ejemplos: {
           eyebrow: 'El diseño siempre a la mano',
@@ -605,6 +612,7 @@
             '¿Todavía no tienes el control sobre las presentaciones generadas en Gemini Notebooks?',
           ],
           giro: 'Gemini se convierte en <span>tu mejor aliado</span> cuando lo usas con las herramientas adecuadas.',
+          giroMedio: 'Ya hay algo de Gemini que te está frenando. Para eso existe el <span>pack completo</span>: ataca tres frentes de productividad de una sola vez y Gemini pasa a otro nivel.',
         },
         ejemplos: {
           eyebrow: 'Convierte a Gemini en tu mejor herramienta de IA',
@@ -813,15 +821,29 @@
               <button type="button" data-q="${i}" data-r="no">No</button>
             </span>
           </div>`).join('');
-        // El mensaje aparece solo cuando responde la última pregunta
-        const respondidas = new Set();
+        // El mensaje aparece al responder la última pregunta y DEPENDE de las
+        // respuestas (hallazgo del equipo: los "No" daban la misma respuesta y la
+        // evaluación no se sentía en serio). Tres niveles:
+        //   todo "No"      -> el producto no le duele todavía: invitación sin dolor
+        //   mayoría "Sí"   -> el giro fuerte propio de cada landing
+        //   minoría "Sí"   -> intermedio: algo le está empezando a pasar
+        // Cada landing puede sobreescribir los genéricos con dolor.giroNo / dolor.giroMedio.
+        const respondidas = new Set(), conSi = new Set();
         $('pDolorLista').addEventListener('click', (e) => {
           const b = e.target.closest('button[data-q]');
           if (!b) return;
           b.closest('.pregunta').querySelectorAll('button').forEach(x => x.classList.remove('elegida'));
           b.classList.add('elegida');
           respondidas.add(b.dataset.q);
-          if (respondidas.size === cfg.dolor.lista.length) $('pDolorGiro').classList.add('visible');
+          if (b.dataset.r === 'si') conSi.add(b.dataset.q); else conSi.delete(b.dataset.q);
+          const total = cfg.dolor.lista.length;
+          if (respondidas.size === total) {
+            const giroNo = cfg.dolor.giroNo ?? 'Qué bueno que esto aún no te pasa. Con este recurso seguro vas a <span>potencializar aún más</span> el uso que le estás dando a la IA. Échale un vistazo, seguro te va a gustar.';
+            const giroMedio = cfg.dolor.giroMedio ?? 'Algunas de estas cosas ya te están empezando a pasar. Este recurso te ayuda a <span>frenarlas a tiempo</span> y a sacarle mucho más a tu IA.';
+            const si = conSi.size;
+            $('pDolorGiro').innerHTML = si === 0 ? giroNo : si > total / 2 ? cfg.dolor.giro : giroMedio;
+            $('pDolorGiro').classList.add('visible');
+          }
         });
       }
 
@@ -864,6 +886,20 @@
         if (cfg.galeriaTitulo) $('pGaleriaTitulo').textContent = cfg.galeriaTitulo;
         if (cfg.galeriaIntro) { $('pGaleriaIntro').textContent = cfg.galeriaIntro; $('pGaleriaIntro').classList.remove('oculto'); }
         $('pGaleria').innerHTML = cfg.capturas.map(u => `<img loading="lazy" src="${u}" alt="">`).join('');
+        // Lupa (hallazgo del equipo): clic o toque en una captura la amplía;
+        // clic en cualquier parte (o Escape) la cierra
+        const lb = document.createElement('div');
+        lb.className = 'lightbox';
+        lb.innerHTML = '<img alt="">';
+        document.body.appendChild(lb);
+        lb.addEventListener('click', () => lb.classList.remove('abierto'));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lb.classList.remove('abierto'); });
+        $('pGaleria').addEventListener('click', (e) => {
+          const img = e.target.closest('img');
+          if (!img) return;
+          lb.querySelector('img').src = img.src;
+          lb.classList.add('abierto');
+        });
       }
 
       $('pCierre1').textContent = cfg.cierre[0];
@@ -984,7 +1020,8 @@
       }
 
       for (const btn of [$('pCtaTop'), $('pCtaBottom')]) {
-        btn.textContent = comprado ? 'IR AL RECURSO' : 'COMPRAR AHORA';
+        // El botón dice QUÉ estás comprando (hallazgo del equipo: claridad en el CTA)
+        btn.textContent = comprado ? 'IR AL RECURSO' : `COMPRAR ${cfg.corto.toUpperCase()}`;
         btn.addEventListener('click', () => {
           if (!comprado) registrarEvento('clic_comprar', producto.id);
           if (promoLista) { $('promoOverlay').classList.add('activa'); return; }

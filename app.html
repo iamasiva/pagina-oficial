@@ -128,7 +128,7 @@
     .scroll-wrapper { position: relative; }
     .app-track { display: flex; gap: 14px; overflow-x: auto; overflow-y: visible; touch-action: pan-y; padding: 8px 0 14px; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
-    .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(47,107,255,0.35); background: rgba(5,5,5,0.9); color: var(--white); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
+    .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(47,107,255,0.6); background: rgba(5,5,5,0.92); color: var(--white); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     
     .scroll-arrow.left { left: -20px; }
     .scroll-arrow.right { right: -20px; }
@@ -140,7 +140,7 @@
     .app-card.con-rank .app-card-pie { min-height: 92px; align-items: flex-start; }
     .fav-estrella { position: absolute; right: 6px; bottom: 5px; z-index: 4; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
     
-    .fav-estrella.activo { color: #ffd166; }
+    .fav-estrella.activo { color: #ff5470; }
     .app-card-nombre { width: 100%; padding-right: 20px; font-size: 0.76rem; font-weight: 600; color: var(--gray); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     @media (hover: hover) and (pointer: fine) {
       .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
@@ -184,7 +184,10 @@
     .app-card-info { display: none; }
     .app-card-tag  { font-size: 0.68rem; color: #4a6080; }
     .app-card-lock { position: absolute; top: 8px; right: 8px; z-index: 3; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; background: rgba(5,8,20,0.72); border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 4px 9px; backdrop-filter: blur(4px); }
-    .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; }
+    .app-empty { color: #3d5268; font-size: 0.9rem; padding: 24px 0; font-style: italic; flex: 1 0 100%; }
+    /* Vista vacía (favoritos/compras sin nada): sin flechas de carrusel, que
+       flotaban encima del mensaje y tapaban la primera palabra */
+    #filteredSection.sin-resultados .scroll-arrow { display: none; }
 
     /* ─── ADMIN CARD CONTROLS ────────────────────────────────── */
     .admin-card-controls { position: absolute; top: 8px; left: 8px; display: flex; gap: 5px; z-index: 10; opacity: 0; transition: opacity 0.2s; }
@@ -460,7 +463,7 @@
       .hero-dot:hover { background: rgba(255,255,255,0.5); }
       .app-btn-play:hover { background: #4d7fff; transform: translateY(-2px); }
       .scroll-arrow:hover { background: rgba(47,107,255,0.25); border-color: var(--blue-elec); box-shadow: 0 0 16px rgba(47,107,255,0.35); }
-      .fav-estrella:hover { transform: scale(1.2); color: #ffd166; }
+      .fav-estrella:hover { transform: scale(1.2); color: #ff5470; }
       .ficha-ver:hover { background: #4d7fff; }
       .app-card:hover .admin-card-controls { opacity: 1; }
       .admin-card-btn.edit:hover { background: rgba(47,107,255,0.2); }
@@ -1251,6 +1254,7 @@
       document.getElementById('appHero').style.display = sinHero ? 'none' : '';
       document.getElementById('filteredSection').classList.toggle('modo-lista', modoLista);
       document.getElementById('rowFiltered').classList.toggle('vista-lista', modoLista);
+      document.getElementById('filteredSection').classList.toggle('sin-resultados', !filtered.length);
       document.getElementById('rowFiltered').innerHTML = filtered.length
         ? (modoLista
             ? filtered.map(g => {
@@ -1259,7 +1263,7 @@
                   <div class="lista-item">
                     <img src="${g.portada_url || g.imagen_url || ''}" alt="" loading="lazy" />
                     <div class="lista-info">
-                      <h3>${g.titulo}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '★' : '☆'}</button></h3>
+                      <h3>${g.titulo}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
                       <p>${g.descripcion || ''}</p>
                       <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado},true)">Ver recurso</button>
                     </div>
@@ -1381,7 +1385,7 @@
           </div>
           <div class="app-card-pie">
             <span class="app-card-nombre">${guide.titulo}</span>
-            <button class="fav-estrella${esFav ? ' activo' : ''}" data-guia="${guide.id}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '★' : '☆'}</button>
+            <button class="fav-estrella${esFav ? ' activo' : ''}" data-guia="${guide.id}" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="event.stopPropagation();toggleFavorito('${guide.id}')">${esFav ? '♥' : '♡'}</button>
           </div>
           ${showRank ? `<div class="app-card-rank">${rank}</div>` : ''}
         </div>`;
@@ -1403,7 +1407,7 @@
       document.querySelectorAll(`.fav-estrella[data-guia="${guideId}"]`).forEach(b => {
         const activo = favoritosSet.has(guideId);
         b.classList.toggle('activo', activo);
-        b.textContent = activo ? '★' : '☆';
+        b.textContent = activo ? '♥' : '♡';
         b.title = activo ? 'Quitar de favoritos' : 'Guardar en favoritos';
       });
       renderAll();
