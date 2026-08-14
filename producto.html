@@ -62,6 +62,8 @@
     .promo-pill { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta-texto); background: var(--acento); border-radius: 999px; padding: 6px 14px; margin-bottom: 10px; }
     .cta { display: inline-block; background: var(--acento); color: var(--cta-texto); border: none; padding: 18px 52px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; letter-spacing: 0.03em; transition: transform .15s ease, filter .2s; box-shadow: 0 12px 34px color-mix(in srgb, var(--acento) 40%, transparent); }
     .cta:hover { filter: brightness(1.12); transform: translateY(-2px); }
+    /* Segunda línea del CTA: el nombre del recurso, discreto bajo el COMPRAR grande */
+    .cta .cta-nombre { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; opacity: 0.95; margin-top: 3px; }
     .micro { margin-top: 12px; color: var(--muted); font-size: 0.82rem; }
 
     /* ── Popup de promoción (bundle): toma la identidad de cada producto ── */
@@ -1020,8 +1022,9 @@
       }
 
       for (const btn of [$('pCtaTop'), $('pCtaBottom')]) {
-        // El botón dice QUÉ estás comprando (hallazgo del equipo: claridad en el CTA)
-        btn.textContent = comprado ? 'IR AL RECURSO' : `COMPRAR ${cfg.corto.toUpperCase()}`;
+        // El botón dice QUÉ estás comprando (hallazgo del equipo: claridad en el
+        // CTA), en dos líneas: COMPRAR grande y el nombre del recurso debajo
+        btn.innerHTML = comprado ? 'IR AL RECURSO' : `COMPRAR<span class="cta-nombre">${cfg.corto}</span>`;
         btn.addEventListener('click', () => {
           if (!comprado) registrarEvento('clic_comprar', producto.id);
           if (promoLista) { $('promoOverlay').classList.add('activa'); return; }

@@ -141,6 +141,9 @@
     .fav-estrella { position: absolute; right: 6px; bottom: 5px; z-index: 4; background: none; border: none; color: rgba(255,255,255,0.75); font-size: 1.1rem; line-height: 1; padding: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.9); transition: transform .15s ease, color .15s ease; }
     
     .fav-estrella.activo { color: #ff5470; }
+    /* Pop de like al marcar favorito */
+    @keyframes favPop { 0% { transform: scale(1); } 45% { transform: scale(1.5); } 100% { transform: scale(1); } }
+    .fav-estrella.pop { animation: favPop 0.32s ease; }
     .app-card-nombre { width: 100%; padding-right: 20px; font-size: 0.76rem; font-weight: 600; color: var(--gray); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     @media (hover: hover) and (pointer: fine) {
       .app-card:hover { transform: scale(1.07) translateY(-7px); box-shadow: 0 22px 55px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,107,255,0.5); border-color: rgba(47,107,255,0.5); z-index: 5; }
@@ -1392,25 +1395,34 @@
     }
 
     // ── FAVORITOS ─────────────────────────────────────────────
-    async function toggleFavorito(guideId) {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) return;
-      if (favoritosSet.has(guideId)) {
-        const { error } = await sb.from('user_guia_favoritos').delete().eq('guide_id', guideId);
-        if (error) { alert('No se pudo quitar de favoritos'); return; }
-        favoritosSet.delete(guideId);
-      } else {
-        const { error } = await sb.from('user_guia_favoritos').insert({ user_id: session.user.id, guide_id: guideId });
-        if (error) { alert('No se pudo guardar en favoritos'); return; }
-        favoritosSet.add(guideId);
-      }
+    // Pinta todos los corazones de una guía (aparece en varias filas) sin
+    // reconstruir las cards: el renderAll() que había aquí destruía la card
+    // bajo el cursor y se veía "hundirse" al dar favorito.
+    function pintarFav(guideId, activo) {
       document.querySelectorAll(`.fav-estrella[data-guia="${guideId}"]`).forEach(b => {
-        const activo = favoritosSet.has(guideId);
         b.classList.toggle('activo', activo);
         b.textContent = activo ? '♥' : '♡';
         b.title = activo ? 'Quitar de favoritos' : 'Guardar en favoritos';
+        if (activo) { b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
       });
-      renderAll();
+    }
+
+    async function toggleFavorito(guideId) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      // Como un like: la UI responde al instante y solo se revierte si la base falla
+      const quitar = favoritosSet.has(guideId);
+      if (quitar) favoritosSet.delete(guideId); else favoritosSet.add(guideId);
+      pintarFav(guideId, !quitar);
+      const { error } = quitar
+        ? await sb.from('user_guia_favoritos').delete().eq('guide_id', guideId)
+        : await sb.from('user_guia_favoritos').insert({ user_id: session.user.id, guide_id: guideId });
+      if (error) {
+        if (quitar) favoritosSet.add(guideId); else favoritosSet.delete(guideId);
+        pintarFav(guideId, quitar);
+        alert(quitar ? 'No se pudo quitar de favoritos' : 'No se pudo guardar en favoritos');
+        return;
+      }
       // Si está viendo el panel de favoritos, refrescarlo también
       if (document.getElementById('filteredTitle').textContent === 'Tus favoritos' &&
           document.getElementById('filteredSection').classList.contains('active')) setFilter('favoritos');
