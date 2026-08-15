@@ -1317,7 +1317,7 @@
                   <div class="lista-item">
                     <img src="${g.portada_url || g.imagen_url || ''}" alt="" loading="lazy" />
                     <div class="lista-info">
-                      <h3>${g.titulo}${g.es_premium && userPurchases.includes(g.id) ? ' <span class="lista-vista tuyo">Tuyo</span>' : !conCandado && vistasSet.has(g.id) ? ' <span class="lista-vista">✓ Visto</span>' : ''}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
+                      <h3>${g.titulo}${g.es_premium && (userPurchases.includes(g.id) || packCompletoDeGuia(g)) ? ' <span class="lista-vista tuyo">Tuyo</span>' : !conCandado && vistasSet.has(g.id) ? ' <span class="lista-vista">✓ Visto</span>' : ''}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
                       <p>${g.descripcion || ''}</p>
                       <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado},true)">Ver recurso</button>
                     </div>
@@ -1417,9 +1417,22 @@
     }, true);
 
     // ── CARD BUILDER ──────────────────────────────────────────
+    // Un pack también es "Tuyo" si el usuario ya tiene TODAS sus piezas
+    // (compradas una a una, completadas o regaladas)
+    function packCompletoDeGuia(guide) {
+      const prod = allProducts.find(p => p.guide_id === guide.id);
+      const comps = prod && packsMap[prod.id];
+      if (!comps?.length) return false;
+      return comps.every(cid => {
+        const cp = allProducts.find(p => p.id === cid);
+        return cp && userPurchases.includes(cp.guide_id);
+      });
+    }
+
     function makeCard(guide, rank, showRank = false) {
       const purchased = userPurchases.includes(guide.id);
       const locked    = guide.es_premium && !purchased;
+      const esTuyo    = guide.es_premium && (purchased || packCompletoDeGuia(guide));
       const cats = (guide.categorias || []).slice(0,2).join(' · ');
       const adminControls = isAdmin ? `
         <div class="admin-card-controls">
@@ -1432,7 +1445,7 @@
           <div class="app-card-arte">
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
-            ${purchased && guide.es_premium ? '<div class="app-card-lock tuyo">Tuyo</div>' : locked ? '<div class="app-card-lock">De pago</div>' : (vistasSet.has(guide.id) ? '<div class="app-card-lock vista">✓ Visto</div>' : '')}
+            ${esTuyo ? '<div class="app-card-lock tuyo">Tuyo</div>' : locked ? '<div class="app-card-lock">De pago</div>' : (vistasSet.has(guide.id) ? '<div class="app-card-lock vista">✓ Visto</div>' : '')}
             <div class="app-card-info">
               <div class="app-card-tag">${cats}</div>
             </div>
@@ -2690,6 +2703,9 @@
       if (isAdmin) await loadAndRender();
       else renderAll();
       await cargarPacks();
+      // Con los packs ya cargados, el badge "Tuyo" del pack completo por
+      // piezas necesita un repintado
+      renderAll();
       renderizarPaquetes();
     }
   </script>
