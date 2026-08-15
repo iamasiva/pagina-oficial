@@ -233,6 +233,17 @@
     .guide-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 56px; background: rgba(5,15,58,0.98); border-bottom: 1px solid rgba(47,107,255,0.18); flex-shrink: 0; }
     .guide-topbar-title { font-size: 0.95rem; font-weight: 700; color: var(--white); }
     .guide-close { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--white); padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .guide-topbar-acciones { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+    .guide-fav.activo { color: #ff5470; border-color: rgba(255,84,112,0.5); }
+    /* Badge "Visto" (mismo molde del "De pago", en verde) */
+    .app-card-lock.vista { color: #9ff0cf; border-color: rgba(0,255,156,0.35); background: rgba(4,22,16,0.75); }
+    .lista-vista { display: inline-block; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #9ff0cf; border: 1px solid rgba(0,255,156,0.35); border-radius: 999px; padding: 3px 8px; margin-left: 8px; vertical-align: middle; }
+    /* Favoritos agrupados por categoría: secciones apiladas, cards en rejilla */
+    #filteredSection.modo-grupos .scroll-arrow { display: none; }
+    .app-track.vista-grupos { display: block; overflow-x: visible; }
+    .fav-grupo { margin-bottom: 30px; }
+    .fav-grupo-titulo { font-size: 1rem; font-weight: 800; color: var(--white); margin: 0 0 12px; letter-spacing: 0.02em; }
+    .fav-grupo-fila { display: flex; flex-wrap: wrap; gap: 14px; }
     
     .guide-frame { flex: 1; width: 100%; border: none; background: #fff; }
 
@@ -381,6 +392,8 @@
       .app-track { padding: 8px 0 14px; }
       
       .scroll-arrow { display: none; }
+      .guide-fav-txt { display: none; }
+      .guide-fav { padding: 7px 12px; }
       .cats-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
     }
@@ -662,7 +675,10 @@
     <div class="guide-topbar">
       <span class="guide-topbar-brand" onclick="cerrarCapa(closeGuideViewer);irInicio();">IA MASIVA</span>
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
-      <button class="guide-close" onclick="cerrarCapa(closeGuideViewer)">✕ Cerrar</button>
+      <div class="guide-topbar-acciones">
+        <button class="guide-close guide-fav" id="guideFavBtn">♡ <span class="guide-fav-txt">Favoritos</span></button>
+        <button class="guide-close" onclick="cerrarCapa(closeGuideViewer)">✕ Cerrar</button>
+      </div>
     </div>
     <!-- El iframe de la guía se crea al abrir y se quita al cerrar (montarGuia):
          en iPhone, reutilizarlo metía su carga en el historial y "Atrás"
@@ -932,6 +948,9 @@
       }
     } catch (_) {}
     let favoritosSet = new Set();
+    // Guías que este usuario ya abrió (badge "Visto"); se llena desde la tabla
+    // aperturas (RLS: cada quien lee solo las suyas)
+    let vistasSet = new Set();
 
     // La cortina se retira cuando el catálogo ya está pintado (desde la copia
     // local o desde la base); red de seguridad a los 2,5s pase lo que pase.
@@ -1255,18 +1274,43 @@
       // se aterriza directo, sin viaje de scroll
       const sinHero = modoLista || type === 'favoritos' || type === 'compras';
       document.getElementById('appHero').style.display = sinHero ? 'none' : '';
+      // Favoritos se muestra agrupado por categoría (secciones apiladas con
+      // rejilla): con muchos guardados, en una sola fila se perdían recursos
+      const modoGrupos = type === 'favoritos' && filtered.length > 0;
       document.getElementById('filteredSection').classList.toggle('modo-lista', modoLista);
       document.getElementById('rowFiltered').classList.toggle('vista-lista', modoLista);
+      document.getElementById('filteredSection').classList.toggle('modo-grupos', modoGrupos);
+      document.getElementById('rowFiltered').classList.toggle('vista-grupos', modoGrupos);
       document.getElementById('filteredSection').classList.toggle('sin-resultados', !filtered.length);
       document.getElementById('rowFiltered').innerHTML = filtered.length
-        ? (modoLista
+        ? (modoGrupos
+            ? (() => {
+                // Una sección por categoría; la guía con varias categorías
+                // aparece en cada una (así se encuentra por cualquier camino)
+                const orden = CATEGORIAS.map(c => c.nombre);
+                const grupos = new Map();
+                filtered.forEach(g => {
+                  const cats = (g.categorias?.length ? g.categorias : ['Otros']);
+                  cats.forEach(c => { if (!grupos.has(c)) grupos.set(c, []); grupos.get(c).push(g); });
+                });
+                const claves = [...grupos.keys()].sort((a, b) => {
+                  const ia = orden.indexOf(a), ib = orden.indexOf(b);
+                  return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+                });
+                return claves.map(c => `
+                  <div class="fav-grupo">
+                    <h3 class="fav-grupo-titulo">${c}</h3>
+                    <div class="fav-grupo-fila">${grupos.get(c).map((g, i) => makeCard(g, i + 1, false)).join('')}</div>
+                  </div>`).join('');
+              })()
+            : modoLista
             ? filtered.map(g => {
                 const conCandado = g.es_premium && !userPurchases.includes(g.id);
                 return `
                   <div class="lista-item">
                     <img src="${g.portada_url || g.imagen_url || ''}" alt="" loading="lazy" />
                     <div class="lista-info">
-                      <h3>${g.titulo}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
+                      <h3>${g.titulo}${!conCandado && vistasSet.has(g.id) ? ' <span class="lista-vista">✓ Visto</span>' : ''}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
                       <p>${g.descripcion || ''}</p>
                       <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado},true)">Ver recurso</button>
                     </div>
@@ -1381,7 +1425,7 @@
           <div class="app-card-arte">
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
-            ${locked ? '<div class="app-card-lock">De pago</div>' : ''}
+            ${locked ? '<div class="app-card-lock">De pago</div>' : (vistasSet.has(guide.id) ? '<div class="app-card-lock vista">✓ Visto</div>' : '')}
             <div class="app-card-info">
               <div class="app-card-tag">${cats}</div>
             </div>
@@ -1405,7 +1449,17 @@
         b.title = activo ? 'Quitar de favoritos' : 'Guardar en favoritos';
         if (activo) { b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
       });
+      // El botón "Favoritos" de la barra del visor, si esa guía está abierta
+      const gf = document.getElementById('guideFavBtn');
+      if (gf && gf.dataset.guia === guideId) {
+        gf.classList.toggle('activo', activo);
+        gf.innerHTML = `${activo ? '♥' : '♡'} <span class="guide-fav-txt">Favoritos</span>`;
+      }
     }
+    document.getElementById('guideFavBtn').addEventListener('click', () => {
+      const id = document.getElementById('guideFavBtn').dataset.guia;
+      if (id) toggleFavorito(id);
+    });
 
     async function toggleFavorito(guideId) {
       const { data: { session } } = await sb.auth.getSession();
@@ -1612,6 +1666,13 @@
 
     function montarGuia(html, guiaId) {
       desmontarGuia();
+      // Botón "Favoritos" de la barra: refleja el estado de ESTA guía
+      const gf = document.getElementById('guideFavBtn');
+      gf.dataset.guia = guiaId || '';
+      gf.style.display = guiaId ? '' : 'none';
+      const esFavAhora = !!guiaId && favoritosSet.has(guiaId);
+      gf.classList.toggle('activo', esFavAhora);
+      gf.innerHTML = `${esFavAhora ? '♥' : '♡'} <span class="guide-fav-txt">Favoritos</span>`;
       const f = document.createElement('iframe');
       f.className = 'guide-frame';
       f.id = 'guideFrame';
@@ -1907,6 +1968,16 @@
         document.body.style.overflow = 'hidden';
         // Apertura registrada para tendencias reales; si falla no molesta a nadie
         if (usuarioActualId) sb.from('aperturas').insert({ user_id: usuarioActualId, guide_id: id }).then(() => {}, () => {});
+        // Badge "Visto" al instante en las cards ya pintadas (sin re-render)
+        if (!vistasSet.has(id)) {
+          vistasSet.add(id);
+          document.querySelectorAll(`.fav-estrella[data-guia="${id}"]`).forEach(b => {
+            const arte = b.closest('.app-card')?.querySelector('.app-card-arte');
+            if (arte && !arte.querySelector('.app-card-lock')) {
+              arte.insertAdjacentHTML('beforeend', '<div class="app-card-lock vista">✓ Visto</div>');
+            }
+          });
+        }
         return true;
       } catch(e) {
         alert('No se pudo cargar la guía. Intenta de nuevo.');
@@ -2574,12 +2645,16 @@
       document.getElementById('appNavName').textContent=nombre;
 
       // Admin y compras en paralelo (antes eran dos viajes en serie)
-      const [{ data: profile }, { data: purchases }, { data: favs }] = await Promise.all([
+      const [{ data: profile }, { data: purchases }, { data: favs }, { data: vistas }] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id',session.user.id).single(),
         sb.from('purchases').select('guide_id').eq('user_id',session.user.id).eq('estado','APROBADA'),
         sb.from('user_guia_favoritos').select('guide_id'),
+        // Vistas del usuario (RLS filtra a las propias); si la política aún no
+        // existe devuelve error y el badge simplemente no aparece
+        sb.from('aperturas').select('guide_id').not('guide_id', 'is', null),
       ]);
       favoritosSet = new Set((favs || []).map(f => f.guide_id));
+      vistasSet = new Set((vistas || []).map(v => v.guide_id));
       isAdmin=!!profile?.es_admin;
       if(isAdmin) {
         document.getElementById('btnNewGuide').classList.remove('hidden');
