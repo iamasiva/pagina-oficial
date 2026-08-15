@@ -1274,9 +1274,10 @@
       // se aterriza directo, sin viaje de scroll
       const sinHero = modoLista || type === 'favoritos' || type === 'compras';
       document.getElementById('appHero').style.display = sinHero ? 'none' : '';
-      // Favoritos se muestra agrupado por categoría (secciones apiladas con
-      // rejilla): con muchos guardados, en una sola fila se perdían recursos
-      const modoGrupos = type === 'favoritos' && filtered.length > 0;
+      // Favoritos y Compras se muestran en rejilla (sin carrusel ni flechas):
+      // con muchos guardados, en una sola fila se perdían recursos. Favoritos
+      // además agrupa por categoría; Compras va plano.
+      const modoGrupos = (type === 'favoritos' || type === 'compras') && filtered.length > 0;
       document.getElementById('filteredSection').classList.toggle('modo-lista', modoLista);
       document.getElementById('rowFiltered').classList.toggle('vista-lista', modoLista);
       document.getElementById('filteredSection').classList.toggle('modo-grupos', modoGrupos);
@@ -1285,6 +1286,10 @@
       document.getElementById('rowFiltered').innerHTML = filtered.length
         ? (modoGrupos
             ? (() => {
+                // Compras: la misma rejilla pero plana, sin secciones
+                if (type === 'compras') {
+                  return `<div class="fav-grupo"><div class="fav-grupo-fila">${filtered.map((g, i) => makeCard(g, i + 1, false)).join('')}</div></div>`;
+                }
                 // Una sección por categoría; la guía con varias categorías
                 // aparece en cada una (así se encuentra por cualquier camino)
                 const orden = CATEGORIAS.map(c => c.nombre);
