@@ -237,7 +237,9 @@
     .guide-fav.activo { color: #ff5470; border-color: rgba(255,84,112,0.5); }
     /* Badge "Visto" (mismo molde del "De pago", en verde) */
     .app-card-lock.vista { color: #9ff0cf; border-color: rgba(0,255,156,0.35); background: rgba(4,22,16,0.75); }
+    .app-card-lock.tuyo { color: #ffe3a3; border-color: rgba(255,209,102,0.45); background: rgba(30,21,4,0.75); }
     .lista-vista { display: inline-block; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #9ff0cf; border: 1px solid rgba(0,255,156,0.35); border-radius: 999px; padding: 3px 8px; margin-left: 8px; vertical-align: middle; }
+    .lista-vista.tuyo { color: #ffe3a3; border-color: rgba(255,209,102,0.45); }
     /* Favoritos agrupados por categoría: secciones apiladas, cards en rejilla */
     #filteredSection.modo-grupos .scroll-arrow { display: none; }
     .app-track.vista-grupos { display: block; overflow-x: visible; }
@@ -1315,7 +1317,7 @@
                   <div class="lista-item">
                     <img src="${g.portada_url || g.imagen_url || ''}" alt="" loading="lazy" />
                     <div class="lista-info">
-                      <h3>${g.titulo}${!conCandado && vistasSet.has(g.id) ? ' <span class="lista-vista">✓ Visto</span>' : ''}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
+                      <h3>${g.titulo}${g.es_premium && userPurchases.includes(g.id) ? ' <span class="lista-vista tuyo">Tuyo</span>' : !conCandado && vistasSet.has(g.id) ? ' <span class="lista-vista">✓ Visto</span>' : ''}<button class="fav-estrella lista-fav${favoritosSet.has(g.id) ? ' activo' : ''}" data-guia="${g.id}" title="${favoritosSet.has(g.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'}" onclick="toggleFavorito('${g.id}')">${favoritosSet.has(g.id) ? '♥' : '♡'}</button></h3>
                       <p>${g.descripcion || ''}</p>
                       <button class="lista-ver" onclick="openGuide('${g.id}',${conCandado},true)">Ver recurso</button>
                     </div>
@@ -1430,7 +1432,7 @@
           <div class="app-card-arte">
             ${guide.portada_url ? `<img src="${guide.portada_url}" class="app-card-cover" loading="lazy" decoding="async"/>` : ''}
             ${adminControls}
-            ${locked ? '<div class="app-card-lock">De pago</div>' : (vistasSet.has(guide.id) ? '<div class="app-card-lock vista">✓ Visto</div>' : '')}
+            ${purchased && guide.es_premium ? '<div class="app-card-lock tuyo">Tuyo</div>' : locked ? '<div class="app-card-lock">De pago</div>' : (vistasSet.has(guide.id) ? '<div class="app-card-lock vista">✓ Visto</div>' : '')}
             <div class="app-card-info">
               <div class="app-card-tag">${cats}</div>
             </div>

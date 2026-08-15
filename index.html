@@ -1043,7 +1043,6 @@
 
         <div class="guide-card">
           <div class="card-rank">1</div>
-          <div class="card-badge">Destacada</div>
           <div class="card-info">
             <div class="card-title">Guía #1</div>
             <div class="card-tag">Inteligencia Artificial</div>
@@ -1068,7 +1067,6 @@
 
         <div class="guide-card">
           <div class="card-rank">4</div>
-          <div class="card-badge">Gratis</div>
           <div class="card-info">
             <div class="card-title">Guía #4</div>
             <div class="card-tag">Inteligencia Artificial</div>
@@ -1085,7 +1083,6 @@
 
         <div class="guide-card">
           <div class="card-rank">6</div>
-          <div class="card-badge">Gratis</div>
           <div class="card-info">
             <div class="card-title">Guía #6</div>
             <div class="card-tag">Inteligencia Artificial</div>
@@ -1110,7 +1107,6 @@
 
         <div class="guide-card">
           <div class="card-rank">9</div>
-          <div class="card-badge">Destacada</div>
           <div class="card-info">
             <div class="card-title">Guía #9</div>
             <div class="card-tag">Inteligencia Artificial</div>
@@ -1769,7 +1765,6 @@
             ${guia.portada_url ? `<img class="card-cover" src="${guia.portada_url}" alt="" loading="lazy" decoding="async" />` : ''}
             <div class="card-scrim"></div>
             <div class="card-rank">${i + 1}</div>
-            <div class="card-badge">${guia.es_premium ? 'De pago' : 'Gratis'}</div>
             <div class="card-info">
               <div class="card-title">${esc(guia.titulo)}</div>
               <div class="card-tag">${esc((guia.categorias ?? []).slice(0, 2).join(' · '))}</div>
