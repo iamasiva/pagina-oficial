@@ -572,6 +572,10 @@
     .im-chat-sub { position: relative; width: 100%; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 44px 12px 14px; }
     .im-chat-sub h4 { margin: 0 0 2px; font-size: 0.9rem; }
     .im-chat-sub .nota { color: var(--muted); font-size: 0.8rem; margin: 0 0 8px; }
+    .im-cfg-chip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; background: var(--accent-soft); color: var(--accent-hover); border-radius: 999px; padding: 5px 6px 5px 12px; font-size: 0.8rem; font-weight: 700; margin: 2px 0 10px; }
+    .im-cfg-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .im-cfg-chip button { flex: none; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: var(--ink); cursor: pointer; }
+    .im-cfg-chip button:hover { background: var(--surface-2); }
     .im-modal-nota { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin: 14px 0 0; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
@@ -1086,8 +1090,8 @@
       <h3 id="imModalNodoTitulo">Crear categoría</h3>
       <label class="im-modal-label" id="imNodoLblNombre">Nombre</label>
       <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
-      <label class="im-modal-label" id="imNodoLblDesc">Descripción (opcional)</label>
-      <input id="imNodoDesc" type="text" placeholder="Ej: Todo lo relacionado con la marca" />
+      <label class="im-modal-label" id="imNodoLblDesc">Objetivo (opcional)</label>
+      <input id="imNodoDesc" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
       <div class="im-modal-acciones">
         <button id="imNodoCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imNodoGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
@@ -1106,8 +1110,14 @@
         <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…" />
         <label class="im-modal-label" id="imCuadLblUrlNb">Link del cuaderno en NotebookLM</label>
         <input id="imCuadUrlNbInput" type="text" placeholder="https://notebooklm.google.com/…" />
-        <label class="im-modal-label" id="imCuadLblDesc">¿Para qué es? (opcional)</label>
-        <input id="imCuadDescInput" type="text" placeholder="Nota corta para acordarte" />
+        <label class="im-modal-label" id="imCuadLblDesc">Objetivo (opcional)</label>
+        <input id="imCuadDescInput" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
+        <label class="im-modal-label" id="imCuadLblCfg">Configuración (opcional)</label>
+        <div id="imCuadCfgSelects">
+          <select id="imCuadSelCfgCat"></select>
+          <select id="imCuadSelCfg" style="margin-top:8px;"></select>
+        </div>
+        <p class="im-modal-nota" id="imCuadCfgVacio" style="display:none; margin:4px 0 0;">Guarda configuraciones para poder asignarlas</p>
       </div>
       <label class="im-modal-label" id="imCuadLblCat">Categoría (opcional)</label>
       <select id="imCuadSelCat"></select>
@@ -1130,8 +1140,8 @@
       <input id="imChatCTit" type="text" placeholder="Ej: Guion semana 22" />
       <label class="im-modal-label" id="imChatCLblUrl">Link del chat</label>
       <input id="imChatCUrl" type="text" placeholder="https://gemini.google.com/app/…" />
-      <label class="im-modal-label" id="imChatCLblNota">Nota (opcional)</label>
-      <input id="imChatCNota" type="text" placeholder="De qué trató" />
+      <label class="im-modal-label" id="imChatCLblNota">Objetivo (opcional)</label>
+      <input id="imChatCNota" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
       <div class="im-modal-acciones">
         <button id="imChatCCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imChatCOk" class="primary-btn" type="button"><span>Guardar</span></button>
@@ -1589,7 +1599,7 @@ NEVER:
     }
 
     function toggleTreeRoot() {
-      // Solo expande/colapsa el árbol — nunca navega. La navegación vive
+      // Solo expande/colapsa el árbol, nunca navega. La navegación vive
       // únicamente en las subcategorías del árbol y en las cards del home.
       state.treeOpen = !state.treeOpen;
       renderSidebarTree();
@@ -2043,7 +2053,7 @@ ${clean}`;
         if (famBtn) { selectFamilyNav(famBtn.dataset.category, famBtn.dataset.family); return; }
         const catBtn = event.target.closest('.tree-cat');
         if (catBtn) {
-          // Solo expande/colapsa — la navegación a la categoría es desde las cards del home
+          // Solo expande/colapsa: la navegación a la categoría es desde las cards del home
           const cat = catBtn.dataset.category;
           state.expandedCats.has(cat) ? state.expandedCats.delete(cat) : state.expandedCats.add(cat);
           renderSidebarTree();
@@ -2168,7 +2178,7 @@ ${clean}`;
           arbolBtn: 'Árbol', arbolCopiar: 'Copiar árbol', arbolCopiado: 'Árbol copiado', arbolVacio: 'Esta categoría aún no tiene cuadernos.', arbolSinSub: 'Sin subcategoría',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
-          lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: '¿Para qué es? (opcional)',
+          lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: 'Objetivo (opcional)',
           modalTitulo: 'Ponle un nombre para recordarla', btnGuardarCuad: 'Guardar cuaderno', btnGuardarCfg: 'Guardar en mis configuraciones', btnCancelar: 'Cancelar', btnGuardar: 'Guardar',
           ver: 'Ver', copiar: 'Copiar', eliminar: 'Eliminar', abrir: 'Abrir cuaderno', variantes: 'variantes',
           guardadoCfg: 'Guardada en mis configuraciones', favOn: 'Agregada a favoritos', favOff: 'Quitada de favoritos', eliminado: 'Eliminado', cuadGuardado: 'Cuaderno guardado',
@@ -2184,7 +2194,7 @@ ${clean}`;
           arbolBtn: 'Tree', arbolCopiar: 'Copy tree', arbolCopiado: 'Tree copied', arbolVacio: 'This category has no notebooks yet.', arbolSinSub: 'No subcategory',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
-          lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'What is it for? (optional)',
+          lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'Objective (optional)',
           modalTitulo: 'Name it so you remember it', btnGuardarCuad: 'Save notebook', btnGuardarCfg: 'Save to my configurations', btnCancelar: 'Cancel', btnGuardar: 'Save',
           ver: 'View', copiar: 'Copy', eliminar: 'Delete', abrir: 'Open notebook', variantes: 'variants',
           guardadoCfg: 'Saved to my configurations', favOn: 'Added to favorites', favOff: 'Removed from favorites', eliminado: 'Deleted', cuadGuardado: 'Notebook saved',
@@ -2306,6 +2316,7 @@ ${clean}`;
         const { data } = await db.from('user_configs').select('id,nombre,contenido,categoria,created_at').order('created_at', { ascending: false });
         misConfigs = data ?? [];
         renderMisConfigs();
+        renderCuadernos();   // los chips de config de los cuadernos dependen de misConfigs
       }
 
       function renderMisConfigs() {
@@ -2351,7 +2362,7 @@ ${clean}`;
           if (!confirm(tt().confirmaEliminar)) return;
           await db.from('user_configs').delete().eq('id', cfg.id);
           misConfigs = misConfigs.filter(c => c.id !== cfg.id);
-          renderMisConfigs(); showToast(tt().eliminado);
+          renderMisConfigs(); renderCuadernos(); showToast(tt().eliminado);
         }
       });
 
@@ -2404,16 +2415,17 @@ ${clean}`;
         crearCat: 'Crear categoría', crearSub: 'Crear subcategoría', agregarCuad: 'Agregar cuaderno',
         tEditarCat: 'Editar categoría', tCrearSub: 'Crear subcategoría', tEditarSub: 'Editar subcategoría',
         tNuevoCuad: 'Agregar cuaderno', tEditarCuad: 'Editar cuaderno', tMoverCuad: 'Mover cuaderno',
-        lblNombre: 'Nombre', lblDescOpc: 'Descripción (opcional)', lblTituloC: 'Título',
+        lblNombre: 'Nombre', lblDescOpc: 'Objetivo (opcional)', lblTituloC: 'Título',
         lblUrlGem: 'Link del cuaderno en Gemini', lblUrlNb: 'Link del cuaderno en NotebookLM', unLink: 'Pega al menos uno de los dos links',
-        lblParaQue: '¿Para qué es? (opcional)', lblCatOpc: 'Categoría (opcional)', lblSubOpc: 'Subcategoría (opcional)',
-        nuevaCatOpt: '➕ Nueva categoría…', nuevaSubOpt: '➕ Nueva subcategoría…', sinCatOpt: '— Sin categoría', sinSubOpt: '— Sin subcategoría',
+        lblParaQue: 'Objetivo (opcional)', lblCatOpc: 'Categoría (opcional)', lblSubOpc: 'Subcategoría (opcional)',
+        lblCfgOpc: 'Configuración (opcional)', cfgSinAsignar: 'Sin asignar', cfgGuardaPrimero: 'Guarda configuraciones para poder asignarlas',
+        nuevaCatOpt: '➕ Nueva categoría…', nuevaSubOpt: '➕ Nueva subcategoría…', sinCatOpt: 'Sin categoría', sinSubOpt: 'Sin subcategoría',
         editar: 'Editar', mover: 'Mover', catGuardada: 'Guardado', movido: 'Cuaderno movido', nCuad: 'cuadernos', raizTitulo: '',
         tituloCats: 'Categorías', tituloSubs: 'Subcategorías', sinCatTitulo: 'Cuadernos sin categoría', sinSubTitulo: 'Cuadernos sin subcategoría',
         abrirGemini: 'Abrir en Gemini', abrirNotebook: 'Abrir en NotebookLM',
         chats: 'Chats', guardarChat: '＋ Guardar chat', tNuevoChat: 'Guardar chat', tEditarChat: 'Editar chat',
-        lblTituloChat: 'Título', lblUrlChat: 'Link del chat', lblNotaChat: 'Nota (opcional)', chatGuardado: 'Chat guardado', abrirChat: 'Abrir chat',
-        tMoverSub: 'Mover subcategoría', lblCatDestino: 'Categoría destino', subMovida: 'Subcategoría movida', sinDestino: 'No hay otra categoría a dónde moverla — crea una primero',
+        lblTituloChat: 'Título', lblUrlChat: 'Link del chat', lblNotaChat: 'Objetivo (opcional)', chatGuardado: 'Chat guardado', abrirChat: 'Abrir chat',
+        tMoverSub: 'Mover subcategoría', lblCatDestino: 'Categoría destino', subMovida: 'Subcategoría movida', sinDestino: 'No hay otra categoría a dónde moverla: crea una primero',
         confTitCat: '¿Eliminar la categoría?', confTitSub: '¿Eliminar la subcategoría?',
         confTexCat: 'Se eliminará todo lo que contiene: subcategorías, cuadernos y chats guardados. Si quieres conservar alguna subcategoría o cuaderno, muévelo a otro lugar antes de eliminar.',
         confTexSub: 'Se eliminará todo lo que contiene: cuadernos y chats guardados. Si quieres conservar algún cuaderno, muévelo a otro lugar antes de eliminar.',
@@ -2425,16 +2437,17 @@ ${clean}`;
         crearCat: 'New category', crearSub: 'New subcategory', agregarCuad: 'Add notebook',
         tEditarCat: 'Edit category', tCrearSub: 'New subcategory', tEditarSub: 'Edit subcategory',
         tNuevoCuad: 'Add notebook', tEditarCuad: 'Edit notebook', tMoverCuad: 'Move notebook',
-        lblNombre: 'Name', lblDescOpc: 'Description (optional)', lblTituloC: 'Title',
+        lblNombre: 'Name', lblDescOpc: 'Objective (optional)', lblTituloC: 'Title',
         lblUrlGem: 'Notebook link in Gemini', lblUrlNb: 'Notebook link in NotebookLM', unLink: 'Paste at least one of the two links',
-        lblParaQue: 'What is it for? (optional)', lblCatOpc: 'Category (optional)', lblSubOpc: 'Subcategory (optional)',
-        nuevaCatOpt: '➕ New category…', nuevaSubOpt: '➕ New subcategory…', sinCatOpt: '— No category', sinSubOpt: '— No subcategory',
+        lblParaQue: 'Objective (optional)', lblCatOpc: 'Category (optional)', lblSubOpc: 'Subcategory (optional)',
+        lblCfgOpc: 'Configuration (optional)', cfgSinAsignar: 'None', cfgGuardaPrimero: 'Save configurations to assign them here',
+        nuevaCatOpt: '➕ New category…', nuevaSubOpt: '➕ New subcategory…', sinCatOpt: 'No category', sinSubOpt: 'No subcategory',
         editar: 'Edit', mover: 'Move', catGuardada: 'Saved', movido: 'Notebook moved', nCuad: 'notebooks', raizTitulo: '',
         tituloCats: 'Categories', tituloSubs: 'Subcategories', sinCatTitulo: 'Uncategorized notebooks', sinSubTitulo: 'Notebooks without subcategory',
         abrirGemini: 'Open in Gemini', abrirNotebook: 'Open in NotebookLM',
         chats: 'Chats', guardarChat: '＋ Save chat', tNuevoChat: 'Save chat', tEditarChat: 'Edit chat',
-        lblTituloChat: 'Title', lblUrlChat: 'Chat link', lblNotaChat: 'Note (optional)', chatGuardado: 'Chat saved', abrirChat: 'Open chat',
-        tMoverSub: 'Move subcategory', lblCatDestino: 'Destination category', subMovida: 'Subcategory moved', sinDestino: 'No other category to move it to — create one first',
+        lblTituloChat: 'Title', lblUrlChat: 'Chat link', lblNotaChat: 'Objective (optional)', chatGuardado: 'Chat saved', abrirChat: 'Open chat',
+        tMoverSub: 'Move subcategory', lblCatDestino: 'Destination category', subMovida: 'Subcategory moved', sinDestino: 'No other category to move it to: create one first',
         confTitCat: 'Delete this category?', confTitSub: 'Delete this subcategory?',
         confTexCat: 'Everything inside will be deleted: subcategories, notebooks and saved chats. Move anything you want to keep before deleting.',
         confTexSub: 'Everything inside will be deleted: notebooks and saved chats. Move any notebook you want to keep before deleting.',
@@ -2540,6 +2553,7 @@ ${clean}`;
         const abierto = chatsAbiertos.has(c.id);
         const uGem = c.url_gemini;
         const uNb = c.url_notebook ?? c.url;   // filas viejas: el link único era de NotebookLM
+        const cfg = c.config_id ? misConfigs.find(k => k.id === c.config_id) : null;
         return `
           <div class="im-row" data-imcuad="${c.id}">
             <button class="im-menu-btn" type="button" data-menucuad="${c.id}">⋮</button>
@@ -2551,6 +2565,7 @@ ${clean}`;
               </div>` : ''}
             <h3>${escapeHtml(c.titulo)}</h3>
             ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
+            ${cfg ? `<div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>` : ''}
             <div class="im-row-acciones">
               ${uGem ? `<a class="primary-btn" href="${escapeHtml(uGem)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirGemini)}</span></a>` : ''}
               ${uNb ? `<a class="primary-btn" href="${escapeHtml(uNb)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirNotebook)}</span></a>` : ''}
@@ -2662,6 +2677,13 @@ ${clean}`;
       $('imCuadList').addEventListener('click', (e) => {
         const abrir = e.target.closest('a.primary-btn');
         if (abrir) { e.preventDefault(); window.open(abrir.href, '_blank', 'noopener'); return; }
+        const cpc = e.target.closest('[data-copycfg]');
+        if (cpc) {
+          const c = cuadernos.find(k => String(k.id) === cpc.dataset.copycfg);
+          const cfg = c && misConfigs.find(k => k.id === c.config_id);
+          if (cfg) copyText(cfg.contenido, tt().copiar + ' ✓');
+          return;
+        }
         const menuChat = e.target.closest('[data-menuchat]');
         if (menuChat) {
           const clave = 'chat-' + menuChat.dataset.menuchat;
@@ -2836,6 +2858,34 @@ ${clean}`;
         $('imCuadSubNueva').style.display = 'none'; $('imCuadSubNueva').value = '';
       }
 
+      // Configuración asignada: desplegables categoría → config (salen de Mis configuraciones)
+      function llenarSelectsCfg(configIdSel) {
+        const x = tt();
+        const hay = misConfigs.length > 0;
+        $('imCuadCfgSelects').style.display = hay ? '' : 'none';
+        $('imCuadCfgVacio').style.display = hay ? 'none' : '';
+        $('imCuadCfgVacio').textContent = x.cfgGuardaPrimero;
+        if (!hay) return;
+        const asignada = configIdSel ? misConfigs.find(c => c.id === configIdSel) : null;
+        const cats = catsDeConfigs();
+        const haySinCat = misConfigs.some(c => !(c.categoria || '').trim());
+        const catSel = asignada
+          ? ((asignada.categoria || '').trim() || '__sincat__')
+          : (cats.length ? cats[0] : '__sincat__');
+        $('imCuadSelCfgCat').innerHTML =
+          cats.map(c => `<option value="${escapeHtml(c)}" ${c === catSel ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('') +
+          (haySinCat ? `<option value="__sincat__" ${catSel === '__sincat__' ? 'selected' : ''}>${escapeHtml(x.sinCategoria)}</option>` : '');
+        llenarSelectCfg(catSel, configIdSel);
+      }
+      function llenarSelectCfg(cat, configIdSel) {
+        const x = tt();
+        const lista = misConfigs.filter(c => cat === '__sincat__' ? !(c.categoria || '').trim() : (c.categoria || '').trim() === cat);
+        $('imCuadSelCfg').innerHTML =
+          `<option value="">${escapeHtml(x.cfgSinAsignar)}</option>` +
+          lista.map(c => `<option value="${c.id}" ${c.id === configIdSel ? 'selected' : ''}>${escapeHtml(c.nombre)}</option>`).join('');
+      }
+      $('imCuadSelCfgCat').addEventListener('change', () => llenarSelectCfg($('imCuadSelCfgCat').value, null));
+
       function abrirModalCuad(ctx) {
         cuadCtx = ctx;
         const x = tt();
@@ -2846,12 +2896,14 @@ ${clean}`;
         $('imCuadLblUrlGem').textContent = x.lblUrlGem;
         $('imCuadLblUrlNb').textContent = x.lblUrlNb;
         $('imCuadLblDesc').textContent = x.lblParaQue;
+        $('imCuadLblCfg').textContent = x.lblCfgOpc;
         $('imCuadLblCat').textContent = x.lblCatOpc;
         $('imCuadLblSub').textContent = x.lblSubOpc;
         $('imCuadTitInput').value = c?.titulo ?? '';
         $('imCuadUrlGemInput').value = c?.url_gemini ?? '';
         $('imCuadUrlNbInput').value = c?.url_notebook ?? c?.url ?? '';
         $('imCuadDescInput').value = c?.descripcion ?? '';
+        llenarSelectsCfg(c?.config_id ?? null);
         let catId = ctx.prefCatId ?? null, subId = ctx.prefSubId ?? null;
         if (c?.nodo_id) {
           const n = nodoDe(c.nodo_id);
@@ -2907,12 +2959,13 @@ ${clean}`;
           }
         }
         const nodoId = subId || catId || null;
+        const configId = $('imCuadSelCfg').value || null;
 
         let error;
         if (modo === 'crear') {
-          ({ error } = await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId }));
+          ({ error } = await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId, config_id: configId }));
         } else if (modo === 'editar') {
-          ({ error } = await db.from('user_cuadernos').update({ titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id));
+          ({ error } = await db.from('user_cuadernos').update({ titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId, config_id: configId }).eq('id', cuadCtx.cuaderno.id));
         } else {
           ({ error } = await db.from('user_cuadernos').update({ nodo_id: nodoId }).eq('id', cuadCtx.cuaderno.id));
         }
