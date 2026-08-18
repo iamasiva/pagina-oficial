@@ -128,12 +128,12 @@
     .sidebar-divider { height: 1px; background: rgba(255,255,255,.15); margin: 10px 4px; }
     .tree-heading { padding: 8px 8px 6px; font-size: 11px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.55); }
     .tree-root {
-      display: flex; align-items: center; gap: 8px; width: 100%;
+      display: flex; align-items: center; gap: 9px; width: 100%;
       border: 0; background: transparent; text-align: left;
-      padding: 10px 8px; border-radius: 7px; font-size: 11px; font-weight: 850; text-transform: uppercase; letter-spacing: .05em;
-      color: rgba(255,255,255,.65); cursor: pointer;
+      padding: 10px 8px; border-radius: 7px; font-size: 13px; font-weight: 750;
+      color: #fff; cursor: pointer;
     }
-    .tree-root:hover { background: rgba(255,255,255,.10); color: rgba(255,255,255,.85); }
+    .tree-root:hover { background: rgba(255,255,255,.10); }
     .tree-root .chev { width: 13px; height: 13px; flex: 0 0 auto; transition: transform .15s ease; }
     .tree-root.open .chev { transform: rotate(90deg); }
     .sidebar-tree-list { display: none; }
@@ -588,21 +588,15 @@
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path><path d="M11 8.2l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"></path></svg>
             Búsqueda guiada
           </button>
-        </div>
-        <button class="tree-root" id="treeRootBtn" type="button">
-          <svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          <span>Herramientas predeterminadas</span>
-        </button>
-        <div id="toolTree" class="sidebar-tree-list"></div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-links">
+          <button class="tree-root" id="treeRootBtn" type="button">
+            <svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <span>Herramientas predeterminadas</span>
+          </button>
+          <div id="toolTree" class="sidebar-tree-list"></div>
           <button class="sidebar-link sidebar-link-special" data-nav="builder">
             <svg viewBox="0 0 24 24"><path d="M12 3c.6 3.3 2.4 5.1 5.7 5.7-3.3.6-5.1 2.4-5.7 5.7-.6-3.3-2.4-5.1-5.7-5.7C9.6 8.1 11.4 6.3 12 3Z"></path><path d="M18.5 15c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z"></path></svg>
             Gema para crear gemas
           </button>
-        </div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-links">
           <button class="sidebar-link" data-nav="misgemas">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9z"></path><path d="M2 9h20"></path></svg>
             <span>Mis gemas</span>
@@ -1960,7 +1954,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             openGemBuilder();
             return;
           }
-          if (nav === "library") syncView();
+          // Biblioteca de gemas = el viejo Inicio: limpia filtros y vuelve a la portada
+          if (nav === "library") { goHome(); return; }
           showSection(nav);
         });
       });
