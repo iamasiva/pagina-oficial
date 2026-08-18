@@ -483,8 +483,8 @@
     .im-modal.abierto { display: flex; }
     .im-modal-caja { background: var(--surface); border-radius: 14px; padding: 26px; width: 100%; max-width: 440px; }
     .im-modal-caja h3 { margin: 0 0 6px; font-size: 1.05rem; }
-    .im-modal-caja input, .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: #fff; }
-    .im-modal-caja input:focus, .im-modal-caja select:focus { border-color: var(--accent); }
+    .im-modal-caja input, .im-modal-caja select, .im-modal-caja textarea:not(.code-output) { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: #fff; resize: vertical; }
+    .im-modal-caja input:focus, .im-modal-caja select:focus, .im-modal-caja textarea:not(.code-output):focus { border-color: var(--accent); }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
     .im-modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
     .im-modal-ancha { max-width: 620px; max-height: 88vh; overflow-y: auto; }
@@ -524,6 +524,17 @@
     .im-lista-titulo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 10px; }
     .im-modal-nota { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin: 14px 0 0; }
     .im-gema-catinfo { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-weight: 700; font-size: 0.9rem; margin-top: 14px; }
+    /* Popup Crear agente local (patrón del popup de conexión del 557) */
+    .im-modal-conectar { max-width: 640px; max-height: 88vh; overflow-y: auto; }
+    .im-modal-conectar .code-output { min-height: 200px; height: 300px; font-size: 0.76rem; line-height: 1.5; margin-top: 12px; }
+    .im-con-cab { display: flex; align-items: flex-start; gap: 10px; }
+    .im-con-cab h3 { flex: 1; }
+    .im-con-q { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--muted); font-weight: 800; font-size: 0.8rem; line-height: 1; cursor: pointer; }
+    .im-con-q:hover { border-color: var(--accent); color: var(--accent); }
+    .im-agente-off { position: relative; display: inline-block; }
+    .im-agente-off .im-mini-btn { opacity: 0.45; pointer-events: none; }
+    .im-agente-tip { display: none; position: absolute; bottom: calc(100% + 8px); left: 0; width: 270px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 0.76rem; font-weight: 500; line-height: 1.45; color: var(--muted); z-index: 6; }
+    .im-agente-off:hover .im-agente-tip { display: block; }
     .im-check { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; user-select: none; }
     .im-check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
     .im-modal-caja input[readonly] { background: var(--surface-2); color: var(--accent); cursor: default; }
@@ -722,14 +733,14 @@
                   <label>Herramienta predeterminada</label>
                 </div>
                 <div class="gem-field-value gem-field-fixed" id="detailHerramientaValue"></div>
-                <p class="hint">Selecciona esta opción en el desplegable "Herramienta predeterminada" de tu Gema. Es un valor fijo — cada gema fue diseñada para esa herramienta específica.</p>
+                <p class="hint">Selecciona esta opción en el desplegable "Herramienta predeterminada" de tu Gema. Es un valor fijo: cada gema fue diseñada para esa herramienta específica.</p>
               </div>
 
               <div class="gem-field">
                 <div class="gem-field-head">
                   <label>Conocimiento (archivos sugeridos)</label>
                 </div>
-                <p class="hint" style="margin-top:0;">Sube estos archivos en la sección "Conocimiento" al crear tu Gema — no se pegan como texto, se cargan como documentos.</p>
+                <p class="hint" style="margin-top:0;">Sube estos archivos en la sección "Conocimiento" al crear tu Gema, no se pegan como texto, se cargan como documentos.</p>
                 <div class="knowledge-list" id="detailKnowledgeList"></div>
               </div>
               </div>
@@ -1095,6 +1106,11 @@
               <input id="imGemaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
               <label class="im-modal-label">¿Para qué es? (opcional)</label>
               <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte" />
+              <div id="imGemaInstrCampo">
+                <label class="im-modal-label">Instrucción de la gema (opcional)</label>
+                <textarea id="imGemaInstr" rows="4" spellcheck="false" placeholder="Pégala desde Gemini: abre tu gema, Editar, campo Instrucciones."></textarea>
+                <p class="im-modal-nota" style="margin:6px 0 0;">Con la instrucción guardada podrás crear el agente local de esta gema.</p>
+              </div>
             </div>
             <label class="im-modal-label">Categoría (opcional)</label>
             <select id="imGemaSelCat"></select>
@@ -1105,6 +1121,47 @@
             <div class="im-modal-acciones">
               <button id="imGemaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imGemaOk" class="im-btn-primario" type="button">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: crear agente local (bloque copiable) -->
+        <div id="imModalAgente" class="im-modal">
+          <div class="im-modal-caja im-modal-conectar">
+            <div class="im-con-cab">
+              <h3>Crear agente local</h3>
+              <button id="imAgenteAyudaBtn" class="im-con-q" type="button" aria-label="¿Qué es esto?">?</button>
+            </div>
+            <p class="im-modal-nota" id="imAgenteAyuda" style="display:none; margin:10px 0 0;">Tu gema queda como un agente local: lo llamas con @ dentro de cualquier solicitud en Claude Code o Codex, o lo integras en skills para que haga parte de flujos más grandes. Tiene su carpeta de conocimiento y puede conectarse en vivo a tus cuadernos de NotebookLM. Sin API keys y sin costos extra: corre con tu propia suscripción de esa herramienta. Nada pasa por IA MASIVA.</p>
+            <p class="im-modal-nota" style="margin:10px 0 0;">Crea una carpeta en tu computador para esta gema, ábrela en Claude Code (o el agente que uses) y pega este bloque. El agente hace el resto.</p>
+            <textarea id="imAgenteTexto" class="code-output" readonly spellcheck="false"></textarea>
+            <button id="imAgenteConocBtn" class="im-mini-btn" type="button" style="margin-top:10px;">¿Cómo llevas el Conocimiento de esta gema? ▾</button>
+            <div id="imAgenteConoc" style="display:none; margin:8px 0 0;">
+              <p class="im-modal-nota" style="margin:0;">Cuando se crea el agente, se crea también su carpeta <b>conocimiento/</b>. Ahí pega los mismos documentos que le subiste a tu gema en Gemini (los originales los tienes tú) y la gema los leerá siempre que trabaje.</p>
+              <p class="im-modal-nota" style="margin:12px 0 8px;"><b>¿Tu gema usa cuadernos de NotebookLM como conocimiento?</b> Dos vías:</p>
+              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <button id="imAgenteMcpBtn" class="im-mini-btn" type="button">Agregar por MCP ▾</button>
+                <button id="imAgenteExtBtn" class="im-mini-btn" type="button">Descargar con extensión de Chrome ▾</button>
+              </div>
+              <div id="imAgenteMcpPanel" style="display:none; margin-top:10px;">
+                <p class="im-modal-nota" style="margin:0 0 8px;">Pega aquí los links de los cuadernos que tu gema usa como conocimiento. Se guardan con tu gema y viajan dentro del bloque: el agente los conecta como fuentes vivas que consulta siempre al día (entras con tu cuenta de Google una sola vez).</p>
+                <div id="imAgenteLinks"></div>
+                <div style="margin-top:8px;">
+                  <button id="imAgenteMasLink" class="im-mini-btn" type="button">＋ Otro cuaderno</button>
+                </div>
+                <div style="margin-top:8px;">
+                  <button id="imAgenteGuardarLinks" class="im-btn-primario" type="button">Guardar cuadernos</button>
+                </div>
+              </div>
+              <div id="imAgenteExtPanel" style="display:none; margin-top:10px;">
+                <p class="im-modal-nota" style="margin:0 0 8px;">Con la extensión NotebookLM Sources Exporter descargas el cuaderno como archivo .md y lo guardas en la carpeta conocimiento/ de tu gema. Ojo: es una foto del cuaderno tal como está hoy; si el cuaderno cambia, vuelves a exportar.</p>
+                <button id="imAgenteIrExt" class="im-mini-btn" type="button">Ir a la extensión</button>
+              </div>
+              <p class="im-modal-nota" style="margin:12px 0 0;">¿Quieres sumarle cuadernos más adelante? Dile directo a tu agente: "Agrega este cuaderno de NotebookLM al conocimiento [link]". O descarga el .md con la extensión y pégalo en conocimiento/.</p>
+            </div>
+            <div class="im-modal-acciones">
+              <button id="imAgenteCerrar" class="im-mini-btn" type="button">Cerrar</button>
+              <button id="imAgenteCopiar" class="im-btn-primario" type="button">Copiar</button>
             </div>
           </div>
         </div>
@@ -1247,23 +1304,23 @@
       descripcion_corta: "Diseña una gema de Gemini nueva y completa a partir de tu caso de uso exacto: entrega Nombre, Descripción, Instrucciones, Herramienta predeterminada y archivos de conocimiento sugeridos, listos para copiar y pegar.",
       caso_uso_principal: "Tienes una tarea real y específica que ninguna de las 400 gemas de la biblioteca cubre tal cual, y en vez de escribir tú mismo el system prompt desde cero, quieres que se diseñe con el mismo estándar de calidad de esta biblioteca: un mecanismo propio, no un asistente genérico.",
       resultado_esperado: "Los 5 bloques de una gema completa: Nombre, Descripción e Instrucciones cada uno en su propio bloque de código con botón de copiar de un clic (como los campos de esta biblioteca), y la Herramienta predeterminada y el Conocimiento sugerido explicados como texto, porque esos se seleccionan o se suben, no se pegan.",
-      diferenciacion: "A diferencia de las 400 gemas de la biblioteca, esta no resuelve una tarea directamente — genera la definición completa de una gema nueva para una tarea que tú describes, cuando ninguna de las 400 encaja con tu caso exacto.",
+      diferenciacion: "A diferencia de las 400 gemas de la biblioteca, esta no resuelve una tarea directamente: genera la definición completa de una gema nueva para una tarea que tú describes, cuando ninguna de las 400 encaja con tu caso exacto.",
       configuracion: `ROLE DEFINITION
-You are an expert Gemini Gem architect. You specialize in turning one person's specific, real task into a complete, ready-to-use Gem definition — the same five fields Gemini asks for when creating a new Gem (Name, Description, Instructions, Default Tool, Knowledge). You never produce a generic "helpful assistant" gem; every gem you design has one clear mechanism that makes it useful for exactly the task described, nothing broader.
+You are an expert Gemini Gem architect. You specialize in turning one person's specific, real task into a complete, ready-to-use Gem definition: the same five fields Gemini asks for when creating a new Gem (Name, Description, Instructions, Default Tool, Knowledge). You never produce a generic "helpful assistant" gem; every gem you design has one clear mechanism that makes it useful for exactly the task described, nothing broader.
 
 DESIGN PROTOCOL
 Before writing anything:
 1. Identify the real task, the audience, a typical real input, and the shape of the ideal output from what the user described.
-2. Identify the ONE mechanism that makes this gem non-generic — the specific expert judgment, structure, or rule that a plain chat prompt would not reliably apply on its own (a scoring system, a fixed output structure, a specific set of checks, a role-play protocol, etc.). If the task as described is too vague to support a real mechanism, pick the most reasonable interpretation and state it explicitly in the Description rather than staying generic.
+2. Identify the ONE mechanism that makes this gem non-generic: the specific expert judgment, structure, or rule that a plain chat prompt would not reliably apply on its own (a scoring system, a fixed output structure, a specific set of checks, a role-play protocol, etc.). If the task as described is too vague to support a real mechanism, pick the most reasonable interpretation and state it explicitly in the Description rather than staying generic.
 3. Choose exactly one Default Tool from this fixed list only: Canvas, Conversación (no default tool), Deep Research, Crear Imagen, Crear Video, Aprendizaje Guiado. Match it to the actual output: long structured documents, code, or spreadsheets go to Canvas; back-and-forth coaching, role-play, or short conversational tasks go to Conversación; multi-source research synthesis goes to Deep Research; a single visual asset goes to Crear Imagen; a video asset or script-to-video goes to Crear Video; step-by-step teaching with checks for understanding goes to Aprendizaje Guiado. If the user stated a preference that clearly does not fit the task, keep their preference but add one line explaining the mismatch.
 
 OUTPUT STRUCTURE
-Deliver exactly five clearly labeled sections, in this order. CRITICAL FORMAT RULE: sections 1, 2 and 3 are PASTE fields — their heading goes as normal text, but their copyable CONTENT must be wrapped in its own fenced code block (\`\`\`), one code block per section, so that Gemini renders an individual one-click copy button on each. Never put explanations, comments or the heading inside a code block: only the exact text the user will paste into Gemini. Sections 4 and 5 are NOT paste fields — they are actions the user performs (picking from a dropdown, uploading files), so write them as normal chat text, never inside code blocks.
-1. NOMBRE (code block) — a short, specific gem name, never generic like "Asistente de Marketing"
-2. DESCRIPCIÓN (code block) — one or two sentences describing exactly what it does and for whom, written the way it would appear under the Gem's name in Gemini
-3. INSTRUCCIONES (code block) — the full system prompt for the Gem, written in English, following this fixed internal structure: ROLE DEFINITION, METHOD (numbered steps specific to this exact task, never generic steps like "clarify audience, objective, context"), OUTPUT STRUCTURE (the exact sections or format the gem must always produce), NEVER (3 to 5 specific failure modes for this task), RESPONSE FORMAT (language, tone, length)
-4. HERRAMIENTA PREDETERMINADA (normal text) — the single chosen tool from the fixed list, with one line explaining why it fits this task and a reminder to select it in the "Herramienta predeterminada" dropdown of the Gem
-5. CONOCIMIENTO (ARCHIVOS SUGERIDOS) (normal text) — 1 to 3 real file suggestions the user could upload to the Gem's knowledge, each with a one-line reason; if the task genuinely needs none, say so explicitly instead of inventing filler suggestions
+Deliver exactly five clearly labeled sections, in this order. CRITICAL FORMAT RULE: sections 1, 2 and 3 are PASTE fields: their heading goes as normal text, but their copyable CONTENT must be wrapped in its own fenced code block (\`\`\`), one code block per section, so that Gemini renders an individual one-click copy button on each. Never put explanations, comments or the heading inside a code block: only the exact text the user will paste into Gemini. Sections 4 and 5 are NOT paste fields: they are actions the user performs (picking from a dropdown, uploading files), so write them as normal chat text, never inside code blocks.
+1. NOMBRE (code block): a short, specific gem name, never generic like "Asistente de Marketing"
+2. DESCRIPCIÓN (code block): one or two sentences describing exactly what it does and for whom, written the way it would appear under the Gem's name in Gemini
+3. INSTRUCCIONES (code block): the full system prompt for the Gem, written in English, following this fixed internal structure: ROLE DEFINITION, METHOD (numbered steps specific to this exact task, never generic steps like "clarify audience, objective, context"), OUTPUT STRUCTURE (the exact sections or format the gem must always produce), NEVER (3 to 5 specific failure modes for this task), RESPONSE FORMAT (language, tone, length)
+4. HERRAMIENTA PREDETERMINADA (normal text): the single chosen tool from the fixed list, with one line explaining why it fits this task and a reminder to select it in the "Herramienta predeterminada" dropdown of the Gem
+5. CONOCIMIENTO (ARCHIVOS SUGERIDOS) (normal text): 1 to 3 real file suggestions the user could upload to the Gem's knowledge, each with a one-line reason; if the task genuinely needs none, say so explicitly instead of inventing filler suggestions
 
 NEVER:
 - Produce a Gem whose Instructions could apply to almost any other task with the topic swapped
@@ -1277,7 +1334,7 @@ If the user attached files to this Gem's knowledge (past gems they liked, exampl
 
 RESPONSE FORMAT
 - Always respond in Spanish (except INSTRUCCIONES content, which is written in English)
-- Present sections 1-3 with their headings as normal text and their content inside individual fenced code blocks, and sections 4-5 entirely as normal chat text — never a single merged paragraph or one big code block
+- Present sections 1-3 with their headings as normal text and their content inside individual fenced code blocks, and sections 4-5 entirely as normal chat text, never a single merged paragraph or one big code block
 - Keep INSTRUCCIONES as detailed as a real production system prompt, not a summary of one
 - Do not open Canvas or any other tool: respond directly in the chat, so each code block keeps its copy button`,
       prompt_template: `Quiero que diseñes una Gema de Gemini nueva y completa para esta tarea específica.
@@ -2098,6 +2155,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             </div>
             <div class="im-mg-acciones">
               ${g.url ? `<button class="im-btn-primario" type="button" data-abrirgema="${escapeHtml(g.url)}">Abrir gema</button>` : `<button class="im-mini-btn" type="button" data-gemaaccion="editar" data-gid="${g.id}">Agregar link</button>`}
+              ${g.item_id || (g.instruccion && g.instruccion.trim())
+                ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}">Crear agente local</button>`
+                : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta gema, primero guarda su instrucción: edita la gema y pega la instrucción desde Gemini (abre tu gema, Editar, campo Instrucciones).</span></span>`}
               <button class="im-mini-btn" type="button" data-togglechats="${g.id}">💬 Chats (${cs.length}) ${chatsAb ? '▴' : '▾'}</button>
               <button class="im-mini-btn" type="button" data-toggleprompts="${g.id}">⚡ Prompts (${ps.length}) ${promptsAb ? '▴' : '▾'}</button>
             </div>
@@ -2166,6 +2226,10 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
         const abrirG = e.target.closest('[data-abrirgema]');
         if (abrirG) { window.open(abrirG.dataset.abrirgema, '_blank', 'noopener'); return; }
+        const al = e.target.closest('[data-agentelocal]');
+        if (al) { const g = misGemas.find(x => x.id === al.dataset.agentelocal); if (g) abrirModalAgente(g); return; }
+        const aoff = e.target.closest('[data-agenteoff]');
+        if (aoff) { showToast('Edita la gema y guarda su instrucción para poder crear el agente local'); return; }
         const abrirC = e.target.closest('[data-abrirchat]');
         if (abrirC) { window.open(abrirC.dataset.abrirchat, '_blank', 'noopener'); return; }
 
@@ -2268,7 +2332,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       let ctxMoverSub = null;
       function abrirModalMoverSub(n) {
         const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
-        if (!destinos.length) { showToast('No hay otra categoría a dónde moverla — crea una primero'); return; }
+        if (!destinos.length) { showToast('No hay otra categoría a dónde moverla, crea una primero'); return; }
         ctxMoverSub = n;
         $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
         $('imModalMoverSub').classList.add('abierto');
@@ -2363,7 +2427,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       const IDS_GEMA = { cat: 'imGemaSelCat', catN: 'imGemaCatNueva', sub: 'imGemaSelSub', subN: 'imGemaSubNueva' };
       const IDS_META = { cat: 'imMetaSelCat', catN: 'imMetaCatNueva', sub: 'imMetaSelSub', subN: 'imMetaSubNueva' };
       function llenarSelCat(ids, catSel, subSel) {
-        $(ids.cat).innerHTML = '<option value="">— Sin categoría</option>' +
+        $(ids.cat).innerHTML = '<option value="">Sin categoría</option>' +
           catsRaiz().map(n => `<option value="${n.id}" ${n.id === catSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
           '<option value="__nueva__">➕ Nueva categoría…</option>';
         $(ids.catN).style.display = 'none'; $(ids.catN).value = '';
@@ -2372,9 +2436,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       function llenarSelSub(ids, catId, subSel) {
         const sel = $(ids.sub);
         if (!catId || catId === '__nueva__') {
-          sel.innerHTML = '<option value="">— Sin subcategoría</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva subcategoría…</option>' : '');
+          sel.innerHTML = '<option value="">Sin subcategoría</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva subcategoría…</option>' : '');
         } else {
-          sel.innerHTML = '<option value="">— Sin subcategoría</option>' +
+          sel.innerHTML = '<option value="">Sin subcategoría</option>' +
             subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
             '<option value="__nueva__">➕ Nueva subcategoría…</option>';
         }
@@ -2407,6 +2471,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imGemaNombre').value = g?.titulo ?? '';
         $('imGemaUrl').value = g?.url ?? '';
         $('imGemaDesc').value = g?.descripcion ?? catalogo?.descripcion_corta ?? '';
+        // La instrucción solo aplica a gemas propias (las de catálogo la traen de la biblioteca)
+        $('imGemaInstrCampo').style.display = catalogo ? 'none' : '';
+        $('imGemaInstr').value = g?.instruccion ?? '';
         let catId = ctx.prefCat ?? null, subId = ctx.prefSub ?? null;
         if (g?.nodo_id) {
           const n = nodoDe(g.nodo_id);
@@ -2455,9 +2522,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
           const descripcion = $('imGemaDesc').value.trim() || null;
           if (modo === 'crear') {
-            ({ error } = await db.from('user_gemas').insert({ user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null }));
+            const fila = { user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null };
+            if (!catalogo) fila.instruccion = $('imGemaInstr').value.trim() || null;
+            ({ error } = await db.from('user_gemas').insert(fila));
           } else {
-            ({ error } = await db.from('user_gemas').update({ titulo, url, descripcion, nodo_id: nodoId, updated_at: new Date().toISOString() }).eq('id', ctxGema.gema.id));
+            const cambios = { titulo, url, descripcion, nodo_id: nodoId, updated_at: new Date().toISOString() };
+            if (!catalogo) cambios.instruccion = $('imGemaInstr').value.trim() || null;
+            ({ error } = await db.from('user_gemas').update(cambios).eq('id', ctxGema.gema.id));
           }
         }
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
@@ -2467,6 +2538,167 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imGemaCancelar').addEventListener('click', () => $('imModalGema').classList.remove('abierto'));
       $('imModalGema').addEventListener('click', (e) => { if (e.target.id === 'imModalGema') e.target.classList.remove('abierto'); });
+
+      // ── Crear agente local (bloque copiable) ──
+      const slugDeGema = (t) => ((t || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)) || 'mi-gema';
+
+      function bloqueAgenteLocal(g) {
+        const cat = gemDeCatalogo(g);
+        const instr = ((cat ? cat.configuracion : g.instruccion) || '').trim();
+        if (!instr) return null;
+        const slug = slugDeGema(g.titulo);
+        const descripcion = ((cat ? cat.descripcion_corta : g.descripcion) || '').trim();
+        const casoUso = ((cat && cat.caso_uso_principal) || '').trim();
+        const herramienta = cat ? (typeof toolLabel === 'function' ? toolLabel(cat.herramienta) : (cat.herramienta || '')) : '';
+        const ficha = [
+          'Nombre: ' + g.titulo,
+          descripcion ? 'Descripción: ' + descripcion : null,
+          casoUso ? 'Para qué sirve: ' + casoUso : null,
+          herramienta ? 'Herramienta predeterminada en Gemini: ' + herramienta : null,
+        ].filter(Boolean).join('\n');
+        const links = linksDeGema(g);
+        const cuadernosSeccion = links.length
+          ? `Conecta además estos cuadernos de NotebookLM, que son parte del
+conocimiento de mi gema: instala y configura un MCP de NotebookLM,
+guíame por la autenticación con mi cuenta de Google (una sola vez, y si
+la sesión caduca me pides entrar de nuevo) y consúltalos como fuentes
+vivas cuando la gema trabaje:
+${links.map(l => '- ' + l).join('\n')}
+`
+          : '';
+        // Delimitador dinámico: si la instrucción trae líneas de guiones, se alarga
+        let delim = '----';
+        while (instr.includes(delim)) delim += '--';
+        return `Quiero montar en mi computador un agente local a partir de esta gema que
+tengo guardada en IA MASIVA. Estoy parado en la carpeta que creé para
+esta gema. Sigue estos pasos en orden, sin saltarte ninguno y sin
+hacerme preguntas que este mensaje ya responde; adapta rutas y formatos
+a mi sistema operativo.
+
+PASO 1. EL AGENTE. Crea la gema como subagente nativo de esta
+herramienta, en este proyecto (en Claude Code: un archivo
+.claude/agents/${slug}.md con nombre y descripción en el frontmatter y
+la instrucción del PASO 3 como prompt del agente; en otras herramientas,
+su formato de agentes equivalente). No necesita API key: corre con mi
+propia suscripción de esta herramienta.
+
+PASO 2. LA CASA DE LA GEMA. Crea en esta carpeta:
+- ficha.md: los DATOS DE LA GEMA que van al final de este mensaje, más
+  una línea de cómo invoco al agente (el arroba).
+- instruccion.md: el archivo del PASO 3.
+- conocimiento/: carpeta vacía donde yo pondré los mismos documentos
+  que subí al Conocimiento de mi gema en Gemini (.md, .txt, PDF,
+  documentos). Configura el subagente para que la revise siempre que
+  trabaje.
+${cuadernosSeccion}Si más adelante te escribo "Agrega este cuaderno de NotebookLM al
+conocimiento [link]", conéctalo de esa misma forma, como fuente viva
+vía el MCP de NotebookLM.
+
+PASO 3. LA INSTRUCCIÓN. Crea instruccion.md con EXACTAMENTE este
+contenido, sin resumirlo ni editarlo:
+${delim}
+${instr}
+${delim}
+
+LA HERRAMIENTA DE LA GEMA. Si los DATOS DE LA GEMA traen una herramienta
+predeterminada, replica su función con lo que tenga tu entorno y dime
+con honestidad qué queda igual y qué no:
+- Conversación o Aprendizaje Guiado: no necesitan nada extra.
+- Canvas: la gema produce documentos. Entrégalos como archivos reales.
+- Deep Research: usa tus herramientas de búsqueda web si las tienes; si
+  no, dime que la gema trabajará solo con la información que yo le
+  entregue.
+- Crear Imagen o Crear Video: la generación del archivo no viaja al
+  agente local en esta versión; la gema me entrega el prompt o brief
+  perfecto para generarlo donde siempre lo hago.
+
+PASO 4. LA PRUEBA. Invoca tú el subagente con un mensaje corto y
+muéstrame su respuesta. Al cerrar, recuérdame en pocas líneas:
+- que lo llamo con el arroba dentro de cualquier solicitud, y que puedo
+  integrarlo en skills para que haga parte de flujos más grandes,
+- que en esta carpeta quedó conocimiento/ para meter los archivos de
+  conocimiento de mi gema,
+- que si quiero ajustar, modificar o sumarle funcionalidades a mi
+  agente, te lo pido aquí mismo y tú ejecutas los cambios,
+- y que todo corre con mi suscripción de esta herramienta: sin API keys
+  y sin costos de IA MASIVA.
+
+DATOS DE LA GEMA PARA ficha.md:
+${ficha}`;
+      }
+
+      let ctxAgente = null;
+      const URL_EXT_NOTEBOOKLM = 'https://chromewebstore.google.com/detail/notebooklm-sources-export/ildjnemeokopkjjkkhooonanjckcclfj';
+
+      const linksDeGema = (g) => (g?.cuadernos || '').split('\n').map(l => l.trim()).filter(Boolean);
+
+      function pintarLinksInputs(links) {
+        const lista = links.length ? links : [''];
+        $('imAgenteLinks').innerHTML = lista.map((l) =>
+          `<input type="text" class="im-agente-link" value="${escapeHtml(l)}" placeholder="https://notebooklm.google.com/notebook/…" style="margin-top:6px;" />`
+        ).join('');
+      }
+
+      function abrirModalAgente(g) {
+        const bloque = bloqueAgenteLocal(g);
+        if (!bloque) { showToast('Esta gema no tiene instrucción guardada'); return; }
+        ctxAgente = g;
+        $('imAgenteTexto').value = bloque;
+        $('imAgenteAyuda').style.display = 'none';
+        $('imAgenteConoc').style.display = 'none';
+        $('imAgenteConocBtn').textContent = '¿Cómo llevas el Conocimiento de esta gema? ▾';
+        $('imAgenteMcpPanel').style.display = 'none';
+        $('imAgenteExtPanel').style.display = 'none';
+        $('imAgenteMcpBtn').textContent = 'Agregar por MCP ▾';
+        $('imAgenteExtBtn').textContent = 'Descargar con extensión de Chrome ▾';
+        pintarLinksInputs(linksDeGema(g));
+        $('imModalAgente').classList.add('abierto');
+        $('imAgenteTexto').scrollTop = 0;
+      }
+      $('imAgenteAyudaBtn').addEventListener('click', () => {
+        const el = $('imAgenteAyuda');
+        el.style.display = el.style.display === 'none' ? '' : 'none';
+      });
+      $('imAgenteConocBtn').addEventListener('click', () => {
+        const el = $('imAgenteConoc');
+        const abierto = el.style.display !== 'none';
+        el.style.display = abierto ? 'none' : '';
+        $('imAgenteConocBtn').textContent = abierto ? '¿Cómo llevas el Conocimiento de esta gema? ▾' : '¿Cómo llevas el Conocimiento de esta gema? ▴';
+      });
+      $('imAgenteMcpBtn').addEventListener('click', () => {
+        const abierto = $('imAgenteMcpPanel').style.display !== 'none';
+        $('imAgenteMcpPanel').style.display = abierto ? 'none' : '';
+        $('imAgenteMcpBtn').textContent = abierto ? 'Agregar por MCP ▾' : 'Agregar por MCP ▴';
+        if (!abierto) { $('imAgenteExtPanel').style.display = 'none'; $('imAgenteExtBtn').textContent = 'Descargar con extensión de Chrome ▾'; }
+      });
+      $('imAgenteExtBtn').addEventListener('click', () => {
+        const abierto = $('imAgenteExtPanel').style.display !== 'none';
+        $('imAgenteExtPanel').style.display = abierto ? 'none' : '';
+        $('imAgenteExtBtn').textContent = abierto ? 'Descargar con extensión de Chrome ▾' : 'Descargar con extensión de Chrome ▴';
+        if (!abierto) { $('imAgenteMcpPanel').style.display = 'none'; $('imAgenteMcpBtn').textContent = 'Agregar por MCP ▾'; }
+      });
+      $('imAgenteMasLink').addEventListener('click', () => {
+        const actuales = Array.from(document.querySelectorAll('.im-agente-link')).map(i => i.value);
+        pintarLinksInputs([...actuales, '']);
+        const inputs = document.querySelectorAll('.im-agente-link');
+        inputs[inputs.length - 1].focus();
+      });
+      $('imAgenteIrExt').addEventListener('click', () => window.open(URL_EXT_NOTEBOOKLM, '_blank', 'noopener'));
+      $('imAgenteGuardarLinks').addEventListener('click', async () => {
+        if (!ctxAgente) return;
+        const links = Array.from(document.querySelectorAll('.im-agente-link')).map(i => i.value.trim()).filter(Boolean);
+        const valor = links.join('\n') || null;
+        const { error } = await db.from('user_gemas').update({ cuadernos: valor }).eq('id', ctxAgente.id);
+        if (error) { showToast('No se pudieron guardar los cuadernos: ' + error.message); return; }
+        ctxAgente.cuadernos = valor;
+        pintarLinksInputs(links);
+        $('imAgenteTexto').value = bloqueAgenteLocal(ctxAgente);
+        showToast(links.length ? 'Cuadernos guardados: ya viajan dentro del bloque' : 'Cuadernos quitados del bloque');
+      });
+      $('imAgenteCopiar').addEventListener('click', () => copyText($('imAgenteTexto').value));
+      $('imAgenteCerrar').addEventListener('click', () => $('imModalAgente').classList.remove('abierto'));
+      $('imModalAgente').addEventListener('click', (e) => { if (e.target.id === 'imModalAgente') e.target.classList.remove('abierto'); });
 
       // ── Modal chat ──
       function abrirModalChat(ctx) {
@@ -2627,7 +2859,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       // ── Pop-up con el formulario real de la gema (crear/editar) ──
       function abrirPopupPrompt(gem, promptRow, userGemaId) {
         ctxForm = { gem, promptRow, userGemaId, prev: { gem: activeGem, form: formState, formEl: activeFormEl, outEl: activeOutputEl } };
-        $('imFPTitulo').textContent = (promptRow ? 'Editar prompt — ' : 'Nuevo prompt — ') + gem.nombre;
+        $('imFPTitulo').textContent = (promptRow ? 'Editar prompt: ' : 'Nuevo prompt: ') + gem.nombre;
         $('imFPNombre').value = promptRow?.nombre ?? gem.nombre;
         activeGem = gem;
         resetFormState(gem);
