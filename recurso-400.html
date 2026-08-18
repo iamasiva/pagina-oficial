@@ -531,6 +531,13 @@
     .im-con-cab h3 { flex: 1; }
     .im-con-q { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--muted); font-weight: 800; font-size: 0.8rem; line-height: 1; cursor: pointer; }
     .im-con-q:hover { border-color: var(--accent); color: var(--accent); }
+    .im-con-tabs { flex: 1; display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1.5px solid var(--line); }
+    .im-con-tab { background: none; border: none; padding: 8px 10px; font-weight: 800; font-size: 0.84rem; color: var(--muted); cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; text-align: left; }
+    .im-con-tab.activa { color: var(--accent); border-bottom-color: var(--accent); }
+    .im-con-link { display: block; background: none; border: none; padding: 7px 0; font-weight: 800; font-size: 0.9rem; color: var(--accent); cursor: pointer; text-align: left; }
+    .im-con-link:hover { text-decoration: underline; }
+    .im-cuaderno-fila { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-top: 6px; }
+    .im-cuaderno-fila .lnk { flex: 1; font-size: 0.8rem; word-break: break-all; }
     .im-agente-off { position: relative; display: inline-block; }
     .im-agente-off .im-mini-btn { opacity: 0.45; pointer-events: none; }
     .im-agente-tip { display: none; position: absolute; bottom: calc(100% + 8px); left: 0; width: 270px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 0.76rem; font-weight: 500; line-height: 1.45; color: var(--muted); z-index: 6; }
@@ -1129,31 +1136,31 @@
         <div id="imModalAgente" class="im-modal">
           <div class="im-modal-caja im-modal-conectar">
             <div class="im-con-cab">
-              <h3>Crear agente local</h3>
+              <div class="im-con-tabs">
+                <button id="imAgenteTabBloque" class="im-con-tab activa" type="button">Crear agente local</button>
+                <button id="imAgenteTabConoc" class="im-con-tab" type="button">¿Cómo llevas el Conocimiento de esta gema?</button>
+              </div>
               <button id="imAgenteAyudaBtn" class="im-con-q" type="button" aria-label="¿Qué es esto?">?</button>
             </div>
             <p class="im-modal-nota" id="imAgenteAyuda" style="display:none; margin:10px 0 0;">Tu gema queda como un agente local: lo llamas con @ dentro de cualquier solicitud en Claude Code o Codex, o lo integras en skills para que haga parte de flujos más grandes. Tiene su carpeta de conocimiento y puede conectarse en vivo a tus cuadernos de NotebookLM. Sin API keys y sin costos extra: corre con tu propia suscripción de esa herramienta. Nada pasa por IA MASIVA.</p>
-            <p class="im-modal-nota" style="margin:10px 0 0;">Crea una carpeta en tu computador para esta gema, ábrela en Claude Code (o el agente que uses) y pega este bloque. El agente hace el resto.</p>
-            <textarea id="imAgenteTexto" class="code-output" readonly spellcheck="false"></textarea>
-            <button id="imAgenteConocBtn" class="im-mini-btn" type="button" style="margin-top:10px;">¿Cómo llevas el Conocimiento de esta gema? ▾</button>
-            <div id="imAgenteConoc" style="display:none; margin:8px 0 0;">
-              <p class="im-modal-nota" style="margin:0;">Cuando se crea el agente, se crea también su carpeta <b>conocimiento/</b>. Ahí pega los mismos documentos que le subiste a tu gema en Gemini (los originales los tienes tú) y la gema los leerá siempre que trabaje.</p>
-              <p class="im-modal-nota" style="margin:12px 0 8px;"><b>¿Tu gema usa cuadernos de NotebookLM como conocimiento?</b> Dos vías:</p>
-              <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                <button id="imAgenteMcpBtn" class="im-mini-btn" type="button">Agregar por MCP ▾</button>
-                <button id="imAgenteExtBtn" class="im-mini-btn" type="button">Descargar con extensión de Chrome ▾</button>
-              </div>
-              <div id="imAgenteMcpPanel" style="display:none; margin-top:10px;">
-                <p class="im-modal-nota" style="margin:0 0 8px;">Pega aquí los links de los cuadernos que tu gema usa como conocimiento. Se guardan con tu gema y viajan dentro del bloque: el agente los conecta como fuentes vivas que consulta siempre al día (entras con tu cuenta de Google una sola vez).</p>
-                <div id="imAgenteLinks"></div>
+            <div id="imAgentePanelBloque">
+              <p class="im-modal-nota" style="margin:10px 0 0;">Crea una carpeta en tu computador para esta gema, ábrela en Claude Code (o el agente que uses) y pega este bloque. El agente hace el resto.</p>
+              <textarea id="imAgenteTexto" class="code-output" readonly spellcheck="false"></textarea>
+            </div>
+            <div id="imAgentePanelConoc" style="display:none;">
+              <p class="im-modal-nota" style="margin:10px 0 0;">Cuando se crea el agente, se crea también su carpeta <b>conocimiento/</b>. Ahí pega los mismos documentos que le subiste a tu gema en Gemini (los originales los tienes tú) y la gema los leerá siempre que trabaje.</p>
+              <p class="im-modal-nota" style="margin:12px 0 4px;"><b>¿Tu gema usa cuadernos de NotebookLM como conocimiento?</b> Dos vías:</p>
+              <button id="imAgenteMcpBtn" class="im-con-link" type="button">Agregar por MCP ▾</button>
+              <div id="imAgenteMcpPanel" style="display:none; margin:2px 0 8px;">
+                <p class="im-modal-nota" style="margin:0 0 8px;">Pega los links de los cuadernos que tu gema usa como conocimiento. Se guardan con tu gema y viajan dentro del bloque: el agente los conecta como fuentes vivas que consulta siempre al día (entras con tu cuenta de Google una sola vez).</p>
+                <div id="imAgenteLinksLista"></div>
+                <input id="imAgenteLinkNuevo" type="text" placeholder="https://notebooklm.google.com/notebook/…" style="margin-top:8px;" />
                 <div style="margin-top:8px;">
-                  <button id="imAgenteMasLink" class="im-mini-btn" type="button">＋ Otro cuaderno</button>
-                </div>
-                <div style="margin-top:8px;">
-                  <button id="imAgenteGuardarLinks" class="im-btn-primario" type="button">Guardar cuadernos</button>
+                  <button id="imAgenteAgregarLink" class="im-btn-primario" type="button">Agregar cuaderno</button>
                 </div>
               </div>
-              <div id="imAgenteExtPanel" style="display:none; margin-top:10px;">
+              <button id="imAgenteExtBtn" class="im-con-link" type="button">Descargar con extensión de Chrome ▾</button>
+              <div id="imAgenteExtPanel" style="display:none; margin:2px 0 8px;">
                 <p class="im-modal-nota" style="margin:0 0 8px;">Con la extensión NotebookLM Sources Exporter descargas el cuaderno como archivo .md y lo guardas en la carpeta conocimiento/ de tu gema. Ojo: es una foto del cuaderno tal como está hoy; si el cuaderno cambia, vuelves a exportar.</p>
                 <button id="imAgenteIrExt" class="im-mini-btn" type="button">Ir a la extensión</button>
               </div>
@@ -2629,42 +2636,77 @@ ${ficha}`;
       }
 
       let ctxAgente = null;
+      let cuadernoEditIdx = null;
       const URL_EXT_NOTEBOOKLM = 'https://chromewebstore.google.com/detail/notebooklm-sources-export/ildjnemeokopkjjkkhooonanjckcclfj';
 
       const linksDeGema = (g) => (g?.cuadernos || '').split('\n').map(l => l.trim()).filter(Boolean);
 
-      function pintarLinksInputs(links) {
-        const lista = links.length ? links : [''];
-        $('imAgenteLinks').innerHTML = lista.map((l) =>
-          `<input type="text" class="im-agente-link" value="${escapeHtml(l)}" placeholder="https://notebooklm.google.com/notebook/…" style="margin-top:6px;" />`
-        ).join('');
+      function renderCuadernosLista() {
+        const links = linksDeGema(ctxAgente);
+        $('imAgenteLinksLista').innerHTML = links.length
+          ? links.map((l, i) => cuadernoEditIdx === i
+            ? `<div class="im-cuaderno-fila">
+                <input type="text" id="imAgenteLinkEdit" value="${escapeHtml(l)}" />
+                <button class="im-mini-btn" type="button" data-cuadok="${i}" style="padding:6px 10px;">Guardar</button>
+                <button class="im-mini-btn" type="button" data-cuadcancel="1" style="padding:6px 10px;">Cancelar</button>
+              </div>`
+            : `<div class="im-cuaderno-fila">
+                <span class="lnk">${escapeHtml(l)}</span>
+                <button class="im-mini-btn" type="button" data-cuadedit="${i}" style="padding:4px 9px;" aria-label="Editar cuaderno">✎</button>
+                <button class="im-mini-btn" type="button" data-cuaddel="${i}" style="padding:4px 9px;" aria-label="Eliminar cuaderno">🗑</button>
+              </div>`).join('')
+          : '<p class="im-modal-nota" style="margin:0;">Aún no has agregado cuadernos.</p>';
+      }
+
+      async function guardarCuadernos(links, msj) {
+        const valor = links.join('\n') || null;
+        const { error } = await db.from('user_gemas').update({ cuadernos: valor }).eq('id', ctxAgente.id);
+        if (error) { showToast('No se pudo guardar: ' + error.message); return false; }
+        ctxAgente.cuadernos = valor;
+        cuadernoEditIdx = null;
+        renderCuadernosLista();
+        $('imAgenteTexto').value = bloqueAgenteLocal(ctxAgente);
+        if (msj) showToast(msj);
+        return true;
+      }
+
+      const normalizarLink = (v) => {
+        let url = v.trim();
+        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+        return url;
+      };
+
+      function tabAgente(cual) {
+        const bloque = cual === 'bloque';
+        $('imAgentePanelBloque').style.display = bloque ? '' : 'none';
+        $('imAgentePanelConoc').style.display = bloque ? 'none' : '';
+        $('imAgenteTabBloque').classList.toggle('activa', bloque);
+        $('imAgenteTabConoc').classList.toggle('activa', !bloque);
+        $('imAgenteCopiar').style.display = bloque ? '' : 'none';
       }
 
       function abrirModalAgente(g) {
         const bloque = bloqueAgenteLocal(g);
         if (!bloque) { showToast('Esta gema no tiene instrucción guardada'); return; }
         ctxAgente = g;
+        cuadernoEditIdx = null;
         $('imAgenteTexto').value = bloque;
         $('imAgenteAyuda').style.display = 'none';
-        $('imAgenteConoc').style.display = 'none';
-        $('imAgenteConocBtn').textContent = '¿Cómo llevas el Conocimiento de esta gema? ▾';
         $('imAgenteMcpPanel').style.display = 'none';
         $('imAgenteExtPanel').style.display = 'none';
         $('imAgenteMcpBtn').textContent = 'Agregar por MCP ▾';
         $('imAgenteExtBtn').textContent = 'Descargar con extensión de Chrome ▾';
-        pintarLinksInputs(linksDeGema(g));
+        $('imAgenteLinkNuevo').value = '';
+        renderCuadernosLista();
+        tabAgente('bloque');
         $('imModalAgente').classList.add('abierto');
         $('imAgenteTexto').scrollTop = 0;
       }
+      $('imAgenteTabBloque').addEventListener('click', () => tabAgente('bloque'));
+      $('imAgenteTabConoc').addEventListener('click', () => tabAgente('conoc'));
       $('imAgenteAyudaBtn').addEventListener('click', () => {
         const el = $('imAgenteAyuda');
         el.style.display = el.style.display === 'none' ? '' : 'none';
-      });
-      $('imAgenteConocBtn').addEventListener('click', () => {
-        const el = $('imAgenteConoc');
-        const abierto = el.style.display !== 'none';
-        el.style.display = abierto ? 'none' : '';
-        $('imAgenteConocBtn').textContent = abierto ? '¿Cómo llevas el Conocimiento de esta gema? ▾' : '¿Cómo llevas el Conocimiento de esta gema? ▴';
       });
       $('imAgenteMcpBtn').addEventListener('click', () => {
         const abierto = $('imAgenteMcpPanel').style.display !== 'none';
@@ -2678,23 +2720,36 @@ ${ficha}`;
         $('imAgenteExtBtn').textContent = abierto ? 'Descargar con extensión de Chrome ▾' : 'Descargar con extensión de Chrome ▴';
         if (!abierto) { $('imAgenteMcpPanel').style.display = 'none'; $('imAgenteMcpBtn').textContent = 'Agregar por MCP ▾'; }
       });
-      $('imAgenteMasLink').addEventListener('click', () => {
-        const actuales = Array.from(document.querySelectorAll('.im-agente-link')).map(i => i.value);
-        pintarLinksInputs([...actuales, '']);
-        const inputs = document.querySelectorAll('.im-agente-link');
-        inputs[inputs.length - 1].focus();
-      });
       $('imAgenteIrExt').addEventListener('click', () => window.open(URL_EXT_NOTEBOOKLM, '_blank', 'noopener'));
-      $('imAgenteGuardarLinks').addEventListener('click', async () => {
+      $('imAgenteAgregarLink').addEventListener('click', async () => {
         if (!ctxAgente) return;
-        const links = Array.from(document.querySelectorAll('.im-agente-link')).map(i => i.value.trim()).filter(Boolean);
-        const valor = links.join('\n') || null;
-        const { error } = await db.from('user_gemas').update({ cuadernos: valor }).eq('id', ctxAgente.id);
-        if (error) { showToast('No se pudieron guardar los cuadernos: ' + error.message); return; }
-        ctxAgente.cuadernos = valor;
-        pintarLinksInputs(links);
-        $('imAgenteTexto').value = bloqueAgenteLocal(ctxAgente);
-        showToast(links.length ? 'Cuadernos guardados: ya viajan dentro del bloque' : 'Cuadernos quitados del bloque');
+        const url = normalizarLink($('imAgenteLinkNuevo').value);
+        if (!url) { showToast('Pega el link del cuaderno'); return; }
+        const ok = await guardarCuadernos([...linksDeGema(ctxAgente), url], 'Cuaderno agregado: ya viaja dentro del bloque');
+        if (ok) $('imAgenteLinkNuevo').value = '';
+      });
+      $('imAgenteLinksLista').addEventListener('click', async (e) => {
+        const ed = e.target.closest('[data-cuadedit]');
+        if (ed) { cuadernoEditIdx = Number(ed.dataset.cuadedit); renderCuadernosLista(); $('imAgenteLinkEdit')?.focus(); return; }
+        const ca = e.target.closest('[data-cuadcancel]');
+        if (ca) { cuadernoEditIdx = null; renderCuadernosLista(); return; }
+        const okb = e.target.closest('[data-cuadok]');
+        if (okb) {
+          const url = normalizarLink($('imAgenteLinkEdit').value);
+          if (!url) { showToast('El link no puede quedar vacío'); return; }
+          const links = linksDeGema(ctxAgente);
+          links[Number(okb.dataset.cuadok)] = url;
+          guardarCuadernos(links, 'Cuaderno actualizado');
+          return;
+        }
+        const del = e.target.closest('[data-cuaddel]');
+        if (del) {
+          const ok = await confirmar('¿Eliminar este cuaderno del conocimiento de la gema?', 'Eliminar cuaderno', 'Sí, eliminar');
+          if (!ok) return;
+          const links = linksDeGema(ctxAgente);
+          links.splice(Number(del.dataset.cuaddel), 1);
+          guardarCuadernos(links, 'Cuaderno eliminado');
+        }
       });
       $('imAgenteCopiar').addEventListener('click', () => copyText($('imAgenteTexto').value));
       $('imAgenteCerrar').addEventListener('click', () => $('imModalAgente').classList.remove('abierto'));
