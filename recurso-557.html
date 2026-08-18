@@ -619,7 +619,11 @@
       <div class="sidebar-scroll">
         <button id="homeBtn" class="sidebar-link" type="button">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7"></path><path d="M5 10v10a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V10"></path></svg>
-          <span>Inicio</span>
+          <span>IA MASIVA</span>
+        </button>
+        <button id="biblioBtn" class="sidebar-link" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span id="imTabBiblio">Biblioteca</span>
         </button>
         <div class="sidebar-divider"></div>
         <button id="treeRoot" class="tree-root" type="button" data-tab="library">
@@ -2108,7 +2112,9 @@ ${clean}`;
       document.querySelectorAll('.guide-path-head[data-toggle-guide]').forEach(head => {
         head.addEventListener('click', () => head.closest('.guide-path').classList.toggle('open'));
       });
-      document.getElementById('homeBtn').addEventListener('click', () => { goToCategory('Todas'); closeMobileMenu(); });
+      // IA MASIVA sale al login del sitio (con sesión activa, index redirige solo a app.html)
+      document.getElementById('homeBtn').addEventListener('click', () => { window.location.href = 'index.html'; });
+      document.getElementById('biblioBtn').addEventListener('click', () => { goToCategory('Todas'); closeMobileMenu(); });
       el.treeRoot.addEventListener('click', toggleTreeRoot);
       document.querySelectorAll('.sidebar-links .sidebar-link').forEach(btn => {
         btn.addEventListener('click', () => { switchTab(btn.dataset.tab); closeMobileMenu(); });
@@ -2240,6 +2246,7 @@ ${clean}`;
           tabFav: 'Favoritos', tabMis: 'Mis configuraciones', tabCuad: 'Mis cuadernos', espacio: 'Tu espacio', salir: 'Salir',
           favTitulo: 'Tus configuraciones favoritas.', favCopy: 'Márcalas con la estrella dentro de cualquier configuración y quedan siempre a la mano aquí.', favVacio: 'Aún no tienes favoritos. Abre una configuración y tócale la estrella.',
           favTodasCat: 'Todas las categorías', favTodasSub: 'Todas',
+          biblioTab: 'Biblioteca',
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
@@ -2259,6 +2266,7 @@ ${clean}`;
           tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space', salir: 'Exit',
           favTitulo: 'Your favorite configurations.', favCopy: 'Star them inside any configuration and they stay one tap away here.', favVacio: 'No favorites yet. Open a configuration and tap the star.',
           favTodasCat: 'All categories', favTodasSub: 'All',
+          biblioTab: 'Library',
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
@@ -3441,6 +3449,7 @@ ${clean}`;
         $('imTabMis').textContent = x.tabMis;
         $('imTabCuad').textContent = x.tabCuad;
         $('imTabBusqueda').textContent = x.busqTab;
+        $('imTabBiblio').textContent = x.biblioTab;
         $('imBusqEyebrow').textContent = x.busqEyebrow;
         $('imBusqTitulo').textContent = x.busqTitulo;
         $('imBusqCopy').textContent = x.busqCopy;
