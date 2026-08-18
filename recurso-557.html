@@ -577,6 +577,18 @@
     .im-cfg-chip button { flex: none; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: var(--ink); cursor: pointer; }
     .im-cfg-chip button:hover { background: var(--surface-2); }
     .im-modal-nota { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin: 14px 0 0; }
+    .im-modal-import { max-width: 560px; max-height: 88vh; overflow-y: auto; }
+    .im-modal-caja textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; font-size: 0.85rem; outline: none; background: var(--surface); color: var(--ink); resize: vertical; min-height: 150px; }
+    .im-modal-caja textarea:focus { border-color: var(--accent); }
+    .im-imp-error { color: #e5484d; font-weight: 700; }
+    .im-imp-arbol { max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; background: var(--surface-2); }
+    .im-imp-arbol details { margin: 4px 0 4px 0; }
+    .im-imp-arbol details details { margin-left: 16px; }
+    .im-imp-arbol summary { cursor: pointer; font-weight: 700; }
+    .im-imp-arbol .obj { color: var(--muted); font-size: 0.78rem; margin: 2px 0 6px 16px; }
+    .im-imp-arbol .hoja { margin: 3px 0 3px 16px; }
+    .im-imp-arbol .hoja .obj { margin-left: 0; }
+    .im-pend { display: inline-block; border: 1px dashed var(--line); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -1019,6 +1031,15 @@
           <a class="primary-btn" id="imBusqBtn" href="https://gemini.google.com/gem/12SRZ1JGpNGIbARoG2qGHOVoYaai-4nSh?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
           <p class="busq-nota" id="imBusqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
         </div>
+        <div class="hero" style="margin-top:34px;"><div class="intro">
+          <p class="eyebrow" id="imArqEyebrow">Estructura tu proyecto</p>
+          <h2 id="imArqTitulo">¿Tienes un proyecto y no sabes por dónde empezar a organizarlo?</h2>
+          <p id="imArqCopy">El Bibliotecario te encuentra la configuración; el Arquitecto te estructura el proyecto completo. Cuéntale qué quieres lograr y arma contigo el árbol: categoría, subcategorías, cuadernos y chats, cada uno con su objetivo. Al final te entrega un bloque que pegas en Mis cuadernos con "Importar árbol" y toda la estructura se crea sola.</p>
+        </div></div>
+        <div class="busq-caja">
+          <a class="primary-btn" id="imArqBtn" href="https://gemini.google.com/gem/PENDIENTE" target="_blank" rel="noopener">Abrir el Arquitecto en Gemini</a>
+          <p class="busq-nota" id="imArqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
+        </div>
       </section>
 
       <section id="favoritos" class="section">
@@ -1051,6 +1072,7 @@
           <button id="imCuadVolver" class="secondary-btn" type="button" style="display:none"><span>← Volver</span></button>
           <div class="im-toolbar-acciones">
             <button id="imBtnArbol" class="secondary-btn" type="button" style="display:none"><span>Árbol</span></button>
+            <button id="imBtnImportar" class="secondary-btn" type="button"><span>Importar árbol</span></button>
             <button id="imBtnNuevaCat" class="secondary-btn" type="button"><span>Crear categoría</span></button>
             <button id="imBtnNuevoCuad" class="primary-btn" type="button"><span>Agregar cuaderno</span></button>
           </div>
@@ -1145,6 +1167,29 @@
       <div class="im-modal-acciones">
         <button id="imChatCCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imChatCOk" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: importar árbol del Arquitecto -->
+  <div id="imModalImportar" class="im-modal">
+    <div class="im-modal-caja im-modal-import">
+      <h3 id="imImpTitulo">Importar árbol</h3>
+      <div id="imImpZonaPegar">
+        <p class="im-modal-nota" id="imImpAyuda" style="margin:0 0 10px;">Pega aquí el bloque que te entregó el Arquitecto y revisa la vista previa antes de crear.</p>
+        <textarea id="imImpTexto" rows="9" spellcheck="false"></textarea>
+      </div>
+      <p class="im-modal-nota im-imp-error" id="imImpError" style="display:none;"></p>
+      <div id="imImpPreview" style="display:none;">
+        <h4 id="imImpPrevTitulo" class="im-lista-titulo" style="display:block; margin-top:6px;">Vista previa</h4>
+        <div id="imImpPrevArbol" class="im-imp-arbol"></div>
+        <p class="im-modal-nota" id="imImpPrevNota"></p>
+      </div>
+      <div class="im-modal-acciones">
+        <button id="imImpCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imImpEditar" class="secondary-btn" type="button" style="display:none"><span>Editar</span></button>
+        <button id="imImpVer" class="primary-btn" type="button"><span>Vista previa</span></button>
+        <button id="imImpCrear" class="primary-btn" type="button" style="display:none"><span>Crear todo</span></button>
       </div>
     </div>
   </div>
@@ -2175,6 +2220,9 @@ ${clean}`;
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
+          arqEyebrow: 'Estructura tu proyecto', arqTitulo: '¿Tienes un proyecto y no sabes por dónde empezar a organizarlo?',
+          arqCopy: 'El Bibliotecario te encuentra la configuración; el Arquitecto te estructura el proyecto completo. Cuéntale qué quieres lograr y arma contigo el árbol: categoría, subcategorías, cuadernos y chats, cada uno con su objetivo. Al final te entrega un bloque que pegas en Mis cuadernos con "Importar árbol" y toda la estructura se crea sola.',
+          arqBtn: 'Abrir el Arquitecto en Gemini', arqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
           arbolBtn: 'Árbol', arbolCopiar: 'Copiar árbol', arbolCopiado: 'Árbol copiado', arbolVacio: 'Esta categoría aún no tiene cuadernos.', arbolSinSub: 'Sin subcategoría',
           misTitulo: 'Tus configuraciones guardadas.', misCopy: 'Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.', misVacio: 'Aún no guardas ninguna. Genera una configuración y presiona "Guardar en mis configuraciones".',
           cuadTitulo: 'Tus cuadernos, siempre a la mano.', cuadCopy: 'Gemini va dejando los cuadernos atrás. Guárdalos aquí con categoría propia y una nota de para qué es cada uno.', cuadVacio: 'Aún no guardas cuadernos. Pega el link del primero arriba.',
@@ -2191,6 +2239,9 @@ ${clean}`;
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
+          arqEyebrow: 'Structure your project', arqTitulo: 'Do you have a project and no idea how to start organizing it?',
+          arqCopy: 'The Librarian finds you the configuration; the Architect structures your whole project. Tell it what you want to achieve and it builds the tree with you: category, subcategories, notebooks and chats, each with its objective. At the end it hands you a block you paste in My notebooks with "Import tree" and the whole structure creates itself.',
+          arqBtn: 'Open the Architect in Gemini', arqNota: 'Opens in a new tab with your Google account.',
           arbolBtn: 'Tree', arbolCopiar: 'Copy tree', arbolCopiado: 'Tree copied', arbolVacio: 'This category has no notebooks yet.', arbolSinSub: 'No subcategory',
           misTitulo: 'Your saved configurations.', misCopy: 'Every configuration you generate can be saved with its own name to reuse anytime.', misVacio: 'Nothing saved yet. Generate a configuration and press "Save to my configurations".',
           cuadTitulo: 'Your notebooks, always at hand.', cuadCopy: 'Gemini buries old notebooks. Keep them here with your own categories and a note of what each one is for.', cuadVacio: 'No notebooks saved yet. Paste your first link above.',
@@ -2424,7 +2475,7 @@ ${clean}`;
         tituloCats: 'Categorías', tituloSubs: 'Subcategorías', sinCatTitulo: 'Cuadernos sin categoría', sinSubTitulo: 'Cuadernos sin subcategoría',
         abrirGemini: 'Abrir en Gemini', abrirNotebook: 'Abrir en NotebookLM',
         chats: 'Chats', guardarChat: '＋ Guardar chat', tNuevoChat: 'Guardar chat', tEditarChat: 'Editar chat',
-        lblTituloChat: 'Título', lblUrlChat: 'Link del chat', lblNotaChat: 'Objetivo (opcional)', chatGuardado: 'Chat guardado', abrirChat: 'Abrir chat',
+        lblTituloChat: 'Título', lblUrlChat: 'Link del chat (opcional)', lblNotaChat: 'Objetivo (opcional)', chatGuardado: 'Chat guardado', abrirChat: 'Abrir chat',
         tMoverSub: 'Mover subcategoría', lblCatDestino: 'Categoría destino', subMovida: 'Subcategoría movida', sinDestino: 'No hay otra categoría a dónde moverla: crea una primero',
         confTitCat: '¿Eliminar la categoría?', confTitSub: '¿Eliminar la subcategoría?',
         confTexCat: 'Se eliminará todo lo que contiene: subcategorías, cuadernos y chats guardados. Si quieres conservar alguna subcategoría o cuaderno, muévelo a otro lugar antes de eliminar.',
@@ -2432,6 +2483,21 @@ ${clean}`;
         confTitCuad: '¿Eliminar el cuaderno?', confTexCuad: 'Se eliminará con sus chats guardados.',
         confTitChat: '¿Eliminar el chat?', confTexChat: 'Se eliminará este chat guardado (el chat real no se toca).',
         confSiTodo: 'Sí, eliminar todo', confSi: 'Sí, eliminar', noBorro: 'No se pudo eliminar', noGuardo: 'No se pudo guardar', errCargar: 'No se pudo cargar tu espacio',
+        btnImportar: 'Importar árbol', impTitulo: 'Importar árbol',
+        impAyuda: 'Pega aquí el bloque que te entregó el Arquitecto y revisa la vista previa antes de crear.',
+        impVer: 'Vista previa', impCrear: 'Crear todo', impCreando: 'Creando…', impEditar: 'Editar', impPrevTitulo: 'Vista previa',
+        impNoJson: 'No encontré un bloque de datos en lo que pegaste. Copia el bloque completo que te entregó el Arquitecto.',
+        impJsonMal: 'El bloque tiene un error de formato y no se pudo leer. Pídele al Arquitecto que te lo entregue de nuevo.',
+        impVersion: 'Este bloque es de una versión que esta página todavía no reconoce.',
+        impSinNombre: 'La categoría del árbol necesita un nombre.',
+        impSubSinNombre: 'Hay una subcategoría sin nombre en el árbol.',
+        impCuadSinTitulo: 'Hay un cuaderno sin título en el árbol.',
+        impChatSinTitulo: 'Hay un chat sin título en el árbol.',
+        impMuchos: 'El árbol supera el límite de 100 elementos por importación. Divídelo en dos.',
+        impSeCrearan: 'Se crearán', impCat: 'categoría', impSubs: 'subcategorías', impCuads: 'cuadernos', impChats: 'chats',
+        impListo: 'Árbol creado', impSinChats: 'Sin chats sugeridos',
+        impParcial: 'El árbol quedó a medias: se alcanzó a crear', impParcialFin: 'Revisa Mis cuadernos y completa lo que falte a mano.',
+        linkPendiente: 'Link pendiente',
       });
       Object.assign(IM_TEXT.en, {
         crearCat: 'New category', crearSub: 'New subcategory', agregarCuad: 'Add notebook',
@@ -2446,7 +2512,7 @@ ${clean}`;
         tituloCats: 'Categories', tituloSubs: 'Subcategories', sinCatTitulo: 'Uncategorized notebooks', sinSubTitulo: 'Notebooks without subcategory',
         abrirGemini: 'Open in Gemini', abrirNotebook: 'Open in NotebookLM',
         chats: 'Chats', guardarChat: '＋ Save chat', tNuevoChat: 'Save chat', tEditarChat: 'Edit chat',
-        lblTituloChat: 'Title', lblUrlChat: 'Chat link', lblNotaChat: 'Objective (optional)', chatGuardado: 'Chat saved', abrirChat: 'Open chat',
+        lblTituloChat: 'Title', lblUrlChat: 'Chat link (optional)', lblNotaChat: 'Objective (optional)', chatGuardado: 'Chat saved', abrirChat: 'Open chat',
         tMoverSub: 'Move subcategory', lblCatDestino: 'Destination category', subMovida: 'Subcategory moved', sinDestino: 'No other category to move it to: create one first',
         confTitCat: 'Delete this category?', confTitSub: 'Delete this subcategory?',
         confTexCat: 'Everything inside will be deleted: subcategories, notebooks and saved chats. Move anything you want to keep before deleting.',
@@ -2454,6 +2520,21 @@ ${clean}`;
         confTitCuad: 'Delete this notebook?', confTexCuad: 'It will be deleted along with its saved chats.',
         confTitChat: 'Delete this chat?', confTexChat: 'This saved chat will be deleted (the real chat is untouched).',
         confSiTodo: 'Yes, delete everything', confSi: 'Yes, delete', noBorro: 'Could not delete', noGuardo: 'Could not save', errCargar: 'Could not load your space',
+        btnImportar: 'Import tree', impTitulo: 'Import tree',
+        impAyuda: 'Paste here the block the Architect gave you and review the preview before creating.',
+        impVer: 'Preview', impCrear: 'Create all', impCreando: 'Creating…', impEditar: 'Edit', impPrevTitulo: 'Preview',
+        impNoJson: 'No data block found in what you pasted. Copy the full block the Architect gave you.',
+        impJsonMal: 'The block has a format error and could not be read. Ask the Architect to hand it over again.',
+        impVersion: 'This block uses a version this page does not recognize yet.',
+        impSinNombre: 'The tree category needs a name.',
+        impSubSinNombre: 'There is a subcategory without a name in the tree.',
+        impCuadSinTitulo: 'There is a notebook without a title in the tree.',
+        impChatSinTitulo: 'There is a chat without a title in the tree.',
+        impMuchos: 'The tree exceeds the limit of 100 items per import. Split it in two.',
+        impSeCrearan: 'Will create', impCat: 'category', impSubs: 'subcategories', impCuads: 'notebooks', impChats: 'chats',
+        impListo: 'Tree created', impSinChats: 'No suggested chats',
+        impParcial: 'The tree was left halfway: it managed to create', impParcialFin: 'Check My notebooks and complete the rest by hand.',
+        linkPendiente: 'Link pending',
       });
 
       let cuadernos = [], nodos = [], chatsC = [];
@@ -2543,7 +2624,9 @@ ${clean}`;
               </div>` : ''}
             <h4>${escapeHtml(ch.titulo)}</h4>
             ${ch.nota ? `<p class="nota">${escapeHtml(ch.nota)}</p>` : ''}
-            <a class="primary-btn" href="${escapeHtml(ch.url)}" target="_blank" rel="noopener" style="font-size:0.8rem; padding:7px 14px;"><span>${escapeHtml(x.abrirChat)}</span></a>
+            ${ch.url
+              ? `<a class="primary-btn" href="${escapeHtml(ch.url)}" target="_blank" rel="noopener" style="font-size:0.8rem; padding:7px 14px;"><span>${escapeHtml(x.abrirChat)}</span></a>`
+              : `<span class="im-pend">${escapeHtml(x.linkPendiente)}</span>`}
           </div>`;
       }
 
@@ -2569,6 +2652,7 @@ ${clean}`;
             <div class="im-row-acciones">
               ${uGem ? `<a class="primary-btn" href="${escapeHtml(uGem)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirGemini)}</span></a>` : ''}
               ${uNb ? `<a class="primary-btn" href="${escapeHtml(uNb)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirNotebook)}</span></a>` : ''}
+              ${!uGem && !uNb ? `<span class="im-pend">${escapeHtml(x.linkPendiente)}</span>` : ''}
               <button class="secondary-btn" type="button" data-togglechats="${c.id}"><span>💬 ${escapeHtml(x.chats)} (${cs.length}) ${abierto ? '▴' : '▾'}</span></button>
             </div>
             ${abierto ? `
@@ -2637,8 +2721,10 @@ ${clean}`;
         } else titLista.style.display = 'none';
         $('imBtnNuevaCat').style.display = mostrarBtnCat ? '' : 'none';
         $('imBtnArbol').style.display = cuadVista.t === 'root' ? 'none' : '';
+        $('imBtnImportar').style.display = cuadVista.t === 'root' ? '' : 'none';
         $('imBtnNuevaCat').querySelector('span').textContent = btnCatLabel;
         $('imBtnNuevoCuad').querySelector('span').textContent = x.agregarCuad;
+        $('imBtnImportar').querySelector('span').textContent = x.btnImportar;
         $('imCuadVolver').querySelector('span').textContent = '← ' + (state.interfaceLanguage === 'en' ? 'Back' : 'Volver');
         $('imCuadCards').innerHTML = cards;
         $('imCuadList').innerHTML = lista.map(filaCuaderno).join('');
@@ -2935,7 +3021,9 @@ ${clean}`;
           urlNb = $('imCuadUrlNbInput').value.trim() || null;
           descripcion = $('imCuadDescInput').value.trim() || null;
           if (!titulo) { showToast(x.nombreVacio); return; }
-          if (!urlGem && !urlNb) { showToast(x.unLink); return; }
+          // Un cuaderno importado (sin links) puede seguir sin link; uno que ya los tiene no puede quedarse sin ninguno
+          const eraPendiente = modo === 'editar' && !cuadCtx.cuaderno.url_gemini && !(cuadCtx.cuaderno.url_notebook ?? cuadCtx.cuaderno.url);
+          if (!urlGem && !urlNb && !eraPendiente) { showToast(x.unLink); return; }
           if (urlGem && !/^https?:\/\//i.test(urlGem)) urlGem = 'https://' + urlGem;
           if (urlNb && !/^https?:\/\//i.test(urlNb)) urlNb = 'https://' + urlNb;
         }
@@ -2996,9 +3084,9 @@ ${clean}`;
       $('imChatCOk').addEventListener('click', async () => {
         const x = tt();
         const titulo = $('imChatCTit').value.trim();
-        let url = $('imChatCUrl').value.trim();
-        if (!titulo || !url) { showToast(x.datosFaltan); return; }
-        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        let url = $('imChatCUrl').value.trim() || null;   // sin link = chat pendiente
+        if (!titulo) { showToast(x.nombreVacio); return; }
+        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
         const nota = $('imChatCNota').value.trim() || null;
         const q = chatCtx.modo === 'crear'
           ? db.from('user_cuaderno_chats').insert({ user_id: IM.userId, cuaderno_id: chatCtx.cuadernoId, titulo, url, nota })
@@ -3012,6 +3100,183 @@ ${clean}`;
       });
       $('imChatCCancelar').addEventListener('click', () => $('imModalChatC').classList.remove('abierto'));
       $('imModalChatC').addEventListener('click', (e) => { if (e.target.id === 'imModalChatC') e.target.classList.remove('abierto'); });
+
+      // ── Importar árbol (bloque JSON que entrega el Arquitecto) ──
+      let impArbol = null;
+
+      // Primer bloque {...} balanceado, respetando strings: tolera texto alrededor y cercas ```json
+      function extraerBloqueJson(texto) {
+        const start = texto.indexOf('{');
+        if (start === -1) return null;
+        let depth = 0, enStr = false, esc = false;
+        for (let i = start; i < texto.length; i++) {
+          const ch = texto[i];
+          if (enStr) {
+            if (esc) esc = false;
+            else if (ch === '\\') esc = true;
+            else if (ch === '"') enStr = false;
+          } else {
+            if (ch === '"') enStr = true;
+            else if (ch === '{') depth++;
+            else if (ch === '}') { depth--; if (!depth) return texto.slice(start, i + 1); }
+          }
+        }
+        return null;
+      }
+
+      function validarArbolImportado(texto) {
+        const x = tt();
+        const bloque = extraerBloqueJson(texto);
+        if (!bloque) return { error: x.impNoJson };
+        let obj;
+        try { obj = JSON.parse(bloque); } catch { return { error: x.impJsonMal }; }
+        if (Number(obj.version) !== 1) return { error: x.impVersion };
+        if (!obj.categoria || typeof obj.categoria !== 'object') return { error: x.impSinNombre };
+        const limpio = (v) => (typeof v === 'string' ? v.trim() : '');
+        const leerChats = (lista) => (Array.isArray(lista) ? lista : []).map(ch => ({ titulo: limpio(ch?.titulo), objetivo: limpio(ch?.objetivo) || null }));
+        const leerCuadernos = (lista) => (Array.isArray(lista) ? lista : []).map(c => ({ titulo: limpio(c?.titulo), objetivo: limpio(c?.objetivo) || null, chats: leerChats(c?.chats) }));
+        const arbol = {
+          nombre: limpio(obj.categoria.nombre),
+          objetivo: limpio(obj.categoria.objetivo) || null,
+          subcategorias: (Array.isArray(obj.categoria.subcategorias) ? obj.categoria.subcategorias : [])
+            .map(s => ({ nombre: limpio(s?.nombre), objetivo: limpio(s?.objetivo) || null, cuadernos: leerCuadernos(s?.cuadernos) })),
+          cuadernos: leerCuadernos(obj.categoria.cuadernos),
+        };
+        if (!arbol.nombre) return { error: x.impSinNombre };
+        let nodos = 1, cuads = 0, chats = 0;
+        for (const s of arbol.subcategorias) {
+          if (!s.nombre) return { error: x.impSubSinNombre };
+          nodos++;
+        }
+        for (const c of [...arbol.cuadernos, ...arbol.subcategorias.flatMap(s => s.cuadernos)]) {
+          if (!c.titulo) return { error: x.impCuadSinTitulo };
+          nodos++; cuads++;
+          for (const ch of c.chats) {
+            if (!ch.titulo) return { error: x.impChatSinTitulo };
+            nodos++; chats++;
+          }
+        }
+        if (nodos > 100) return { error: x.impMuchos };
+        return { arbol, resumen: { subs: arbol.subcategorias.length, cuads, chats } };
+      }
+
+      function pintarPreviaArbol(a) {
+        const x = tt();
+        const chatsHtml = (c) => c.chats.length
+          ? c.chats.map(ch => `<div class="hoja">💬 ${escapeHtml(ch.titulo)}${ch.objetivo ? `<div class="obj">${escapeHtml(ch.objetivo)}</div>` : ''}</div>`).join('')
+          : `<div class="hoja obj">${escapeHtml(x.impSinChats)}</div>`;
+        const cuadHtml = (c) => `
+          <details><summary>${escapeHtml(c.titulo)}</summary>
+            ${c.objetivo ? `<div class="obj">${escapeHtml(c.objetivo)}</div>` : ''}
+            ${chatsHtml(c)}
+          </details>`;
+        $('imImpPrevArbol').innerHTML = `
+          <details open><summary>${escapeHtml(a.nombre)}</summary>
+            ${a.objetivo ? `<div class="obj">${escapeHtml(a.objetivo)}</div>` : ''}
+            ${a.subcategorias.map(s => `
+              <details open><summary>${escapeHtml(s.nombre)}</summary>
+                ${s.objetivo ? `<div class="obj">${escapeHtml(s.objetivo)}</div>` : ''}
+                ${s.cuadernos.map(cuadHtml).join('')}
+              </details>`).join('')}
+            ${a.cuadernos.map(cuadHtml).join('')}
+          </details>`;
+      }
+
+      function estadoImp(previa) {
+        $('imImpZonaPegar').style.display = previa ? 'none' : '';
+        $('imImpPreview').style.display = previa ? '' : 'none';
+        $('imImpVer').style.display = previa ? 'none' : '';
+        $('imImpCrear').style.display = previa ? '' : 'none';
+        $('imImpEditar').style.display = previa ? '' : 'none';
+      }
+
+      function abrirModalImportar() {
+        const x = tt();
+        impArbol = null;
+        $('imImpTitulo').textContent = x.impTitulo;
+        $('imImpAyuda').textContent = x.impAyuda;
+        $('imImpPrevTitulo').textContent = x.impPrevTitulo;
+        $('imImpTexto').value = '';
+        $('imImpError').style.display = 'none';
+        $('imImpCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imImpEditar').querySelector('span').textContent = x.impEditar;
+        $('imImpVer').querySelector('span').textContent = x.impVer;
+        $('imImpCrear').disabled = false;
+        $('imImpCrear').querySelector('span').textContent = x.impCrear;
+        estadoImp(false);
+        $('imModalImportar').classList.add('abierto');
+        $('imImpTexto').focus();
+      }
+      $('imBtnImportar').addEventListener('click', abrirModalImportar);
+      $('imImpCancelar').addEventListener('click', () => $('imModalImportar').classList.remove('abierto'));
+      $('imModalImportar').addEventListener('click', (e) => { if (e.target.id === 'imModalImportar') e.target.classList.remove('abierto'); });
+      $('imImpEditar').addEventListener('click', () => { $('imImpError').style.display = 'none'; estadoImp(false); });
+
+      $('imImpVer').addEventListener('click', () => {
+        const x = tt();
+        const r = validarArbolImportado($('imImpTexto').value);
+        if (r.error) { $('imImpError').textContent = r.error; $('imImpError').style.display = ''; return; }
+        impArbol = r.arbol;
+        $('imImpError').style.display = 'none';
+        pintarPreviaArbol(r.arbol);
+        $('imImpPrevNota').textContent = `${x.impSeCrearan}: 1 ${x.impCat}, ${r.resumen.subs} ${x.impSubs}, ${r.resumen.cuads} ${x.impCuads}, ${r.resumen.chats} ${x.impChats}.`;
+        estadoImp(true);
+      });
+
+      $('imImpCrear').addEventListener('click', async () => {
+        if (!impArbol) return;
+        const x = tt();
+        const btn = $('imImpCrear');
+        btn.disabled = true; btn.querySelector('span').textContent = x.impCreando;
+        const hechos = { subs: 0, cuads: 0, chats: 0 };
+        let huboAlgo = false;
+
+        // Sin transacciones desde el cliente: si algo falla a mitad, se informa qué alcanzó a crearse
+        const fallo = (msg) => {
+          btn.disabled = false; btn.querySelector('span').textContent = x.impCrear;
+          $('imImpError').textContent = huboAlgo
+            ? `${x.impParcial} ${hechos.subs} ${x.impSubs}, ${hechos.cuads} ${x.impCuads}, ${hechos.chats} ${x.impChats}. ${x.impParcialFin}${msg ? ' (' + msg + ')' : ''}`
+            : `${x.noGuardo}${msg ? ': ' + msg : ''}`;
+          $('imImpError').style.display = '';
+          cargarCuadernos();
+        };
+
+        const { data: catData, error: catErr } = await db.from('user_cuaderno_categorias')
+          .insert({ user_id: IM.userId, parent_id: null, nombre: impArbol.nombre, descripcion: impArbol.objetivo }).select('id').single();
+        if (catErr || !catData) { fallo(catErr?.message); return; }
+        huboAlgo = true;
+
+        const crearCuadernosDe = async (lista, nodoId) => {
+          for (const c of lista) {
+            const { data: cu, error: cuErr } = await db.from('user_cuadernos')
+              .insert({ user_id: IM.userId, titulo: c.titulo, descripcion: c.objetivo, nodo_id: nodoId }).select('id').single();
+            if (cuErr || !cu) throw cuErr || new Error('insert');
+            hechos.cuads++;
+            for (const ch of c.chats) {
+              const { error: chErr } = await db.from('user_cuaderno_chats')
+                .insert({ user_id: IM.userId, cuaderno_id: cu.id, titulo: ch.titulo, url: null, nota: ch.objetivo });
+              if (chErr) throw chErr;
+              hechos.chats++;
+            }
+          }
+        };
+        try {
+          for (const s of impArbol.subcategorias) {
+            const { data: su, error: suErr } = await db.from('user_cuaderno_categorias')
+              .insert({ user_id: IM.userId, parent_id: catData.id, nombre: s.nombre, descripcion: s.objetivo }).select('id').single();
+            if (suErr || !su) throw suErr || new Error('insert');
+            hechos.subs++;
+            await crearCuadernosDe(s.cuadernos, su.id);
+          }
+          await crearCuadernosDe(impArbol.cuadernos, catData.id);
+        } catch (err) { fallo(err?.message); return; }
+
+        $('imModalImportar').classList.remove('abierto');
+        showToast(x.impListo);
+        cuadVista = { t: 'cat', id: catData.id };
+        menuAbierto = null;
+        cargarCuadernos();
+      });
 
       // ── Mover subcategoría entre categorías (sus cuadernos viajan con ella) ──
       function abrirModalMoverSubC(n) {
@@ -3052,6 +3317,11 @@ ${clean}`;
         $('imBusqCopy').textContent = x.busqCopy;
         $('imBusqBtn').textContent = x.busqBtn;
         $('imBusqNota').textContent = x.busqNota;
+        $('imArqEyebrow').textContent = x.arqEyebrow;
+        $('imArqTitulo').textContent = x.arqTitulo;
+        $('imArqCopy').textContent = x.arqCopy;
+        $('imArqBtn').textContent = x.arqBtn;
+        $('imArqNota').textContent = x.arqNota;
         $('imBtnArbol').querySelector('span').textContent = x.arbolBtn;
         $('imArbolCopiar').textContent = x.arbolCopiar;
         $('imFavEyebrow').textContent = x.espacio; $('imMisEyebrow').textContent = x.espacio; $('imCuadEyebrow').textContent = x.espacio;
