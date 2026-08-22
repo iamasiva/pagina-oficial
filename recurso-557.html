@@ -1142,7 +1142,7 @@
         <label class="im-modal-label" id="imCuadLblUrlGem">Link del cuaderno en Gemini</label>
         <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…" />
         <label class="im-modal-label" id="imCuadLblUrlNb">Link del cuaderno en NotebookLM</label>
-        <input id="imCuadUrlNbInput" type="text" placeholder="https://notebooklm.google.com/…" />
+        <input id="imCuadUrlNbInput" type="text" placeholder="https://notebook.google.com/… o notebooklm.google.com/…" />
         <label class="im-modal-label" id="imCuadLblDesc">Objetivo (opcional)</label>
         <input id="imCuadDescInput" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
         <label class="im-modal-label" id="imCuadLblCfg">Configuración (opcional)</label>
@@ -2533,7 +2533,7 @@ ${clean}`;
         conAyuda: 'Pega este comando en Claude Code, Codex o la herramienta que uses. Conecta tu proyecto por MCP a NotebookLM y tu agente queda listo para trabajar con tus cuadernos. La primera vez te pedirá iniciar sesión en Google en TU computador; nosotros nunca vemos tu cuenta.',
         conIntroProyecto: 'Conéctate a mi proyecto "{n}" de IA MASIVA (cuadernos de NotebookLM/Gemini organizados en árbol).',
         conIntroCuaderno: 'Conéctate a mi cuaderno "{n}" de IA MASIVA (cuaderno de NotebookLM/Gemini; el contexto indica a qué proyecto aporta).',
-        conPaso1: 'PASO 1 · MCP de NotebookLM (solo la primera vez): si esta sesión aún no tiene un MCP de NotebookLM, proponme instalar uno local de código abierto (por ejemplo notebooklm-mcp-2026) y guíame en la autenticación con Google, que ocurre solo en mi máquina. Nota: es una integración no oficial; si algún día falla la conexión, casi siempre basta con reautenticar la sesión de Google y reintentar.',
+        conPaso1: 'PASO 1 · Conexión con mis cuadernos (solo la primera vez): si esta sesión aún no tiene herramientas de NotebookLM, instala el plugin mantenido "notebooklm" de roomi-fields. En Claude Code: ejecuta `claude plugin marketplace add roomi-fields/claude-plugins` y `claude plugin install notebooklm@roomi-fields`; luego corre `npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth` y déjame iniciar sesión con Google en la ventana que se abre (la sesión queda guardada solo en mi máquina y no se repite). En otras herramientas: registra como servidor MCP el comando `npx -y @roomi-fields/notebooklm-mcp@latest` y corre el mismo setup-auth. Si aparece "Executable doesn\'t exist ... chromium", instala el navegador con `patchright install chromium` y reintenta. Si la conexión falla en el futuro, casi siempre es la sesión de Google: corre de nuevo el setup-auth. NO uses los paquetes notebooklm-mcp-2026 ni notebooklm-mcp de PleasePrompto: están rotos desde agosto de 2026. Nota: NotebookLM ahora se llama Gemini Notebook; los links de notebooklm.google.com y notebook.google.com apuntan al mismo cuaderno.',
         conPaso2: 'PASO 2 · Mi proyecto (fuente de verdad, generado por IA MASIVA):',
         conPaso2Cuad: 'PASO 2 · Mi cuaderno (fuente de verdad, generado por IA MASIVA):',
         conPaso3: 'PASO 3 · Cómo trabajar conmigo:\n- Cada nodo tiene un objetivo; el objetivo de un chat aporta al de su cuaderno, el del cuaderno al de su subcategoría y el de la subcategoría al problema principal de la categoría.\n- Cuando necesites contenido de un cuaderno, consúltalo por MCP usando su notebook_id. Si un cuaderno tiene configuración asignada, adopta ese rol al trabajar temas de ese cuaderno.\n- Confírmame la conexión listando mis cuadernos y diciéndome qué entendiste del proyecto antes de empezar.',
@@ -2579,7 +2579,7 @@ ${clean}`;
         conAyuda: 'Paste this command into Claude Code, Codex or the tool you use. It connects your project to NotebookLM through MCP and your agent is ready to work with your notebooks. The first time it will ask you to sign in to Google on YOUR computer; we never see your account.',
         conIntroProyecto: 'Connect to my IA MASIVA project "{n}" (NotebookLM/Gemini notebooks organized as a tree).',
         conIntroCuaderno: 'Connect to my IA MASIVA notebook "{n}" (NotebookLM/Gemini notebook; the context shows which project it feeds).',
-        conPaso1: 'STEP 1 · NotebookLM MCP (first time only): if this session does not have a NotebookLM MCP yet, propose installing a local open source one (for example notebooklm-mcp-2026) and guide me through the Google authentication, which happens only on my machine. Note: it is an unofficial integration; if the connection ever fails, re-authenticating the Google session and retrying is almost always enough.',
+        conPaso1: 'STEP 1 · Connect to my notebooks (first time only): if this session does not have NotebookLM tools yet, install the maintained "notebooklm" plugin by roomi-fields. In Claude Code: run `claude plugin marketplace add roomi-fields/claude-plugins` and `claude plugin install notebooklm@roomi-fields`; then run `npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth` and let me sign in with Google in the window that opens (the session is stored only on my machine and does not repeat). In other tools: register the command `npx -y @roomi-fields/notebooklm-mcp@latest` as an MCP server and run the same setup-auth. If you see "Executable doesn\'t exist ... chromium", install the browser with `patchright install chromium` and retry. If the connection ever fails later, it is almost always the Google session: run setup-auth again. Do NOT use the packages notebooklm-mcp-2026 or PleasePrompto\'s notebooklm-mcp: both broken since August 2026. Note: NotebookLM is now called Gemini Notebook; notebooklm.google.com and notebook.google.com links point to the same notebook.',
         conPaso2: 'STEP 2 · My project (source of truth, generated by IA MASIVA):',
         conPaso2Cuad: 'STEP 2 · My notebook (source of truth, generated by IA MASIVA):',
         conPaso3: 'STEP 3 · How to work with me:\n- Every node has an objective; the objective of a chat feeds the one of its notebook, the notebook feeds its subcategory, and the subcategory resolves the main problem of the category.\n- When you need the content of a notebook, query it through MCP using its notebook_id. If a notebook has an assigned configuration, adopt that role when working on its topics.\n- Confirm the connection by listing my notebooks and telling me what you understood about the project before starting.',
@@ -2587,6 +2587,18 @@ ${clean}`;
       });
 
       let cuadernos = [], nodos = [], chatsC = [];
+      // Receta de conexión MCP actualizable desde la base (app_config, clave
+      // mcp_notebooklm): si el ecosistema de MCPs vuelve a romperse, se corrige
+      // con un UPDATE sin tocar código. Si la fila no existe o falla la lectura,
+      // el bloque usa el texto integrado (conPaso1).
+      let mcpCfg = null;
+      (async () => {
+        try {
+          const { data } = await db.from('app_config').select('valor').eq('clave', 'mcp_notebooklm').maybeSingle();
+          if (data?.valor) mcpCfg = data.valor;
+        } catch (_) {}
+      })();
+      const paso1Conexion = () => mcpCfg?.[state.interfaceLanguage === 'en' ? 'paso1_en' : 'paso1_es'] || tt().conPaso1;
       let cuadVista = { t: 'root' };   // root | cat | sub
       let menuAbierto = null;
       const chatsAbiertos = new Set();
@@ -3397,12 +3409,12 @@ ${clean}`;
           const cat = nodoDe(ctx.catId);
           if (!cat) return '';
           const json = JSON.stringify(arbolConexion(cat), null, 2);
-          return x.conIntroProyecto.replace('{n}', cat.nombre) + '\n\n' + x.conPaso1 + '\n\n' + x.conPaso2 + '\n' + json + '\n\n' + x.conPaso3;
+          return x.conIntroProyecto.replace('{n}', cat.nombre) + '\n\n' + paso1Conexion() + '\n\n' + x.conPaso2 + '\n' + json + '\n\n' + x.conPaso3;
         }
         const c = cuadernos.find(k => k.id === ctx.cuadernoId);
         if (!c) return '';
         const json = JSON.stringify(cuadernoSueltoConexion(c), null, 2);
-        return x.conIntroCuaderno.replace('{n}', c.titulo) + '\n\n' + x.conPaso1 + '\n\n' + x.conPaso2Cuad + '\n' + json + '\n\n' + x.conPaso3Cuad;
+        return x.conIntroCuaderno.replace('{n}', c.titulo) + '\n\n' + paso1Conexion() + '\n\n' + x.conPaso2Cuad + '\n' + json + '\n\n' + x.conPaso3Cuad;
       }
 
       function abrirModalConectar(ctx) {

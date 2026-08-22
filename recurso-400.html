@@ -2561,14 +2561,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           herramienta ? 'Herramienta predeterminada en Gemini: ' + herramienta : null,
         ].filter(Boolean).join('\n');
         const links = linksDeGema(g);
+        // Receta MCP: viene de app_config (mcp_notebooklm.conocimiento_400) si
+        // existe, para poder actualizarla sin deploy cuando el ecosistema cambie
+        const recetaMcp = (mcpCfg && mcpCfg.conocimiento_400) ||
+          'Conecta además estos cuadernos de NotebookLM (hoy Gemini Notebook), que son parte del conocimiento de mi gema. Para conectarlos usa el plugin mantenido "notebooklm" de roomi-fields: en Claude Code ejecuta `claude plugin marketplace add roomi-fields/claude-plugins` y `claude plugin install notebooklm@roomi-fields`, luego corre `npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth` y déjame iniciar sesión con Google (una sola vez; si la sesión caduca, corre de nuevo el setup-auth y me pides entrar). En otras herramientas registra como servidor MCP `npx -y @roomi-fields/notebooklm-mcp@latest`. Si sale "Executable doesn\'t exist ... chromium", corre `patchright install chromium` y reintenta. NO uses los paquetes notebooklm-mcp-2026 ni notebooklm-mcp de PleasePrompto: están rotos desde agosto de 2026. Consulta estos cuadernos como fuentes vivas cuando la gema trabaje:';
         const cuadernosSeccion = links.length
-          ? `Conecta además estos cuadernos de NotebookLM, que son parte del
-conocimiento de mi gema: instala y configura un MCP de NotebookLM,
-guíame por la autenticación con mi cuenta de Google (una sola vez, y si
-la sesión caduca me pides entrar de nuevo) y consúltalos como fuentes
-vivas cuando la gema trabaje:
-${links.map(l => '- ' + l).join('\n')}
-`
+          ? recetaMcp + '\n' + links.map(l => '- ' + l).join('\n') + '\n'
           : '';
         // Delimitador dinámico: si la instrucción trae líneas de guiones, se alarga
         let delim = '----';
@@ -2636,6 +2634,15 @@ ${ficha}`;
       const URL_EXT_NOTEBOOKLM = 'https://chromewebstore.google.com/detail/notebooklm-sources-export/ildjnemeokopkjjkkhooonanjckcclfj';
 
       const linksDeGema = (g) => (g?.cuadernos || '').split('\n').map(l => l.trim()).filter(Boolean);
+      // Receta MCP actualizable desde la base (app_config.mcp_notebooklm); si
+      // no hay fila o falla, el bloque usa el texto integrado
+      let mcpCfg = null;
+      (async () => {
+        try {
+          const { data } = await db.from('app_config').select('valor').eq('clave', 'mcp_notebooklm').maybeSingle();
+          if (data?.valor) mcpCfg = data.valor;
+        } catch (_) {}
+      })();
 
       function renderCuadernosLista() {
         const links = linksDeGema(ctxAgente);
