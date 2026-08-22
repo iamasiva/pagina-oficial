@@ -4,6 +4,7 @@
 // compra — el navegador jamás toca esta tabla.
 import crypto from 'node:crypto';
 import { adminClient, componentesDelPack } from './_lib.js';
+import { enviarEventoMeta } from './_meta.js';
 
 // Resuelve rutas tipo "transaction.id" dentro del objeto data del evento.
 function valorPorRuta(obj, ruta) {
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
       const db = adminClient();
       const { data: compra } = await db
         .from('purchases')
-        .select('id, estado, user_id, product_id, consintio_acceso, email_comprador')
+        .select('id, estado, user_id, product_id, consintio_acceso, email_comprador, gateway, monto_usd_centavos, fbp, fbc, ua_navegador, ip_cliente, meta_enviado')
         .eq('referencia', tx.reference)
         .maybeSingle();
 
@@ -61,6 +62,36 @@ export default async function handler(req, res) {
             .update({ estado: 'ERROR', gateway_transaction_id: tx.id })
             .eq('id', compra.id);
         } else if (estado === 'APROBADA') {
+          // API de Conversiones de Meta: UN Purchase por transacción de dinero
+          // real (gateway wompi), con el monto realmente pagado. Los regalos
+          // (bono) y los componentes de pack (bundle) jamás generan evento.
+          // meta_enviado evita duplicar si Wompi reenvía el evento. El mismo
+          // event_id (la referencia) viaja por el píxel del navegador: Meta
+          // deduplica. Un fallo del envío nunca rompe el webhook.
+          if (compra.gateway === 'wompi' && !compra.meta_enviado && (compra.monto_usd_centavos ?? 0) > 0) {
+            const { data: producto } = await db.from('products')
+              .select('nombre').eq('id', compra.product_id).maybeSingle();
+            const enviado = await enviarEventoMeta({
+              eventName: 'Purchase',
+              eventId: tx.reference,
+              email: tx.customer_email || compra.email_comprador,
+              fbp: compra.fbp,
+              fbc: compra.fbc,
+              ip: compra.ip_cliente,
+              ua: compra.ua_navegador,
+              sourceUrl: 'https://iamasiva.co/confirmacion.html',
+              customData: {
+                currency: 'USD',
+                value: compra.monto_usd_centavos / 100,
+                content_ids: [compra.product_id],
+                content_type: 'product',
+                content_name: producto?.nombre ?? undefined,
+              },
+            });
+            if (enviado) {
+              await db.from('purchases').update({ meta_enviado: true }).eq('id', compra.id);
+            }
+          }
           // ¿El producto comprado es un pack? La tabla lo dice. Si lo es,
           // desbloquea sus componentes: una compra APROBADA por cada uno
           // (monto 0, gateway 'bundle'). Si el usuario ya tenía alguno, ese
