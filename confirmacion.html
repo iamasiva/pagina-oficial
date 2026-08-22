@@ -139,11 +139,13 @@
         if (compra?.estado === 'APROBADA') {
           sessionStorage.removeItem('compra_ref');
           // Meta Pixel: la compra se confirma UNA sola vez (la referencia sale
-          // de sessionStorage, así que una recarga no la vuelve a disparar)
+          // de sessionStorage, así que una recarga no la vuelve a disparar).
+          // El eventID es la referencia: el servidor manda el mismo Purchase
+          // por la API de Conversiones con ese id y Meta los deduplica.
           if (window.fbq) fbq('track', 'Purchase', {
             content_ids: [compra.product_id], content_type: 'product',
             value: (compra.monto_usd_centavos ?? 0) / 100, currency: 'USD',
-          });
+          }, { eventID: ref });
           if (!session && compra.de_invitado) {
             // Invitado: el recurso queda listo, falta crear la cuenta con su correo
             mostrar('vistaCuenta');
