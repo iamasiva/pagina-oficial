@@ -105,6 +105,20 @@ export default async function handler(req, res) {
       utm_campaign: limpiarUtm(req.query.utm_campaign),
     };
 
+    // Atribución para la API de Conversiones de Meta: cookies del píxel que
+    // manda pago.html, más el navegador y la IP de esta misma petición.
+    // Todo es opcional: si falta cualquiera, la compra sigue normal.
+    const limpiarMeta = (v, tope) => {
+      const t = String(v ?? '').trim().slice(0, tope);
+      return t.startsWith('fb.') ? t : null;
+    };
+    const atribucion = {
+      fbp: limpiarMeta(req.query.fbp, 120),
+      fbc: limpiarMeta(req.query.fbc, 400),
+      ua_navegador: String(req.headers['user-agent'] ?? '').slice(0, 512) || null,
+      ip_cliente: String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() || null,
+    };
+
     // Registro PENDIENTE: deja auditoría de la TRM y el monto ofrecidos.
     const fila = {
       user_id: user?.id ?? null,
@@ -118,6 +132,7 @@ export default async function handler(req, res) {
       monto_usd_centavos: precioEfectivo,
       trm_aplicada: trm,
       consintio_acceso: new Date().toISOString(),
+      ...atribucion,
     };
     let { error: insertError } = await db.from('purchases').insert({ ...fila, ...utm });
     // Si las columnas UTM aún no existen, la venta jamás se pierde por eso.

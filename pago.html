@@ -265,8 +265,13 @@
           const utmQs = u
             ? `&utm_source=${encodeURIComponent(u.source)}${u.medium ? `&utm_medium=${encodeURIComponent(u.medium)}` : ''}${u.campaign ? `&utm_campaign=${encodeURIComponent(u.campaign)}` : ''}`
             : '';
+          // Atribución de Meta: cookies del píxel (si existen). _fbc solo
+          // aparece cuando se llegó con fbclid (pauta); en orgánico va vacía.
+          const galleta = (n) => document.cookie.split('; ').find(c => c.startsWith(n + '='))?.slice(n.length + 1) || '';
+          const fbp = galleta('_fbp'), fbc = galleta('_fbc');
+          const metaQs = `${fbp ? `&fbp=${encodeURIComponent(fbp)}` : ''}${fbc ? `&fbc=${encodeURIComponent(fbc)}` : ''}`;
           // Se cobra el producto elegido: el individual o el bundle si marcó la mejora
-          const res = await fetch(`/api/checkout?product=${productoActivo.id}&consent=1${utmQs}`, { headers: cab });
+          const res = await fetch(`/api/checkout?product=${productoActivo.id}&consent=1${utmQs}${metaQs}`, { headers: cab });
           const body = await res.json();
           if (!res.ok) throw new Error(body.error || 'No se pudo iniciar el pago');
           sessionStorage.setItem('compra_ref', body.reference);
