@@ -2593,7 +2593,9 @@ ${clean}`;
       let nodoCtx = null, cuadCtx = null, chatCtx = null, moverSubCtx = null;
 
       const catsRaiz = () => nodos.filter(n => !n.parent_id).sort((a, b) => a.nombre.localeCompare(b.nombre));
-      const subsDe = (catId) => nodos.filter(n => n.parent_id === catId).sort((a, b) => a.nombre.localeCompare(b.nombre));
+      // Las subcategorías respetan el orden del árbol (columna orden); las filas
+      // viejas sin orden van al final, alfabéticas
+      const subsDe = (catId) => nodos.filter(n => n.parent_id === catId).sort((a, b) => ((a.orden ?? 1e9) - (b.orden ?? 1e9)) || a.nombre.localeCompare(b.nombre));
       const nodoDe = (id) => nodos.find(n => n.id === id) || null;
       const cuadEn = (nodoId) => cuadernos.filter(c => (c.nodo_id ?? null) === nodoId);
       const totalEnCat = (catId) => cuadEn(catId).length + subsDe(catId).reduce((a, s) => a + cuadEn(s.id).length, 0);
@@ -2650,7 +2652,7 @@ ${clean}`;
 
       async function cargarCuadernos() {
         const [cu, no, ch] = await Promise.all([
-          db.from('user_cuadernos').select('*').order('created_at', { ascending: false }),
+          db.from('user_cuadernos').select('*').order('orden', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }),
           db.from('user_cuaderno_categorias').select('*'),
           db.from('user_cuaderno_chats').select('*').order('created_at'),
         ]);
@@ -2963,7 +2965,10 @@ ${clean}`;
         if (!nombre) { showToast(tt().nombreVacio); return; }
         const descripcion = $('imNodoDesc').value.trim() || null;
         if (nodoCtx.modo === 'crear') {
-          await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: nodoCtx.parentId ?? null, nombre, descripcion });
+          // Una subcategoría nueva se añade al FINAL del orden de sus hermanas
+          const padre = nodoCtx.parentId ?? null;
+          const orden = padre ? Math.max(-1, ...nodos.filter(n => n.parent_id === padre).map(n => n.orden ?? -1)) + 1 : null;
+          await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: padre, nombre, descripcion, orden });
         } else {
           await db.from('user_cuaderno_categorias').update({ nombre, descripcion }).eq('id', nodoCtx.nodo.id);
         }
@@ -3097,7 +3102,8 @@ ${clean}`;
           else {
             const nombre = $('imCuadSubNueva').value.trim();
             if (!nombre) { showToast(x.nombreVacio); return; }
-            const { data } = await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
+            const ordenSub = Math.max(-1, ...nodos.filter(n => n.parent_id === catId).map(n => n.orden ?? -1)) + 1;
+            const { data } = await db.from('user_cuaderno_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre, orden: ordenSub }).select('id').single();
             subId = data.id;
           }
         }
@@ -3106,7 +3112,9 @@ ${clean}`;
 
         let error;
         if (modo === 'crear') {
-          ({ error } = await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId, config_id: configId }));
+          // Un cuaderno nuevo se añade al FINAL del orden de su nodo
+          const ordenCuad = Math.max(-1, ...cuadernos.filter(c => (c.nodo_id ?? null) === nodoId).map(c => c.orden ?? -1)) + 1;
+          ({ error } = await db.from('user_cuadernos').insert({ user_id: IM.userId, titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId, config_id: configId, orden: ordenCuad }));
         } else if (modo === 'editar') {
           ({ error } = await db.from('user_cuadernos').update({ titulo, url_gemini: urlGem, url_notebook: urlNb, descripcion, nodo_id: nodoId, config_id: configId }).eq('id', cuadCtx.cuaderno.id));
         } else {
@@ -3301,10 +3309,13 @@ ${clean}`;
         if (catErr || !catData) { fallo(catErr?.message); return; }
         huboAlgo = true;
 
+        // El orden del árbol del Arquitecto es parte de la estrategia: se estampa
+        // en cada nodo para que Mis cuadernos lo muestre en la misma secuencia
         const crearCuadernosDe = async (lista, nodoId) => {
-          for (const c of lista) {
+          for (let i = 0; i < lista.length; i++) {
+            const c = lista[i];
             const { data: cu, error: cuErr } = await db.from('user_cuadernos')
-              .insert({ user_id: IM.userId, titulo: c.titulo, descripcion: c.objetivo, nodo_id: nodoId }).select('id').single();
+              .insert({ user_id: IM.userId, titulo: c.titulo, descripcion: c.objetivo, nodo_id: nodoId, orden: i }).select('id').single();
             if (cuErr || !cu) throw cuErr || new Error('insert');
             hechos.cuads++;
             for (const ch of c.chats) {
@@ -3316,9 +3327,10 @@ ${clean}`;
           }
         };
         try {
-          for (const s of impArbol.subcategorias) {
+          for (let i = 0; i < impArbol.subcategorias.length; i++) {
+            const s = impArbol.subcategorias[i];
             const { data: su, error: suErr } = await db.from('user_cuaderno_categorias')
-              .insert({ user_id: IM.userId, parent_id: catData.id, nombre: s.nombre, descripcion: s.objetivo }).select('id').single();
+              .insert({ user_id: IM.userId, parent_id: catData.id, nombre: s.nombre, descripcion: s.objetivo, orden: i }).select('id').single();
             if (suErr || !su) throw suErr || new Error('insert');
             hechos.subs++;
             await crearCuadernosDe(s.cuadernos, su.id);
