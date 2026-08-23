@@ -62,10 +62,19 @@
     }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
+    .nav-fija {
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      padding: 14px clamp(20px, 5vw, 72px);
+      color: white;
+      background: var(--navy);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+    }
     .masthead {
       position: relative;
       overflow: hidden;
-      padding: 28px clamp(20px, 5vw, 72px) 54px;
+      padding: 8px clamp(20px, 5vw, 72px) 54px;
       color: white;
       background: var(--navy);
     }
@@ -93,7 +102,7 @@
     .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: .16em; font-weight: 800; font-size: 12px; }
     h1 { margin: 13px 0 16px; max-width: 760px; font-size: clamp(42px, 7vw, 74px); line-height: .98; letter-spacing: -.055em; }
     .hero p { max-width: 620px; margin: 0; color: #d9c5a4; font-size: 18px; line-height: 1.6; }
-    .controls-wrap { position: sticky; top: 0; z-index: 8; padding: 18px clamp(20px, 5vw, 72px); background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, var(--line) 85%, transparent); }
+    .controls-wrap { position: sticky; top: var(--nav-alto, 52px); z-index: 8; padding: 18px clamp(20px, 5vw, 72px); background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, var(--line) 85%, transparent); }
     .controls { display: grid; gap: 14px; }
     .search { position: relative; }
     .search input { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px 15px 48px; background: var(--surface); color: var(--ink); outline: none; }
@@ -225,7 +234,7 @@
     <a href="app.html">← Volver a IA MASIVA</a>
   </div>
 
-  <header class="masthead">
+  <div class="nav-fija" id="navFija">
     <nav class="nav">
       <a class="brand" href="app.html" style="text-decoration:none;color:inherit;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M10 21v-6h4v6"></path></svg>
@@ -249,6 +258,8 @@
         <span class="pilot-chip" data-i18n="pilot">Piloto · 5 estilos</span>
       </div>
     </nav>
+  </div>
+  <header class="masthead">
     <div class="hero">
       <div class="eyebrow" data-i18n="eyebrow">Diseño bajo tu control</div>
       <h1><span data-i18n="heroLine1">Tu contenido.</span><br><span data-i18n="heroLine2">Tu estilo.</span></h1>
@@ -1153,6 +1164,18 @@ setUiLanguage(savedLanguage);
   })();
   </script>
 <script>
+(() => {
+  // La barra de búsqueda se pega justo debajo de la nav fija, mida lo que mida
+  const barra = document.getElementById('navFija');
+  if (!barra) return;
+  const fijarAltura = () => document.documentElement.style.setProperty('--nav-alto', barra.offsetHeight + 'px');
+  new ResizeObserver(fijarAltura).observe(barra);
+  window.addEventListener('resize', fijarAltura);
+  window.addEventListener('load', fijarAltura);
+  document.fonts?.ready?.then(fijarAltura);
+  document.getElementById('ui-language')?.addEventListener('change', () => setTimeout(fijarAltura, 0));
+  fijarAltura();
+})();
 (() => {
   const btn = document.getElementById('imTemaBtn');
   if (!btn) return;
