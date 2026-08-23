@@ -615,7 +615,7 @@ function fieldMarkup([key, labelKey, type]) {
   const value = activeValues[key];
   const label = t(labelKey);
   if (type === 'color') {
-    return `<div class="field"><label for="${key}">${escapeHtml(label)}<span class="default-hint" data-default-hint-for="${key}" ${value === defaultValues[key] ? '' : 'hidden'}> · ${escapeHtml(t('defaultOption'))}</span></label><div class="color-row"><input id="${key}" data-key="${key}" type="color" value="${escapeHtml(value)}"><input data-color-text="${key}" type="text" value="${escapeHtml(value)}" aria-label="${escapeHtml(label)}" readonly></div></div>`;
+    return `<div class="field"><label for="${key}">${escapeHtml(label)}<span class="default-hint" data-default-hint-for="${key}" ${value === defaultValues[key] ? '' : 'hidden'}> · ${escapeHtml(t('defaultOption'))}</span></label><div class="color-row"><input id="${key}" data-key="${key}" type="color" value="${escapeHtml(value)}"><input data-color-text="${key}" type="text" value="${escapeHtml(value)}" aria-label="${escapeHtml(label)}" maxlength="7" autocomplete="off" spellcheck="false"></div></div>`;
   }
   const isDefault = value === defaultValues[key];
   const isStandard = type.includes(value);
@@ -674,6 +674,26 @@ function renderForm() {
     activeValues[event.target.dataset.customFor] = event.target.value;
     updatePrompt();
   }));
+  // El hex también se puede escribir o pegar a mano; solo se aplica cuando es un color completo válido
+  form.querySelectorAll('[data-color-text]').forEach(input => {
+    const key = input.dataset.colorText;
+    const aplicarHex = () => {
+      let v = input.value.trim();
+      if (v && v[0] !== '#') v = '#' + v;
+      if (/^#[0-9a-fA-F]{3}$/.test(v)) v = '#' + [...v.slice(1)].map(c => c + c).join('');
+      if (!/^#[0-9a-fA-F]{6}$/.test(v)) return;
+      v = v.toUpperCase();
+      activeValues[key] = v;
+      form.querySelector(`#${key}`).value = v;
+      form.querySelector(`[data-default-hint-for="${key}"]`).hidden = v.toLowerCase() !== defaultValues[key].toLowerCase();
+      updatePrompt();
+    };
+    input.addEventListener('input', aplicarHex);
+    input.addEventListener('blur', () => {
+      aplicarHex();
+      input.value = String(activeValues[key] || defaultValues[key]).toUpperCase();
+    });
+  });
 }
 
 function openPanel(id) {
