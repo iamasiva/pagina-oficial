@@ -97,7 +97,6 @@
     .interface-language { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; color: #e8d7ba; font-size: 12px; font-weight: 700; }
     .interface-language select { border: 0; color: white; background: transparent; outline: none; font-weight: 800; cursor: pointer; }
     .interface-language option { color: var(--ink); background: var(--surface); }
-    .pilot-chip { padding: 7px 11px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; font-size: 12px; color: #e8d7ba; }
     .hero { position: relative; z-index: 1; padding-top: 62px; }
     .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: .16em; font-weight: 800; font-size: 12px; }
     h1 { margin: 13px 0 16px; max-width: 760px; font-size: clamp(42px, 7vw, 74px); line-height: .98; letter-spacing: -.055em; }
@@ -199,7 +198,6 @@
     @media (max-width: 620px) {
       .masthead { padding-bottom: 38px; }
       .interface-language span { display: none; }
-      .pilot-chip { display: none; }
       .hero { padding-top: 42px; }
       .hero p { font-size: 16px; }
       .grid { grid-template-columns: 1fr; }
@@ -255,7 +253,7 @@
             <option value="fr">Français</option><option value="de">Deutsch</option><option value="it">Italiano</option>
           </select>
         </label>
-        <span class="pilot-chip" data-i18n="pilot">Piloto · 5 estilos</span>
+        <button class="im-mis-btn" id="imBiblioBtn" type="button" data-i18n="pilot">Biblioteca</button>
       </div>
     </nav>
   </div>
@@ -392,12 +390,12 @@ Object.assign(translations.pt, {customizeButton:'Personalizar', hideCustomizatio
 Object.assign(translations.fr, {customizeButton:'Personnaliser', hideCustomization:'Masquer la personnalisation', defaultOption:'Par défaut'});
 Object.assign(translations.de, {customizeButton:'Anpassen', hideCustomization:'Anpassung ausblenden', defaultOption:'Standard'});
 Object.assign(translations.it, {customizeButton:'Personalizza', hideCustomization:'Nascondi personalizzazione', defaultOption:'Predefinito'});
-Object.assign(translations.es, {pilot:'Biblioteca · {count} estilos'});
-Object.assign(translations.en, {pilot:'Library · {count} styles'});
-Object.assign(translations.pt, {pilot:'Biblioteca · {count} estilos'});
-Object.assign(translations.fr, {pilot:'Bibliothèque · {count} styles'});
-Object.assign(translations.de, {pilot:'Bibliothek · {count} Stile'});
-Object.assign(translations.it, {pilot:'Libreria · {count} stili'});
+Object.assign(translations.es, {pilot:'Biblioteca'});
+Object.assign(translations.en, {pilot:'Library'});
+Object.assign(translations.pt, {pilot:'Biblioteca'});
+Object.assign(translations.fr, {pilot:'Bibliothèque'});
+Object.assign(translations.de, {pilot:'Bibliothek'});
+Object.assign(translations.it, {pilot:'Libreria'});
 
 const categoryTranslations = {
   'Marketing y Ventas': {es:'Marketing y Ventas',en:'Marketing and Sales',pt:'Marketing e Vendas',fr:'Marketing et Ventes',de:'Marketing und Vertrieb',it:'Marketing e Vendite'},
@@ -744,8 +742,6 @@ function setUiLanguage(code) {
   uiLanguageSelect.value = uiLanguage;
   try { localStorage.setItem('presenta-ui-language', uiLanguage); } catch (_) {}
   document.querySelectorAll('[data-i18n]').forEach(node => node.textContent = t(node.dataset.i18n));
-  const pilotLabel = document.querySelector('[data-i18n="pilot"]');
-  if (pilotLabel) pilotLabel.textContent = format(t('pilot'), {count:items.length});
   document.querySelectorAll('[data-i18n-placeholder]').forEach(node => node.placeholder = t(node.dataset.i18nPlaceholder));
   document.querySelectorAll('[data-i18n-aria]').forEach(node => node.setAttribute('aria-label', t(node.dataset.i18nAria)));
   customizeToggle.textContent = t(isCustomizing ? 'hideCustomization' : 'customizeButton');
@@ -1074,6 +1070,15 @@ setUiLanguage(savedLanguage);
 
   $('imMisBtn').addEventListener('click', () => setVistaMis($('im-mis').hidden));
   $('imMisVolver').addEventListener('click', () => setVistaMis(false));
+  $('imBiblioBtn').addEventListener('click', () => {
+    if (!$('im-mis').hidden) { setVistaMis(false); return; }
+    // Ya en la biblioteca: bajar hasta ella dejando visibles las barras fijas
+    const nav = document.getElementById('navFija')?.offsetHeight ?? 0;
+    const ctr = document.querySelector('.controls-wrap')?.offsetHeight ?? 0;
+    const head = document.querySelector('main > .results-head');
+    if (!head) return;
+    window.scrollTo({ top: head.getBoundingClientRect().top + window.scrollY - nav - ctr - 10, behavior: 'smooth' });
+  });
 
   // El cambio de idioma también refresca lo nuestro
   const imSetUiLangOrig = setUiLanguage;
