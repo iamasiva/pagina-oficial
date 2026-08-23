@@ -1313,7 +1313,7 @@ DESIGN PROTOCOL
 Before writing anything:
 1. Identify the real task, the audience, a typical real input, and the shape of the ideal output from what the user described.
 2. Identify the ONE mechanism that makes this gem non-generic: the specific expert judgment, structure, or rule that a plain chat prompt would not reliably apply on its own (a scoring system, a fixed output structure, a specific set of checks, a role-play protocol, etc.). If the task as described is too vague to support a real mechanism, pick the most reasonable interpretation and state it explicitly in the Description rather than staying generic.
-3. Choose exactly one Default Tool from this fixed list only: Canvas, Conversación (no default tool), Deep Research, Crear Imagen, Crear Video, Aprendizaje Guiado. Match it to the actual output: long structured documents, code, or spreadsheets go to Canvas; back-and-forth coaching, role-play, or short conversational tasks go to Conversación; multi-source research synthesis goes to Deep Research; a single visual asset goes to Crear Imagen; a video asset or script-to-video goes to Crear Video; step-by-step teaching with checks for understanding goes to Aprendizaje Guiado. If the user stated a preference that clearly does not fit the task, keep their preference but add one line explaining the mismatch.
+3. Choose exactly one Default Tool from this fixed list only: Canvas, Conversación (no default tool; in the current Gemini dropdown it is called "No hay herramienta predeterminada"), Deep Research, Crear Imagen, Crear Video, Aprendizaje Guiado. Whenever the chosen tool is Conversación, tell the user to select "No hay herramienta predeterminada" in the Gemini dropdown. Match it to the actual output: long structured documents, code, or spreadsheets go to Canvas; back-and-forth coaching, role-play, or short conversational tasks go to Conversación; multi-source research synthesis goes to Deep Research; a single visual asset goes to Crear Imagen; a video asset or script-to-video goes to Crear Video; step-by-step teaching with checks for understanding goes to Aprendizaje Guiado. If the user stated a preference that clearly does not fit the task, keep their preference but add one line explaining the mismatch.
 
 OUTPUT STRUCTURE
 Deliver exactly five clearly labeled sections, in this order. CRITICAL FORMAT RULE: sections 1, 2 and 3 are PASTE fields: their heading goes as normal text, but their copyable CONTENT must be wrapped in its own fenced code block (\`\`\`), one code block per section, so that Gemini renders an individual one-click copy button on each. Never put explanations, comments or the heading inside a code block: only the exact text the user will paste into Gemini. Sections 4 and 5 are NOT paste fields: they are actions the user performs (picking from a dropdown, uploading files), so write them as normal chat text, never inside code blocks.
@@ -1357,7 +1357,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           id: "HERRAMIENTA_PREFERIDA",
           label: "¿Alguna herramienta predeterminada en mente?",
           type: "select",
-          options: ["Que la gema decida", "Canvas", "Conversación (sin herramienta)", "Deep Research", "Crear Imagen", "Crear Video", "Aprendizaje Guiado", "Otro"],
+          options: ["Que la gema decida", "Canvas", "No hay herramienta predeterminada", "Deep Research", "Crear Imagen", "Crear Video", "Aprendizaje Guiado", "Otro"],
         },
         { id: "RESTRICCIONES", label: "¿Qué NO debe hacer o qué límites tiene? (opcional)", type: "textarea" },
       ],
@@ -1477,7 +1477,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     const iconoDeCategoria = (cat) => ICONS_NORM[sinTildes(cat)] || DEFAULT_ICON;
 
     const TOOL_DISPLAY_MAP = {
-      "Conversación": "Sin herramienta predeterminada",
+      "Conversación": "No hay herramienta predeterminada",
       "Crear Imagen": "Crear imagen",
       "Crear Video": "Crear video",
       "Aprendizaje Guiado": "Aprendizaje guiado",
@@ -2605,7 +2605,8 @@ ${delim}
 LA HERRAMIENTA DE LA GEMA. Si los DATOS DE LA GEMA traen una herramienta
 predeterminada, replica su función con lo que tenga tu entorno y dime
 con honestidad qué queda igual y qué no:
-- Conversación o Aprendizaje Guiado: no necesitan nada extra.
+- Conversación (en Gemini: "No hay herramienta predeterminada") o
+  Aprendizaje Guiado: no necesitan nada extra.
 - Canvas: la gema produce documentos. Entrégalos como archivos reales.
 - Deep Research: usa tus herramientas de búsqueda web si las tienes; si
   no, dime que la gema trabajará solo con la información que yo le
