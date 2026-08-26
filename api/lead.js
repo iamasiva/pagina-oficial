@@ -77,6 +77,29 @@ export default async function handler(req, res) {
       throw new Error('No se pudo enviar el correo. ' + detalle.slice(0, 200));
     }
 
+    // El lead también entra a la lista de marketing de Brevo con sus atributos.
+    // Si la lista no está configurada o Brevo falla, no bloquea nada: el lead
+    // ya quedó en la base propia y el recurso ya fue enviado.
+    const lista = Number(process.env.BREVO_LEADS_LIST_ID);
+    if (lista) {
+      try {
+        await fetch('https://api.brevo.com/v3/contacts', {
+          method: 'POST',
+          headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            updateEnabled: true,
+            listIds: [lista],
+            attributes: {
+              RECURSO: guia.titulo,
+              CANAL: fila.utm_source || 'directo',
+              CAMPANA: fila.utm_campaign || '',
+            },
+          }),
+        });
+      } catch (_) {}
+    }
+
     return res.status(200).json({ ok: true });
   } catch (err) {
     return res.status(500).json({ error: err.message });
