@@ -7,8 +7,8 @@ import { adminClient } from './_lib.js';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function correoEntrega(guia, enlace) {
-  const portada = guia.imagen_url
-    ? `<tr><td style="padding:0 0 18px;"><img src="${guia.imagen_url}" alt="" width="520" style="width:100%;max-width:520px;border-radius:12px;display:block;"></td></tr>`
+  const portada = guia.portada_url
+    ? `<tr><td style="padding:0 0 18px;"><img src="${guia.portada_url}" alt="" width="520" style="width:100%;max-width:520px;border-radius:12px;display:block;"></td></tr>`
     : '';
   return `
   <div style="background:#f5f4f0;padding:28px 14px;font-family:Arial,Helvetica,sans-serif;">
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
 
     const db = adminClient();
     const { data: guia } = await db.from('guides')
-      .select('id, titulo, imagen_url, es_gratis')
+      .select('id, titulo, portada_url, es_gratis')
       .eq('slug', slug).single();
     if (!guia?.es_gratis) return res.status(404).json({ error: 'Recurso no encontrado' });
 

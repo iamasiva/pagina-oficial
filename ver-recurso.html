@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Recurso · IA MASIVA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '4305759369641678');
+    fbq('track', 'PageView');
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --fondo: #050505; --panel: rgba(255,255,255,0.05); --borde: rgba(255,255,255,0.12);
+      --ink: #ffffff; --muted: #a8b6c8; --acento: #2F6BFF; --acento-hover: #4d7fff;
+    }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--fondo); color: var(--ink); line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    .oculto { display: none !important; }
+    /* Barra superior fija: la marca y la puerta a la biblioteca, discretas */
+    .barra { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px clamp(14px, 4vw, 40px); background: rgba(5,5,5,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--borde); }
+    .barra .marca { font-weight: 900; letter-spacing: 0.12em; font-size: 0.95rem; }
+    .barra .cta-header { font-size: 0.8rem; font-weight: 700; color: #7ea4ff; border: 1px solid rgba(47,107,255,0.5); padding: 7px 14px; border-radius: 999px; white-space: nowrap; transition: background 0.15s; }
+    .barra .cta-header:hover { background: rgba(47,107,255,0.12); }
+    .contenido { background: #ffffff; }
+    #marco { display: block; width: 100%; border: 0; min-height: 70vh; }
+    .cargando { color: var(--muted); text-align: center; padding: 80px 20px; }
+    /* Cierre fuerte tras consumir el recurso */
+    .cierre { max-width: 640px; margin: 0 auto; padding: 48px 18px 70px; text-align: center; }
+    .cierre h2 { font-size: 1.5rem; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .cierre > p { color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; }
+    .vitrina-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 26px; }
+    @media (min-width: 560px) { .vitrina-grid { grid-template-columns: repeat(6, 1fr); } }
+    .vitrina-card { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--borde); aspect-ratio: 2/3; background: var(--panel); }
+    .vitrina-card img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.85; }
+    .vitrina-card .candado { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(0,0,0,0.35); }
+    .boton { display: inline-block; padding: 15px 30px; border-radius: 12px; background: var(--acento); color: #fff; font-weight: 800; font-size: 1.05rem; transition: background 0.15s; }
+    .boton:hover { background: var(--acento-hover); }
+    .nota-cierre { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="barra">
+    <a class="marca" href="https://iamasiva.co">IA MASIVA</a>
+    <a class="cta-header" href="https://iamasiva.co">Todos los recursos gratis →</a>
+  </div>
+
+  <div class="cargando" id="cargando">Cargando tu recurso…</div>
+  <div class="contenido"><iframe id="marco" class="oculto" title="Recurso" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe></div>
+
+  <div class="cierre oculto" id="cierre">
+    <h2>¿Te sirvió este recurso?</h2>
+    <p>Hay muchos más esperándote. Crea gratis tu cuenta de IA MASIVA y accede a la biblioteca completa de recursos, herramientas y guías de inteligencia artificial.</p>
+    <div class="vitrina-grid" id="vitrinaGrid"></div>
+    <a class="boton" href="https://iamasiva.co">CREAR MI CUENTA GRATIS</a>
+    <div class="nota-cierre">Sin costo. La biblioteca crece cada semana.</div>
+  </div>
+
+  <div class="cierre oculto" id="sinRecurso">
+    <h2>No encontramos ese recurso</h2>
+    <p>Puede que el enlace esté incompleto. Todos nuestros recursos gratuitos viven en la biblioteca de IA MASIVA.</p>
+    <a class="boton" href="https://iamasiva.co">Ir a IA MASIVA</a>
+  </div>
+
+  <script>
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const REST = 'https://api.iamasiva.co/rest/v1';
+    const CABECERAS = { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` };
+    const slug = (new URLSearchParams(location.search).get('r') || '').trim();
+
+    function registrarEvento(tipo, guideId) {
+      fetch(`${REST}/eventos`, {
+        method: 'POST', keepalive: true,
+        headers: { ...CABECERAS, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ tipo, guide_id: guideId ?? null }),
+      }).catch(() => {});
+    }
+
+    // Mismos parches del visor de app.html: clipboard dentro del sandbox y red
+    // responsive; más un reportero de altura para que la página scrollee natural
+    function conParches(html) {
+      const shim =
+        '<scr' + 'ipt>(function(){function c(t){return new Promise(function(res,rej){try{' +
+        'var a=document.createElement("textarea");a.value=t==null?"":String(t);' +
+        'a.setAttribute("readonly","");a.style.position="fixed";a.style.top="-1000px";a.style.opacity="0";' +
+        '(document.body||document.documentElement).appendChild(a);a.focus();a.select();' +
+        'a.setSelectionRange(0,a.value.length);var ok=document.execCommand("copy");a.remove();' +
+        'ok?res():rej(new Error("copy-failed"));}catch(e){rej(e);}});}' +
+        'var s={writeText:c,readText:function(){return Promise.reject(new Error("no-read"));}};' +
+        'try{Object.defineProperty(navigator,"clipboard",{value:s,configurable:true});}' +
+        'catch(e){try{navigator.clipboard=s;}catch(_){}}})();</scr' + 'ipt>';
+      const alto =
+        '<scr' + 'ipt>(function(){var t;function h(){parent.postMessage({im_alto:document.documentElement.scrollHeight},"*");}' +
+        'function p(){clearTimeout(t);t=setTimeout(h,120);}' +
+        'new MutationObserver(p).observe(document.documentElement,{subtree:true,childList:true,attributes:true});' +
+        'addEventListener("load",h);setInterval(h,1500);h();})();</scr' + 'ipt>';
+      const css =
+        '<sty' + 'le>img{max-width:100%;height:auto;}video,canvas,svg,iframe{max-width:100%;}' +
+        'pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;}' +
+        '*{overflow-wrap:break-word;}table{display:block;max-width:100%;overflow-x:auto;}</sty' + 'le>';
+      const fix = shim + alto + css;
+      if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + fix);
+      if (/<html[^>]*>/i.test(html)) return html.replace(/<html[^>]*>/i, (m) => m + fix);
+      if (/<!doctype[^>]*>/i.test(html)) return html.replace(/<!doctype[^>]*>/i, (m) => m + fix);
+      return fix + html;
+    }
+
+    window.addEventListener('message', (e) => {
+      const alto = e.data?.im_alto;
+      if (typeof alto === 'number' && alto > 0) {
+        document.getElementById('marco').style.height = Math.ceil(alto) + 'px';
+      }
+    });
+
+    async function iniciar() {
+      const cargando = document.getElementById('cargando');
+      let guia = null;
+      if (slug) {
+        try {
+          const r = await fetch(`${REST}/guides?select=id,titulo,contenido_url,es_gratis&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers: CABECERAS });
+          const filas = await r.json();
+          guia = Array.isArray(filas) ? filas[0] : null;
+        } catch (_) {}
+      }
+      if (!guia?.es_gratis || !guia.contenido_url) {
+        cargando.classList.add('oculto');
+        document.getElementById('sinRecurso').classList.remove('oculto');
+        return;
+      }
+      document.title = `${guia.titulo} · IA MASIVA`;
+      try {
+        const res = await fetch(guia.contenido_url);
+        const html = await res.text();
+        const marco = document.getElementById('marco');
+        marco.srcdoc = conParches(html);
+        // Los índices internos (href="#paso-1") resuelven contra esta página en
+        // un srcdoc: se intercepta el clic y se desplaza a mano dentro del marco
+        marco.addEventListener('load', () => {
+          const doc = marco.contentDocument;
+          if (!doc) return;
+          doc.addEventListener('click', (e) => {
+            const a = e.target.closest?.('a[href^="#"]');
+            if (!a) return;
+            e.preventDefault();
+            const id = a.getAttribute('href').slice(1);
+            if (!id) return;
+            const destino = doc.getElementById(id) || doc.querySelector(`[name="${CSS.escape(id)}"]`);
+            destino?.scrollIntoView({ behavior: 'smooth' });
+          }, true);
+        });
+        cargando.classList.add('oculto');
+        marco.classList.remove('oculto');
+        document.getElementById('cierre').classList.remove('oculto');
+        registrarEvento('apertura_recurso_publico', guia.id);
+        mostrarVitrina();
+      } catch (_) {
+        cargando.textContent = 'No se pudo cargar el recurso. Intenta de nuevo.';
+      }
+    }
+
+    async function mostrarVitrina() {
+      try {
+        const r = await fetch(`${REST}/guides?select=titulo,portada_url,slug&es_gratis=eq.true&order=created_at.desc&limit=10`, { headers: CABECERAS });
+        const filas = (await r.json()).filter(g => g.slug !== slug && g.portada_url).slice(0, 6);
+        if (!filas.length) return;
+        document.getElementById('vitrinaGrid').innerHTML = filas.map(g =>
+          `<div class="vitrina-card"><img loading="lazy" src="${g.portada_url}" alt="${(g.titulo || '').replace(/"/g, '&quot;')}"><div class="candado">🔒</div></div>`
+        ).join('');
+      } catch (_) {}
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>
