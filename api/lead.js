@@ -36,10 +36,11 @@ export default async function handler(req, res) {
     if (!slug) return res.status(400).json({ error: 'Recurso no indicado' });
 
     const db = adminClient();
+    // La puerta es es_premium: lo gratuito se envía, lo de pago jamás sale por aquí
     const { data: guia } = await db.from('guides')
-      .select('id, titulo, portada_url, es_gratis')
+      .select('id, titulo, portada_url, es_premium')
       .eq('slug', slug).single();
-    if (!guia?.es_gratis) return res.status(404).json({ error: 'Recurso no encontrado' });
+    if (!guia || guia.es_premium) return res.status(404).json({ error: 'Recurso no encontrado' });
 
     // Freno anti-abuso: máximo 10 solicitudes por correo al día
     const hace24h = new Date(Date.now() - 24 * 3600 * 1000).toISOString();

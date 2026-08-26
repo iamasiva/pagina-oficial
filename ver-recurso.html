@@ -121,12 +121,13 @@
       let guia = null;
       if (slug) {
         try {
-          const r = await fetch(`${REST}/guides?select=id,titulo,contenido_url,es_gratis&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers: CABECERAS });
+          const r = await fetch(`${REST}/guides?select=id,titulo,contenido_url,es_premium&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers: CABECERAS });
           const filas = await r.json();
           guia = Array.isArray(filas) ? filas[0] : null;
         } catch (_) {}
       }
-      if (!guia?.es_gratis || !guia.contenido_url) {
+      // La puerta es es_premium: lo gratuito se sirve, lo de pago jamás sale por aquí
+      if (!guia || guia.es_premium || !guia.contenido_url) {
         cargando.classList.add('oculto');
         document.getElementById('sinRecurso').classList.remove('oculto');
         return;
@@ -164,7 +165,7 @@
 
     async function mostrarVitrina() {
       try {
-        const r = await fetch(`${REST}/guides?select=titulo,portada_url,slug&es_gratis=eq.true&order=created_at.desc&limit=10`, { headers: CABECERAS });
+        const r = await fetch(`${REST}/guides?select=titulo,portada_url,slug&es_premium=eq.false&publicada=eq.true&order=created_at.desc&limit=10`, { headers: CABECERAS });
         const filas = (await r.json()).filter(g => g.slug !== slug && g.portada_url).slice(0, 6);
         if (!filas.length) return;
         document.getElementById('vitrinaGrid').innerHTML = filas.map(g =>

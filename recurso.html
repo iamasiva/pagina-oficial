@@ -143,12 +143,13 @@
       const cargando = document.getElementById('cargando');
       if (!slug) { cargando.classList.add('oculto'); document.getElementById('sinRecurso').classList.remove('oculto'); return; }
       try {
-        const r = await fetch(`${REST}/guides?select=id,titulo,descripcion,portada_url,es_gratis&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers: CABECERAS });
+        const r = await fetch(`${REST}/guides?select=id,titulo,descripcion,portada_url,es_premium&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers: CABECERAS });
         const filas = await r.json();
         guia = Array.isArray(filas) ? filas[0] : null;
       } catch (_) {}
       cargando.classList.add('oculto');
-      if (!guia?.es_gratis) { document.getElementById('sinRecurso').classList.remove('oculto'); return; }
+      // La puerta es es_premium: lo gratuito se sirve, lo de pago jamás sale por aquí
+      if (!guia || guia.es_premium) { document.getElementById('sinRecurso').classList.remove('oculto'); return; }
 
       document.getElementById('titulo').textContent = guia.titulo;
       document.getElementById('descripcion').textContent = guia.descripcion || '';
@@ -191,7 +192,7 @@
     // La espera del correo son 30 segundos muertos: la vitrina los aprovecha
     async function mostrarVitrina() {
       try {
-        const r = await fetch(`${REST}/guides?select=titulo,portada_url,slug&es_gratis=eq.true&order=created_at.desc&limit=10`, { headers: CABECERAS });
+        const r = await fetch(`${REST}/guides?select=titulo,portada_url,slug&es_premium=eq.false&publicada=eq.true&order=created_at.desc&limit=10`, { headers: CABECERAS });
         const filas = (await r.json()).filter(g => g.slug !== slug && g.portada_url).slice(0, 6);
         if (!filas.length) return;
         document.getElementById('vitrinaGrid').innerHTML = filas.map(g =>
