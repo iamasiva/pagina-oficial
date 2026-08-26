@@ -128,7 +128,7 @@
     .scroll-wrapper { position: relative; }
     /* El carril recorta en vertical (overflow-x:auto fuerza clip): el aire de arriba
        debe cubrir el crecimiento del hover (scale 1.07 + translateY -7px ≈ 20px) */
-    .app-track { display: flex; gap: 14px; overflow-x: auto; overflow-y: visible; touch-action: pan-y; padding: 30px 0 14px; margin-top: -22px; scrollbar-width: none; -ms-overflow-style: none; }
+    .app-track { display: flex; gap: 14px; overflow-x: auto; overflow-y: visible; touch-action: pan-y; padding: 30px 14px 14px; margin: -22px -14px 0; scrollbar-width: none; -ms-overflow-style: none; }
     .app-track::-webkit-scrollbar { display: none; }
     .scroll-arrow { position: absolute; top: 50%; transform: translateY(-60%); z-index: 10; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(47,107,255,0.6); background: rgba(5,5,5,0.92); color: var(--white); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; }
     
@@ -213,7 +213,7 @@
     
     #filteredSection.modo-lista .btn-volver-lista { display: inline-block; }
     #filteredSection.modo-lista .scroll-arrow { display: none; }
-    .app-track.vista-lista { display: block; overflow-x: visible; padding: 24px 14px; margin-top: 0; }
+    .app-track.vista-lista { display: block; overflow-x: visible; padding: 24px 14px; margin: 0; }
     .lista-item { display: flex; gap: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(47,107,255,0.16); border-radius: 16px; padding: 16px; margin: 0 auto 14px; max-width: 860px; }
     .lista-item img { width: 240px; height: 346px; object-fit: cover; border-radius: 12px; flex-shrink: 0; background: rgba(255,255,255,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
     .lista-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -1698,7 +1698,7 @@
       const f = document.createElement('iframe');
       f.className = 'guide-frame';
       f.id = 'guideFrame';
-      f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+      f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
       f.srcdoc = conParchesGuia(html);
       // Los índices internos de las guías (href="#paso-1") no pueden navegar:
       // en un iframe con srcdoc el fragmento resuelve contra app.html, así que
