@@ -765,6 +765,12 @@
         </div>
 
         <div class="form-field">
+          <label>Link del recurso (embudo de captación)</label>
+          <input type="text" id="fSlug" placeholder="Se genera solo del título si lo dejas vacío" maxlength="60" />
+          <small id="fSlugVista" style="color:#8b9bb8; display:block; margin-top:4px;"></small>
+        </div>
+
+        <div class="form-field">
           <label>Opciones</label>
           <div class="toggle-row">
             <label class="toggle-label"><input type="checkbox" id="fPremium" /> De pago</label>
@@ -2396,6 +2402,7 @@
       document.getElementById('portadaPreview').style.display='none';
       ['portadaName','htmlName','portadaActual','htmlActual','formMsg'].forEach(id=>document.getElementById(id).classList.add('hidden'));
       document.querySelectorAll('.cat-cb').forEach(cb=>cb.checked=false);
+      pintarVistaSlug();
     }
 
     // File feedback
@@ -2429,6 +2436,22 @@
 
     function showFormMsg(msg,type='error'){ const el=document.getElementById('formMsg'); el.textContent=msg; el.className='form-msg '+type; el.classList.remove('hidden'); }
 
+    // Slug del embudo: minúsculas, sin tildes ni símbolos, guiones entre palabras
+    function slugificar(t){
+      return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'')
+        .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+    }
+    function pintarVistaSlug(){
+      const manual = slugificar(document.getElementById('fSlug').value);
+      const auto   = slugificar(document.getElementById('fTitulo').value);
+      const s = manual || auto;
+      document.getElementById('fSlugVista').textContent = s
+        ? `Landing de captación: iamasiva.co/r/${s}`
+        : 'Landing de captación: se define al escribir el título';
+    }
+    document.getElementById('fSlug').addEventListener('input', pintarVistaSlug);
+    document.getElementById('fTitulo').addEventListener('input', pintarVistaSlug);
+
     // Guardar guía
     document.getElementById('guideForm').addEventListener('submit', async e=>{
       e.preventDefault();
@@ -2440,6 +2463,9 @@
         const desc    = document.getElementById('fDesc').value.trim();
         const premium = document.getElementById('fPremium').checked;
         const pub     = document.getElementById('fPublicada').checked;
+        // El slug alimenta la landing de captación (/r/slug); si queda vacío en
+        // una guía gratis se deriva del título para que el embudo nunca espere SQL
+        const slug    = slugificar(document.getElementById('fSlug').value) || (premium ? '' : slugificar(titulo));
         const cats    = [...document.querySelectorAll('.cat-cb:checked')].map(cb=>cb.value);
         const portFile= document.getElementById('fPortada').files[0];
         const htmlFile= document.getElementById('fHtml').files[0];
@@ -2452,7 +2478,7 @@
           oldPremium = !!old?.es_premium;
         }
 
-        const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats };
+        const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats, slug: slug || null };
         if(portFile) payload.portada_url   = await uploadFile('portadas', portFile);
         if(htmlFile) payload.contenido_url = await uploadFile(premium ? 'contenido-premium' : 'contenido', htmlFile);
 
@@ -2460,7 +2486,9 @@
           ? await sb.from('guides').update(payload).eq('id',id)
           : await sb.from('guides').insert(payload);
 
-        if(error) throw new Error(error.message);
+        if(error) throw new Error(/guides_slug_unico|duplicate key/i.test(error.message)
+          ? 'Ese link (slug) ya lo usa otra guía: cambia el campo "Link del recurso".'
+          : error.message);
         if (portFile && oldPortada)   await removeStorageFile('portadas', oldPortada);
         if (htmlFile && oldContenido) await removeStorageFile(oldPremium ? 'contenido-premium' : 'contenido', oldContenido);
         showFormMsg(id?'Guía actualizada.':'Guía creada correctamente.','success');
@@ -2477,8 +2505,10 @@
       document.getElementById('fId').value=g.id;
       document.getElementById('fTitulo').value=g.titulo||'';
       document.getElementById('fDesc').value=g.descripcion||'';
+      document.getElementById('fSlug').value=g.slug||'';
       document.getElementById('fPremium').checked=!!g.es_premium;
       document.getElementById('fPublicada').checked=!!g.publicada;
+      pintarVistaSlug();
       document.querySelectorAll('.cat-cb').forEach(cb=>{ cb.checked=(g.categorias||[]).includes(cb.value); });
       if(g.portada_url){ const el=document.getElementById('portadaActual'); el.textContent='Portada actual: '+g.portada_url.split('/').pop(); el.classList.remove('hidden'); }
       if(g.contenido_url){ const el=document.getElementById('htmlActual'); el.textContent='HTML actual: '+g.contenido_url.split('/').pop(); el.classList.remove('hidden'); }
