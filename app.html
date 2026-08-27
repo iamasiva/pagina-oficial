@@ -124,7 +124,8 @@
     /* ─── CONTENT ────────────────────────────────────────────── */
     .app-content { background: var(--black); padding: 36px 5vw 80px; }
     .app-row { margin-bottom: 44px; }
-    .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; }
+    /* El título vive por encima de la card agrandada (hover z-5): nunca queda tapado */
+    .app-row-title { font-size: 1.15rem; font-weight: 700; color: var(--white); margin-bottom: 4px; letter-spacing: 0.01em; position: relative; z-index: 6; }
     .scroll-wrapper { position: relative; }
     /* El carril recorta en vertical (overflow-x:auto fuerza clip): el aire de arriba
        debe cubrir el crecimiento del hover (scale 1.07 + translateY -7px ≈ 20px) */
