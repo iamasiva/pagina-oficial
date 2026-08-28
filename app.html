@@ -774,6 +774,13 @@
         </div>
 
         <div class="form-field">
+          <label>Contenido relacionado en redes (opcional)</label>
+          <input type="url" id="fLinkYoutube" placeholder="Link del video en YouTube" style="margin-bottom:8px;" />
+          <input type="url" id="fLinkInstagram" placeholder="Link del post en Instagram" style="margin-bottom:8px;" />
+          <input type="url" id="fLinkTiktok" placeholder="Link del video en TikTok" />
+        </div>
+
+        <div class="form-field">
           <label>Opciones</label>
           <div class="toggle-row">
             <label class="toggle-label"><input type="checkbox" id="fPremium" /> De pago</label>
@@ -2481,7 +2488,10 @@
           oldPremium = !!old?.es_premium;
         }
 
-        const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats, slug: slug || null };
+        const payload = { titulo, descripcion:desc, es_premium:premium, publicada:pub, categorias:cats, slug: slug || null,
+          link_youtube: document.getElementById('fLinkYoutube').value.trim() || null,
+          link_instagram: document.getElementById('fLinkInstagram').value.trim() || null,
+          link_tiktok: document.getElementById('fLinkTiktok').value.trim() || null };
         if(portFile) payload.portada_url   = await uploadFile('portadas', portFile);
         if(htmlFile) payload.contenido_url = await uploadFile(premium ? 'contenido-premium' : 'contenido', htmlFile);
 
@@ -2509,6 +2519,9 @@
       document.getElementById('fTitulo').value=g.titulo||'';
       document.getElementById('fDesc').value=g.descripcion||'';
       document.getElementById('fSlug').value=g.slug||'';
+      document.getElementById('fLinkYoutube').value=g.link_youtube||'';
+      document.getElementById('fLinkInstagram').value=g.link_instagram||'';
+      document.getElementById('fLinkTiktok').value=g.link_tiktok||'';
       document.getElementById('fPremium').checked=!!g.es_premium;
       document.getElementById('fPublicada').checked=!!g.publicada;
       pintarVistaSlug();
