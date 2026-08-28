@@ -770,6 +770,7 @@
     // Evento del embudo de ventas, marcado con su canal. keepalive: el envío
     // sobrevive aunque la página navegue de inmediato (clic rumbo a la pasarela).
     async function registrarEvento(tipo, productIdEvento) {
+      if (localStorage.getItem('im_es_admin') === '1') return; // el equipo no cuenta
       const base = { tipo, product_id: productIdEvento ?? null };
       const u = utmActual();
       const cuerpo = u ? { ...base, utm_source: u.source, utm_medium: u.medium, utm_campaign: u.campaign } : base;

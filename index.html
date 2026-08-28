@@ -1484,7 +1484,7 @@
     // Visita al sitio: una por sesión de navegador (index y app comparten la marca).
     // keepalive: el registro sobrevive aunque la página redirija de inmediato.
     try {
-      if (!sessionStorage.getItem('im_visita')) {
+      if (!sessionStorage.getItem('im_visita') && localStorage.getItem('im_es_admin') !== '1') {
         sessionStorage.setItem('im_visita', '1');
         const u = utmActual();
         const base = { tipo: 'visita_sitio' };

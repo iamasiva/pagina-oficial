@@ -127,6 +127,7 @@
     }
 
     function registrarEvento(tipo, guideId) {
+      if (localStorage.getItem('im_es_admin') === '1') return; // el equipo no cuenta
       const u = utmActual();
       const cuerpo = { tipo, guide_id: guideId ?? null };
       if (u) { cuerpo.utm_source = u.source; cuerpo.utm_medium = u.medium; cuerpo.utm_campaign = u.campaign; }

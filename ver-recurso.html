@@ -73,6 +73,7 @@
     const slug = (new URLSearchParams(location.search).get('r') || '').trim();
 
     function registrarEvento(tipo, guideId) {
+      if (localStorage.getItem('im_es_admin') === '1') return; // el equipo no cuenta
       fetch(`${REST}/eventos`, {
         method: 'POST', keepalive: true,
         headers: { ...CABECERAS, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
