@@ -94,6 +94,15 @@
     .brand { display: flex; gap: 12px; align-items: center; font-weight: 850; letter-spacing: -.02em; }
     .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; background: var(--accent); border-radius: 10px; }
     .nav-actions { display: flex; align-items: center; gap: 10px; }
+    /* Hamburguesa: solo en celular; en escritorio la fila de botones queda igual */
+    .nav-burger { display: none; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); color: inherit; border-radius: 10px; padding: 6px 12px; font-size: 1.05rem; line-height: 1; cursor: pointer; }
+    @media (max-width: 720px) {
+      .nav-burger { display: inline-flex; }
+      .nav-actions { display: none; position: absolute; top: calc(100% - 4px); right: 12px; left: 12px; flex-direction: column; align-items: stretch; gap: 8px; background: var(--navy); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 12px; box-shadow: 0 18px 40px rgba(0,0,0,0.45); z-index: 11; }
+      .nav-actions.abierta { display: flex; }
+      .nav-actions .im-mis-btn, .nav-actions .tema-btn { justify-content: center; text-align: center; }
+      .nav-actions .interface-language { justify-content: center; }
+    }
     .interface-language { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; color: #e8d7ba; font-size: 12px; font-weight: 700; }
     .interface-language select { border: 0; color: white; background: transparent; outline: none; font-weight: 800; cursor: pointer; }
     .interface-language option { color: var(--ink); background: var(--surface); }
@@ -256,6 +265,7 @@
         </label>
         <button class="im-mis-btn" id="imBiblioBtn" type="button" data-i18n="pilot">Biblioteca</button>
       </div>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Menú">☰</button>
     </nav>
   </div>
 
@@ -1185,6 +1195,16 @@ setUiLanguage(savedLanguage);
   </script>
 <script>
 (() => {
+  // Hamburguesa móvil: despliega las acciones del header y se cierra al elegir
+  const burger = document.getElementById('navBurger');
+  const acciones = document.querySelector('.nav-actions');
+  if (burger && acciones) {
+    burger.addEventListener('click', () => acciones.classList.toggle('abierta'));
+    acciones.addEventListener('click', (e) => {
+      if (e.target.closest('.im-mis-btn, .tema-btn')) acciones.classList.remove('abierta');
+    });
+  }
+
   // El video de Cómo funciona vive en un modal; el src se pone al abrir y se
   // limpia al cerrar para que el video no siga sonando de fondo
   const vBtn = document.getElementById('imVideoBtn');
