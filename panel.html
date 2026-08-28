@@ -81,6 +81,7 @@
     <button class="tab activa" data-tab="vistaRecursos">Recursos</button>
     <button class="tab" data-tab="vistaProductos">Info productos de pago</button>
     <button class="tab" data-tab="vistaCanales">Canales</button>
+    <button class="tab" data-tab="vistaLeads">Leads</button>
     <button class="tab" data-tab="vistaSugerencias">Sugerencias</button>
   </div>
 
@@ -128,6 +129,36 @@
     <div id="vacioCanales" class="estado oculto">Aún no hay tráfico registrado. Apenas llegue la primera visita, aparece aquí.</div>
   </div>
 
+  <div class="caja oculto" id="vistaLeads">
+    <div class="caja-encabezado">
+      <div>
+        <h1>Embudo de recursos gratuitos</h1>
+        <p class="sub">De ManyChat a la landing, de la landing al correo, y del correo al recurso. El filtro de fechas de arriba también aplica aquí.</p>
+      </div>
+      <button id="btnCsvLeads" class="csv-btn oculto">Descargar CSV</button>
+    </div>
+    <div class="cards" id="cardsLeads" style="padding:0; margin-bottom:14px;"></div>
+    <div id="cargandoLeads" class="estado">Cargando…</div>
+    <div class="tabla-scroll">
+      <table id="tablaLeadsRecurso" class="oculto">
+        <thead>
+          <tr><th>Recurso</th><th>Visitas landing</th><th>Correos dejados</th><th>Conversión</th><th>Aperturas del recurso</th></tr>
+        </thead>
+        <tbody id="filasLeadsRecurso"></tbody>
+      </table>
+    </div>
+    <h1 style="margin-top:26px; font-size:1rem;">Últimos correos captados</h1>
+    <div class="tabla-scroll">
+      <table id="tablaLeadsLista" class="oculto">
+        <thead>
+          <tr><th>Fecha</th><th>Correo</th><th>Recurso</th><th>Canal</th><th>Campaña</th></tr>
+        </thead>
+        <tbody id="filasLeadsLista"></tbody>
+      </table>
+    </div>
+    <div id="vacioLeads" class="estado oculto">Aún no hay leads en este período. Apenas alguien deje su correo en una landing, aparece aquí.</div>
+  </div>
+
   <div class="caja oculto" id="vistaSugerencias">
     <div class="caja-encabezado">
       <div>
@@ -155,7 +186,7 @@
 
     document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(b => b.classList.toggle('activa', b === btn));
-      for (const id of ['vistaRecursos', 'vistaProductos', 'vistaCanales', 'vistaSugerencias']) {
+      for (const id of ['vistaRecursos', 'vistaProductos', 'vistaCanales', 'vistaLeads', 'vistaSugerencias']) {
         document.getElementById(id).classList.toggle('oculto', id !== btn.dataset.tab);
       }
     }));
@@ -163,6 +194,24 @@
     const dineroUsd = (c) => '$' + ((c ?? 0) / 100).toLocaleString('es-CO', { maximumFractionDigits: 2 });
     const dineroCop = (c) => Math.round((c ?? 0) / 100).toLocaleString('es-CO') + ' COP';
     let sugerenciasActuales = [];
+    let leadsActuales = [];
+
+    // Descarga CSV de los leads del período (separador ; para Excel en español)
+    document.getElementById('btnCsvLeads').addEventListener('click', () => {
+      const filas = [['Fecha', 'Correo', 'Recurso (slug)', 'Canal', 'Campaña'],
+        ...leadsActuales.map(l => [
+          new Date(l.creada_en).toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+          l.email ?? '', l.slug ?? '', l.utm_source ?? 'directo', l.utm_campaign ?? '',
+        ])];
+      const csv = '﻿' + filas.map(f => f.map(v => '"' + String(v).replaceAll('"', '""') + '"').join(';')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const d = document.getElementById('fDesde').value, h = document.getElementById('fHasta').value;
+      a.download = (d || h) ? `leads-${d || 'inicio'}-a-${h || 'hoy'}.csv` : 'leads-todos.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
 
     // Descarga CSV de las sugerencias del período filtrado (separador ; para Excel en español)
     document.getElementById('btnCsvSugerencias').addEventListener('click', () => {
@@ -286,6 +335,65 @@
           </tr>
         `).join('');
         document.getElementById('tablaSugerencias').classList.remove('oculto');
+      }
+
+      // Pestaña Leads: lectura directa con RLS (solo el admin ve filas)
+      const filtrarFechas = (q, col) => {
+        let r = q;
+        if (desde) r = r.gte(col, new Date(desde + 'T00:00:00-05:00').toISOString());
+        if (hasta) { const fin = new Date(hasta + 'T00:00:00-05:00'); fin.setDate(fin.getDate() + 1); r = r.lt(col, fin.toISOString()); }
+        return r;
+      };
+      const [{ data: leads }, { data: evLeads }, { data: guiasNombres }] = await Promise.all([
+        filtrarFechas(sb.from('leads_recursos').select('email, slug, guide_id, utm_source, utm_campaign, creada_en'), 'creada_en')
+          .order('creada_en', { ascending: false }).limit(1000),
+        filtrarFechas(sb.from('eventos').select('tipo, guide_id').in('tipo', ['visita_landing_recurso', 'apertura_recurso_publico']), 'creado_en').limit(20000),
+        sb.from('guides').select('id, titulo'),
+      ]);
+      leadsActuales = leads ?? [];
+      const nombreGuia = new Map((guiasNombres ?? []).map(g => [g.id, g.titulo]));
+      const porGuia = new Map();
+      const stat = (id) => { if (!porGuia.has(id)) porGuia.set(id, { visitas: 0, correos: 0, aperturas: 0 }); return porGuia.get(id); };
+      for (const e of (evLeads ?? [])) {
+        if (e.tipo === 'visita_landing_recurso') stat(e.guide_id).visitas++;
+        else stat(e.guide_id).aperturas++;
+      }
+      for (const l of leadsActuales) stat(l.guide_id).correos++;
+      const totales = { visitas: 0, correos: 0, aperturas: 0 };
+      for (const s of porGuia.values()) { totales.visitas += s.visitas; totales.correos += s.correos; totales.aperturas += s.aperturas; }
+      document.getElementById('cardsLeads').innerHTML = [
+        [totales.visitas, 'Visitas a landings de recursos'],
+        [totales.correos, 'Correos captados'],
+        [(totales.visitas ? Math.round(totales.correos / totales.visitas * 100) : 0) + '%', 'Conversión visita → correo'],
+        [totales.aperturas, 'Aperturas del recurso público'],
+      ].map(([n, t]) => `<div class="card"><b>${n}</b><span>${t}</span></div>`).join('');
+      document.getElementById('cargandoLeads').classList.add('oculto');
+      document.getElementById('btnCsvLeads').classList.toggle('oculto', !leadsActuales.length);
+      const hayEmbudo = porGuia.size > 0;
+      document.getElementById('vacioLeads').classList.toggle('oculto', hayEmbudo);
+      document.getElementById('tablaLeadsRecurso').classList.toggle('oculto', !hayEmbudo);
+      document.getElementById('tablaLeadsLista').classList.toggle('oculto', !leadsActuales.length);
+      if (hayEmbudo) {
+        document.getElementById('filasLeadsRecurso').innerHTML = [...porGuia.entries()]
+          .sort((a, b) => b[1].correos - a[1].correos)
+          .map(([id, s]) => `
+            <tr>
+              <td>${escapar(nombreGuia.get(id) ?? '(recurso eliminado)')}</td>
+              <td>${s.visitas}</td>
+              <td class="destacado">${s.correos}</td>
+              <td>${s.visitas ? Math.round(s.correos / s.visitas * 100) + '%' : '—'}</td>
+              <td>${s.aperturas}</td>
+            </tr>`).join('');
+      }
+      if (leadsActuales.length) {
+        document.getElementById('filasLeadsLista').innerHTML = leadsActuales.slice(0, 100).map(l => `
+          <tr>
+            <td>${new Date(l.creada_en).toLocaleString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'short', timeStyle: 'short' })}</td>
+            <td style="text-align:left;">${escapar(l.email)}</td>
+            <td style="text-align:left;">${escapar(nombreGuia.get(l.guide_id) ?? l.slug)}</td>
+            <td>${escapar(l.utm_source ?? 'directo')}</td>
+            <td>${escapar(l.utm_campaign ?? '—')}</td>
+          </tr>`).join('');
       }
 
       // Pestaña canales (atribución UTM)
