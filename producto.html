@@ -216,6 +216,18 @@
     <p class="micro">Acceso inmediato en tu cuenta · Pago seguro con Wompi · Tuyo para siempre</p>
   </div>
 
+  <!-- Video de caso de uso: abre la landing (se enciende agregando cfg.video al producto) -->
+  <section id="pSecVideo" class="oculto" style="padding-top: 12px;">
+    <div class="contenido">
+      <p class="eyebrow-sec" id="pVideoEyebrow">Míralo en acción</p>
+      <h2 id="pVideoTitulo">Cómo funciona</h2>
+      <p class="sub oculto" id="pVideoIntro"></p>
+      <div class="video-marco">
+        <iframe id="pVideoFrame" src="" title="Video del recurso" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
   <section id="secDolor">
     <div class="contenido">
       <div class="dolor-card">
@@ -269,18 +281,6 @@
 
 
 
-  <!-- Video de caso de uso (se enciende agregando cfg.video al producto) -->
-  <section id="pSecVideo" class="oculto" style="padding-top: 12px;">
-    <div class="contenido">
-      <p class="eyebrow-sec" id="pVideoEyebrow">Míralo en acción</p>
-      <h2 id="pVideoTitulo">Así se usa, en un caso real</h2>
-      <p class="sub oculto" id="pVideoIntro"></p>
-      <div class="video-marco">
-        <iframe id="pVideoFrame" src="" title="Video del recurso" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-      </div>
-    </div>
-  </section>
-
   <section id="pSecGaleria" class="oculto" style="padding-top: 12px;">
     <div class="contenido">
       <p class="eyebrow-sec">Así se ve por dentro</p>
@@ -293,7 +293,7 @@
   <section style="padding-top: 12px;">
     <div class="contenido">
       <p class="eyebrow-sec" id="pUsoEyebrow"></p>
-      <h2 id="pUsoTitulo">Cómo funciona</h2>
+      <h2 id="pUsoTitulo">El paso a paso</h2>
       <div class="pasos" id="pUsoPasos" style="margin-top: 26px;"></div>
       <p class="remate" id="pUsoRemate"></p>
     </div>
@@ -405,7 +405,6 @@
         hero: { desktop: PORTADAS + 'hero-557-desktop-promo.jpg?v=2', mobile: PORTADAS + 'hero-557-mobile-promo.jpg?v=2' },
         video: {
           url: 'https://www.youtube-nocookie.com/embed/-Oq3ZJrjA3Y?rel=0',
-          titulo: 'Así se usa, en un caso real',
           intro: 'Un reclamo formal a un proveedor, tres negociaciones con marcas y un proyecto completo conectado a Claude Code: todo con las configuraciones.',
         },
         dolor: {
