@@ -140,6 +140,8 @@
     .galeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
     /* Video de caso de uso: marco 16:9 con el estilo de la galería */
     .video-marco { position: relative; padding-top: 56.25%; border-radius: 14px; overflow: hidden; border: 1px solid var(--borde); box-shadow: 0 18px 44px rgba(0,0,0,0.3); margin-top: 26px; }
+    .video-nombre { text-align: center; margin-top: 40px; margin-bottom: -12px; font-size: 1.1rem; font-weight: 800; }
+    .video-nombre:first-child { margin-top: 10px; }
     .video-marco iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .galeria img { width: 100%; border-radius: 14px; border: 1px solid var(--borde); display: block; box-shadow: 0 18px 44px rgba(0,0,0,0.3); cursor: zoom-in; }
     /* Lupa de la galería: clic en una captura la abre a pantalla completa */
@@ -226,8 +228,10 @@
       <p class="eyebrow-sec" id="pVideoEyebrow"></p>
       <h2 id="pVideoTitulo" class="oculto">Cómo funciona</h2>
       <p class="sub" id="pVideoIntro">Antes de empezar, mira este video para descubrir todo lo que puedes hacer con esta herramienta.</p>
-      <div class="video-marco">
-        <iframe id="pVideoFrame" src="" title="Video del recurso" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      <div id="pVideoZona">
+        <div class="video-marco">
+          <iframe id="pVideoFrame" src="" title="Video del recurso" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+        </div>
       </div>
     </div>
   </section>
@@ -653,6 +657,11 @@
           ],
           remate: 'Con tres herramientas que se complementan: <b>investigar, ejecutar y presentar</b>, construyes el ciclo completo de tu trabajo con IA en Gemini.',
         },
+        videos: [
+          { nombre: '557 Configuraciones', url: 'https://www.youtube-nocookie.com/embed/-Oq3ZJrjA3Y?rel=0' },
+          { nombre: '400 Gemas', url: 'https://www.youtube-nocookie.com/embed/6aZvZNop7E8?rel=0' },
+          { nombre: '200 Diseños', url: 'https://www.youtube-nocookie.com/embed/_a5Y1o7uaDY?rel=0' },
+        ],
         recursos: [
           { id: '656f61d7-37b2-4e9c-8cf3-67065484493c', titulo: '557 Configuraciones para NotebookLM y Gemini',
             texto: 'El buque insignia. Configuraciones expertas bilingües que convierten cada cuaderno en un especialista: abogados, analistas, estrategas y cientos más, listas para copiar y pegar. Con variantes según tu situación y un generador que arma la configuración final en segundos.',
@@ -914,7 +923,14 @@
 
       // Video de caso de uso: se enciende cuando el producto trae cfg.video
       // (ej: { url: 'https://www.youtube.com/embed/XXXX', titulo: '...', intro: '...' })
-      if (cfg.video?.url) {
+      if (cfg.videos?.length) {
+        // El pack muestra los 3 demos, cada uno con el nombre de su herramienta
+        $('pVideoIntro').textContent = 'Antes de empezar, mira estos videos para descubrir todo lo que puedes hacer con cada herramienta.';
+        $('pVideoZona').innerHTML = cfg.videos.map(v => `
+          <h3 class="video-nombre">${v.nombre}</h3>
+          <div class="video-marco"><iframe src="${v.url}" title="${v.nombre}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`).join('');
+        $('pSecVideo').classList.remove('oculto');
+      } else if (cfg.video?.url) {
         if (cfg.video.eyebrow) $('pVideoEyebrow').textContent = cfg.video.eyebrow;
         if (cfg.video.titulo) $('pVideoTitulo').textContent = cfg.video.titulo;
         if (cfg.video.intro) { $('pVideoIntro').textContent = cfg.video.intro; $('pVideoIntro').classList.remove('oculto'); }
