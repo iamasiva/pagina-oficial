@@ -1,4 +1,9 @@
 {
+  "redirects": [
+    { "source": "/ig", "destination": "/?utm_source=instagram&utm_medium=bio&utm_campaign=perfil", "permanent": false },
+    { "source": "/tt", "destination": "/?utm_source=tiktok&utm_medium=bio&utm_campaign=perfil", "permanent": false },
+    { "source": "/yt", "destination": "/?utm_source=youtube&utm_medium=bio&utm_campaign=perfil", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/r/:slug", "destination": "/recurso.html" }
   ]
