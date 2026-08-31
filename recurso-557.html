@@ -525,6 +525,14 @@
     .im-row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
     .im-row h3 { font-size: 0.98rem; margin: 0 0 4px; }
     .im-row p { color: var(--muted); font-size: 0.85rem; margin: 0 0 10px; line-height: 1.5; }
+    /* Objetivo del cuaderno: el Arquitecto lo entrega como bloque de contexto
+       (varias líneas). Se muestra recortado y se copia entero con un clic:
+       ese texto es el que el usuario pega en la configuración de su cuaderno. */
+    .im-obj { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin: 0 0 6px; white-space: pre-line; }
+    .im-obj.recortado { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .im-obj-acc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+    .im-obj-acc button { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 0.75rem; font-weight: 700; color: var(--ink); cursor: pointer; }
+    .im-obj-acc button:hover { background: var(--surface-2); }
     .im-row .im-meta { font-size: 0.75rem; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
     .im-row-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
     .im-row-acciones button, .im-row-acciones a { font-size: 0.8rem; padding: 7px 14px; }
@@ -585,7 +593,7 @@
     .im-imp-arbol details { margin: 4px 0 4px 0; }
     .im-imp-arbol details details { margin-left: 16px; }
     .im-imp-arbol summary { cursor: pointer; font-weight: 700; }
-    .im-imp-arbol .obj { color: var(--muted); font-size: 0.78rem; margin: 2px 0 6px 16px; }
+    .im-imp-arbol .obj { color: var(--muted); font-size: 0.78rem; margin: 2px 0 6px 16px; white-space: pre-line; }
     .im-imp-arbol .hoja { margin: 3px 0 3px 16px; }
     .im-imp-arbol .hoja .obj { margin-left: 0; }
     .im-pend { display: inline-block; border: 1px dashed var(--line); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; }
@@ -2263,6 +2271,7 @@ ${clean}`;
           lblTitulo: 'Título', lblUrl: 'Link del cuaderno', lblCat: 'Categoría', lblSub: 'Subcategoría (opcional)', lblDesc: 'Objetivo (opcional)',
           modalTitulo: 'Ponle un nombre para recordarla', btnGuardarCuad: 'Guardar cuaderno', btnGuardarCfg: 'Guardar en mis configuraciones', btnCancelar: 'Cancelar', btnGuardar: 'Guardar',
           ver: 'Ver', copiar: 'Copiar', eliminar: 'Eliminar', abrir: 'Abrir cuaderno', variantes: 'variantes',
+          copiarObj: 'Copiar objetivo', objCopiado: 'Objetivo copiado ✓', verCompleto: 'Ver completo', verMenos: 'Ver menos',
           guardadoCfg: 'Guardada en mis configuraciones', favOn: 'Agregada a favoritos', favOff: 'Quitada de favoritos', eliminado: 'Eliminado', cuadGuardado: 'Cuaderno guardado',
           datosFaltan: 'El título y el link son obligatorios', generaPrimero: 'Primero genera una configuración', nombreVacio: 'Escribe un nombre', confirmaEliminar: '¿Eliminar definitivamente?', sinCategoria: 'Sin categoría',
         },
@@ -2283,6 +2292,7 @@ ${clean}`;
           lblTitulo: 'Title', lblUrl: 'Notebook link', lblCat: 'Category', lblSub: 'Subcategory (optional)', lblDesc: 'Objective (optional)',
           modalTitulo: 'Name it so you remember it', btnGuardarCuad: 'Save notebook', btnGuardarCfg: 'Save to my configurations', btnCancelar: 'Cancel', btnGuardar: 'Save',
           ver: 'View', copiar: 'Copy', eliminar: 'Delete', abrir: 'Open notebook', variantes: 'variants',
+          copiarObj: 'Copy objective', objCopiado: 'Objective copied ✓', verCompleto: 'Show full', verMenos: 'Show less',
           guardadoCfg: 'Saved to my configurations', favOn: 'Added to favorites', favOff: 'Removed from favorites', eliminado: 'Deleted', cuadGuardado: 'Notebook saved',
           datosFaltan: 'Title and link are required', generaPrimero: 'Generate a configuration first', nombreVacio: 'Write a name', confirmaEliminar: 'Delete permanently?', sinCategoria: 'Uncategorized',
         },
@@ -2606,6 +2616,7 @@ ${clean}`;
       let cuadVista = { t: 'root' };   // root | cat | sub
       let menuAbierto = null;
       const chatsAbiertos = new Set();
+      const objsAbiertos = new Set();
       let nodoCtx = null, cuadCtx = null, chatCtx = null, moverSubCtx = null;
 
       const catsRaiz = () => nodos.filter(n => !n.parent_id).sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -2697,6 +2708,25 @@ ${clean}`;
           </div>`;
       }
 
+      // El Arquitecto entrega el objetivo como bloque de contexto de varias
+      // líneas: se recorta a 3 y se ofrece copiarlo entero, porque es el texto
+      // que va en la configuración del cuaderno. Los objetivos viejos (una
+      // línea suelta) se siguen viendo igual que siempre.
+      function objetivoHtml(c) {
+        const obj = c.descripcion;
+        if (!obj) return '';
+        const x = tt();
+        const bloque = obj.includes('\n') || obj.length > 160;
+        if (!bloque) return `<p>${escapeHtml(obj)}</p>`;
+        const abierto = objsAbiertos.has(c.id);
+        return `
+          <div class="im-obj${abierto ? '' : ' recortado'}">${escapeHtml(obj)}</div>
+          <div class="im-obj-acc">
+            <button type="button" data-verobj="${c.id}">${escapeHtml(abierto ? x.verMenos : x.verCompleto)}</button>
+            <button type="button" data-copyobj="${c.id}">${escapeHtml(x.copiarObj)}</button>
+          </div>`;
+      }
+
       function filaCuaderno(c) {
         const x = tt();
         const cs = chatsDe(c.id);
@@ -2715,7 +2745,7 @@ ${clean}`;
                 <button type="button" data-accion="eliminar">${escapeHtml(x.eliminar)}</button>
               </div>` : ''}
             <h3>${escapeHtml(c.titulo)}</h3>
-            ${c.descripcion ? `<p>${escapeHtml(c.descripcion)}</p>` : ''}
+            ${objetivoHtml(c)}
             ${cfg ? `<div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>` : ''}
             <div class="im-row-acciones">
               ${uGem ? `<a class="primary-btn" href="${escapeHtml(uGem)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirGemini)}</span></a>` : ''}
@@ -2840,6 +2870,21 @@ ${clean}`;
           const c = cuadernos.find(k => String(k.id) === cpc.dataset.copycfg);
           const cfg = c && misConfigs.find(k => k.id === c.config_id);
           if (cfg) copyText(cfg.contenido, tt().copiar + ' ✓');
+          return;
+        }
+        const cpo = e.target.closest('[data-copyobj]');
+        if (cpo) {
+          const c = cuadernos.find(k => String(k.id) === cpo.dataset.copyobj);
+          if (c?.descripcion) copyText(c.descripcion, tt().objCopiado);
+          return;
+        }
+        const vObj = e.target.closest('[data-verobj]');
+        if (vObj) {
+          const id = vObj.dataset.verobj;
+          const c = cuadernos.find(k => String(k.id) === id);
+          const clave = c ? c.id : id;
+          objsAbiertos.has(clave) ? objsAbiertos.delete(clave) : objsAbiertos.add(clave);
+          renderCuadernos();
           return;
         }
         const menuChat = e.target.closest('[data-menuchat]');
@@ -3203,12 +3248,34 @@ ${clean}`;
         return null;
       }
 
+      // Los objetivos del Arquitecto son bloques de varias líneas. Si la IA los
+      // escribió con saltos literales dentro de las comillas, JSON.parse falla:
+      // se escapan y se reintenta antes de darle error al usuario.
+      function repararSaltos(txt) {
+        let out = '', enStr = false, esc = false;
+        for (const ch of txt) {
+          if (!enStr) { out += ch; if (ch === '"') enStr = true; continue; }
+          if (esc) { out += ch; esc = false; continue; }
+          if (ch === '\\') { out += ch; esc = true; continue; }
+          if (ch === '"') { out += ch; enStr = false; continue; }
+          if (ch === '\n') { out += '\\n'; continue; }
+          if (ch === '\r') continue;
+          if (ch === '\t') { out += '\\t'; continue; }
+          out += ch;
+        }
+        return out;
+      }
+
       function validarArbolImportado(texto) {
         const x = tt();
         const bloque = extraerBloqueJson(texto);
         if (!bloque) return { error: x.impNoJson };
         let obj;
-        try { obj = JSON.parse(bloque); } catch { return { error: x.impJsonMal }; }
+        try { obj = JSON.parse(bloque); }
+        catch {
+          try { obj = JSON.parse(repararSaltos(bloque)); }
+          catch { return { error: x.impJsonMal }; }
+        }
         if (Number(obj.version) !== 1) return { error: x.impVersion };
         if (!obj.categoria || typeof obj.categoria !== 'object') return { error: x.impSinNombre };
         const limpio = (v) => (typeof v === 'string' ? v.trim() : '');
