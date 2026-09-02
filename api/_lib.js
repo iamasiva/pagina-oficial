@@ -57,14 +57,28 @@ export async function trmDelDia() {
   const hoy = new Date().toISOString().slice(0, 10);
   if (trmCache.fecha === hoy && trmCache.valor) return trmCache.valor;
 
-  const res = await fetch(
-    'https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=1'
-  );
-  if (!res.ok) throw new Error('No se pudo consultar la TRM oficial');
-  const [fila] = await res.json();
-  const valor = parseFloat(fila?.valor);
-  if (!valor || valor <= 0) throw new Error('TRM inválida');
+  try {
+    const res = await fetch(
+      'https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=1'
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const [fila] = await res.json();
+    const valor = parseFloat(fila?.valor);
+    if (!valor || valor <= 0) throw new Error('TRM inválida');
 
-  trmCache = { fecha: hoy, valor };
-  return valor;
+    trmCache = { fecha: hoy, valor };
+    // Respaldo durable: la última TRM oficial buena sobrevive arranques en frío
+    try { await adminClient().from('trm_respaldo').upsert({ id: 1, valor, fecha: hoy }); } catch (_) {}
+    return valor;
+  } catch (err) {
+    // datos.gov.co caído: la venta no se detiene, se cobra con la última TRM
+    // OFICIAL conocida (la TRM rige por días y casi no se mueve entre uno y otro).
+    if (trmCache.valor) return trmCache.valor;
+    try {
+      const { data } = await adminClient().from('trm_respaldo').select('valor, fecha').eq('id', 1).maybeSingle();
+      const dias = data?.fecha ? (Date.parse(hoy) - Date.parse(data.fecha)) / 86400000 : 99;
+      if (data?.valor > 0 && dias <= 10) return data.valor;
+    } catch (_) {}
+    throw new Error('No se pudo consultar la TRM oficial');
+  }
 }
