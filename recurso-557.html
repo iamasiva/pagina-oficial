@@ -1961,7 +1961,10 @@ ${clean}`;
         PLATFORM: platform
       };
       const customSituation = document.getElementById('variantSelect').value === 'Otro' ? document.getElementById('otherVariant').value.trim() : '';
-      let output = injectExtraBlock(state.selected.config_template, 'SPECIFIC SITUATION', customSituation ? `This configuration is being used specifically for: ${customSituation}.` : '');
+      // Con "Otro" la plantilla base sigue siendo la de una variante con su
+      // propio nicho: la situación del usuario debe MANDAR sobre ese nicho,
+      // no quedar como una nota al margen
+      let output = injectExtraBlock(state.selected.config_template, 'SPECIFIC SITUATION', customSituation ? `This configuration is being adapted to a situation different from its original niche. The real situation is: ${customSituation}. This OVERRIDES any narrower audience or niche assumptions found anywhere in this configuration: reinterpret every role-specific instruction, question, and example so it serves this situation, and whenever an instruction conflicts with it, this situation wins.` : '');
       output = injectFocusArea(output, document.getElementById('focusInput').value);
       Object.entries(replacements).forEach(([key, value]) => {
         output = output.replaceAll(`{{${key}}}`, value);
