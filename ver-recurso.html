@@ -95,7 +95,10 @@
         'try{Object.defineProperty(navigator,"clipboard",{value:s,configurable:true});}' +
         'catch(e){try{navigator.clipboard=s;}catch(_){}}})();</scr' + 'ipt>';
       const alto =
-        '<scr' + 'ipt>(function(){var t;function h(){parent.postMessage({im_alto:document.documentElement.scrollHeight},"*");}' +
+        // Se mide el BODY y no documentElement: el scrollHeight del documento
+        // tiene piso en la altura actual del iframe (puede crecer pero nunca
+        // encoger), y una medida transitoria inflada quedaba pegada para siempre
+        '<scr' + 'ipt>(function(){var t;function h(){var b=document.body;parent.postMessage({im_alto:b?b.scrollHeight:document.documentElement.scrollHeight},"*");}' +
         'function p(){clearTimeout(t);t=setTimeout(h,120);}' +
         'new MutationObserver(p).observe(document.documentElement,{subtree:true,childList:true,attributes:true});' +
         'addEventListener("load",h);setInterval(h,1500);h();})();</scr' + 'ipt>';
