@@ -2183,8 +2183,19 @@ ${clean}`;
           closeDrawer();
         }
       });
+      // Si la configuración ya está en pantalla, cualquier ajuste la regenera al
+      // instante (antes, elegir "Otro" y escribir dejaba el prompt viejo visible)
+      const refrescarConfigVisible = () => {
+        if (el.configResultBlock.style.display !== 'none') updateConfigOutput();
+      };
       ['platformSelect','languageSelect','toneSelect','detailSelect','questionsSelect'].forEach(id => {
-        document.getElementById(id).addEventListener('change', event => toggleOtherLanguage(event.target));
+        document.getElementById(id).addEventListener('change', event => {
+          toggleOtherLanguage(event.target);
+          refrescarConfigVisible();
+        });
+      });
+      ['otherPlatform','otherLanguage','otherTone','otherDetail','otherQuestions','otherVariant','focusInput'].forEach(id => {
+        document.getElementById(id).addEventListener('input', refrescarConfigVisible);
       });
       document.getElementById('generateConfig').addEventListener('click', generateConfig);
       [
