@@ -1961,10 +1961,17 @@ ${clean}`;
         PLATFORM: platform
       };
       const customSituation = document.getElementById('variantSelect').value === 'Otro' ? document.getElementById('otherVariant').value.trim() : '';
-      // Con "Otro" la plantilla base sigue siendo la de una variante con su
-      // propio nicho: la situación del usuario debe MANDAR sobre ese nicho,
-      // no quedar como una nota al margen
-      let output = injectExtraBlock(state.selected.config_template, 'SPECIFIC SITUATION', customSituation ? `This configuration is being adapted to a situation different from its original niche. The real situation is: ${customSituation}. This OVERRIDES any narrower audience or niche assumptions found anywhere in this configuration: reinterpret every role-specific instruction, question, and example so it serves this situation, and whenever an instruction conflicts with it, this situation wins.` : '');
+      // Con "Otro": si el rol ya tiene su plantilla propia (otro_template,
+      // aprobada por lotes), la situación del usuario se teje directo en el
+      // texto donde antes vivía el nicho. Si aún no la tiene, el puente: la
+      // plantilla de la variante con la orden de override
+      const plantillaOtro = (customSituation && state.selectedGroup?.variants?.[0]?.config?.otro_template) || '';
+      let output;
+      if (plantillaOtro) {
+        output = plantillaOtro.replaceAll('{{SITUATION}}', customSituation.replace(/[{}]/g, ''));
+      } else {
+        output = injectExtraBlock(state.selected.config_template, 'SPECIFIC SITUATION', customSituation ? `This configuration is being adapted to a situation different from its original niche. The real situation is: ${customSituation}. This OVERRIDES any narrower audience or niche assumptions found anywhere in this configuration: reinterpret every role-specific instruction, question, and example so it serves this situation, and whenever an instruction conflicts with it, this situation wins.` : '');
+      }
       output = injectFocusArea(output, document.getElementById('focusInput').value);
       Object.entries(replacements).forEach(([key, value]) => {
         output = output.replaceAll(`{{${key}}}`, value);
@@ -2245,6 +2252,12 @@ ${clean}`;
           window.__IM.traerPlantilla(v.config.id).then(p => { if (p) v.config.config_template = p; });
         }
       });
+      // La plantilla Otro del rol (si existe) también se precarga; null marca
+      // "consultada y ausente" para no volver a preguntar por ella
+      const v0 = grupo.variants[0]?.config;
+      if (v0 && v0.otro_template === undefined && window.__IM.traerPlantillaOtro) {
+        window.__IM.traerPlantillaOtro(v0.id).then(p => { v0.otro_template = p || null; });
+      }
     };
     (function () {
       const btnAnterior = document.getElementById('generateConfig');
@@ -2255,6 +2268,14 @@ ${clean}`;
         if (cfg && !cfg.config_template && window.__IM?.traerPlantilla) {
           btnGenerar.disabled = true;
           try { cfg.config_template = await window.__IM.traerPlantilla(cfg.id); }
+          finally { btnGenerar.disabled = false; }
+        }
+        // Si eligió Otro y la plantilla del rol aún no llegó, se espera aquí
+        const v0 = state.selectedGroup?.variants?.[0]?.config;
+        if (v0 && v0.otro_template === undefined && window.__IM?.traerPlantillaOtro &&
+            document.getElementById('variantSelect')?.value === 'Otro') {
+          btnGenerar.disabled = true;
+          try { v0.otro_template = (await window.__IM.traerPlantillaOtro(v0.id)) || null; }
           finally { btnGenerar.disabled = false; }
         }
         generateConfig();
@@ -3687,6 +3708,7 @@ ${clean}`;
     }));
 
     const plantillas = new Map();
+    const plantillasOtro = new Map();
     window.__IM = {
       sb,
       userId: session.user.id,
@@ -3699,6 +3721,17 @@ ${clean}`;
           .eq('product_id', PRODUCT_ID).eq('item_num', itemNum).maybeSingle();
         const plantilla = data?.config_template ?? '';
         if (plantilla) plantillas.set(itemNum, plantilla);
+        return plantilla;
+      },
+      // Plantilla "Otro" del rol (vive en el data de la primera variante del
+      // grupo): la situación del usuario tejida en el texto, no una nota al pie
+      traerPlantillaOtro: async (itemNum) => {
+        if (plantillasOtro.has(itemNum)) return plantillasOtro.get(itemNum);
+        const { data } = await sb.from('premium_items')
+          .select('otro_template:data->>otro_template')
+          .eq('product_id', PRODUCT_ID).eq('item_num', itemNum).maybeSingle();
+        const plantilla = data?.otro_template ?? '';
+        plantillasOtro.set(itemNum, plantilla);
         return plantilla;
       },
     };
