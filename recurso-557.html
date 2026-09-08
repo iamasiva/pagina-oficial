@@ -553,6 +553,13 @@
     .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: var(--surface); }
     .im-modal-caja select:focus { border-color: var(--accent); }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+    /* Bloques del formulario: cada uno agrupa campos con un mismo objetivo */
+    .im-modal-bloque {
+      background: color-mix(in srgb, var(--accent-soft) 30%, var(--surface));
+      border: 1px solid var(--line); border-radius: 12px;
+      padding: 2px 14px 14px; margin-top: 14px;
+    }
+    .im-modal-bloque .im-modal-label:first-child { margin-top: 12px; }
     /* respiro entre botones de salida y el bloque generado */
     .output-head { flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
     #imSaveConfig, #imSaveCustom { font-size: 0.85rem; }
@@ -1325,25 +1332,31 @@
       <div id="imCuadCampos">
         <label class="im-modal-label" id="imCuadLblTitulo">Título</label>
         <input id="imCuadTitInput" type="text" placeholder="Ej: Investigación mercado panadería" />
-        <label class="im-modal-label" id="imCuadLblUrlGem">Link del cuaderno en Gemini</label>
-        <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…" />
-        <label class="im-modal-label" id="imCuadLblUrlNb">Link del cuaderno en NotebookLM</label>
-        <input id="imCuadUrlNbInput" type="text" placeholder="https://notebook.google.com/… o notebooklm.google.com/…" />
-        <label class="im-modal-label" id="imCuadLblDesc">Objetivo (opcional)</label>
-        <input id="imCuadDescInput" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
-        <label class="im-modal-label" id="imCuadLblCfg">Configuración (opcional)</label>
-        <div id="imCuadCfgSelects">
-          <select id="imCuadSelCfgCat"></select>
-          <select id="imCuadSelCfg" style="margin-top:8px;"></select>
+        <div class="im-modal-bloque">
+          <label class="im-modal-label" id="imCuadLblUrlGem">Link del cuaderno en Gemini</label>
+          <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…" />
+          <label class="im-modal-label" id="imCuadLblUrlNb">Link del cuaderno en NotebookLM</label>
+          <input id="imCuadUrlNbInput" type="text" placeholder="https://notebook.google.com/… o notebooklm.google.com/…" />
         </div>
-        <p class="im-modal-nota" id="imCuadCfgVacio" style="display:none; margin:4px 0 0;">Guarda configuraciones para poder asignarlas</p>
+        <div class="im-modal-bloque">
+          <label class="im-modal-label" id="imCuadLblDesc">Objetivo (opcional)</label>
+          <input id="imCuadDescInput" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
+          <label class="im-modal-label" id="imCuadLblCfg">Configuración (opcional)</label>
+          <div id="imCuadCfgSelects">
+            <select id="imCuadSelCfgCat"></select>
+            <select id="imCuadSelCfg" style="margin-top:8px;"></select>
+          </div>
+          <p class="im-modal-nota" id="imCuadCfgVacio" style="display:none; margin:4px 0 0;">Guarda configuraciones para poder asignarlas</p>
+        </div>
       </div>
-      <label class="im-modal-label" id="imCuadLblCat">Categoría (opcional)</label>
-      <select id="imCuadSelCat"></select>
-      <input id="imCuadCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
-      <label class="im-modal-label" id="imCuadLblSub">Subcategoría (opcional)</label>
-      <select id="imCuadSelSub"></select>
-      <input id="imCuadSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+      <div class="im-modal-bloque">
+        <label class="im-modal-label" id="imCuadLblCat">Categoría (opcional)</label>
+        <select id="imCuadSelCat"></select>
+        <input id="imCuadCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
+        <label class="im-modal-label" id="imCuadLblSub">Subcategoría (opcional)</label>
+        <select id="imCuadSelSub"></select>
+        <input id="imCuadSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+      </div>
       <div class="im-modal-acciones">
         <button id="imCuadCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imCuadOk" class="primary-btn" type="button"><span>Guardar</span></button>
