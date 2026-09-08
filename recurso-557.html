@@ -602,6 +602,36 @@
     .im-imp-arbol .hoja { margin: 3px 0 3px 16px; }
     .im-imp-arbol .hoja .obj { margin-left: 0; }
     .im-pend { display: inline-block; border: 1px dashed var(--line); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; }
+    /* Biblioteca de cuadernos: cada cuaderno se ve como un cuaderno */
+    #imCuadList { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; align-items: start; }
+    .im-nb { cursor: pointer; }
+    .im-nb-cover {
+      position: relative; height: 148px; border-radius: 6px 12px 12px 6px;
+      background: linear-gradient(160deg, var(--surface) 0%, var(--surface-2, var(--accent-soft)) 115%);
+      border: 1px solid var(--line); border-left: 10px solid var(--accent);
+      box-shadow: 0 8px 22px rgba(20, 18, 46, 0.14);
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px 12px 14px 16px; transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .im-nb:hover .im-nb-cover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .im-nb-cover::before {
+      content: ''; position: absolute; left: -7px; top: 14px; bottom: 14px; width: 4px;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.85) 1.4px, transparent 1.7px);
+      background-size: 4px 13px; background-repeat: repeat-y;
+    }
+    .im-nb-titulo {
+      font-weight: 800; font-size: 0.84rem; line-height: 1.35; color: var(--ink); text-align: center;
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .im-nb-badges { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+    .im-nb-badge {
+      font-size: 0.66rem; font-weight: 800; background: var(--accent-soft); color: var(--accent-hover);
+      border-radius: 999px; padding: 2px 7px; line-height: 1.5;
+    }
+    .im-nb-badge.pend { background: rgba(216, 150, 20, 0.16); color: var(--gold); }
+    /* Popup del cuaderno: la ficha completa de siempre, en grande */
+    .im-modal-caja.im-caja-cuad { max-width: 660px; width: calc(100% - 32px); max-height: 86vh; overflow-y: auto; }
+    .im-caja-cuad .im-row { border: none; background: none; padding: 0; margin: 0; }
     .im-modal-conectar { max-width: 640px; max-height: 88vh; overflow-y: auto; }
     .im-modal-conectar textarea { font-size: 0.78rem; line-height: 1.5; }
     .im-con-cab { display: flex; align-items: flex-start; gap: 10px; }
@@ -1165,6 +1195,16 @@
       <div class="im-modal-acciones">
         <button id="imVarCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imVarGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup de detalle de un cuaderno: link directo, objetivo, chats y acciones -->
+  <div id="imModalCuadDet" class="im-modal">
+    <div class="im-modal-caja im-caja-cuad">
+      <div id="imCuadDetCuerpo"></div>
+      <div class="im-modal-acciones">
+        <button id="imCuadDetCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
     </div>
   </div>
@@ -2602,6 +2642,7 @@ ${clean}`;
         varConfirmaEliminar: '¿Eliminar esta variante? Las configuraciones que ya generaste no se pierden.',
         varTextoVacio: 'Escribe la situación antes de guardar.', varNombreVacio: 'Ponle un nombre corto para reconocerla.',
         varGrupo: '— Tus variantes —', varEditarBtn: 'Editar',
+        cerrarDet: 'Cerrar',
       });
       Object.assign(IM_TEXT.en, {
         tabVar: 'Your variants',
@@ -2617,6 +2658,7 @@ ${clean}`;
         varConfirmaEliminar: 'Delete this variant? Configurations you already generated are not lost.',
         varTextoVacio: 'Write the situation before saving.', varNombreVacio: 'Give it a short name to recognize it.',
         varGrupo: '— Your variants —', varEditarBtn: 'Edit',
+        cerrarDet: 'Close',
       });
 
       let misVariantes = [];
@@ -2996,6 +3038,32 @@ ${clean}`;
           </div>`;
       }
 
+      // El cuaderno en la biblioteca: un cuaderno con lomo, espiral y señales
+      // de estado; el detalle completo vive en su popup (filaCuaderno)
+      let cuadDetalleId = null;
+      function cuadernoTile(c) {
+        const x = tt();
+        const cs = chatsDe(c.id);
+        const cfg = c.config_id ? misConfigs.find(k => k.id === c.config_id) : null;
+        const sinLink = !c.url_gemini && !(c.url_notebook ?? c.url);
+        return `
+          <div class="im-nb" data-abrircuad="${c.id}" role="button" tabindex="0" aria-label="${escapeHtml(c.titulo)}">
+            <div class="im-nb-cover">
+              <div class="im-nb-badges">
+                ${sinLink ? `<span class="im-nb-badge pend" title="${escapeHtml(x.linkPendiente)}">●</span>` : ''}
+                ${cfg ? `<span class="im-nb-badge" title="${escapeHtml(cfg.nombre)}">⚙</span>` : ''}
+                ${cs.length ? `<span class="im-nb-badge">💬${cs.length}</span>` : ''}
+              </div>
+              <div class="im-nb-titulo">${escapeHtml(c.titulo)}</div>
+            </div>
+          </div>`;
+      }
+
+      function cerrarDetalleCuad() {
+        cuadDetalleId = null;
+        $('imModalCuadDet').classList.remove('abierto');
+      }
+
       function cardNodo(n, count) {
         return `
           <div class="im-cat-card" data-navnodo="${n.id}">
@@ -3063,10 +3131,20 @@ ${clean}`;
         $('imBtnConectar').querySelector('span').textContent = x.conProyecto;
         $('imCuadVolver').querySelector('span').textContent = '← ' + (state.interfaceLanguage === 'en' ? 'Back' : 'Volver');
         $('imCuadCards').innerHTML = cards;
-        $('imCuadList').innerHTML = lista.map(filaCuaderno).join('');
+        $('imCuadList').innerHTML = lista.map(cuadernoTile).join('');
         const vacio = !cards && !lista.length;
         $('imCuadVacio').style.display = vacio ? 'block' : 'none';
         $('imCuadVacio').textContent = x.cuadVacio;
+        // El popup abierto se repinta con el mismo estado (chats, menús); si
+        // el cuaderno ya no existe (lo eliminaron), se cierra solo
+        if (cuadDetalleId !== null) {
+          const c = cuadernos.find(k => String(k.id) === String(cuadDetalleId));
+          if (!c) cerrarDetalleCuad();
+          else {
+            $('imCuadDetCuerpo').innerHTML = filaCuaderno(c);
+            $('imCuadDetCerrar').querySelector('span').textContent = x.cerrarDet;
+          }
+        }
       }
 
       // Navegación por cards y menús ⋮
@@ -3097,7 +3175,17 @@ ${clean}`;
         }
       });
 
-      $('imCuadList').addEventListener('click', (e) => {
+      // Un solo manejador para la biblioteca (azulejos) y el popup de detalle:
+      // el popup contiene la ficha de siempre, así que las acciones son las mismas
+      const clicEnCuaderno = (e) => {
+        const tile = e.target.closest('[data-abrircuad]');
+        if (tile) {
+          cuadDetalleId = tile.dataset.abrircuad;
+          menuAbierto = null;
+          $('imModalCuadDet').classList.add('abierto');
+          renderCuadernos();
+          return;
+        }
         const abrir = e.target.closest('a.primary-btn');
         if (abrir) { e.preventDefault(); window.open(abrir.href, '_blank', 'noopener'); return; }
         const cpc = e.target.closest('[data-copycfg]');
@@ -3159,7 +3247,11 @@ ${clean}`;
         if (accion.dataset.accion === 'editar') abrirModalCuad({ modo: 'editar', cuaderno: c });
         if (accion.dataset.accion === 'mover')  abrirModalCuad({ modo: 'mover', cuaderno: c });
         if (accion.dataset.accion === 'eliminar') eliminarCuaderno(c);
-      });
+      };
+      $('imCuadList').addEventListener('click', clicEnCuaderno);
+      $('imCuadDetCuerpo').addEventListener('click', clicEnCuaderno);
+      $('imCuadDetCerrar').addEventListener('click', cerrarDetalleCuad);
+      $('imModalCuadDet').addEventListener('click', (e) => { if (e.target.id === 'imModalCuadDet') cerrarDetalleCuad(); });
 
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn') && menuAbierto) {
