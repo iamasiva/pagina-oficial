@@ -553,6 +553,45 @@
     .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: var(--surface); }
     .im-modal-caja select:focus { border-color: var(--accent); }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+    /* Mis configuraciones: categorías como chips, configuraciones como fichas */
+    .im-chips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin-bottom: 10px; }
+    .im-chipcat { display: flex; align-items: stretch; cursor: pointer; }
+    .im-chipcat-pines {
+      width: 9px; margin: 16px 0; opacity: 0.9;
+      background-image: repeating-linear-gradient(to bottom, var(--gold) 0 5px, transparent 5px 13px);
+    }
+    .im-chipcat-cuerpo {
+      flex: 1; background: var(--code-bg);
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--code-bg));
+      border-radius: 12px; padding: 16px 14px; min-height: 92px;
+      display: flex; flex-direction: column; transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .im-chipcat:hover .im-chipcat-cuerpo { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .im-chipcat-nombre { font-weight: 800; font-size: 0.95rem; color: var(--code-ink); }
+    .im-chipcat-meta { margin-top: auto; padding-top: 10px; font-size: 0.75rem; font-weight: 700; color: color-mix(in srgb, var(--code-ink) 65%, transparent); }
+    .im-fichas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .im-ficha {
+      cursor: pointer; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+      background: var(--surface); transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .im-ficha:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .im-ficha-banda { height: 5px; background: #D85A30; opacity: 0.75; }
+    .im-ficha-cuerpo {
+      padding: 10px 12px 12px; min-height: 76px;
+      background: repeating-linear-gradient(to bottom, var(--surface) 0 24px, color-mix(in srgb, var(--accent-soft) 55%, var(--surface)) 24px 25px);
+    }
+    .im-ficha-nombre {
+      font-size: 0.9rem; font-weight: 800; color: var(--ink); line-height: 24px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .im-ficha-meta { font-size: 0.75rem; color: var(--muted); line-height: 25px; }
+    .im-mis-enc { margin: 4px 0 14px; font-size: 1.3rem; }
+    #imCfgDetPre {
+      display: block; margin-top: 12px; max-height: 320px; overflow: auto;
+      font-family: var(--mono); font-size: 0.78rem; line-height: 1.55;
+      background: var(--code-bg); color: var(--code-ink);
+      border-radius: 10px; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere;
+    }
     /* Bloques del formulario: cada uno agrupa campos con un mismo objetivo */
     .im-modal-bloque {
       background: color-mix(in srgb, var(--accent-soft) 30%, var(--surface));
@@ -1296,6 +1335,20 @@
       <div class="im-modal-acciones">
         <button id="imVarCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imVarGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup de detalle de una configuración guardada -->
+  <div id="imModalCfgDet" class="im-modal">
+    <div class="im-modal-caja im-caja-cuad">
+      <h3 id="imCfgDetNombre"></h3>
+      <div class="im-meta" id="imCfgDetMeta"></div>
+      <pre id="imCfgDetPre"></pre>
+      <div class="im-modal-acciones">
+        <button id="imCfgDetEliminar" class="secondary-btn" type="button"><span>Eliminar</span></button>
+        <button id="imCfgDetCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
+        <button id="imCfgDetCopiar" class="primary-btn" type="button"><span>Copiar</span></button>
       </div>
     </div>
   </div>
@@ -2632,7 +2685,6 @@ ${clean}`;
       // ── Mis configuraciones ──
       let misConfigs = [];
       let pendienteGuardar = null;
-      let imMisFiltro = null;
 
       const catsDeConfigs = () => [...new Set(misConfigs.map(c => (c.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
@@ -2643,52 +2695,95 @@ ${clean}`;
         renderCuadernos();   // los chips de config de los cuadernos dependen de misConfigs
       }
 
-      function renderMisConfigs() {
-        $('imMisVacio').style.display = misConfigs.length ? 'none' : 'block';
-        $('imMisVacio').textContent = tt().misVacio;
-        const cats = catsDeConfigs();
-        if (imMisFiltro && !cats.includes(imMisFiltro)) imMisFiltro = null;
-        const todas = state.interfaceLanguage === 'en' ? 'All' : 'Todas';
-        const chips = cats.length ? `
-          <div class="im-chips">
-            <button class="im-chip ${!imMisFiltro ? 'activo' : ''}" type="button" data-imfiltro="">${todas} (${misConfigs.length})</button>
-            ${cats.map(c => `<button class="im-chip ${imMisFiltro === c ? 'activo' : ''}" type="button" data-imfiltro="${escapeHtml(c)}">${escapeHtml(c)} (${misConfigs.filter(k => (k.categoria || '').trim() === c).length})</button>`).join('')}
-          </div>` : '';
-        const visibles = imMisFiltro ? misConfigs.filter(c => (c.categoria || '').trim() === imMisFiltro) : misConfigs;
-        $('imMisList').innerHTML = chips + visibles.map(c => `
-          <div class="im-row" data-imcfg="${c.id}">
-            <h3>${escapeHtml(c.nombre)}</h3>
-            <div class="im-meta">${c.categoria ? escapeHtml(c.categoria) + ' · ' : ''}${fecha(c.created_at)}</div>
-            <pre class="im-pre"></pre>
-            <div class="im-row-acciones">
-              <button class="secondary-btn" type="button" data-accion="ver"><span>${escapeHtml(tt().ver)}</span></button>
-              <button class="secondary-btn" type="button" data-accion="copiar"><span>${escapeHtml(tt().copiar)}</span></button>
-              <button class="secondary-btn" type="button" data-accion="eliminar"><span>${escapeHtml(tt().eliminar)}</span></button>
+      // Categorías como chips (el módulo experto) y configuraciones como
+      // fichas de estudio; navegar es filtrar, y la ficha abre su popup
+      let misVista = { t: 'root' };
+      let cfgDetalleId = null;
+
+      function chipCat(nombre, count) {
+        return `
+          <div class="im-chipcat" data-miscat="${escapeHtml(nombre)}" role="button" tabindex="0">
+            <div class="im-chipcat-pines"></div>
+            <div class="im-chipcat-cuerpo">
+              <div class="im-chipcat-nombre">${escapeHtml(nombre)}</div>
+              <div class="im-chipcat-meta">⚙ ${count} ${escapeHtml(count === 1 ? tt().cfgN1 : tt().cfgN)}</div>
             </div>
-          </div>`).join('');
+            <div class="im-chipcat-pines"></div>
+          </div>`;
+      }
+      function fichaCfg(c) {
+        return `
+          <div class="im-ficha" data-miscfg="${c.id}" role="button" tabindex="0" aria-label="${escapeHtml(c.nombre)}">
+            <div class="im-ficha-banda"></div>
+            <div class="im-ficha-cuerpo">
+              <div class="im-ficha-nombre">${escapeHtml(c.nombre)}</div>
+              <div class="im-ficha-meta">${fecha(c.created_at)}</div>
+            </div>
+          </div>`;
       }
 
-      $('imMisList').addEventListener('click', async (e) => {
-        const chip = e.target.closest('[data-imfiltro]');
-        if (chip) { imMisFiltro = chip.dataset.imfiltro || null; renderMisConfigs(); return; }
-        const btn = e.target.closest('[data-accion]');
-        if (!btn) return;
-        const fila = btn.closest('[data-imcfg]');
-        const cfg = misConfigs.find(c => String(c.id) === fila.dataset.imcfg);
-        if (!cfg) return;
-        if (btn.dataset.accion === 'ver') {
-          const pre = fila.querySelector('.im-pre');
-          pre.textContent = cfg.contenido;
-          pre.style.display = pre.style.display === 'block' ? 'none' : 'block';
+      function renderMisConfigs() {
+        const x = tt();
+        $('imMisVacio').style.display = misConfigs.length ? 'none' : 'block';
+        $('imMisVacio').textContent = x.misVacio;
+        const cats = catsDeConfigs();
+        if (misVista.t === 'cat' && !cats.includes(misVista.nombre)) misVista = { t: 'root' };
+        let html = '';
+        if (misVista.t === 'root') {
+          const sueltas = misConfigs.filter(c => !(c.categoria || '').trim());
+          if (cats.length) html += `<div class="im-chips-grid">${cats.map(cat => chipCat(cat, misConfigs.filter(k => (k.categoria || '').trim() === cat).length)).join('')}</div>`;
+          if (cats.length && sueltas.length) html += `<h4 class="im-lista-titulo">${escapeHtml(x.misSinCat)}</h4>`;
+          if (sueltas.length) html += `<div class="im-fichas-grid">${sueltas.map(fichaCfg).join('')}</div>`;
+        } else {
+          const visibles = misConfigs.filter(c => (c.categoria || '').trim() === misVista.nombre);
+          html += `<button class="secondary-btn" type="button" data-misvolver="1" style="margin-bottom:14px;"><span>← ${state.interfaceLanguage === 'en' ? 'Back' : 'Volver'}</span></button>`;
+          html += `<h2 class="im-mis-enc">${escapeHtml(misVista.nombre)}</h2>`;
+          html += `<div class="im-fichas-grid">${visibles.map(fichaCfg).join('')}</div>`;
         }
-        if (btn.dataset.accion === 'copiar') copyText(cfg.contenido, tt().copiar + ' ✓');
-        if (btn.dataset.accion === 'eliminar') {
-          if (!confirm(tt().confirmaEliminar)) return;
-          await db.from('user_configs').delete().eq('id', cfg.id);
-          misConfigs = misConfigs.filter(c => c.id !== cfg.id);
-          renderMisConfigs(); renderCuadernos(); showToast(tt().eliminado);
+        $('imMisList').innerHTML = html;
+        if (cfgDetalleId !== null) {
+          const c = misConfigs.find(k => String(k.id) === String(cfgDetalleId));
+          if (!c) cerrarDetalleCfg(); else pintarDetalleCfg(c);
+        }
+      }
+
+      function pintarDetalleCfg(c) {
+        $('imCfgDetNombre').textContent = c.nombre;
+        $('imCfgDetMeta').textContent = (c.categoria ? c.categoria + ' · ' : '') + fecha(c.created_at);
+        $('imCfgDetPre').textContent = c.contenido;
+      }
+      function cerrarDetalleCfg() {
+        cfgDetalleId = null;
+        $('imModalCfgDet').classList.remove('abierto');
+      }
+
+      $('imMisList').addEventListener('click', (e) => {
+        if (e.target.closest('[data-misvolver]')) { misVista = { t: 'root' }; renderMisConfigs(); return; }
+        const chip = e.target.closest('[data-miscat]');
+        if (chip) { misVista = { t: 'cat', nombre: chip.dataset.miscat }; renderMisConfigs(); window.scrollTo(0, 0); return; }
+        const ficha = e.target.closest('[data-miscfg]');
+        if (ficha) {
+          const c = misConfigs.find(k => String(k.id) === ficha.dataset.miscfg);
+          if (!c) return;
+          cfgDetalleId = c.id;
+          pintarDetalleCfg(c);
+          $('imModalCfgDet').classList.add('abierto');
         }
       });
+      $('imCfgDetCopiar').addEventListener('click', () => {
+        const c = misConfigs.find(k => String(k.id) === String(cfgDetalleId));
+        if (c) copyText(c.contenido, tt().copiar + ' ✓');
+      });
+      $('imCfgDetEliminar').addEventListener('click', async () => {
+        const c = misConfigs.find(k => String(k.id) === String(cfgDetalleId));
+        if (!c || !confirm(tt().confirmaEliminar)) return;
+        await db.from('user_configs').delete().eq('id', c.id);
+        misConfigs = misConfigs.filter(k => k.id !== c.id);
+        cerrarDetalleCfg();
+        renderMisConfigs(); renderCuadernos(); showToast(tt().eliminado);
+      });
+      $('imCfgDetCerrar').addEventListener('click', cerrarDetalleCfg);
+      $('imModalCfgDet').addEventListener('click', (e) => { if (e.target.id === 'imModalCfgDet') cerrarDetalleCfg(); });
 
       function abrirModalNombre(contenido, itemUuid) {
         if (!contenido || !contenido.trim()) { showToast(tt().generaPrimero); return; }
@@ -2751,6 +2846,7 @@ ${clean}`;
         varGrupo: '— Tus variantes —', varEditarBtn: 'Editar',
         cerrarDet: 'Cerrar',
         cfgCuadTitulo: 'Configuración del cuaderno',
+        cfgN: 'configuraciones', cfgN1: 'configuración', misSinCat: 'Sin categoría',
         hojaSinChats: 'Aún no guardas chats de este cuaderno.',
       });
       Object.assign(IM_TEXT.en, {
@@ -2769,6 +2865,7 @@ ${clean}`;
         varGrupo: '— Your variants —', varEditarBtn: 'Edit',
         cerrarDet: 'Close',
         cfgCuadTitulo: 'Notebook configuration',
+        cfgN: 'configurations', cfgN1: 'configuration', misSinCat: 'Uncategorized',
         hojaSinChats: 'No chats saved for this notebook yet.',
       });
 
@@ -4078,6 +4175,9 @@ ${clean}`;
         $('imVarNombre').placeholder = x.varPhNombre; $('imVarTexto').placeholder = x.varPhTexto;
         $('imVarCancelar').querySelector('span').textContent = x.btnCancelar;
         $('imVarGuardar').querySelector('span').textContent = x.btnGuardar;
+        $('imCfgDetCopiar').querySelector('span').textContent = x.copiar;
+        $('imCfgDetEliminar').querySelector('span').textContent = x.eliminar;
+        $('imCfgDetCerrar').querySelector('span').textContent = x.cerrarDet;
         renderVariantes();
         $('imModalTitulo').textContent = x.modalTitulo;
         $('imModalCatLabel').textContent = x.lblCatOpc;
@@ -4096,6 +4196,10 @@ ${clean}`;
         if (tab === 'cuadernos') {
           chatsAbiertos.clear(); menuAbierto = null; cuadVista = { t: 'root' };
           renderCuadernos();
+        }
+        if (tab === 'misconfigs') {
+          misVista = { t: 'root' }; cerrarDetalleCfg();
+          renderMisConfigs();
         }
         imSwitchTabOrig(tab);
       };
