@@ -350,6 +350,9 @@
     .field textarea { resize: vertical; min-height: 110px; line-height: 1.45; }
     .other-language { display: none; margin-top: 6px; }
     .other-language.show { display: block; }
+    /* El botón de guardar variante solo acompaña al campo Otro visible */
+    #imGuardarVar { display: none; margin-top: 8px; }
+    #otherVariant.show + #imGuardarVar { display: inline-flex; }
     .controls-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
     .config-output { display: grid; gap: 12px; }
     .output-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -544,6 +547,8 @@
     .im-modal-caja h3 { margin: 0 0 14px; font-size: 1.05rem; }
     .im-modal-caja input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; }
     .im-modal-caja input:focus { border-color: var(--accent); }
+    .im-modal-caja textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; resize: vertical; min-height: 110px; }
+    .im-modal-caja textarea:focus { border-color: var(--accent); }
     .im-modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
     .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: var(--surface); }
     .im-modal-caja select:focus { border-color: var(--accent); }
@@ -653,6 +658,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
             <span id="imTabMis">Mis configuraciones</span>
           </button>
+          <button class="sidebar-link" data-tab="variantes" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"></path></svg>
+            <span id="imTabVar">Tus variantes</span>
+          </button>
           <button class="sidebar-link" data-tab="cuadernos" type="button">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             <span id="imTabCuad">Mis cuadernos</span>
@@ -740,6 +749,7 @@
                   <label for="variantSelect">Tu situación / variante</label>
                   <select id="variantSelect" data-other-target="otherVariant"></select>
                   <input id="otherVariant" class="other-language" type="text" placeholder="Describe tu situación específica">
+                  <button id="imGuardarVar" class="secondary-btn" type="button"><span>Guardar como variante</span></button>
                 </div>
                 <div class="field">
                   <label for="platformSelect">Plataforma</label>
@@ -1084,6 +1094,21 @@
         <div id="imMisVacio" class="empty" style="display:none"></div>
       </section>
 
+      <section id="variantes" class="section">
+        <div class="hero"><div class="intro">
+          <p class="eyebrow" id="imVarEyebrow">Tu espacio</p>
+          <h2 id="imVarTitulo">Tus variantes, listas en un clic.</h2>
+          <p id="imVarCopy">Guarda una vez tu situación (tu negocio, tu trabajo, tu caso) y úsala en cualquier configuración del catálogo eligiéndola en el desplegable de variante.</p>
+        </div></div>
+        <div class="im-toolbar">
+          <div class="im-toolbar-acciones">
+            <button id="imBtnNuevaVar" class="primary-btn" type="button"><span>Crear variante</span></button>
+          </div>
+        </div>
+        <div id="imVarList" class="config-list-rich"></div>
+        <div id="imVarVacio" class="empty" style="display:none"></div>
+      </section>
+
       <section id="cuadernos" class="section">
         <div class="hero"><div class="intro">
           <p class="eyebrow" id="imCuadEyebrow">Tu espacio</p>
@@ -1125,6 +1150,21 @@
       <div class="im-modal-acciones">
         <button id="imModalCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imModalGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: crear/editar una variante propia del usuario -->
+  <div id="imModalVar" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imVarModalTitulo">Guarda tu variante</h3>
+      <label class="im-modal-label" id="imVarLblNombre">Nombre corto</label>
+      <input id="imVarNombre" type="text" placeholder="Ej: Mi negocio de repostería" />
+      <label class="im-modal-label" id="imVarLblTexto">Tu situación</label>
+      <textarea id="imVarTexto" rows="5" placeholder="Describe tu situación tal como se la contarías a un experto..."></textarea>
+      <div class="im-modal-acciones">
+        <button id="imVarCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imVarGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
       </div>
     </div>
   </div>
@@ -1930,6 +1970,16 @@ NEVER:
       return select.value === 'Otro' ? (other.value.trim() || fallback) : select.value;
     }
 
+    // La situación del usuario: escrita en el campo Otro, o una de sus
+    // variantes guardadas (opciones uv:<id>, cargadas en window.__IM_VARS)
+    function esModoOtro(valor) { return valor === 'Otro' || valor.startsWith('uv:'); }
+    function situacionOtro() {
+      const v = document.getElementById('variantSelect').value;
+      if (v === 'Otro') return document.getElementById('otherVariant').value.trim();
+      if (v.startsWith('uv:')) return (window.__IM_VARS?.get(v.slice(3))?.situacion || '').trim();
+      return '';
+    }
+
     function injectExtraBlock(template, heading, text) {
       const clean = (text || '').trim();
       if (!clean) return template;
@@ -1960,7 +2010,7 @@ ${clean}`;
         MAX_QUESTIONS: maxQuestions,
         PLATFORM: platform
       };
-      const customSituation = document.getElementById('variantSelect').value === 'Otro' ? document.getElementById('otherVariant').value.trim() : '';
+      const customSituation = situacionOtro();
       // Con "Otro": los 555 roles tienen su plantilla propia (otro_template)
       // y la situación del usuario se teje directo en el texto donde antes
       // vivía el nicho. El botón Generar espera la plantilla si aún no llegó.
@@ -2176,7 +2226,7 @@ ${clean}`;
       });
       el.variantSelect.addEventListener('change', event => {
         toggleOtherLanguage(event.target);
-        if (event.target.value !== 'Otro') selectVariant(event.target.value, { resetPlatform: false });
+        if (!esModoOtro(event.target.value)) selectVariant(event.target.value, { resetPlatform: false });
         hideConfigResult();
       });
       el.backToList.addEventListener('click', closeDrawer);
@@ -2269,7 +2319,7 @@ ${clean}`;
         // Si eligió Otro y la plantilla del rol aún no llegó, se espera aquí
         const v0 = state.selectedGroup?.variants?.[0]?.config;
         if (v0 && v0.otro_template === undefined && window.__IM?.traerPlantillaOtro &&
-            document.getElementById('variantSelect')?.value === 'Otro') {
+            esModoOtro(document.getElementById('variantSelect')?.value || '')) {
           btnGenerar.disabled = true;
           try { v0.otro_template = (await window.__IM.traerPlantillaOtro(v0.id)) || null; }
           finally { btnGenerar.disabled = false; }
@@ -2536,6 +2586,160 @@ ${clean}`;
       $('imModalInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmarGuardado(); });
       $('imModalCancelar').addEventListener('click', () => $('imModalNombre').classList.remove('abierto'));
       $('imModalNombre').addEventListener('click', (e) => { if (e.target.id === 'imModalNombre') e.target.classList.remove('abierto'); });
+
+      // ── Tus variantes: situaciones propias reutilizables en los 555 roles ──
+      Object.assign(IM_TEXT.es, {
+        tabVar: 'Tus variantes',
+        varTitulo: 'Tus variantes, listas en un clic.',
+        varCopy: 'Guarda una vez tu situación (tu negocio, tu trabajo, tu caso) y úsala en cualquier configuración del catálogo eligiéndola en el desplegable de variante.',
+        varVacio: 'Aún no guardas ninguna variante. Créala aquí, o escribe tu situación en el campo "Otro" de cualquier configuración y presiona "Guardar como variante".',
+        varNuevaBtn: 'Crear variante', varGuardarComo: 'Guardar como variante',
+        varModalNueva: 'Guarda tu variante', varModalEditar: 'Edita tu variante',
+        varLblNombre: 'Nombre corto', varLblTexto: 'Tu situación',
+        varPhNombre: 'Ej: Mi negocio de repostería',
+        varPhTexto: 'Describe tu situación tal como se la contarías a un experto...',
+        varGuardada: 'Variante guardada', varActualizada: 'Variante actualizada', varEliminada: 'Variante eliminada',
+        varConfirmaEliminar: '¿Eliminar esta variante? Las configuraciones que ya generaste no se pierden.',
+        varTextoVacio: 'Escribe la situación antes de guardar.', varNombreVacio: 'Ponle un nombre corto para reconocerla.',
+        varGrupo: '— Tus variantes —', varEditarBtn: 'Editar',
+      });
+      Object.assign(IM_TEXT.en, {
+        tabVar: 'Your variants',
+        varTitulo: 'Your variants, one click away.',
+        varCopy: 'Save your situation once (your business, your job, your case) and use it in any configuration of the catalog by picking it in the variant dropdown.',
+        varVacio: 'No variants saved yet. Create one here, or type your situation in the "Other" field of any configuration and press "Save as variant".',
+        varNuevaBtn: 'Create variant', varGuardarComo: 'Save as variant',
+        varModalNueva: 'Save your variant', varModalEditar: 'Edit your variant',
+        varLblNombre: 'Short name', varLblTexto: 'Your situation',
+        varPhNombre: 'E.g.: My bakery business',
+        varPhTexto: 'Describe your situation as you would tell it to an expert...',
+        varGuardada: 'Variant saved', varActualizada: 'Variant updated', varEliminada: 'Variant deleted',
+        varConfirmaEliminar: 'Delete this variant? Configurations you already generated are not lost.',
+        varTextoVacio: 'Write the situation before saving.', varNombreVacio: 'Give it a short name to recognize it.',
+        varGrupo: '— Your variants —', varEditarBtn: 'Edit',
+      });
+
+      let misVariantes = [];
+      let varEnEdicion = null;
+      window.__IM_VARS = new Map();
+
+      async function cargarVariantes() {
+        const { data } = await db.from('user_variantes')
+          .select('id,nombre,situacion,created_at')
+          .eq('product_id', IM.productId)
+          .order('created_at', { ascending: false });
+        misVariantes = data ?? [];
+        window.__IM_VARS = new Map(misVariantes.map(v => [String(v.id), v]));
+        renderVariantes();
+      }
+
+      function renderVariantes() {
+        $('imVarVacio').style.display = misVariantes.length ? 'none' : 'block';
+        $('imVarVacio').textContent = tt().varVacio;
+        $('imVarList').innerHTML = misVariantes.map(v => `
+          <div class="im-row" data-imvar="${v.id}">
+            <h3>${escapeHtml(v.nombre)}</h3>
+            <div class="im-meta">${fecha(v.created_at)}</div>
+            <pre class="im-pre"></pre>
+            <div class="im-row-acciones">
+              <button class="secondary-btn" type="button" data-accion="ver"><span>${escapeHtml(tt().ver)}</span></button>
+              <button class="secondary-btn" type="button" data-accion="editar"><span>${escapeHtml(tt().varEditarBtn)}</span></button>
+              <button class="secondary-btn" type="button" data-accion="eliminar"><span>${escapeHtml(tt().eliminar)}</span></button>
+            </div>
+          </div>`).join('');
+      }
+
+      // Las variantes del usuario entran al desplegable de variante de cada rol
+      const drawerSinVariantes = openDrawer;
+      openDrawer = function (groupId) {
+        drawerSinVariantes(groupId);
+        agregarOpcionesVariantes(null);
+      };
+      function agregarOpcionesVariantes(seleccionar) {
+        const sel = el.variantSelect;
+        if (!sel) return;
+        sel.querySelectorAll('option[data-uv]').forEach(o => o.remove());
+        if (!misVariantes.length) return;
+        const sep = document.createElement('option');
+        sep.disabled = true; sep.textContent = tt().varGrupo; sep.dataset.uv = '1';
+        sel.appendChild(sep);
+        misVariantes.forEach(v => {
+          const o = document.createElement('option');
+          o.value = 'uv:' + v.id; o.textContent = v.nombre; o.dataset.uv = '1';
+          sel.appendChild(o);
+        });
+        if (seleccionar) {
+          sel.value = 'uv:' + seleccionar;
+          sel.dispatchEvent(new Event('change'));
+        }
+      }
+
+      function abrirModalVar(variante, situacionInicial) {
+        varEnEdicion = variante ?? null;
+        const x = tt();
+        $('imVarModalTitulo').textContent = variante ? x.varModalEditar : x.varModalNueva;
+        $('imVarNombre').value = variante?.nombre ?? '';
+        $('imVarTexto').value = variante?.situacion ?? situacionInicial ?? '';
+        $('imModalVar').classList.add('abierto');
+        $('imVarNombre').focus();
+      }
+
+      async function guardarVariante() {
+        const nombre = $('imVarNombre').value.trim();
+        const situacion = $('imVarTexto').value.trim();
+        const x = tt();
+        if (!nombre) { showToast(x.varNombreVacio); return; }
+        if (!situacion) { showToast(x.varTextoVacio); return; }
+        if (varEnEdicion) {
+          const { error } = await db.from('user_variantes').update({ nombre, situacion }).eq('id', varEnEdicion.id);
+          if (error) { showToast(tt().noGuardo); return; }
+          showToast(x.varActualizada);
+        } else {
+          const { data, error } = await db.from('user_variantes')
+            .insert({ user_id: IM.userId, product_id: IM.productId, nombre, situacion })
+            .select('id').single();
+          if (error) { showToast(tt().noGuardo); return; }
+          showToast(x.varGuardada);
+          await cargarVariantes();
+          // Si el usuario venía del campo Otro de un rol, su variante nueva
+          // queda seleccionada de una vez en el desplegable
+          if (data && el.configDetailView.style.display !== 'none') agregarOpcionesVariantes(String(data.id));
+          $('imModalVar').classList.remove('abierto');
+          varEnEdicion = null;
+          return;
+        }
+        $('imModalVar').classList.remove('abierto');
+        varEnEdicion = null;
+        cargarVariantes();
+      }
+
+      $('imBtnNuevaVar').addEventListener('click', () => abrirModalVar(null));
+      $('imGuardarVar').addEventListener('click', () => abrirModalVar(null, document.getElementById('otherVariant').value.trim()));
+      $('imVarGuardar').addEventListener('click', guardarVariante);
+      $('imVarCancelar').addEventListener('click', () => $('imModalVar').classList.remove('abierto'));
+      $('imModalVar').addEventListener('click', (e) => { if (e.target.id === 'imModalVar') e.target.classList.remove('abierto'); });
+
+      $('imVarList').addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-accion]');
+        if (!btn) return;
+        const fila = btn.closest('[data-imvar]');
+        const variante = misVariantes.find(v => String(v.id) === fila.dataset.imvar);
+        if (!variante) return;
+        if (btn.dataset.accion === 'ver') {
+          const pre = fila.querySelector('.im-pre');
+          pre.textContent = variante.situacion;
+          pre.style.display = pre.style.display === 'block' ? 'none' : 'block';
+        }
+        if (btn.dataset.accion === 'editar') abrirModalVar(variante);
+        if (btn.dataset.accion === 'eliminar') {
+          if (!confirm(tt().varConfirmaEliminar)) return;
+          await db.from('user_variantes').delete().eq('id', variante.id);
+          misVariantes = misVariantes.filter(v => v.id !== variante.id);
+          window.__IM_VARS.delete(String(variante.id));
+          renderVariantes();
+          showToast(tt().varEliminada);
+        }
+      });
 
       // ── Mis cuadernos: navegador jerárquico (categorías → subcategorías → cuadernos) ──
       Object.assign(IM_TEXT.es, {
@@ -3592,6 +3796,16 @@ ${clean}`;
         $('imFavTitulo').textContent = x.favTitulo; $('imFavCopy').textContent = x.favCopy;
         $('imMisTitulo').textContent = x.misTitulo; $('imMisCopy').textContent = x.misCopy;
         $('imCuadTitulo').textContent = x.cuadTitulo; $('imCuadCopy').textContent = x.cuadCopy;
+        $('imTabVar').textContent = x.tabVar;
+        $('imVarEyebrow').textContent = x.espacio;
+        $('imVarTitulo').textContent = x.varTitulo; $('imVarCopy').textContent = x.varCopy;
+        $('imBtnNuevaVar').querySelector('span').textContent = x.varNuevaBtn;
+        $('imGuardarVar').querySelector('span').textContent = x.varGuardarComo;
+        $('imVarLblNombre').textContent = x.varLblNombre; $('imVarLblTexto').textContent = x.varLblTexto;
+        $('imVarNombre').placeholder = x.varPhNombre; $('imVarTexto').placeholder = x.varPhTexto;
+        $('imVarCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imVarGuardar').querySelector('span').textContent = x.btnGuardar;
+        renderVariantes();
         $('imModalTitulo').textContent = x.modalTitulo;
         $('imModalCatLabel').textContent = x.lblCatOpc;
         $('imSaveConfig').querySelector('span').textContent = x.btnGuardarCfg;
@@ -3614,7 +3828,7 @@ ${clean}`;
       };
 
       actualizarTextosIM();
-      cargarFavoritos(); cargarMisConfigs(); cargarCuadernos();
+      cargarFavoritos(); cargarMisConfigs(); cargarCuadernos(); cargarVariantes();
     })();
   }
   </script>
