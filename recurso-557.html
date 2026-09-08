@@ -681,6 +681,44 @@
     /* Popup del cuaderno: la ficha completa de siempre, en grande */
     .im-modal-caja.im-caja-cuad { max-width: 660px; width: calc(100% - 32px); max-height: 86vh; overflow-y: auto; }
     .im-caja-cuad .im-row { border: none; background: none; padding: 0; margin: 0; }
+    /* El popup es la página del cuaderno: espiral al borde y hoja rayada de chats */
+    #imCuadDetCuerpo { position: relative; padding-left: 34px; }
+    #imCuadDetCuerpo::before {
+      content: ''; position: absolute; left: -24px; top: -24px; bottom: -12px; width: 22px;
+      background: var(--accent-soft); border-right: 1px solid var(--line);
+    }
+    #imCuadDetCuerpo::after {
+      content: ''; position: absolute; left: -16px; top: -6px; bottom: 6px; width: 5px;
+      background-image: radial-gradient(circle, var(--accent) 2px, transparent 2.4px);
+      background-size: 5px 16px; background-repeat: repeat-y; opacity: 0.65;
+    }
+    .im-sub-label { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .im-hoja-medio { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+    .im-hoja-abrir { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .im-btn-apagado {
+      display: inline-block; background: color-mix(in srgb, var(--line) 40%, var(--surface));
+      color: var(--muted); border: 1px solid var(--line); border-radius: 10px;
+      padding: 10px 18px; font-size: 0.88rem; font-weight: 800; cursor: not-allowed; opacity: 0.85;
+    }
+    .im-hoja-chats-cab { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
+    .im-hoja-renglones { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; max-height: 190px; overflow-y: auto; }
+    .im-hoja-papel {
+      min-height: 100%;
+      background:
+        linear-gradient(to right, transparent 26px, color-mix(in srgb, #e8a9b8 65%, transparent) 26px 27px, transparent 27px),
+        repeating-linear-gradient(to bottom, var(--surface) 0 45px, color-mix(in srgb, var(--accent-soft) 60%, var(--surface)) 45px 46px);
+    }
+    .im-renglon { position: relative; height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 38px; }
+    .im-renglon-txt { flex: 1; min-width: 0; font-size: 0.88rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .im-renglon-vacio { color: var(--muted); font-size: 0.82rem; }
+    .im-chat-abrir {
+      flex: none; border: 1px solid var(--line); color: var(--accent-hover); background: var(--surface);
+      border-radius: 8px; padding: 4px 13px; font-size: 0.76rem; font-weight: 800; text-decoration: none;
+    }
+    .im-chat-abrir:hover { border-color: var(--accent); }
+    .im-chat-abrir.apagado { color: var(--muted); cursor: not-allowed; pointer-events: none; }
+    .im-renglon .im-menu-btn { position: static; padding: 2px 6px; }
+    .im-renglon .im-menu { top: 36px; right: 10px; }
     .im-modal-conectar { max-width: 640px; max-height: 88vh; overflow-y: auto; }
     .im-modal-conectar textarea { font-size: 0.78rem; line-height: 1.5; }
     .im-con-cab { display: flex; align-items: flex-start; gap: 10px; }
@@ -2692,6 +2730,8 @@ ${clean}`;
         varTextoVacio: 'Escribe la situación antes de guardar.', varNombreVacio: 'Ponle un nombre corto para reconocerla.',
         varGrupo: '— Tus variantes —', varEditarBtn: 'Editar',
         cerrarDet: 'Cerrar',
+        cfgCuadTitulo: 'Configuración del cuaderno',
+        hojaSinChats: 'Aún no guardas chats de este cuaderno.',
       });
       Object.assign(IM_TEXT.en, {
         tabVar: 'Your variants',
@@ -2708,6 +2748,8 @@ ${clean}`;
         varTextoVacio: 'Write the situation before saving.', varNombreVacio: 'Give it a short name to recognize it.',
         varGrupo: '— Your variants —', varEditarBtn: 'Edit',
         cerrarDet: 'Close',
+        cfgCuadTitulo: 'Notebook configuration',
+        hojaSinChats: 'No chats saved for this notebook yet.',
       });
 
       let misVariantes = [];
@@ -2844,7 +2886,7 @@ ${clean}`;
         nuevaCatOpt: '➕ Nueva categoría…', nuevaSubOpt: '➕ Nueva subcategoría…', sinCatOpt: 'Sin categoría', sinSubOpt: 'Sin subcategoría',
         editar: 'Editar', mover: 'Mover', catGuardada: 'Guardado', movido: 'Cuaderno movido', nCuad: 'cuadernos', raizTitulo: '',
         tituloCats: 'Categorías', tituloSubs: 'Subcategorías', sinCatTitulo: 'Cuadernos sin categoría', sinSubTitulo: 'Cuadernos sin subcategoría',
-        abrirGemini: 'Abrir en Gemini', abrirNotebook: 'Abrir en NotebookLM',
+        abrirGemini: 'Abrir en Gemini', abrirNotebook: 'Abrir en Notebook',
         chats: 'Chats', guardarChat: '＋ Guardar chat', tNuevoChat: 'Guardar chat', tEditarChat: 'Editar chat',
         lblTituloChat: 'Título', lblUrlChat: 'Link del chat (opcional)', lblNotaChat: 'Objetivo (opcional)', chatGuardado: 'Chat guardado', abrirChat: 'Abrir chat',
         tMoverSub: 'Mover subcategoría', lblCatDestino: 'Categoría destino', subMovida: 'Subcategoría movida', sinDestino: 'No hay otra categoría a dónde moverla: crea una primero',
@@ -2890,7 +2932,7 @@ ${clean}`;
         nuevaCatOpt: '➕ New category…', nuevaSubOpt: '➕ New subcategory…', sinCatOpt: 'No category', sinSubOpt: 'No subcategory',
         editar: 'Edit', mover: 'Move', catGuardada: 'Saved', movido: 'Notebook moved', nCuad: 'notebooks', raizTitulo: '',
         tituloCats: 'Categories', tituloSubs: 'Subcategories', sinCatTitulo: 'Uncategorized notebooks', sinSubTitulo: 'Notebooks without subcategory',
-        abrirGemini: 'Open in Gemini', abrirNotebook: 'Open in NotebookLM',
+        abrirGemini: 'Open in Gemini', abrirNotebook: 'Open in Notebook',
         chats: 'Chats', guardarChat: '＋ Save chat', tNuevoChat: 'Save chat', tEditarChat: 'Edit chat',
         lblTituloChat: 'Title', lblUrlChat: 'Chat link (optional)', lblNotaChat: 'Objective (optional)', chatGuardado: 'Chat saved', abrirChat: 'Open chat',
         tMoverSub: 'Move subcategory', lblCatDestino: 'Destination category', subMovida: 'Subcategory moved', sinDestino: 'No other category to move it to: create one first',
@@ -3016,21 +3058,25 @@ ${clean}`;
         renderCuadernos();
       }
 
+      function menuChatHtml(chId) {
+        const x = tt();
+        return `
+          <div class="im-menu">
+            <button type="button" data-chataccion="editar" data-chid="${chId}">${escapeHtml(x.editar)}</button>
+            <button type="button" data-chataccion="eliminar" data-chid="${chId}">${escapeHtml(x.eliminar)}</button>
+          </div>`;
+      }
+      // Cada chat es una entrada escrita sobre su renglón de la hoja
       function filaChatC(ch) {
         const x = tt();
         return `
-          <div class="im-chat-sub">
-            <button class="im-menu-btn" type="button" data-menuchat="${ch.id}">⋮</button>
-            ${menuAbierto === 'chat-' + ch.id ? `
-              <div class="im-menu">
-                <button type="button" data-chataccion="editar" data-chid="${ch.id}">${escapeHtml(x.editar)}</button>
-                <button type="button" data-chataccion="eliminar" data-chid="${ch.id}">${escapeHtml(x.eliminar)}</button>
-              </div>` : ''}
-            <h4>${escapeHtml(ch.titulo)}</h4>
-            ${ch.nota ? `<p class="nota">${escapeHtml(ch.nota)}</p>` : ''}
+          <div class="im-renglon">
+            <span class="im-renglon-txt" title="${escapeHtml(ch.nota || ch.titulo)}">${escapeHtml(ch.titulo)}</span>
             ${ch.url
-              ? `<a class="primary-btn" href="${escapeHtml(ch.url)}" target="_blank" rel="noopener" style="font-size:0.8rem; padding:7px 14px;"><span>${escapeHtml(x.abrirChat)}</span></a>`
-              : `<span class="im-pend">${escapeHtml(x.linkPendiente)}</span>`}
+              ? `<a class="im-chat-abrir" href="${escapeHtml(ch.url)}" target="_blank" rel="noopener">${escapeHtml(x.abrirChat)}</a>`
+              : `<span class="im-chat-abrir apagado" title="${escapeHtml(x.linkPendiente)}">${escapeHtml(x.abrirChat)}</span>`}
+            <button class="im-menu-btn" type="button" data-menuchat="${ch.id}">⋮</button>
+            ${menuAbierto === 'chat-' + ch.id ? menuChatHtml(ch.id) : ''}
           </div>`;
       }
 
@@ -3053,31 +3099,43 @@ ${clean}`;
           </div>`;
       }
 
+      // La página del cuaderno: objetivo bajo el título, configuración con su
+      // subtítulo, botones de abrir centrados a la derecha (apagados si falta
+      // el link) y los chats como renglones de una hoja rayada con scroll
       function filaCuaderno(c) {
         const x = tt();
         const cs = chatsDe(c.id);
-        const abierto = chatsAbiertos.has(c.id);
         const uGem = c.url_gemini;
         const uNb = c.url_notebook ?? c.url;   // filas viejas: el link único era de NotebookLM
         const cfg = c.config_id ? misConfigs.find(k => k.id === c.config_id) : null;
+        const btnAbrir = (url, etiqueta) => url
+          ? `<a class="primary-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener"><span>${escapeHtml(etiqueta)}</span></a>`
+          : `<span class="im-btn-apagado" title="${escapeHtml(x.linkPendiente)}">${escapeHtml(etiqueta)}</span>`;
         return `
           <div class="im-row" data-imcuad="${c.id}">
             <button class="im-menu-btn" type="button" data-menucuad="${c.id}">⋮</button>
             ${menuAbierto === 'cuad-' + c.id ? menuCuadHtml() : ''}
             <h3>${escapeHtml(c.titulo)}</h3>
             ${objetivoHtml(c)}
-            ${cfg ? `<div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>` : ''}
-            <div class="im-row-acciones">
-              ${uGem ? `<a class="primary-btn" href="${escapeHtml(uGem)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirGemini)}</span></a>` : ''}
-              ${uNb ? `<a class="primary-btn" href="${escapeHtml(uNb)}" target="_blank" rel="noopener"><span>${escapeHtml(x.abrirNotebook)}</span></a>` : ''}
-              ${!uGem && !uNb ? `<span class="im-pend">${escapeHtml(x.linkPendiente)}</span>` : ''}
-              <button class="secondary-btn" type="button" data-togglechats="${c.id}"><span>💬 ${escapeHtml(x.chats)} (${cs.length}) ${abierto ? '▴' : '▾'}</span></button>
+            <div class="im-hoja-medio">
+              <div>
+                ${cfg ? `<div class="im-sub-label">${escapeHtml(x.cfgCuadTitulo)}</div>
+                <div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>` : ''}
+              </div>
+              <div class="im-hoja-abrir">
+                ${btnAbrir(uGem, x.abrirGemini)}
+                ${btnAbrir(uNb, x.abrirNotebook)}
+              </div>
             </div>
-            ${abierto ? `
-              <div class="im-cuad-chats">
-                ${cs.map(filaChatC).join('')}
-                <button class="secondary-btn" type="button" data-nuevochat="${c.id}"><span>${escapeHtml(x.guardarChat)}</span></button>
-              </div>` : ''}
+            <div class="im-hoja-chats-cab">
+              <div class="im-sub-label">${escapeHtml(x.chats)} (${cs.length})</div>
+              <button class="secondary-btn" type="button" data-nuevochat="${c.id}"><span>${escapeHtml(x.guardarChat)}</span></button>
+            </div>
+            <div class="im-hoja-renglones">
+              <div class="im-hoja-papel">
+                ${cs.length ? cs.map(filaChatC).join('') : `<div class="im-renglon im-renglon-vacio">${escapeHtml(x.hojaSinChats)}</div>`}
+              </div>
+            </div>
           </div>`;
       }
 
@@ -3297,8 +3355,24 @@ ${clean}`;
         const menuChat = e.target.closest('[data-menuchat]');
         if (menuChat) {
           const clave = 'chat-' + menuChat.dataset.menuchat;
-          menuAbierto = menuAbierto === clave ? null : clave;
-          renderCuadernos(); e.stopPropagation(); return;
+          cerrarMenus();
+          if (menuAbierto === clave) menuAbierto = null;
+          else {
+            menuAbierto = clave;
+            menuChat.insertAdjacentHTML('afterend', menuChatHtml(menuChat.dataset.menuchat));
+            // El renglón vive dentro de la hoja con scroll: el menú se saca a
+            // posición fija para que no lo recorte, y se cierra si scrollean
+            const m = menuChat.nextElementSibling;
+            const r = menuChat.getBoundingClientRect();
+            m.style.position = 'fixed';
+            m.style.top = (r.bottom + 4) + 'px';
+            m.style.left = Math.max(8, r.right - 140) + 'px';
+            m.style.right = 'auto';
+            menuChat.closest('.im-hoja-renglones')?.addEventListener('scroll', () => {
+              if (menuAbierto === clave) { menuAbierto = null; cerrarMenus(); }
+            }, { once: true });
+          }
+          e.stopPropagation(); return;
         }
         const menuCuadBtn = e.target.closest('[data-menucuad]');
         if (menuCuadBtn) {
