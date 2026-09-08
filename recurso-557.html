@@ -2736,8 +2736,11 @@ ${clean}`;
           if (sueltas.length) html += `<div class="im-fichas-grid">${sueltas.map(fichaCfg).join('')}</div>`;
         } else {
           const visibles = misConfigs.filter(c => (c.categoria || '').trim() === misVista.nombre);
-          html += `<button class="secondary-btn" type="button" data-misvolver="1" style="margin-bottom:14px;"><span>← ${state.interfaceLanguage === 'en' ? 'Back' : 'Volver'}</span></button>`;
-          html += `<h2 class="im-mis-enc">${escapeHtml(misVista.nombre)}</h2>`;
+          html += `
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+              <button class="secondary-btn" type="button" data-misvolver="1" style="flex:none;"><span>← ${state.interfaceLanguage === 'en' ? 'Back' : 'Volver'}</span></button>
+              <h2 class="im-mis-enc" style="margin:0;">${escapeHtml(misVista.nombre)}</h2>
+            </div>`;
           html += `<div class="im-fichas-grid">${visibles.map(fichaCfg).join('')}</div>`;
         }
         $('imMisList').innerHTML = html;
