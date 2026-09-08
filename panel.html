@@ -16,7 +16,10 @@
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%);
       color: var(--white); min-height: 100vh; padding: 24px;
+      /* Las tablas anchas scrollean dentro de .tabla-scroll; la página nunca */
+      overflow-x: clip;
     }
+    @media (max-width: 640px) { body { padding: 16px 12px; } .caja { padding: 20px 14px; } }
     .nav { display: flex; align-items: center; justify-content: space-between; max-width: 860px; margin: 0 auto 26px; }
     .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; }
     .nav a { color: #9aacbf; font-size: 0.85rem; text-decoration: none; border: 1px solid rgba(47,107,255,0.4); padding: 8px 16px; border-radius: 8px; }
@@ -36,7 +39,7 @@
     #tablaRecursos.rango th:nth-child(2), #tablaRecursos.rango td:nth-child(2),
     #tablaRecursos.rango th:nth-child(3), #tablaRecursos.rango td:nth-child(3),
     #tablaRecursos.rango th:nth-child(4), #tablaRecursos.rango td:nth-child(4) { display: none; }
-    .tabs { max-width: 860px; margin: 0 auto 14px; display: flex; gap: 8px; }
+    .tabs { max-width: 860px; margin: 0 auto 14px; display: flex; gap: 8px; flex-wrap: wrap; }
     .tab { background: none; border: 1px solid rgba(47,107,255,0.35); color: #9aacbf; padding: 9px 18px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .tab.activa { background: var(--blue-elec); border-color: var(--blue-elec); color: var(--white); }
 
@@ -344,21 +347,39 @@
         if (hasta) { const fin = new Date(hasta + 'T00:00:00-05:00'); fin.setDate(fin.getDate() + 1); r = r.lt(col, fin.toISOString()); }
         return r;
       };
-      const [{ data: leads }, { data: evLeads }, { data: guiasNombres }] = await Promise.all([
+      // Los conteos se agregan EN LA BASE (rpc embudo_leads): contar filas
+      // descargadas mentía porque Supabase corta toda consulta en 1.000 filas
+      const limiteFecha = (v, finDeDia) => {
+        if (!v) return null;
+        const d = new Date(v + 'T00:00:00-05:00');
+        if (finDeDia) d.setDate(d.getDate() + 1);
+        return d.toISOString();
+      };
+      const [{ data: embudo, error: errEmbudo }, { data: leads }, { data: guiasNombres }] = await Promise.all([
+        sb.rpc('embudo_leads', { p_desde: limiteFecha(desde, false), p_hasta: limiteFecha(hasta, true) }),
         filtrarFechas(sb.from('leads_recursos').select('email, slug, guide_id, utm_source, utm_campaign, creada_en'), 'creada_en')
           .order('creada_en', { ascending: false }).limit(1000),
-        filtrarFechas(sb.from('eventos').select('tipo, guide_id').in('tipo', ['visita_landing_recurso', 'apertura_recurso_publico']), 'creado_en').limit(20000),
         sb.from('guides').select('id, titulo'),
       ]);
       leadsActuales = leads ?? [];
       const nombreGuia = new Map((guiasNombres ?? []).map(g => [g.id, g.titulo]));
       const porGuia = new Map();
-      const stat = (id) => { if (!porGuia.has(id)) porGuia.set(id, { visitas: 0, correos: 0, aperturas: 0 }); return porGuia.get(id); };
-      for (const e of (evLeads ?? [])) {
-        if (e.tipo === 'visita_landing_recurso') stat(e.guide_id).visitas++;
-        else stat(e.guide_id).aperturas++;
+      if (errEmbudo) {
+        // Respaldo mientras la función no exista en la base: el método viejo,
+        // que se queda corto pasadas 1.000 filas
+        console.warn('embudo_leads no disponible, usando conteo capado', errEmbudo);
+        const { data: evLeads } = await filtrarFechas(sb.from('eventos').select('tipo, guide_id').in('tipo', ['visita_landing_recurso', 'apertura_recurso_publico']), 'creado_en').limit(20000);
+        const stat = (id) => { if (!porGuia.has(id)) porGuia.set(id, { visitas: 0, correos: 0, aperturas: 0 }); return porGuia.get(id); };
+        for (const e of (evLeads ?? [])) {
+          if (e.tipo === 'visita_landing_recurso') stat(e.guide_id).visitas++;
+          else stat(e.guide_id).aperturas++;
+        }
+        for (const l of leadsActuales) stat(l.guide_id).correos++;
+      } else {
+        for (const f of (embudo ?? [])) {
+          porGuia.set(f.guide_id, { visitas: Number(f.visitas), correos: Number(f.correos), aperturas: Number(f.aperturas) });
+        }
       }
-      for (const l of leadsActuales) stat(l.guide_id).correos++;
       const totales = { visitas: 0, correos: 0, aperturas: 0 };
       for (const s of porGuia.values()) { totales.visitas += s.visitas; totales.correos += s.correos; totales.aperturas += s.aperturas; }
       document.getElementById('cardsLeads').innerHTML = [
