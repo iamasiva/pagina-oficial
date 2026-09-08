@@ -592,13 +592,17 @@
     }
     .im-rack-caja {
       position: relative; background: var(--surface); border: 1px solid var(--line);
-      border-radius: 12px; min-height: 96px; padding: 12px 14px 14px;
-      clip-path: polygon(0 34%, 55% 0, 100% 0, 100% 100%, 0 100%);
-      display: flex; align-items: flex-end; justify-content: center; text-align: center;
-      transition: transform 0.15s;
+      border-radius: 12px; min-height: 102px; padding: 12px 14px 14px;
+      clip-path: polygon(0 30%, 55% 0, 100% 0, 100% 100%, 0 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      text-align: center; transition: transform 0.15s;
     }
     .im-rack:hover .im-rack-caja, .im-rack:hover .im-rack-libros { transform: translateY(-3px); }
     .im-rack-caja h3 { margin: 0; font-size: 0.95rem; color: var(--ink); }
+    .im-rack-caja p {
+      margin: 4px 0 0; font-size: 0.75rem; color: var(--muted); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
     .im-rack .im-menu-btn { z-index: 2; color: var(--accent-hover); top: 34px; }
     .im-rack .im-menu { top: 58px; }
     /* Cuadernos: pila con espiral (lomos asomando detrás de la tapa) */
@@ -3056,13 +3060,7 @@ ${clean}`;
         return `
           <div class="im-row" data-imcuad="${c.id}">
             <button class="im-menu-btn" type="button" data-menucuad="${c.id}">⋮</button>
-            ${menuAbierto === 'cuad-' + c.id ? `
-              <div class="im-menu">
-                <button type="button" data-accion="conectar">${escapeHtml(x.conCuaderno)}</button>
-                <button type="button" data-accion="editar">${escapeHtml(x.editar)}</button>
-                <button type="button" data-accion="mover">${escapeHtml(x.mover)}</button>
-                <button type="button" data-accion="eliminar">${escapeHtml(x.eliminar)}</button>
-              </div>` : ''}
+            ${menuAbierto === 'cuad-' + c.id ? menuCuadHtml() : ''}
             <h3>${escapeHtml(c.titulo)}</h3>
             ${objetivoHtml(c)}
             ${cfg ? `<div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>` : ''}
@@ -3106,14 +3104,33 @@ ${clean}`;
         $('imModalCuadDet').classList.remove('abierto');
       }
 
-      function cardNodo(n, count) {
-        const menu = menuAbierto === 'nodo-' + n.id ? `
+      // El menú se construye aparte para poder insertarlo SIN repintar la
+      // cuadrícula (el repintado hacía "caer" la tarjeta al perder el hover)
+      function menuNodoHtml(n) {
+        return `
           <div class="im-menu">
             ${!n.parent_id ? `<button type="button" data-accion="conectar">${escapeHtml(tt().conProyecto)}</button>` : ''}
             <button type="button" data-accion="editar">${escapeHtml(tt().editar)}</button>
             ${n.parent_id ? `<button type="button" data-accion="mover">${escapeHtml(tt().mover)}</button>` : ''}
             <button type="button" data-accion="eliminar">${escapeHtml(tt().eliminar)}</button>
-          </div>` : '';
+          </div>`;
+      }
+      function menuCuadHtml() {
+        const x = tt();
+        return `
+          <div class="im-menu">
+            <button type="button" data-accion="conectar">${escapeHtml(x.conCuaderno)}</button>
+            <button type="button" data-accion="editar">${escapeHtml(x.editar)}</button>
+            <button type="button" data-accion="mover">${escapeHtml(x.mover)}</button>
+            <button type="button" data-accion="eliminar">${escapeHtml(x.eliminar)}</button>
+          </div>`;
+      }
+      function cerrarMenus() {
+        document.querySelectorAll('#imCuadCards .im-menu, #imCuadList .im-menu, #imCuadDetCuerpo .im-menu').forEach(m => m.remove());
+      }
+
+      function cardNodo(n, count) {
+        const menu = menuAbierto === 'nodo-' + n.id ? menuNodoHtml(n) : '';
         // Subcategoría: revistero con lomos asomando y la caja inclinada
         if (n.parent_id) return `
           <div class="im-rack" data-navnodo="${n.id}">
@@ -3123,6 +3140,7 @@ ${clean}`;
             ${menu}
             <div class="im-rack-caja">
               <h3>${escapeHtml(n.nombre)}</h3>
+              ${n.descripcion ? `<p>${escapeHtml(n.descripcion)}</p>` : ''}
             </div>
           </div>`;
         // Categoría raíz: carpeta con pestaña
@@ -3210,8 +3228,13 @@ ${clean}`;
         const menuBtn = e.target.closest('[data-menunodo]');
         if (menuBtn) {
           const clave = 'nodo-' + menuBtn.dataset.menunodo;
-          menuAbierto = menuAbierto === clave ? null : clave;
-          renderCuadernos(); e.stopPropagation(); return;
+          cerrarMenus();
+          if (menuAbierto === clave) menuAbierto = null;
+          else {
+            menuAbierto = clave;
+            menuBtn.insertAdjacentHTML('afterend', menuNodoHtml(nodoDe(menuBtn.dataset.menunodo)));
+          }
+          e.stopPropagation(); return;
         }
         const accion = e.target.closest('[data-accion]');
         if (accion) {
@@ -3274,6 +3297,17 @@ ${clean}`;
           menuAbierto = menuAbierto === clave ? null : clave;
           renderCuadernos(); e.stopPropagation(); return;
         }
+        const menuCuadBtn = e.target.closest('[data-menucuad]');
+        if (menuCuadBtn) {
+          const clave = 'cuad-' + menuCuadBtn.dataset.menucuad;
+          cerrarMenus();
+          if (menuAbierto === clave) menuAbierto = null;
+          else {
+            menuAbierto = clave;
+            menuCuadBtn.insertAdjacentHTML('afterend', menuCuadHtml());
+          }
+          e.stopPropagation(); return;
+        }
         const chAcc = e.target.closest('[data-chataccion]');
         if (chAcc) {
           const ch = chatsC.find(x => x.id === chAcc.dataset.chid);
@@ -3290,12 +3324,6 @@ ${clean}`;
         }
         const nvo = e.target.closest('[data-nuevochat]');
         if (nvo) { abrirModalChatC({ modo: 'crear', cuadernoId: nvo.dataset.nuevochat }); return; }
-        const menuBtn = e.target.closest('[data-menucuad]');
-        if (menuBtn) {
-          const clave = 'cuad-' + menuBtn.dataset.menucuad;
-          menuAbierto = menuAbierto === clave ? null : clave;
-          renderCuadernos(); e.stopPropagation(); return;
-        }
         const accion = e.target.closest('[data-accion]');
         if (!accion) return;
         const fila = accion.closest('[data-imcuad]');
@@ -3313,7 +3341,7 @@ ${clean}`;
 
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.im-menu') && !e.target.closest('.im-menu-btn') && menuAbierto) {
-          menuAbierto = null; renderCuadernos();
+          menuAbierto = null; cerrarMenus();
         }
       });
 
