@@ -1961,17 +1961,13 @@ ${clean}`;
         PLATFORM: platform
       };
       const customSituation = document.getElementById('variantSelect').value === 'Otro' ? document.getElementById('otherVariant').value.trim() : '';
-      // Con "Otro": si el rol ya tiene su plantilla propia (otro_template,
-      // aprobada por lotes), la situación del usuario se teje directo en el
-      // texto donde antes vivía el nicho. Si aún no la tiene, el puente: la
-      // plantilla de la variante con la orden de override
+      // Con "Otro": los 555 roles tienen su plantilla propia (otro_template)
+      // y la situación del usuario se teje directo en el texto donde antes
+      // vivía el nicho. El botón Generar espera la plantilla si aún no llegó.
       const plantillaOtro = (customSituation && state.selectedGroup?.variants?.[0]?.config?.otro_template) || '';
-      let output;
-      if (plantillaOtro) {
-        output = plantillaOtro.replaceAll('{{SITUATION}}', customSituation.replace(/[{}]/g, ''));
-      } else {
-        output = injectExtraBlock(state.selected.config_template, 'SPECIFIC SITUATION', customSituation ? `This configuration is being adapted to a situation different from its original niche. The real situation is: ${customSituation}. This OVERRIDES any narrower audience or niche assumptions found anywhere in this configuration: reinterpret every role-specific instruction, question, and example so it serves this situation, and whenever an instruction conflicts with it, this situation wins.` : '');
-      }
+      let output = plantillaOtro
+        ? plantillaOtro.replaceAll('{{SITUATION}}', customSituation.replace(/[{}]/g, ''))
+        : state.selected.config_template;
       output = injectFocusArea(output, document.getElementById('focusInput').value);
       Object.entries(replacements).forEach(([key, value]) => {
         output = output.replaceAll(`{{${key}}}`, value);
