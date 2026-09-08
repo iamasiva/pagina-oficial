@@ -553,6 +553,38 @@
     .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: var(--surface); }
     .im-modal-caja select:focus { border-color: var(--accent); }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+    /* Mis variantes: etiquetas colgantes con ojal, apenas giradas */
+    .im-tags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; padding: 6px 2px; }
+    .im-tag { cursor: pointer; }
+    .im-tag:nth-child(odd) { transform: rotate(-1.6deg); }
+    .im-tag:nth-child(even) { transform: rotate(1.4deg); }
+    .im-tag-cuerpo {
+      position: relative; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 8px; clip-path: polygon(26px 0, 100% 0, 100% 100%, 26px 100%, 0 50%);
+      padding: 14px 14px 12px 40px; min-height: 108px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .im-tag:hover .im-tag-cuerpo { transform: translateY(-3px); border-color: var(--accent); }
+    .im-tag-ojal {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      width: 11px; height: 11px; border-radius: 50%; background: var(--bg);
+      border: 3px solid color-mix(in srgb, var(--accent) 30%, var(--surface));
+    }
+    .im-tag-nombre {
+      font-weight: 800; font-size: 0.95rem; color: var(--ink);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .im-tag-prev {
+      font-size: 0.78rem; color: var(--muted); margin-top: 6px; line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .im-tag-fecha { font-size: 0.72rem; font-weight: 700; color: var(--accent-hover); margin-top: 10px; }
+    #imVarDetTexto {
+      margin-top: 12px; max-height: 300px; overflow: auto;
+      background: color-mix(in srgb, var(--accent-soft) 40%, var(--surface));
+      border: 1px solid var(--line); border-radius: 10px; padding: 14px;
+      font-size: 0.9rem; line-height: 1.6; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere;
+    }
     /* Mis configuraciones: categorías como chips, configuraciones como fichas */
     .im-chips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin-bottom: 10px; }
     .im-chipcat { display: flex; align-items: stretch; cursor: pointer; }
@@ -1320,6 +1352,21 @@
       <div class="im-modal-acciones">
         <button id="imModalCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imModalGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup de detalle de una variante: va ANTES del modal de editar en el
+       DOM para que editar quede por encima y al guardar se vea actualizada -->
+  <div id="imModalVarDet" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imVarDetNombre"></h3>
+      <div class="im-meta" id="imVarDetMeta"></div>
+      <div id="imVarDetTexto"></div>
+      <div class="im-modal-acciones">
+        <button id="imVarDetEliminar" class="secondary-btn" type="button"><span>Eliminar</span></button>
+        <button id="imVarDetCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
+        <button id="imVarDetEditar" class="primary-btn" type="button"><span>Editar</span></button>
       </div>
     </div>
   </div>
@@ -2886,20 +2933,34 @@ ${clean}`;
         renderVariantes();
       }
 
+      // Cada variante es una etiqueta colgante: la identidad que el usuario
+      // le cuelga al experto al elegirla en el desplegable
+      let varDetalleId = null;
       function renderVariantes() {
         $('imVarVacio').style.display = misVariantes.length ? 'none' : 'block';
         $('imVarVacio').textContent = tt().varVacio;
-        $('imVarList').innerHTML = misVariantes.map(v => `
-          <div class="im-row" data-imvar="${v.id}">
-            <h3>${escapeHtml(v.nombre)}</h3>
-            <div class="im-meta">${fecha(v.created_at)}</div>
-            <pre class="im-pre"></pre>
-            <div class="im-row-acciones">
-              <button class="secondary-btn" type="button" data-accion="ver"><span>${escapeHtml(tt().ver)}</span></button>
-              <button class="secondary-btn" type="button" data-accion="editar"><span>${escapeHtml(tt().varEditarBtn)}</span></button>
-              <button class="secondary-btn" type="button" data-accion="eliminar"><span>${escapeHtml(tt().eliminar)}</span></button>
+        $('imVarList').innerHTML = misVariantes.length ? `<div class="im-tags-grid">${misVariantes.map(v => `
+          <div class="im-tag" data-imvar="${v.id}" role="button" tabindex="0" aria-label="${escapeHtml(v.nombre)}">
+            <div class="im-tag-cuerpo">
+              <div class="im-tag-ojal"></div>
+              <div class="im-tag-nombre">${escapeHtml(v.nombre)}</div>
+              <div class="im-tag-prev">${escapeHtml(v.situacion)}</div>
+              <div class="im-tag-fecha">${fecha(v.created_at)}</div>
             </div>
-          </div>`).join('');
+          </div>`).join('')}</div>` : '';
+        if (varDetalleId !== null) {
+          const v = misVariantes.find(k => String(k.id) === String(varDetalleId));
+          if (!v) cerrarDetalleVar(); else pintarDetalleVar(v);
+        }
+      }
+      function pintarDetalleVar(v) {
+        $('imVarDetNombre').textContent = v.nombre;
+        $('imVarDetMeta').textContent = fecha(v.created_at);
+        $('imVarDetTexto').textContent = v.situacion;
+      }
+      function cerrarDetalleVar() {
+        varDetalleId = null;
+        $('imModalVarDet').classList.remove('abierto');
       }
 
       // Las variantes del usuario entran al desplegable de variante de cada rol
@@ -2972,27 +3033,31 @@ ${clean}`;
       $('imVarCancelar').addEventListener('click', () => $('imModalVar').classList.remove('abierto'));
       $('imModalVar').addEventListener('click', (e) => { if (e.target.id === 'imModalVar') e.target.classList.remove('abierto'); });
 
-      $('imVarList').addEventListener('click', async (e) => {
-        const btn = e.target.closest('[data-accion]');
-        if (!btn) return;
-        const fila = btn.closest('[data-imvar]');
-        const variante = misVariantes.find(v => String(v.id) === fila.dataset.imvar);
+      $('imVarList').addEventListener('click', (e) => {
+        const tag = e.target.closest('[data-imvar]');
+        if (!tag) return;
+        const variante = misVariantes.find(v => String(v.id) === tag.dataset.imvar);
         if (!variante) return;
-        if (btn.dataset.accion === 'ver') {
-          const pre = fila.querySelector('.im-pre');
-          pre.textContent = variante.situacion;
-          pre.style.display = pre.style.display === 'block' ? 'none' : 'block';
-        }
-        if (btn.dataset.accion === 'editar') abrirModalVar(variante);
-        if (btn.dataset.accion === 'eliminar') {
-          if (!confirm(tt().varConfirmaEliminar)) return;
-          await db.from('user_variantes').delete().eq('id', variante.id);
-          misVariantes = misVariantes.filter(v => v.id !== variante.id);
-          window.__IM_VARS.delete(String(variante.id));
-          renderVariantes();
-          showToast(tt().varEliminada);
-        }
+        varDetalleId = variante.id;
+        pintarDetalleVar(variante);
+        $('imModalVarDet').classList.add('abierto');
       });
+      $('imVarDetEditar').addEventListener('click', () => {
+        const v = misVariantes.find(k => String(k.id) === String(varDetalleId));
+        if (v) abrirModalVar(v);
+      });
+      $('imVarDetEliminar').addEventListener('click', async () => {
+        const v = misVariantes.find(k => String(k.id) === String(varDetalleId));
+        if (!v || !confirm(tt().varConfirmaEliminar)) return;
+        await db.from('user_variantes').delete().eq('id', v.id);
+        misVariantes = misVariantes.filter(k => k.id !== v.id);
+        window.__IM_VARS.delete(String(v.id));
+        cerrarDetalleVar();
+        renderVariantes();
+        showToast(tt().varEliminada);
+      });
+      $('imVarDetCerrar').addEventListener('click', cerrarDetalleVar);
+      $('imModalVarDet').addEventListener('click', (e) => { if (e.target.id === 'imModalVarDet') cerrarDetalleVar(); });
 
       // ── Mis cuadernos: navegador jerárquico (categorías → subcategorías → cuadernos) ──
       Object.assign(IM_TEXT.es, {
@@ -4181,6 +4246,9 @@ ${clean}`;
         $('imCfgDetCopiar').querySelector('span').textContent = x.copiar;
         $('imCfgDetEliminar').querySelector('span').textContent = x.eliminar;
         $('imCfgDetCerrar').querySelector('span').textContent = x.cerrarDet;
+        $('imVarDetEditar').querySelector('span').textContent = x.varEditarBtn;
+        $('imVarDetEliminar').querySelector('span').textContent = x.eliminar;
+        $('imVarDetCerrar').querySelector('span').textContent = x.cerrarDet;
         renderVariantes();
         $('imModalTitulo').textContent = x.modalTitulo;
         $('imModalCatLabel').textContent = x.lblCatOpc;
