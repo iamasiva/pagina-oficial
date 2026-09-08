@@ -578,25 +578,29 @@
     .im-folder:hover .im-folder-tab { transform: translateY(-3px); }
     .im-folder .im-cat-card p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     /* Subcategorías: revistero inclinado con lomos asomando */
-    .im-rack { position: relative; cursor: pointer; padding-top: 22px; max-width: 250px; }
+    .im-rack { position: relative; cursor: pointer; padding-top: 30px; max-width: 250px; }
     .im-rack-libros {
-      position: absolute; top: 0; left: 8%; width: 40%; height: 42px;
-      border-radius: 4px 4px 0 0; border: 1px solid var(--line); border-bottom: none;
-      background: repeating-linear-gradient(90deg, var(--accent) 0 8px, var(--accent-soft) 8px 13px, var(--accent-hover) 13px 20px, var(--accent-soft) 20px 26px);
-      opacity: 0.55;
+      position: absolute; top: 0; left: 18px; right: 14px; height: 68px;
+      background: color-mix(in srgb, var(--accent) 28%, var(--accent-soft));
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--accent-soft));
+      border-radius: 8px; transition: transform 0.15s;
+    }
+    .im-rack-pill {
+      position: absolute; top: 6px; right: 24px; z-index: 2;
+      background: var(--surface); color: var(--accent-hover); border: 1px solid var(--line);
+      font-size: 0.72rem; font-weight: 800; border-radius: 999px; padding: 2px 9px;
     }
     .im-rack-caja {
       position: relative; background: var(--surface); border: 1px solid var(--line);
-      border-radius: 10px; min-height: 88px; padding: 12px 14px;
-      clip-path: polygon(0 40%, 55% 0, 100% 0, 100% 100%, 0 100%);
-      display: flex; flex-direction: column; justify-content: flex-end;
+      border-radius: 12px; min-height: 96px; padding: 12px 14px 14px;
+      clip-path: polygon(0 34%, 55% 0, 100% 0, 100% 100%, 0 100%);
+      display: flex; align-items: flex-end; justify-content: center; text-align: center;
       transition: transform 0.15s;
     }
     .im-rack:hover .im-rack-caja, .im-rack:hover .im-rack-libros { transform: translateY(-3px); }
     .im-rack-caja h3 { margin: 0; font-size: 0.95rem; color: var(--ink); }
-    .im-rack-caja .im-count { margin-top: 4px; font-size: 0.75rem; font-weight: 700; color: var(--accent-hover); }
-    .im-rack .im-menu-btn { z-index: 2; color: var(--accent-hover); top: 26px; }
-    .im-rack .im-menu { top: 52px; }
+    .im-rack .im-menu-btn { z-index: 2; color: var(--accent-hover); top: 34px; }
+    .im-rack .im-menu { top: 58px; }
     /* Cuadernos: pila con espiral (lomos asomando detrás de la tapa) */
     .im-nb { position: relative; }
     .im-nb::before, .im-nb::after {
@@ -3114,11 +3118,11 @@ ${clean}`;
         if (n.parent_id) return `
           <div class="im-rack" data-navnodo="${n.id}">
             <div class="im-rack-libros"></div>
+            <span class="im-rack-pill" title="${count} ${escapeHtml(tt().nCuad)}">${count}</span>
             <button class="im-menu-btn" type="button" data-menunodo="${n.id}">⋮</button>
             ${menu}
             <div class="im-rack-caja">
               <h3>${escapeHtml(n.nombre)}</h3>
-              <div class="im-count">📓 ${count} ${escapeHtml(tt().nCuad)}</div>
             </div>
           </div>`;
         // Categoría raíz: carpeta con pestaña
