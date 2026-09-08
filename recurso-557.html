@@ -693,8 +693,15 @@
       background-size: 5px 16px; background-repeat: repeat-y; opacity: 0.65;
     }
     .im-sub-label { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
-    .im-hoja-medio { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
-    .im-hoja-abrir { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .im-hoja-cfg { margin-top: 14px; }
+    .im-hoja-cfg .im-sub-label { margin-bottom: 6px; }
+    /* Los botones de abrir en su propia franja, centrados */
+    .im-hoja-abrir {
+      display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-top: 14px; padding: 12px;
+      background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface));
+      border: 1px solid var(--line); border-radius: 12px;
+    }
     .im-btn-apagado {
       display: inline-block; background: color-mix(in srgb, var(--line) 40%, var(--surface));
       color: var(--muted); border: 1px solid var(--line); border-radius: 10px;
@@ -3117,15 +3124,13 @@ ${clean}`;
             ${menuAbierto === 'cuad-' + c.id ? menuCuadHtml() : ''}
             <h3>${escapeHtml(c.titulo)}</h3>
             ${objetivoHtml(c)}
-            <div class="im-hoja-medio">
-              <div>
-                ${cfg ? `<div class="im-sub-label">${escapeHtml(x.cfgCuadTitulo)}</div>
-                <div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>` : ''}
-              </div>
-              <div class="im-hoja-abrir">
-                ${btnAbrir(uGem, x.abrirGemini)}
-                ${btnAbrir(uNb, x.abrirNotebook)}
-              </div>
+            ${cfg ? `<div class="im-hoja-cfg">
+              <div class="im-sub-label">${escapeHtml(x.cfgCuadTitulo)}</div>
+              <div class="im-cfg-chip" title="${escapeHtml(cfg.nombre)}">⚙ <span>${escapeHtml(cfg.nombre)}</span><button type="button" data-copycfg="${c.id}">${escapeHtml(x.copiar)}</button></div>
+            </div>` : ''}
+            <div class="im-hoja-abrir">
+              ${btnAbrir(uGem, x.abrirGemini)}
+              ${btnAbrir(uNb, x.abrirNotebook)}
             </div>
             <div class="im-hoja-chats-cab">
               <div class="im-sub-label">${escapeHtml(x.chats)} (${cs.length})</div>
