@@ -542,6 +542,29 @@
     }
     .im-gemtile-meta { margin-top: 3px; font-size: 0.72rem; color: var(--muted); }
     .im-modal-caja.im-caja-mgdet { max-width: 640px; max-height: 86vh; overflow-y: auto; }
+    /* La vitrina de la gema: estuche con franja de acciones y bandejas por pestaña */
+    .im-est-cab { display: flex; gap: 14px; align-items: flex-start; position: relative; }
+    .im-gem-wrap.mini { width: 64px; flex: none; }
+    .im-gem.mini { width: 64px; height: 52px; }
+    .im-gem.mini::after { height: 18px; }
+    .im-est-tit { flex: 1; min-width: 0; }
+    .im-est-tit h3 { margin: 0; font-size: 1.02rem; color: var(--ink); }
+    .im-est-franja { margin-top: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .im-est-tabs { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .im-est-tabbar { display: flex; gap: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+    .im-vtab { border: none; background: none; color: var(--muted); font: inherit; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+    .im-vtab.activa { background: var(--accent); color: #fff; }
+    .im-est-bandeja { margin-top: 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 8px; max-height: 200px; overflow-y: auto; }
+    .im-est-fila { position: relative; background: var(--surface); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .im-est-fila:last-child { margin-bottom: 0; }
+    .im-est-txt { flex: 1; min-width: 0; font-size: 0.85rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .im-est-rayo { flex: none; color: var(--gold); font-size: 0.8rem; }
+    .im-est-btn { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); border-radius: 8px; padding: 4px 12px; font: inherit; font-size: 0.76rem; font-weight: 800; cursor: pointer; }
+    .im-est-btn:hover { border-color: var(--accent); }
+    .im-est-btn.apagado { color: var(--muted); cursor: not-allowed; }
+    .im-est-cuerpo { flex-basis: 100%; padding-top: 8px; }
+    .im-est-vacio { padding: 14px 10px; font-size: 0.82rem; color: var(--muted); }
+    .im-est-fila .im-menu-btn { position: static; padding: 2px 6px; }
     .im-caja-mgdet .im-gema { border: none; margin: 0; }
     .im-gema-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; text-align: left; padding: 16px 18px; cursor: pointer; }
     .im-gema-head:hover { background: var(--surface-2); }
@@ -2196,6 +2219,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       // La gema en la cuadrícula: tallada, azul si es del catálogo y dorada
       // si es propia; su vitrina completa vive en el popup (filaGema)
       let detalleGemaId = null;
+      let vitrinaTab = 'chats';
       function gemaTile(g) {
         const cs = chatsDe(g.id), ps = promptsDe(g.id);
         return `
@@ -2215,30 +2239,27 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       function filaChat(c) {
         return `
-          <div class="im-mg-sub">
+          <div class="im-est-fila">
+            <span class="im-est-txt" title="${escapeHtml(c.nota || c.titulo)}">${escapeHtml(c.titulo)}</span>
+            ${c.url
+              ? `<button class="im-est-btn" type="button" data-abrirchat="${escapeHtml(c.url)}">Abrir chat</button>`
+              : `<span class="im-est-btn apagado" title="Edita el chat y agrega su link">Abrir chat</span>`}
             <button class="im-menu-btn" type="button" data-menu="chat-${c.id}">⋮</button>
             ${menu === 'chat-' + c.id ? menuHtmlMG('chat-' + c.id) : ''}
-            <div class="im-sub-tit">${escapeHtml(c.titulo)}</div>
-            ${c.nota ? `<div class="im-sub-nota">${escapeHtml(c.nota)}</div>` : ''}
-            <div class="im-sub-acciones">
-              <button class="im-btn-primario" type="button" data-abrirchat="${escapeHtml(c.url)}">Abrir chat</button>
-            </div>
           </div>`;
       }
 
       function filaPrompt(p) {
         const abierto = abiertos.textos.has(p.id);
         return `
-          <div class="im-mg-sub">
+          <div class="im-est-fila">
+            <span class="im-est-rayo">⚡</span>
+            <span class="im-est-txt">${escapeHtml(p.nombre)}${p.item_id ? '' : ' <span class="im-prompt-cat">propio</span>'}</span>
+            <button class="im-est-btn" type="button" data-ptexto="${p.id}">Ver ${abierto ? '▴' : '▾'}</button>
             <button class="im-menu-btn" type="button" data-menu="prompt-${p.id}">⋮</button>
             ${menu === 'prompt-' + p.id ? menuHtmlMG('prompt-' + p.id) : ''}
-            <button class="im-prompt-head" type="button" data-ptexto="${p.id}" style="padding:0; width:calc(100% - 34px);">
-              <span class="chev ${abierto ? 'abierta' : ''}">▶</span>
-              <span>${escapeHtml(p.nombre)}</span>
-              ${p.item_id ? '' : '<span class="im-prompt-cat">propio</span>'}
-            </button>
             ${abierto ? `
-              <div class="im-prompt-body" style="padding:8px 0 0;">
+              <div class="im-est-cuerpo">
                 <textarea class="code-output" readonly>${escapeHtml(p.contenido)}</textarea>
                 <button class="im-btn-primario" type="button" data-pcopy="${p.id}">Copiar prompt</button>
               </div>` : ''}
@@ -2247,35 +2268,38 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       function filaGema(g) {
         const cs = chatsDe(g.id), ps = promptsDe(g.id);
-        const chatsAb = abiertos.chats.has(g.id), promptsAb = abiertos.prompts.has(g.id);
+        const tabChats = vitrinaTab !== 'prompts';
         return `
-          <div class="im-gema" data-gemaid="${g.id}">
-            <div class="im-gema-head" style="cursor:default;">
-              <button class="im-menu-btn" type="button" data-menu="gema-${g.id}" style="position:static; margin-left:auto; order:2;">⋮</button>
-              ${menu === 'gema-' + g.id ? menuHtmlMG('gema-' + g.id) : ''}
-              <div>
+          <div class="im-gema im-estuche" data-gemaid="${g.id}" style="border:none; margin:0; overflow:visible;">
+            <div class="im-est-cab">
+              <div class="im-gem-wrap mini"><div class="im-gem mini ${g.item_id ? '' : 'dorada'}"></div></div>
+              <div class="im-est-tit">
                 <h3>${escapeHtml(g.titulo)} <span class="im-tag ${g.item_id ? 'im-tag-catalogo' : 'im-tag-propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span></h3>
                 ${g.descripcion ? `<div class="im-gema-meta">${escapeHtml(g.descripcion)}</div>` : ''}
               </div>
+              <button class="im-menu-btn" type="button" data-menu="gema-${g.id}" style="position:static; flex:none;">⋮</button>
+              ${menu === 'gema-' + g.id ? menuHtmlMG('gema-' + g.id) : ''}
             </div>
-            <div class="im-mg-acciones">
+            <div class="im-est-franja">
               ${g.url ? `<button class="im-btn-primario" type="button" data-abrirgema="${escapeHtml(g.url)}">Abrir gema</button>` : `<button class="im-mini-btn" type="button" data-gemaaccion="editar" data-gid="${g.id}">Agregar link</button>`}
-              <button class="im-mini-btn" type="button" data-togglechats="${g.id}">💬 Chats (${cs.length}) ${chatsAb ? '▴' : '▾'}</button>
-              <button class="im-mini-btn" type="button" data-toggleprompts="${g.id}">⚡ Prompts (${ps.length}) ${promptsAb ? '▴' : '▾'}</button>
               ${g.item_id || (g.instruccion && g.instruccion.trim())
-                ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}" style="margin-left:auto;">Crear agente local</button>`
-                : `<span class="im-agente-off" data-agenteoff="${g.id}" style="margin-left:auto;"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip" style="left:auto; right:0;">Para crear el agente local de esta gema, primero guarda su instrucción: edita la gema y pega la instrucción desde Gemini (abre tu gema, Editar, campo Instrucciones).</span></span>`}
+                ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}">Crear agente local</button>`
+                : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta gema, primero guarda su instrucción: edita la gema y pega la instrucción desde Gemini (abre tu gema, Editar, campo Instrucciones).</span></span>`}
             </div>
-            ${chatsAb ? `
-              <div class="im-mg-desplegable">
-                ${cs.map(filaChat).join('')}
-                <button class="im-mini-btn" type="button" data-nuevochat="${g.id}">＋ Guardar chat</button>
-              </div>` : ''}
-            ${promptsAb ? `
-              <div class="im-mg-desplegable">
-                ${ps.map(filaPrompt).join('')}
-                <button class="im-mini-btn" type="button" data-nuevoprompt="${g.id}">＋ Agregar prompt</button>
-              </div>` : ''}
+            <div class="im-est-tabs">
+              <div class="im-est-tabbar">
+                <button class="im-vtab ${tabChats ? 'activa' : ''}" type="button" data-vtab="chats">💬 Chats (${cs.length})</button>
+                <button class="im-vtab ${tabChats ? '' : 'activa'}" type="button" data-vtab="prompts">⚡ Prompts (${ps.length})</button>
+              </div>
+              ${tabChats
+                ? `<button class="im-mini-btn" type="button" data-nuevochat="${g.id}">＋ Guardar chat</button>`
+                : `<button class="im-mini-btn" type="button" data-nuevoprompt="${g.id}">＋ Agregar prompt</button>`}
+            </div>
+            <div class="im-est-bandeja">
+              ${tabChats
+                ? (cs.length ? cs.map(filaChat).join('') : `<div class="im-est-vacio">Aún no guardas chats de esta gema.</div>`)
+                : (ps.length ? ps.map(filaPrompt).join('') : `<div class="im-est-vacio">Aún no guardas prompts de esta gema.</div>`)}
+            </div>
           </div>`;
       }
 
@@ -2337,6 +2361,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const adg = e.target.closest('[data-abrirdetgema]');
         if (adg) {
           detalleGemaId = adg.dataset.abrirdetgema;
+          vitrinaTab = 'chats';
           menu = null;
           $('imMgDet').classList.add('abierto');
           render();
@@ -2358,6 +2383,10 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
               el.style.top = (r.bottom + 4) + 'px';
               el.style.left = Math.max(8, r.right - 140) + 'px';
               el.style.right = 'auto';
+              const claveAbierta = clave;
+              const cerrarSiScroll = () => { if (menu === claveAbierta) { menu = null; cerrarMenusMG(); } };
+              m.closest('.im-est-bandeja')?.addEventListener('scroll', cerrarSiScroll, { once: true });
+              m.closest('.im-caja-mgdet')?.addEventListener('scroll', cerrarSiScroll, { once: true });
             }
           }
           e.stopPropagation(); return;
@@ -2372,10 +2401,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const abrirC = e.target.closest('[data-abrirchat]');
         if (abrirC) { window.open(abrirC.dataset.abrirchat, '_blank', 'noopener'); return; }
 
-        const tc = e.target.closest('[data-togglechats]');
-        if (tc) { const id = tc.dataset.togglechats; abiertos.chats.has(id) ? abiertos.chats.delete(id) : abiertos.chats.add(id); render(); return; }
-        const tp = e.target.closest('[data-toggleprompts]');
-        if (tp) { const id = tp.dataset.toggleprompts; abiertos.prompts.has(id) ? abiertos.prompts.delete(id) : abiertos.prompts.add(id); render(); return; }
+        const vt = e.target.closest('[data-vtab]');
+        if (vt) { vitrinaTab = vt.dataset.vtab; menu = null; cerrarMenusMG(); render(); return; }
         const pt = e.target.closest('[data-ptexto]');
         if (pt) { const id = pt.dataset.ptexto; abiertos.textos.has(id) ? abiertos.textos.delete(id) : abiertos.textos.add(id); render(); return; }
         const pc = e.target.closest('[data-pcopy]');
