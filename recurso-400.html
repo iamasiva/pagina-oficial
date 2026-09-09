@@ -1286,6 +1286,7 @@
             <input id="imLibreNombre" type="text" placeholder="Ej: Mi prompt de cierre de ventas" />
             <label class="im-modal-label">Prompt</label>
             <textarea id="imLibreTexto" class="code-output" style="min-height:180px;" placeholder="Escribe o pega aquí tu prompt…"></textarea>
+            <p class="im-modal-nota" style="margin-top:8px;">Tip: escribe los pedazos que cambian entre corchetes, por ejemplo [tipo de comida], y al usar el prompt se convertirán en campos para llenar.</p>
             <div class="im-modal-acciones">
               <button id="imLibreCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imLibreOk" class="im-btn-primario" type="button">Guardar</button>
@@ -1293,14 +1294,16 @@
           </div>
         </div>
 
-        <!-- Modal: ver un prompt guardado en grande, con su copiar -->
-        <div id="imModalVerPrompt" class="im-modal">
+        <!-- Modal: usar un prompt propio (los [pedazos] entre corchetes son inputs) -->
+        <div id="imModalUsarPrompt" class="im-modal">
           <div class="im-modal-caja" style="max-width:560px;">
-            <h3 id="imVerPromptNombre"></h3>
-            <textarea id="imVerPromptTexto" class="code-output" style="min-height:220px; margin-top:10px;" readonly></textarea>
+            <h3 id="imUsarNombre"></h3>
+            <div id="imUsarCampos"></div>
+            <textarea id="imUsarPreview" class="code-output" style="min-height:170px; margin-top:12px;" readonly></textarea>
             <div class="im-modal-acciones">
-              <button id="imVerPromptCerrar" class="im-mini-btn" type="button">Cerrar</button>
-              <button id="imVerPromptCopiar" class="im-btn-primario" type="button">Copiar prompt</button>
+              <button id="imUsarEditar" class="im-mini-btn" type="button">Editar plantilla</button>
+              <button id="imUsarCancelar" class="im-mini-btn" type="button">Cancelar</button>
+              <button id="imUsarCopiar" class="im-btn-primario" type="button">Copiar</button>
             </div>
           </div>
         </div>
@@ -1360,7 +1363,7 @@
             <textarea id="imFPOutput" class="code-output" readonly style="min-height:120px;"></textarea>
             <div class="im-modal-acciones">
               <button id="imFPCancelar" class="im-mini-btn" type="button">Cancelar</button>
-              <button id="imFPGuardar" class="im-btn-primario" type="button">Guardar</button>
+              <button id="imFPGuardar" class="im-btn-primario" type="button">Copiar</button>
             </div>
           </div>
         </div>
@@ -2254,7 +2257,6 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       // si es propia; su vitrina completa vive en el popup (filaGema)
       let detalleGemaId = null;
       let vitrinaTab = 'chats';
-      let ctxVerPrompt = null;
       function gemaTile(g) {
         const cs = chatsDe(g.id), ps = promptsDe(g.id);
         return `
@@ -2290,8 +2292,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             <span class="im-est-rayo">⚡</span>
             <span class="im-est-txt">${escapeHtml(p.nombre)}${p.item_id ? '' : ' <span class="im-prompt-cat">propio</span>'}</span>
             <button class="im-est-btn" type="button" data-verprompt="${p.id}">Ver</button>
-            <button class="im-menu-btn" type="button" data-menu="prompt-${p.id}">⋮</button>
-            ${menu === 'prompt-' + p.id ? menuHtmlMG('prompt-' + p.id) : ''}
+            <button class="im-menu-btn" type="button" data-promptborrar="${p.id}" title="Eliminar prompt">🗑</button>
           </div>`;
       }
 
@@ -2436,10 +2437,17 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (vp) {
           const p = prompts.find(x => x.id === vp.dataset.verprompt);
           if (!p) return;
-          ctxVerPrompt = p;
-          $('imVerPromptNombre').textContent = p.nombre;
-          $('imVerPromptTexto').value = p.contenido;
-          $('imModalVerPrompt').classList.add('abierto');
+          if (p.item_id) {
+            const gem = gems.find(g => g.id === numByUuid.get(p.item_id));
+            if (gem) { abrirPopupPrompt(gem, p, p.user_gema_id); return; }
+          }
+          abrirUsarPrompt(p);
+          return;
+        }
+        const pb = e.target.closest('[data-promptborrar]');
+        if (pb) {
+          const p = prompts.find(x => x.id === pb.dataset.promptborrar);
+          if (p) eliminarPrompt(p);
           return;
         }
         const pt = e.target.closest('[data-ptexto]');
@@ -3081,9 +3089,55 @@ ${ficha}`;
       $('imColorCancelar').addEventListener('click', () => { ctxColorGema = null; $('imModalColorGema').classList.remove('abierto'); });
       $('imModalColorGema').addEventListener('click', (e) => { if (e.target.id === 'imModalColorGema') { ctxColorGema = null; e.target.classList.remove('abierto'); } });
 
-      $('imVerPromptCopiar').addEventListener('click', () => { if (ctxVerPrompt) copyText(ctxVerPrompt.contenido); });
-      $('imVerPromptCerrar').addEventListener('click', () => $('imModalVerPrompt').classList.remove('abierto'));
-      $('imModalVerPrompt').addEventListener('click', (e) => { if (e.target.id === 'imModalVerPrompt') e.target.classList.remove('abierto'); });
+      // ── Usar un prompt propio: los [pedazos] entre corchetes se vuelven inputs
+      // y el prompt se teje en vivo; Copiar guarda los valores y copia el texto ──
+      let ctxUsar = null;
+      const RE_CAMPO = /\[([^\[\]\n]{1,60}?)\]/g;
+      const camposDe = (texto) => [...new Set([...texto.matchAll(RE_CAMPO)].map(m => m[1].trim()).filter(Boolean))];
+      const tejerPrompt = (texto, valores) => texto.replace(RE_CAMPO, (m, c) => {
+        const v = (valores[c.trim()] ?? '').trim();
+        return v || m;
+      });
+      function abrirUsarPrompt(p) {
+        const campos = camposDe(p.contenido);
+        ctxUsar = { p, valores: { ...(p.valores || {}) } };
+        $('imUsarNombre').textContent = p.nombre;
+        $('imUsarCampos').innerHTML = campos.map(c => `
+          <label class="im-modal-label">${escapeHtml(c)}</label>
+          <input type="text" data-usarcampo="${escapeHtml(c)}" value="${escapeHtml(ctxUsar.valores[c] ?? '')}" placeholder="${escapeHtml(c)}" />`).join('');
+        actualizarUsarPreview();
+        $('imModalUsarPrompt').classList.add('abierto');
+        const primero = $('imUsarCampos').querySelector('input');
+        if (primero) primero.focus();
+      }
+      function actualizarUsarPreview() {
+        $('imUsarPreview').value = tejerPrompt(ctxUsar.p.contenido, ctxUsar.valores);
+      }
+      $('imUsarCampos').addEventListener('input', (e) => {
+        const c = e.target.dataset.usarcampo;
+        if (!c || !ctxUsar) return;
+        ctxUsar.valores[c] = e.target.value;
+        actualizarUsarPreview();
+      });
+      $('imUsarCopiar').addEventListener('click', async () => {
+        if (!ctxUsar) return;
+        const texto = tejerPrompt(ctxUsar.p.contenido, ctxUsar.valores);
+        const { error } = await db.from('user_prompts').update({ valores: ctxUsar.valores, updated_at: new Date().toISOString() }).eq('id', ctxUsar.p.id);
+        if (error) { showToast('No se pudo guardar: ' + error.message); return; }
+        $('imModalUsarPrompt').classList.remove('abierto');
+        ctxUsar = null;
+        copyText(texto);
+        cargarTodo();
+      });
+      $('imUsarEditar').addEventListener('click', () => {
+        if (!ctxUsar) return;
+        const p = ctxUsar.p;
+        ctxUsar = null;
+        $('imModalUsarPrompt').classList.remove('abierto');
+        abrirModalLibre({ modo: 'editar', prompt: p });
+      });
+      $('imUsarCancelar').addEventListener('click', () => { ctxUsar = null; $('imModalUsarPrompt').classList.remove('abierto'); });
+      $('imModalUsarPrompt').addEventListener('click', (e) => { if (e.target.id === 'imModalUsarPrompt') { ctxUsar = null; e.target.classList.remove('abierto'); } });
       $('imLibreCancelar').addEventListener('click', () => $('imModalLibre').classList.remove('abierto'));
       $('imModalLibre').addEventListener('click', (e) => { if (e.target.id === 'imModalLibre') e.target.classList.remove('abierto'); });
 
@@ -3197,7 +3251,8 @@ ${ficha}`;
         const gid = ctxForm.userGemaId ?? ctxForm.promptRow?.user_gema_id;
         if (gid) abiertos.prompts.add(gid);
         cerrarPopupPrompt();
-        showToast('Prompt guardado');
+        // Un solo gesto: queda guardado con los inputs nuevos y copiado al portapapeles
+        copyText(fila.contenido);
         cargarTodo();
       });
       $('imFPCancelar').addEventListener('click', cerrarPopupPrompt);
