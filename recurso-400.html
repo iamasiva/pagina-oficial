@@ -401,7 +401,7 @@
     .toast {
       position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px);
       background: var(--sidebar-bg); color: #fff; border-radius: 8px; padding: 12px 16px;
-      opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 10010;
+      opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 99999;
       font-weight: 800;
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -1280,6 +1280,18 @@
             <div class="im-modal-acciones">
               <button id="imLibreCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imLibreOk" class="im-btn-primario" type="button">Guardar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: ver un prompt guardado en grande, con su copiar -->
+        <div id="imModalVerPrompt" class="im-modal">
+          <div class="im-modal-caja" style="max-width:560px;">
+            <h3 id="imVerPromptNombre"></h3>
+            <textarea id="imVerPromptTexto" class="code-output" style="min-height:220px; margin-top:10px;" readonly></textarea>
+            <div class="im-modal-acciones">
+              <button id="imVerPromptCerrar" class="im-mini-btn" type="button">Cerrar</button>
+              <button id="imVerPromptCopiar" class="im-btn-primario" type="button">Copiar prompt</button>
             </div>
           </div>
         </div>
@@ -2220,6 +2232,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       // si es propia; su vitrina completa vive en el popup (filaGema)
       let detalleGemaId = null;
       let vitrinaTab = 'chats';
+      let ctxVerPrompt = null;
       function gemaTile(g) {
         const cs = chatsDe(g.id), ps = promptsDe(g.id);
         return `
@@ -2250,19 +2263,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
 
       function filaPrompt(p) {
-        const abierto = abiertos.textos.has(p.id);
         return `
           <div class="im-est-fila">
             <span class="im-est-rayo">⚡</span>
             <span class="im-est-txt">${escapeHtml(p.nombre)}${p.item_id ? '' : ' <span class="im-prompt-cat">propio</span>'}</span>
-            <button class="im-est-btn" type="button" data-ptexto="${p.id}">Ver ${abierto ? '▴' : '▾'}</button>
+            <button class="im-est-btn" type="button" data-verprompt="${p.id}">Ver</button>
             <button class="im-menu-btn" type="button" data-menu="prompt-${p.id}">⋮</button>
             ${menu === 'prompt-' + p.id ? menuHtmlMG('prompt-' + p.id) : ''}
-            ${abierto ? `
-              <div class="im-est-cuerpo">
-                <textarea class="code-output" readonly>${escapeHtml(p.contenido)}</textarea>
-                <button class="im-btn-primario" type="button" data-pcopy="${p.id}">Copiar prompt</button>
-              </div>` : ''}
           </div>`;
       }
 
@@ -2403,6 +2410,16 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
         const vt = e.target.closest('[data-vtab]');
         if (vt) { vitrinaTab = vt.dataset.vtab; menu = null; cerrarMenusMG(); render(); return; }
+        const vp = e.target.closest('[data-verprompt]');
+        if (vp) {
+          const p = prompts.find(x => x.id === vp.dataset.verprompt);
+          if (!p) return;
+          ctxVerPrompt = p;
+          $('imVerPromptNombre').textContent = p.nombre;
+          $('imVerPromptTexto').value = p.contenido;
+          $('imModalVerPrompt').classList.add('abierto');
+          return;
+        }
         const pt = e.target.closest('[data-ptexto]');
         if (pt) { const id = pt.dataset.ptexto; abiertos.textos.has(id) ? abiertos.textos.delete(id) : abiertos.textos.add(id); render(); return; }
         const pc = e.target.closest('[data-pcopy]');
@@ -3005,6 +3022,9 @@ ${ficha}`;
         $('imModalLibre').classList.remove('abierto');
         showToast('Prompt guardado'); cargarTodo();
       });
+      $('imVerPromptCopiar').addEventListener('click', () => { if (ctxVerPrompt) copyText(ctxVerPrompt.contenido); });
+      $('imVerPromptCerrar').addEventListener('click', () => $('imModalVerPrompt').classList.remove('abierto'));
+      $('imModalVerPrompt').addEventListener('click', (e) => { if (e.target.id === 'imModalVerPrompt') e.target.classList.remove('abierto'); });
       $('imLibreCancelar').addEventListener('click', () => $('imModalLibre').classList.remove('abierto'));
       $('imModalLibre').addEventListener('click', (e) => { if (e.target.id === 'imModalLibre') e.target.classList.remove('abierto'); });
 
