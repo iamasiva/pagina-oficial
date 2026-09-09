@@ -119,12 +119,9 @@
     .sidebar-link:hover { background: rgba(255,255,255,.10); }
     .sidebar-link.active { background: rgba(255,255,255,.18); color: #fff; }
     .sidebar-link svg { flex: 0 0 auto; }
-    .sidebar-link-special {
-      background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 22%, transparent), color-mix(in srgb, var(--gold) 6%, transparent));
-      border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); color: var(--gold);
-    }
-    .sidebar-link-special:hover { background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 32%, transparent), color-mix(in srgb, var(--gold) 10%, transparent)); }
-    .sidebar-link-special.active { background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 40%, transparent), color-mix(in srgb, var(--gold) 14%, transparent)); color: #fff; }
+    /* Antes tenia un dorado propio (dormido por el bug de --gold); Sergio
+       decidio que hable el mismo idioma que el resto del panel */
+    .sidebar-link-special { background: none; border: none; color: inherit; }
     .sidebar-divider { height: 1px; background: rgba(255,255,255,.15); margin: 10px 4px; }
     .tree-heading { padding: 8px 8px 6px; font-size: 11px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.55); }
     .tree-root {
