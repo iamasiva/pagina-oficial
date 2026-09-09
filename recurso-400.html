@@ -3044,14 +3044,22 @@ ${ficha}`;
         const nombre = $('imLibreNombre').value.trim();
         const contenido = $('imLibreTexto').value.trim();
         if (!nombre || !contenido) { showToast('Nombre y prompt son obligatorios'); (!nombre ? $('imLibreNombre') : $('imLibreTexto')).focus(); return; }
-        const q = ctxLibre.modo === 'crear'
-          ? db.from('user_prompts').insert({ user_id: IM.userId, product_id: IM.productId, user_gema_id: ctxLibre.gemaId, item_id: null, nombre, contenido, valores: {} })
-          : db.from('user_prompts').update({ nombre, contenido, updated_at: new Date().toISOString() }).eq('id', ctxLibre.prompt.id);
-        const { error } = await q;
+        let fila, error;
+        if (ctxLibre.modo === 'crear') {
+          ({ data: fila, error } = await db.from('user_prompts')
+            .insert({ user_id: IM.userId, product_id: IM.productId, user_gema_id: ctxLibre.gemaId, item_id: null, nombre, contenido, valores: {} })
+            .select('*').single());
+        } else {
+          ({ error } = await db.from('user_prompts').update({ nombre, contenido, updated_at: new Date().toISOString() }).eq('id', ctxLibre.prompt.id));
+          fila = { ...ctxLibre.prompt, nombre, contenido };
+        }
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
         if (ctxLibre.modo === 'crear') abiertos.prompts.add(ctxLibre.gemaId);
         $('imModalLibre').classList.remove('abierto');
         showToast('Prompt guardado'); cargarTodo();
+        // Del guardado se aterriza directo en la interfaz de usarlo: los
+        // inputs listos para llenar y copiar
+        abrirUsarPrompt(fila);
       });
       // ── Cambiar color de la gema: 25 tonos y el regreso al original ──
       // 25 tonos curados para que ningún par se confunda: cada vecino cambia
