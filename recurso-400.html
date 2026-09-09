@@ -563,6 +563,18 @@
     .im-est-vacio { padding: 14px 10px; font-size: 0.82rem; color: var(--muted); }
     .im-est-fila .im-menu-btn { position: static; padding: 2px 6px; }
     .im-caja-mgdet .im-gema { border: none; margin: 0; }
+    /* Selector de color de la gema: 25 gemitas talladas en 5x5 */
+    .im-paleta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 14px; justify-items: center; }
+    .im-swatch { position: relative; width: 44px; height: 36px; cursor: pointer; border: none; background: none; padding: 0; }
+    .im-swatch-gema {
+      width: 44px; height: 36px;
+      clip-path: polygon(50% 100%, 0 34%, 22% 0, 78% 0, 100% 34%);
+      transition: transform 0.12s;
+    }
+    .im-swatch-gema::before { content: ''; position: absolute; inset: 0; clip-path: polygon(50% 100%, 33% 27%, 67% 27%); background: rgba(255, 255, 255, 0.22); }
+    .im-swatch-gema::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 12px; clip-path: polygon(22% 0, 78% 0, 67% 100%, 33% 100%); background: rgba(255, 255, 255, 0.34); }
+    .im-swatch:hover .im-swatch-gema { transform: translateY(-2px) scale(1.08); }
+    .im-swatch.actual .im-swatch-gema { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
     .im-gema-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; text-align: left; padding: 16px 18px; cursor: pointer; }
     .im-gema-head:hover { background: var(--surface-2); }
     .im-gema-head .chev { font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; }
@@ -1289,6 +1301,18 @@
             <div class="im-modal-acciones">
               <button id="imVerPromptCerrar" class="im-mini-btn" type="button">Cerrar</button>
               <button id="imVerPromptCopiar" class="im-btn-primario" type="button">Copiar prompt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: cambiar el color de una gema (5x5) -->
+        <div id="imModalColorGema" class="im-modal">
+          <div class="im-modal-caja" style="max-width:380px;">
+            <h3>Elige el color de tu gema</h3>
+            <div class="im-paleta" id="imPaletaGema"></div>
+            <div class="im-modal-acciones" style="margin-top:18px;">
+              <button id="imColorReset" class="im-mini-btn" type="button">Restablecer color original</button>
+              <button id="imColorCancelar" class="im-mini-btn" type="button">Cancelar</button>
             </div>
           </div>
         </div>
@@ -2193,6 +2217,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           <div class="im-menu">
             <button type="button" data-gemaaccion="editar" data-gid="${id}">Editar</button>
             <button type="button" data-gemaaccion="mover" data-gid="${id}">Mover</button>
+            <button type="button" data-gemaaccion="color" data-gid="${id}">Cambiar color</button>
             <button type="button" data-gemaaccion="eliminar" data-gid="${id}">Eliminar</button>
           </div>`;
         if (tipo === 'chat') return `
@@ -2235,7 +2260,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         return `
           <div class="im-gemtile" data-abrirdetgema="${g.id}" role="button" tabindex="0" aria-label="${escapeHtml(g.titulo)}">
             <div class="im-gem-wrap">
-              <div class="im-gem ${g.item_id ? '' : 'dorada'}"></div>
+              <div class="im-gem ${g.color ? '' : (g.item_id ? '' : 'dorada')}"${g.color ? ` style="background:${escapeHtml(g.color)};"` : ''}></div>
               <span class="im-gem-badge ${g.item_id ? '' : 'propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span>
             </div>
             <div class="im-gemtile-nombre">${escapeHtml(g.titulo)}</div>
@@ -2276,7 +2301,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         return `
           <div class="im-gema im-estuche" data-gemaid="${g.id}" style="border:none; margin:0; overflow:visible;">
             <div class="im-est-cab">
-              <div class="im-gem-wrap mini"><div class="im-gem mini ${g.item_id ? '' : 'dorada'}"></div></div>
+              <div class="im-gem-wrap mini"><div class="im-gem mini ${g.color ? '' : (g.item_id ? '' : 'dorada')}"${g.color ? ` style="background:${escapeHtml(g.color)};"` : ''}></div></div>
               <div class="im-est-tit">
                 <h3>${escapeHtml(g.titulo)} <span class="im-tag ${g.item_id ? 'im-tag-catalogo' : 'im-tag-propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span></h3>
                 ${g.descripcion ? `<div class="im-gema-meta">${escapeHtml(g.descripcion)}</div>` : ''}
@@ -2434,6 +2459,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (ga) {
           const g = misGemas.find(x => x.id === ga.dataset.gid); menu = null; render();
           if (ga.dataset.gemaaccion === 'editar') abrirModalGema({ modo: 'editar', gema: g });
+          if (ga.dataset.gemaaccion === 'color') abrirModalColor(g);
           if (ga.dataset.gemaaccion === 'mover')  abrirModalGema({ modo: 'mover', gema: g });
           if (ga.dataset.gemaaccion === 'eliminar') eliminarGema(g);
           return;
@@ -3019,6 +3045,40 @@ ${ficha}`;
         $('imModalLibre').classList.remove('abierto');
         showToast('Prompt guardado'); cargarTodo();
       });
+      // ── Cambiar color de la gema: 25 tonos y el regreso al original ──
+      const PALETA_GEMAS = [
+        '#e0475c', '#e2596e', '#d85a9b', '#b45ad8', '#8a5ae0',
+        '#e06a3c', '#e08a3c', '#d9a52c', '#b7c22e', '#7fb32a',
+        '#3fae4e', '#2fae7e', '#2aaea4', '#2a98c9', '#3f7de0',
+        '#2743c7', '#4a5ae0', '#6a5acd', '#7a6ff0', '#9d7de8',
+        '#8a6d4a', '#a08a5a', '#6b7280', '#3f4a63', '#131c55',
+      ];
+      let ctxColorGema = null;
+      function abrirModalColor(g) {
+        ctxColorGema = g;
+        $('imPaletaGema').innerHTML = PALETA_GEMAS.map(c => `
+          <button class="im-swatch ${g.color === c ? 'actual' : ''}" type="button" data-color="${c}" aria-label="${c}">
+            <div class="im-swatch-gema" style="background:${c};"></div>
+          </button>`).join('');
+        $('imModalColorGema').classList.add('abierto');
+      }
+      async function guardarColorGema(color) {
+        if (!ctxColorGema) return;
+        const { error } = await db.from('user_gemas').update({ color }).eq('id', ctxColorGema.id);
+        if (error) { showToast('No se pudo guardar: ' + error.message); return; }
+        $('imModalColorGema').classList.remove('abierto');
+        showToast(color ? 'Color cambiado' : 'Color original restablecido');
+        ctxColorGema = null;
+        cargarTodo();
+      }
+      $('imPaletaGema').addEventListener('click', (e) => {
+        const s = e.target.closest('[data-color]');
+        if (s) guardarColorGema(s.dataset.color);
+      });
+      $('imColorReset').addEventListener('click', () => guardarColorGema(null));
+      $('imColorCancelar').addEventListener('click', () => { ctxColorGema = null; $('imModalColorGema').classList.remove('abierto'); });
+      $('imModalColorGema').addEventListener('click', (e) => { if (e.target.id === 'imModalColorGema') { ctxColorGema = null; e.target.classList.remove('abierto'); } });
+
       $('imVerPromptCopiar').addEventListener('click', () => { if (ctxVerPrompt) copyText(ctxVerPrompt.contenido); });
       $('imVerPromptCerrar').addEventListener('click', () => $('imModalVerPrompt').classList.remove('abierto'));
       $('imModalVerPrompt').addEventListener('click', (e) => { if (e.target.id === 'imModalVerPrompt') e.target.classList.remove('abierto'); });
