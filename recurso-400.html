@@ -401,7 +401,7 @@
     .toast {
       position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px);
       background: var(--sidebar-bg); color: #fff; border-radius: 8px; padding: 12px 16px;
-      opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 90;
+      opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 10010;
       font-weight: 800;
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -2995,7 +2995,7 @@ ${ficha}`;
       $('imLibreOk').addEventListener('click', async () => {
         const nombre = $('imLibreNombre').value.trim();
         const contenido = $('imLibreTexto').value.trim();
-        if (!nombre || !contenido) { showToast('Nombre y prompt son obligatorios'); return; }
+        if (!nombre || !contenido) { showToast('Nombre y prompt son obligatorios'); (!nombre ? $('imLibreNombre') : $('imLibreTexto')).focus(); return; }
         const q = ctxLibre.modo === 'crear'
           ? db.from('user_prompts').insert({ user_id: IM.userId, product_id: IM.productId, user_gema_id: ctxLibre.gemaId, item_id: null, nombre, contenido, valores: {} })
           : db.from('user_prompts').update({ nombre, contenido, updated_at: new Date().toISOString() }).eq('id', ctxLibre.prompt.id);
