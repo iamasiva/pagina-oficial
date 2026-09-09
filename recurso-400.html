@@ -3046,12 +3046,14 @@ ${ficha}`;
         showToast('Prompt guardado'); cargarTodo();
       });
       // ── Cambiar color de la gema: 25 tonos y el regreso al original ──
+      // 25 tonos curados para que ningún par se confunda: cada vecino cambia
+      // de familia o da un salto fuerte de luminosidad
       const PALETA_GEMAS = [
-        '#e0475c', '#e2596e', '#d85a9b', '#b45ad8', '#8a5ae0',
-        '#e06a3c', '#e08a3c', '#d9a52c', '#b7c22e', '#7fb32a',
-        '#3fae4e', '#2fae7e', '#2aaea4', '#2a98c9', '#3f7de0',
-        '#2743c7', '#4a5ae0', '#6a5acd', '#7a6ff0', '#9d7de8',
-        '#8a6d4a', '#a08a5a', '#6b7280', '#3f4a63', '#131c55',
+        '#b3202c', '#e91e63', '#f472b6', '#ff7043', '#ef6c00',
+        '#facc15', '#a3c130', '#4ade80', '#3c9142', '#14532d',
+        '#14b8a6', '#0e7490', '#29b6d8', '#60a5fa', '#2743c7',
+        '#5e35b1', '#a21caf', '#c084fc', '#8b5e34', '#c79a3b',
+        '#d8dee9', '#a8a29e', '#64748b', '#131c55', '#262626',
       ];
       let ctxColorGema = null;
       function abrirModalColor(g) {
