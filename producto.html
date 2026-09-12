@@ -1047,7 +1047,11 @@
       // como bono, o mezcla) es dueño del pack aunque no exista la fila del
       // pack: no se le ofrece "completar" nada.
       if (esBundle && componentesEste.length && componentesEste.every(id => poseidos.has(id))) comprado = true;
-      const destino = comprado ? (PAGINAS[producto.id] || 'app.html') : `pago.html?p=${producto.id}`;
+      // Un pack no tiene página propia: al dueño se le lleva a "Tus compras",
+      // donde están sus piezas listas para abrir
+      const destino = comprado
+        ? (esBundle ? 'app.html?ver=compras' : (PAGINAS[producto.id] || 'app.html'))
+        : `pago.html?p=${producto.id}`;
 
       // Completar el pack: al dueño de piezas se le muestra el precio por lo
       // que le falta (misma regla del servidor: pack menos lo ya invertido).
@@ -1107,7 +1111,7 @@
       }
 
       for (const btn of [$('pCtaTop'), $('pCtaBottom')]) {
-        btn.textContent = comprado ? 'IR AL RECURSO' : 'COMPRAR AHORA';
+        btn.textContent = comprado ? (esBundle ? 'IR A MIS COMPRAS' : 'IR AL RECURSO') : 'COMPRAR AHORA';
         btn.addEventListener('click', () => {
           if (!comprado) registrarEvento('clic_comprar', producto.id);
           if (promoLista) { $('promoOverlay').classList.add('activa'); return; }

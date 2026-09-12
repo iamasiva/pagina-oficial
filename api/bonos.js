@@ -6,7 +6,10 @@
 // fila queda huérfana (user_id null) y /api/reclamar la engancha sola cuando
 // esa persona se registre con ese correo. Retirar solo borra filas 'bono':
 // las compras reales jamás se tocan.
-import { adminClient, userFromRequest } from './_lib.js';
+// Un pack se otorga (y se retira) como lo que es: la fila del pack más una
+// fila por cada pieza, igual que deja la compra real. Así las herramientas
+// abren y en "Tus compras" aparecen las piezas.
+import { adminClient, userFromRequest, mapaDePacks } from './_lib.js';
 
 const CORREO_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -42,11 +45,20 @@ export default async function handler(req, res) {
       const validos = (productos ?? []).filter(p =>
         productosPedidos.includes(p.id) && p.tipo !== 'bundle' && !/bundle/i.test(p.nombre));
       if (!validos.length) return res.status(400).json({ error: 'Productos inválidos' });
+      // Un pack trae sus piezas: se otorga la fila del pack y una por componente
+      const packs = await mapaDePacks(db);
+      const porId = Object.fromEntries((productos ?? []).map(p => [p.id, p]));
+      const conPiezas = [];
+      for (const p of validos) {
+        conPiezas.push(p);
+        for (const cid of packs[p.id] ?? []) if (porId[cid]) conPiezas.push(porId[cid]);
+      }
+      const aOtorgar = [...new Map(conPiezas.map(p => [p.id, p])).values()];
 
       let otorgados = 0, saltados = 0;
       for (const correo of correos) {
         const { data: dueno } = await db.from('profiles').select('id').ilike('email', correo).maybeSingle();
-        for (const p of validos) {
+        for (const p of aOtorgar) {
           // Si ya lo posee (compra real o bono previo), se salta
           if (dueno) {
             const { data: ya } = await db.from('purchases').select('id')
@@ -78,10 +90,13 @@ export default async function handler(req, res) {
     }
 
     if (accion === 'retirar') {
+      // Retirar un pack retira también los bonos de sus piezas
+      const packs = await mapaDePacks(db);
+      const ids = [...new Set(productosPedidos.flatMap(id => [id, ...(packs[id] ?? [])]))];
       let retirados = 0;
       for (const correo of correos) {
         let q = db.from('purchases').delete().eq('gateway', 'bono').ilike('email_comprador', correo);
-        if (productosPedidos.length) q = q.in('product_id', productosPedidos);
+        if (ids.length) q = q.in('product_id', ids);
         const { data, error } = await q.select('id');
         if (!error) retirados += (data ?? []).length;
       }

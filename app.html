@@ -1271,7 +1271,7 @@
       if (type === 'gratis')  filtered = allGuides.filter(g => !g.es_premium);
       if (type === 'premium') filtered = allGuides.filter(g => g.es_premium);
       if (type === 'favoritos') filtered = allGuides.filter(g => favoritosSet.has(g.id));
-      if (type === 'compras')   filtered = allGuides.filter(g => userPurchases.includes(g.id));
+      if (type === 'compras')   filtered = allGuides.filter(g => userPurchases.includes(g.id) && !esGuiaDePack(g.id));
       if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias||[]).includes(cat));
       // En categoría, los recursos de pago siempre encabezan la lista
       if (type === 'cat') filtered.sort((a, b) => (b.es_premium ? 1 : 0) - (a.es_premium ? 1 : 0));
@@ -1435,6 +1435,12 @@
     }, true);
 
     // ── CARD BUILDER ──────────────────────────────────────────
+    // La guía de un pack no se muestra en "Tus compras": el pack es un
+    // contenedor y ahí van sus piezas, cada una abriendo su recurso
+    function esGuiaDePack(guideId) {
+      const prod = allProducts.find(p => p.guide_id === guideId);
+      return !!(prod && packsMap[prod.id]);
+    }
     // Un pack también es "Tuyo" si el usuario ya tiene TODAS sus piezas
     // (compradas una a una, completadas o regaladas)
     function packCompletoDeGuia(guide) {
@@ -2758,6 +2764,9 @@
       // piezas necesita un repintado
       renderAll();
       renderizarPaquetes();
+      // Llegada desde la landing de un pack ya adquirido: se aterriza en
+      // "Tus compras", donde están sus piezas listas para abrir
+      try { if (new URLSearchParams(location.search).get('ver') === 'compras') abrirPanelUsuario('compras'); } catch (_) {}
     }
   </script>
 <script>
