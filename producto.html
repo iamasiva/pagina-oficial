@@ -1043,6 +1043,10 @@
           if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
         }
       }
+      // Quien ya tiene TODAS las piezas del pack (compradas sueltas, otorgadas
+      // como bono, o mezcla) es dueño del pack aunque no exista la fila del
+      // pack: no se le ofrece "completar" nada.
+      if (esBundle && componentesEste.length && componentesEste.every(id => poseidos.has(id))) comprado = true;
       const destino = comprado ? (PAGINAS[producto.id] || 'app.html') : `pago.html?p=${producto.id}`;
 
       // Completar el pack: al dueño de piezas se le muestra el precio por lo
@@ -1078,11 +1082,12 @@
       const bundleActivo = esBundle ? null
         : (productos ?? []).find(p => PACKS[p.id]?.includes(producto.id)) ?? null;
       let promoLista = false;
-      if (!comprado && bundleActivo) {
-        const compsBundle = PACKS[bundleActivo.id] || [];
-        // Al dueño de piezas no se le ofrece lo que ya tiene, y el precio del
-        // popup baja a lo que le falta para completar el pack
-        const otros = compsBundle.filter(id => id !== producto.id && !poseidos.has(id));
+      // Al dueño de piezas no se le ofrece lo que ya tiene, y el precio del
+      // popup baja a lo que le falta para completar el pack. Si ya tiene todas
+      // las demás piezas, no hay nada que ofrecer y no hay popup.
+      const compsBundle = bundleActivo ? (PACKS[bundleActivo.id] || []) : [];
+      const otros = compsBundle.filter(id => id !== producto.id && !poseidos.has(id));
+      if (!comprado && bundleActivo && otros.length) {
         $('promoIntro').innerHTML = `Además de <b>${producto.nombre}</b>, adquiere:`;
         $('promoLista').innerHTML = otros.map(id => `<li>${nombreDe(id)}</li>`).join('');
         const efectivoBundle = bundleActivo.precio_promo_usd_centavos ?? bundleActivo.precio_usd_centavos;
