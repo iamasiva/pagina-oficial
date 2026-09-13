@@ -1455,8 +1455,9 @@
 
     function makeCard(guide, rank, showRank = false) {
       const purchased = userPurchases.includes(guide.id);
-      const locked    = guide.es_premium && !purchased;
       const esTuyo    = guide.es_premium && (purchased || packCompletoDeGuia(guide));
+      // Si es tuyo (comprado, o pack completo por piezas) no hay candado
+      const locked    = guide.es_premium && !esTuyo;
       const cats = (guide.categorias || []).slice(0,2).join(' · ');
       const adminControls = isAdmin ? `
         <div class="admin-card-controls">
@@ -1884,6 +1885,10 @@
 
     async function openGuide(id, locked, directo = false) {
       if (locked) { await comprarGuia(id); return; }
+      // La tarjeta de un pack ya adquirido no abre un recurso: el pack es un
+      // contenedor, así que se va a "Tus compras", donde están sus piezas
+      const productoPack = allProducts.find(p => p.guide_id === id && packsMap[p.id]);
+      if (productoPack) { abrirPanelUsuario('compras'); return; }
       // Productos-app comprados: se navega a su página propia, no al visor
       const productoApp = allProducts.find(p => p.guide_id === id && PAGINAS_PRODUCTO[p.id]);
       if (productoApp) { window.location.href = PAGINAS_PRODUCTO[productoApp.id]; return; }
