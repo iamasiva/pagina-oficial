@@ -2408,7 +2408,7 @@ ${clean}`;
       const judgment = bulletize(document.getElementById('customJudgment').value);
       output = insertBefore(output, 'EXPERTISE AREAS', judgment ? `JUDGMENT CRITERIA\n${judgment}` : '');
 
-      const focus = document.getElementById('customFocus').value.trim();
+      const focus = document.getElementById('customFocus').value.trim().replace(/[.\s]+$/, '');
       output = insertBefore(output, 'CONTEXT AWARENESS', focus ? `ADDITIONAL FOCUS\nPrioritize this user-defined focus when it is relevant: ${focus}.` : '');
 
       const boundary = document.getElementById('customBoundary').value.trim();
@@ -2612,7 +2612,7 @@ ${clean}`;
           if (a === -1 || b <= a) throw new Error('sin-bloque');
           return JSON.parse(texto.slice(a, b + 1));
         }
-        const lista = (v) => Array.isArray(v) ? v.map(x => String(x).trim()).filter(Boolean).join('\n') : String(v ?? '').trim();
+        const lista = (v) => Array.isArray(v) ? v.map(x => String(x).trim().replace(/[.\s]+$/, '')).filter(Boolean).join('\n') : String(v ?? '').trim();
         function ponerTexto(id, v) { const el = g(id); const s = String(v ?? '').trim(); if (el && s) el.value = s; }
         // Desplegables: si el valor coincide con una opción se elige; si no, va en "Otro"
         function ponerSelect(selId, otroId, v) {
