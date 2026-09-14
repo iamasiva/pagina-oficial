@@ -490,6 +490,15 @@
     .busq-caja { margin-top: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
     .busq-caja .primary-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; }
     .busq-nota { color: var(--muted); font-size: 13px; margin: 0; }
+    /* Creador de configuraciones: tarjeta al inicio de "Crea tu configuración" */
+    .creador-caja { margin: 0 0 18px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .creador-caja h3 { margin: 8px 0 4px; font-size: 17px; }
+    .creador-caja p { margin: 0; color: var(--muted); font-size: 14px; max-width: 620px; }
+    .creador-acciones { display: flex; gap: 10px; flex-wrap: wrap; }
+    .creador-acciones .primary-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; text-decoration: none; }
+    .creador-acciones .primary-btn.im-btn-apagado { opacity: .5; pointer-events: none; }
+    #imCreadorTexto { width: 100%; min-height: 190px; margin-top: 8px; font-family: var(--mono); font-size: 12.5px; }
+    #imCreadorError { color: #e5484d; }
   
     #imMejorarTexto { width: 100%; min-height: 110px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 11px 12px; font: inherit; resize: vertical; }
     .im-mejorar-acciones { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
@@ -1023,6 +1032,18 @@
           </div>
         </div>
 
+        <div class="creador-caja" id="imCreadorCaja">
+          <div>
+            <span class="badge" id="imCreadorBadge">Empieza por aquí</span>
+            <h3 id="imCreadorTitulo">¿No sabes qué poner en cada campo? El Creador te los llena.</h3>
+            <p id="imCreadorCopy">Cuéntale al Creador de configuraciones qué necesitas, o pégale lo que te dijo el Bibliotecario, y te devuelve cada campo listo para pegar más un bloque que rellena todo el formulario de una vez.</p>
+          </div>
+          <div class="creador-acciones">
+            <a class="primary-btn" id="imCreadorBtn" href="#" target="_blank" rel="noopener">Abrir el Creador en Gemini</a>
+            <button class="secondary-btn" id="imCreadorPegar" type="button"><span>Pegar respuesta del Creador</span></button>
+          </div>
+        </div>
+
         <div class="builder">
           <form id="customForm" class="builder-panel">
             <h3 class="panel-title">Datos del rol</h3>
@@ -1337,6 +1358,20 @@
         <div id="imCuadList"></div>
         <div id="imCuadVacio" class="empty" style="display:none"></div>
       </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: pegar la respuesta del Creador de configuraciones y rellenar el formulario -->
+  <div id="imModalCreador" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imCreadorModalTitulo">Pega la respuesta del Creador</h3>
+      <p class="busq-nota" id="imCreadorModalHint">Copia el bloque final que te dio la gema (empieza con { y termina con }). Si pegas la respuesta completa también sirve.</p>
+      <textarea id="imCreadorTexto" placeholder='{ "rol": "...", "especialidad": "...", ... }'></textarea>
+      <p class="busq-nota" id="imCreadorError" style="display:none"></p>
+      <div class="im-modal-acciones">
+        <button id="imCreadorCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imCreadorRellenar" class="primary-btn" type="button"><span>Rellenar campos</span></button>
       </div>
     </div>
   </div>
@@ -1822,6 +1857,17 @@ NEVER:
         backToFamiliesLabel: '← Volver a temas',
         treeRootLabel: 'Configuraciones',
         builderLinkLabel: 'Crea tu configuración',
+        creadorBadge: 'Empieza por aquí',
+        creadorTitulo: '¿No sabes qué poner en cada campo? El Creador te los llena.',
+        creadorCopy: 'Cuéntale al Creador de configuraciones qué necesitas, o pégale lo que te dijo el Bibliotecario, y te devuelve cada campo listo para pegar más un bloque que rellena todo el formulario de una vez.',
+        creadorBtn: 'Abrir el Creador en Gemini',
+        creadorPegar: 'Pegar respuesta del Creador',
+        creadorModalTitulo: 'Pega la respuesta del Creador',
+        creadorModalHint: 'Copia el bloque final que te dio la gema (empieza con { y termina con }). Si pegas la respuesta completa también sirve.',
+        creadorCancelar: 'Cancelar',
+        creadorRellenar: 'Rellenar campos',
+        creadorError: 'No encontré el bloque. Copia la respuesta completa de la gema y vuelve a pegarla.',
+        creadorToast: 'Campos rellenados. Revisa la configuración y cópiala.',
         guideLinkLabel: 'Guía de uso',
         emptyPromptTitle: 'Elige una categoría o tema',
         emptyPromptBody: 'Usa el panel izquierdo para explorar por categoría y tema, o escribe lo que necesitas en el buscador.',
@@ -1857,6 +1903,17 @@ NEVER:
         backToFamiliesLabel: '← Back to topics',
         treeRootLabel: 'Configurations',
         builderLinkLabel: 'Create your own',
+        creadorBadge: 'Start here',
+        creadorTitulo: 'Not sure what to write in each field? The Creator fills them for you.',
+        creadorCopy: 'Tell the Configuration Creator what you need, or paste what the Librarian told you, and it returns every field ready to paste plus a block that fills the whole form at once. It replies in Spanish.',
+        creadorBtn: 'Open the Creator in Gemini',
+        creadorPegar: 'Paste the Creator reply',
+        creadorModalTitulo: 'Paste the Creator reply',
+        creadorModalHint: 'Copy the final block the Gem gave you (it starts with { and ends with }). Pasting the whole reply also works.',
+        creadorCancelar: 'Cancel',
+        creadorRellenar: 'Fill the fields',
+        creadorError: 'I could not find the block. Copy the complete reply from the Gem and paste it again.',
+        creadorToast: 'Fields filled. Review the configuration and copy it.',
         guideLinkLabel: 'Usage guide',
         emptyPromptTitle: 'Pick a category or topic',
         emptyPromptBody: 'Use the left panel to browse by category and topic, or type what you need in the search box.',
@@ -2412,6 +2469,13 @@ ${clean}`;
       document.querySelector('#builder .eyebrow').textContent = labels.builderEyebrow;
       document.querySelector('#builder .intro h2').textContent = labels.builderTitle;
       document.querySelector('#builder .intro p:last-child').textContent = labels.builderCopy;
+      const lc = (id, txt, span) => { const e = document.getElementById(id); if (!e || !txt) return; (span ? e.querySelector('span') : e).textContent = txt; };
+      lc('imCreadorBadge', labels.creadorBadge); lc('imCreadorTitulo', labels.creadorTitulo); lc('imCreadorCopy', labels.creadorCopy);
+      lc('imCreadorBtn', labels.creadorBtn); lc('imCreadorPegar', labels.creadorPegar, true);
+      lc('imCreadorModalTitulo', labels.creadorModalTitulo); lc('imCreadorModalHint', labels.creadorModalHint);
+      lc('imCreadorCancelar', labels.creadorCancelar, true); lc('imCreadorRellenar', labels.creadorRellenar, true);
+      const errEl = document.getElementById('imCreadorError'); if (errEl) errEl.dataset.msg = labels.creadorError;
+      const relEl = document.getElementById('imCreadorRellenar'); if (relEl) relEl.dataset.toast = labels.creadorToast;
       document.querySelector('#guide .eyebrow').textContent = labels.guideEyebrow;
       document.querySelector('#guide .intro h2').textContent = labels.guideTitle;
       document.querySelector('#guide .intro p:last-child').textContent = labels.guideCopy;
@@ -2519,6 +2583,60 @@ ${clean}`;
       const closeAdvancedModal = () => document.getElementById('advancedModal').classList.remove('open');
       document.getElementById('closeAdvanced').addEventListener('click', closeAdvancedModal);
       document.getElementById('applyAdvanced').addEventListener('click', () => { updateCustomOutput(); closeAdvancedModal(); });
+
+      // ===== Creador de configuraciones: la gema devuelve un bloque JSON con los
+      // 14 campos del formulario y aquí se rellenan todos de una vez =====
+      (function () {
+        const IM_URL_CREADOR = 'PENDIENTE';
+        const g = (id) => document.getElementById(id);
+        const enlace = g('imCreadorBtn');
+        if (enlace) {
+          if (IM_URL_CREADOR.startsWith('http')) enlace.href = IM_URL_CREADOR;
+          else { enlace.classList.add('im-btn-apagado'); enlace.removeAttribute('href'); enlace.title = 'Muy pronto'; }
+        }
+        const modal = g('imModalCreador'); if (!modal) return;
+        const abrir = () => { g('imCreadorTexto').value = ''; g('imCreadorError').style.display = 'none'; modal.classList.add('abierto'); setTimeout(() => g('imCreadorTexto').focus(), 50); };
+        const cerrar = () => modal.classList.remove('abierto');
+        g('imCreadorPegar').addEventListener('click', abrir);
+        g('imCreadorCancelar').addEventListener('click', cerrar);
+        modal.addEventListener('click', (e) => { if (e.target === modal) cerrar(); });
+        // Pegado tolerante: acepta el JSON solo, con texto alrededor o dentro de cercas de código
+        function extraer(texto) {
+          const a = texto.indexOf('{'), b = texto.lastIndexOf('}');
+          if (a === -1 || b <= a) throw new Error('sin-bloque');
+          return JSON.parse(texto.slice(a, b + 1));
+        }
+        const lista = (v) => Array.isArray(v) ? v.map(x => String(x).trim()).filter(Boolean).join('\n') : String(v ?? '').trim();
+        function ponerTexto(id, v) { const el = g(id); const s = String(v ?? '').trim(); if (el && s) el.value = s; }
+        // Desplegables: si el valor coincide con una opción se elige; si no, va en "Otro"
+        function ponerSelect(selId, otroId, v) {
+          const sel = g(selId), otro = g(otroId); const val = String(v ?? '').trim();
+          if (!sel || !val) return;
+          const op = [...sel.options].find(o => o.value.toLowerCase() === val.toLowerCase() || o.textContent.trim().toLowerCase() === val.toLowerCase());
+          if (op) { sel.value = op.value; if (otro) otro.value = ''; }
+          else { sel.value = 'Otro'; if (otro) otro.value = val; }
+          toggleOtherLanguage(sel);
+        }
+        g('imCreadorRellenar').addEventListener('click', () => {
+          let d;
+          try { d = extraer(g('imCreadorTexto').value); }
+          catch (e) { g('imCreadorError').textContent = g('imCreadorError').dataset.msg || 'No encontré el bloque. Copia la respuesta completa de la gema y vuelve a pegarla.'; g('imCreadorError').style.display = 'block'; return; }
+          ponerTexto('customRole', d.rol); ponerTexto('customSpecialty', d.especialidad);
+          ponerSelect('customUserType', 'customOtherUserType', d.para_quien);
+          ponerTexto('customExpertise', lista(d.expertise));
+          ponerSelect('customPlatform', 'customOtherPlatform', d.plataforma);
+          ponerSelect('customLanguage', 'customOtherLanguage', d.idioma);
+          ponerSelect('customTone', 'customOtherTone', d.tono);
+          ponerSelect('customDetail', 'customOtherDetail', d.detalle);
+          ponerSelect('customQuestions', 'customOtherQuestions', d.preguntas);
+          ponerTexto('customRegion', d.region); ponerTexto('customFocus', d.foco);
+          ponerTexto('customJudgment', lista(d.criterios)); ponerTexto('customFailures', lista(d.evitar));
+          ponerTexto('customBoundary', d.limite);
+          updateCustomOutput(); cerrar();
+          showToast(g('imCreadorRellenar').dataset.toast || 'Campos rellenados. Revisa la configuración y cópiala.');
+          g('customOutput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      })();
       document.getElementById('advancedModal').addEventListener('click', event => {
         if (event.target.id === 'advancedModal') closeAdvancedModal();
       });
@@ -2588,7 +2706,7 @@ ${clean}`;
           favTodasCat: 'Todas las categorías', favTodasSub: 'Todas',
           biblioTab: 'Biblioteca',
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
-          busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo.',
+          busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo. Si te dice que la crees, lleva esa descripción al Creador de configuraciones (en Crea tu configuración) y te llena los campos.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
           arqEyebrow: 'Estructura tu proyecto', arqTitulo: '¿Tienes un proyecto y no sabes por dónde empezar a organizarlo?',
           arqCopy: 'El Bibliotecario te encuentra la configuración; el Arquitecto te estructura el proyecto completo. Cuéntale qué quieres lograr y arma contigo el árbol: categoría, subcategorías, cuadernos y chats, cada uno con su objetivo. Al final te entrega un bloque que pegas en Mis cuadernos con "Importar árbol" y toda la estructura se crea sola.',
@@ -2609,7 +2727,7 @@ ${clean}`;
           favTodasCat: 'All categories', favTodasSub: 'All',
           biblioTab: 'Library',
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
-          busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set.',
+          busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set. If it tells you to create one, take that description to the Configuration Creator (in Create your own) and it fills the fields for you.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
           arqEyebrow: 'Structure your project', arqTitulo: 'Do you have a project and no idea how to start organizing it?',
           arqCopy: 'The Librarian finds you the configuration; the Architect structures your whole project. Tell it what you want to achieve and it builds the tree with you: category, subcategories, notebooks and chats, each with its objective. At the end it hands you a block you paste in My notebooks with "Import tree" and the whole structure creates itself.',
