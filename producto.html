@@ -1040,7 +1040,7 @@
         comprado = !!compra;
         for (const c of prPack ?? []) {
           poseidos.add(c.product_id);
-          if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
+          if (c.gateway === 'wompi' || c.gateway === 'hotmart') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
         }
       }
       // Quien ya tiene TODAS las piezas del pack (compradas sueltas, otorgadas

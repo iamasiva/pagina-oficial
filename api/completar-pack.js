@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       .eq('user_id', user.id)
       .in('product_id', propios)
       .eq('estado', 'APROBADA')
-      .eq('gateway', 'wompi');
+      .in('gateway', ['wompi', 'hotmart']);
     const invertido = (pagos ?? []).reduce((s, p) => s + (p.monto_usd_centavos ?? 0), 0);
     if (invertido < efectivo(pack)) {
       return res.status(400).json({ error: 'Tu inversión aún no cubre el valor del pack' });

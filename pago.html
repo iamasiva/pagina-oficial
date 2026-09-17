@@ -93,7 +93,7 @@
       <button class="btn" id="btnPagar" disabled>Pagar</button>
       <a class="btn-sec" id="linkVolver" href="#">← Volver al producto</a>
       <p class="msj oculto" id="msjError"></p>
-      <p class="seguro">🔒 Pago seguro con Wompi. Aceptamos tarjetas de crédito y débito internacionales; en Colombia también PSE y Nequi. Nunca vemos los datos de tu tarjeta.</p>
+      <p class="seguro" id="lineaSeguro">🔒 Pago seguro con Wompi. Aceptamos tarjetas de crédito y débito internacionales; en Colombia también PSE y Nequi. Nunca vemos los datos de tu tarjeta.</p>
     </div>
   </div>
 
@@ -191,7 +191,7 @@
           .in('product_id', componentesPack).eq('estado', 'APROBADA');
         propios = [...new Set((data ?? []).map(x => x.product_id))];
         for (const c of data ?? []) {
-          if (c.gateway === 'wompi') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
+          if (c.gateway === 'wompi' || c.gateway === 'hotmart') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
         }
       }
       // Con todas las piezas no hay nada que completar
@@ -242,9 +242,17 @@
         $('cajaConsent').classList.toggle('oculto', esRegalo);
         $('infoConsent').classList.toggle('oculto', esRegalo);
         $('btnPagar').classList.toggle('oculto', esRegalo);
-        $('prodCop').textContent = trmHoy && !esRegalo
-          ? `El cobro se procesa en pesos colombianos: ≈ ${Math.round(cobro * trmHoy / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy). Si tu tarjeta es de otro país, tu banco lo convierte automáticamente a tu moneda.`
-          : '';
+        // Hotmart cobra en USD o en la moneda del comprador; completar un pack
+        // por la diferencia sigue por Wompi (mismo criterio del servidor)
+        const usaHotmart = !!p.hotmart_url && !completa;
+        if (usaHotmart) {
+          $('prodCop').textContent = esRegalo ? '' : 'Pagas en dólares o en tu moneda local: Hotmart te muestra el precio en tu país antes de confirmar.';
+          $('lineaSeguro').textContent = '🔒 Pago seguro con Hotmart. Tarjetas de cualquier país, PayPal y métodos locales según tu país (PSE y Nequi en Colombia, OXXO y SPEI en México, Mercado Pago en Argentina). Nunca vemos los datos de tu tarjeta.';
+        } else {
+          $('prodCop').textContent = trmHoy && !esRegalo
+            ? `El cobro se procesa en pesos colombianos: ≈ ${Math.round(cobro * trmHoy / 100).toLocaleString('es-CO')} COP (TRM oficial de hoy). Si tu tarjeta es de otro país, tu banco lo convierte automáticamente a tu moneda.`
+            : '';
+        }
       }
 
       pintarResumen();

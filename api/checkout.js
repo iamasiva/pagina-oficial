@@ -43,9 +43,9 @@ export default async function handler(req, res) {
       if (previa) return res.status(409).json({ error: 'Ya tienes este producto' });
     }
 
-    const trm = await trmDelDia();
     // Si hay promoción activa se cobra el precio promocional; si no, el regular.
     let precioEfectivo = product.precio_promo_usd_centavos ?? product.precio_usd_centavos;
+    let completandoPack = false;
 
     // Completar el pack: quien ya tiene piezas paga solo lo que le falta para
     // llegar al valor del pack. Si su inversión ya lo cubre, el resto es un
@@ -72,26 +72,16 @@ export default async function handler(req, res) {
           .eq('user_id', user.id)
           .in('product_id', propios)
           .eq('estado', 'APROBADA')
-          .eq('gateway', 'wompi');
+          .in('gateway', ['wompi', 'hotmart']);
         const yaInvertido = (pagos ?? []).reduce((s, p) => s + (p.monto_usd_centavos ?? 0), 0);
         const restante = precioEfectivo - yaInvertido;
         if (restante <= 0) {
           return res.status(409).json({ error: 'Lo que te falta del pack te lo regalamos: acéptalo en la página de pago' });
         }
         precioEfectivo = restante;
+        completandoPack = true;
       }
     }
-    // centavos USD × TRM = centavos COP, redondeado a PESO COMPLETO:
-    // las tarjetas vía Wompi rechazan montos con centavos
-    // ("El método de pago escogido no soporta montos con centavos").
-    const amountInCents = Math.round((precioEfectivo * trm) / 100) * 100;
-    const currency = 'COP';
-    const reference = `${productId}__${user ? user.id : 'guest'}__${Date.now()}`;
-
-    const integrity = crypto
-      .createHash('sha256')
-      .update(`${reference}${amountInCents}${currency}${process.env.WOMPI_INTEGRITY_SECRET}`)
-      .digest('hex');
 
     // Canal de origen de la venta (UTM del navegador del comprador).
     // Texto controlado por el visitante: se limpia y se acota.
@@ -119,6 +109,57 @@ export default async function handler(req, res) {
       ip_cliente: String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() || null,
     };
 
+    // Guarda la fila PENDIENTE (auditoría del monto ofrecido y del consentimiento).
+    // Si las columnas UTM aún no existen, la venta jamás se pierde por eso.
+    const guardarPendiente = async (fila) => {
+      let { error } = await db.from('purchases').insert({ ...fila, ...utm });
+      if (error) ({ error } = await db.from('purchases').insert(fila));
+      if (error) throw new Error(error.message);
+    };
+
+    // ===== HOTMART: el producto tiene su link de checkout en products.hotmart_url.
+    // Cobro en USD (Hotmart lo convierte a la moneda del comprador). Completar
+    // un pack pagando la diferencia no existe en Hotmart (precio fijo por
+    // oferta), así que ese caso sigue por Wompi.
+    if (product.hotmart_url && !completandoPack) {
+      const reference = `hm_${Date.now().toString(36)}_${crypto.randomBytes(6).toString('hex')}`;
+      await guardarPendiente({
+        user_id: user?.id ?? null,
+        product_id: productId,
+        guide_id: product.guide_id,
+        estado: 'PENDIENTE',
+        gateway: 'hotmart',
+        referencia: reference,
+        monto_centavos: precioEfectivo,
+        moneda: 'USD',
+        monto_usd_centavos: precioEfectivo,
+        trm_aplicada: null,
+        consintio_acceso: new Date().toISOString(),
+        ...atribucion,
+      });
+      const url = new URL(product.hotmart_url);
+      // sck vuelve en el webhook como purchase.sckPaymentLink: con él se casa
+      // la fila PENDIENTE. src llega como origen (xcod) para las métricas de Hotmart.
+      url.searchParams.set('sck', reference);
+      if (user?.email) url.searchParams.set('email', user.email);
+      if (utm.utm_source) url.searchParams.set('src', utm.utm_source.replace(/[^a-z0-9_-]/g, '').slice(0, 40));
+      return res.status(200).json({ url: url.toString(), reference, pasarela: 'hotmart' });
+    }
+
+    // ===== WOMPI: cobro en COP con la TRM del día
+    const trm = await trmDelDia();
+    // centavos USD × TRM = centavos COP, redondeado a PESO COMPLETO:
+    // las tarjetas vía Wompi rechazan montos con centavos
+    // ("El método de pago escogido no soporta montos con centavos").
+    const amountInCents = Math.round((precioEfectivo * trm) / 100) * 100;
+    const currency = 'COP';
+    const reference = `${productId}__${user ? user.id : 'guest'}__${Date.now()}`;
+
+    const integrity = crypto
+      .createHash('sha256')
+      .update(`${reference}${amountInCents}${currency}${process.env.WOMPI_INTEGRITY_SECRET}`)
+      .digest('hex');
+
     // Registro PENDIENTE: deja auditoría de la TRM y el monto ofrecidos.
     const fila = {
       user_id: user?.id ?? null,
@@ -134,12 +175,7 @@ export default async function handler(req, res) {
       consintio_acceso: new Date().toISOString(),
       ...atribucion,
     };
-    let { error: insertError } = await db.from('purchases').insert({ ...fila, ...utm });
-    // Si las columnas UTM aún no existen, la venta jamás se pierde por eso.
-    if (insertError) {
-      ({ error: insertError } = await db.from('purchases').insert(fila));
-    }
-    if (insertError) throw new Error(insertError.message);
+    await guardarPendiente(fila);
 
     const origin = `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
     const url = new URL('https://checkout.wompi.co/p/');
