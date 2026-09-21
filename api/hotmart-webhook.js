@@ -66,6 +66,10 @@ async function registrar(db, evento, resumen) {
   } catch (e) { /* la bitácora nunca rompe el webhook */ }
 }
 
+function sckDe(compra) {
+  return String(compra?.origin?.sck ?? compra?.sckPaymentLink ?? '').trim();
+}
+
 async function perfilPorCorreo(db, correo) {
   if (!correo) return null;
   const patron = correo.replace(/([%_\\])/g, '\\$1');
@@ -139,13 +143,24 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
   const ahora = new Date().toISOString();
 
   // 4) La fila PENDIENTE de pago.html (llega en sck), o una nueva por link directo
-  const sck = String(compra.sckPaymentLink ?? '').trim();
+  // Comprobado con la primera compra real (21 sep 2026): el parámetro sck del
+  // link vuelve en purchase.origin.sck (sckPaymentLink llega null).
+  const sck = sckDe(compra);
   let fila = null;
   if (sck) {
     const { data } = await db.from('purchases').select('*').eq('referencia', sck).eq('gateway', 'hotmart').maybeSingle();
     if (data && data.estado !== 'APROBADA') fila = data;
   }
   const perfil = await perfilPorCorreo(db, correo);
+  // Respaldo sin sck (link directo de Hotmart o parámetro perdido): la fila
+  // PENDIENTE más reciente de ese usuario y producto en las últimas 48 horas.
+  if (!fila && perfil) {
+    const desde = new Date(Date.now() - 48 * 3600 * 1000).toISOString();
+    const { data } = await db.from('purchases').select('*')
+      .eq('user_id', perfil.id).eq('product_id', producto.id).eq('gateway', 'hotmart').eq('estado', 'PENDIENTE')
+      .gte('purchased_at', desde).order('purchased_at', { ascending: false }).limit(1);
+    if (data?.length) fila = data[0];
+  }
   const userId = fila?.user_id ?? perfil?.id ?? null;
 
   const cambios = {
@@ -227,7 +242,7 @@ async function revocar({ db, compra, transaccion }) {
     if (error) throw new Error('No se pudo retirar el acceso: ' + error.message);
   }
   // Una compra que nunca se aprobó (cancelada antes de pagar) queda cancelada
-  const sck = String(compra.sckPaymentLink ?? '').trim();
+  const sck = sckDe(compra);
   if (sck) await db.from('purchases').update({ estado: 'DECLINADA' }).eq('referencia', sck).eq('gateway', 'hotmart').eq('estado', 'PENDIENTE');
   return ids.length ? `acceso retirado a ${ids.length} fila(s)` : 'nada que retirar';
 }
