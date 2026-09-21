@@ -89,6 +89,16 @@
     section { padding: 56px 5vw; }
     .contenido { max-width: 980px; margin: 0 auto; }
     .eyebrow-sec { text-align: center; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acento); margin-bottom: 12px; }
+    /* Garantía de 7 días (solo productos cobrados por Hotmart) */
+    .garantia { display: grid; grid-template-columns: 150px 1fr; gap: 26px; align-items: center; padding: 30px 32px; border: 2px solid var(--acento); border-radius: 18px; background: color-mix(in srgb, var(--acento) 9%, var(--fondo)); box-shadow: 0 18px 50px color-mix(in srgb, var(--acento) 22%, transparent); }
+    .garantia-sello { width: 150px; height: 150px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--acento); color: var(--cta-texto); box-shadow: 0 0 0 8px color-mix(in srgb, var(--acento) 25%, transparent); }
+    .garantia-sello b { font-size: 3.6rem; line-height: 1; font-weight: 900; }
+    .garantia-sello span { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 4px; }
+    .garantia h2 { text-align: left; font-size: clamp(1.4rem, 3.2vw, 1.9rem); margin: 0 0 10px; }
+    .garantia p { color: var(--muted); margin: 0; }
+    .garantia p + p { margin-top: 10px; }
+    .garantia .nota { font-size: 0.9rem; color: var(--ink); font-weight: 600; }
+    @media (max-width: 640px) { .garantia { grid-template-columns: 1fr; text-align: center; padding: 26px 20px; } .garantia-sello { margin: 0 auto; } .garantia h2 { text-align: center; } }
     h2 { font-size: clamp(1.5rem, 3.4vw, 2.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.01em; text-align: center; margin-bottom: 14px; }
     .sub { text-align: center; color: var(--muted); max-width: 640px; margin: 0 auto 34px; font-size: 1.02rem; }
     /* La línea del video hace de encabezado de la sección: más presencia en escritorio */
@@ -381,6 +391,20 @@
       <details><summary>¿En qué moneda pago?</summary><p>El precio está en dólares (USD). Al pagar, Wompi procesa el cobro en pesos colombianos con la tasa oficial del día, y las tarjetas internacionales funcionan sin problema.</p></details>
       <details><summary>¿Compras desde fuera de Colombia?</summary><p>Bienvenido: tu tarjeta internacional funciona normal. En el formulario de pago, cuando te pidan el documento, elige <b>Pasaporte</b> en el desplegable y listo.</p></details>
       <details id="pFaqExtra" class="oculto"><summary id="pFaqExtraQ"></summary><p id="pFaqExtraA"></p></details>
+    </div>
+  </section>
+
+  <section id="pSecGarantia" class="oculto" style="padding-top: 12px;">
+    <div class="contenido">
+      <p class="eyebrow-sec">Garantía de 7 días</p>
+      <div class="garantia">
+        <div class="garantia-sello"><b>7</b><span>días</span></div>
+        <div>
+          <h2>Pruébalo 7 días. Si no es lo que esperabas, te devolvemos el dinero.</h2>
+          <p>Compras, entras y lo usas de verdad. Si en los primeros 7 días decides que no es para ti, pides el reembolso desde tu cuenta de Hotmart, sin dar explicaciones, y te devuelven el pago completo. Lo único que pasa es que se retira el acceso al recurso.</p>
+          <p class="nota">El reembolso lo gestiona Hotmart, no nosotros: no dependes de que te contestemos un correo.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -825,6 +849,7 @@
       // moneda local y sin documento colombiano. Los textos fijos de Wompi se
       // reemplazan aquí para el producto que ya migró.
       if (producto.hotmart_url) {
+        document.getElementById('pSecGarantia').classList.remove('oculto');
         document.querySelectorAll('.micro').forEach(el => {
           el.textContent = el.textContent.replace('Pago seguro con Wompi', 'Garantía de 7 días');
         });
