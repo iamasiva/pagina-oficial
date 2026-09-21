@@ -248,6 +248,7 @@
         if (usaHotmart) {
           $('prodCop').textContent = esRegalo ? '' : 'Pagas en dólares o en tu moneda local: Hotmart te muestra el precio en tu país antes de confirmar.';
           $('infoConsent').textContent = 'Entrega inmediata: tu acceso se activa apenas se apruebe el pago. Y si no es lo que esperabas, tienes 7 días para pedir el reembolso desde Hotmart.';
+          $('cajaConsent').querySelector('span').innerHTML = 'Aceptar los <a href="terminos.html" target="_blank" rel="noopener">términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.';
           $('lineaSeguro').textContent = '🔒 Pago seguro con Hotmart. Tarjetas de cualquier país, PayPal y métodos locales según tu país (PSE y Nequi en Colombia, OXXO y SPEI en México, Mercado Pago en Argentina). Nunca vemos los datos de tu tarjeta.';
         } else {
           $('prodCop').textContent = trmHoy && !esRegalo
