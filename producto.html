@@ -820,6 +820,28 @@
       const producto = (productos ?? []).find(p => p.id === productId);
       if (!producto) { document.body.innerHTML = '<p style="padding:60px; text-align:center;">Este producto no está disponible. <a href="app.html" style="text-decoration:underline;">Volver a IA MASIVA</a></p>'; return; }
       const esBundle = !!PACKS[producto.id];
+
+      // Con Hotmart cambia la promesa de compra: garantía de 7 días, pago en la
+      // moneda local y sin documento colombiano. Los textos fijos de Wompi se
+      // reemplazan aquí para el producto que ya migró.
+      if (producto.hotmart_url) {
+        document.querySelectorAll('.micro').forEach(el => {
+          el.textContent = el.textContent.replace('Pago seguro con Wompi', 'Garantía de 7 días');
+        });
+        document.querySelectorAll('.confianza span').forEach(el => {
+          if (el.textContent.includes('Pago seguro con Wompi')) el.innerHTML = '<b>✓</b> Garantía de 7 días: si no es lo que esperabas, te devolvemos el dinero';
+          if (el.textContent.includes('Garantía por fallas técnicas')) el.innerHTML = '<b>✓</b> Pago seguro con Hotmart, en tu moneda';
+        });
+        const faq = {
+          '¿Puedo pedir reembolso?': 'Sí. Tienes 7 días desde la compra para pedir el reembolso directamente en Hotmart, sin dar explicaciones, y te devuelven el dinero completo. Solo ten en cuenta que al reembolsar se retira el acceso al recurso.',
+          '¿En qué moneda pago?': 'El precio está en dólares (USD) y Hotmart te lo muestra en la moneda de tu país antes de confirmar. Tarjetas de cualquier país, PayPal y métodos locales según dónde estés: PSE y Nequi en Colombia, OXXO y SPEI en México, Mercado Pago en Argentina.',
+          '¿Compras desde fuera de Colombia?': 'Bienvenido: el pago se procesa en tu moneda y con los métodos de tu país. No te piden documento colombiano ni nada especial.',
+        };
+        document.querySelectorAll('.faq details').forEach(d => {
+          const q = d.querySelector('summary')?.textContent.trim();
+          if (faq[q]) d.querySelector('p').textContent = faq[q];
+        });
+      }
       const componentesEste = PACKS[producto.id] || [];
       // Cada pack puede traer su propio copy; si no, usa la plantilla genérica.
       const cfg = esBundle ? (LANDINGS[producto.id] ?? LANDINGS.__bundle__) : LANDINGS[producto.id];
