@@ -1013,8 +1013,8 @@
     ]).then(([g, s, p, t, cat]) => {
       if (g.error) return false;
       allGuides = g.data ?? []; heroSlidesRaw = s.data ?? []; allProducts = p.data ?? [];
-      // Aperturas reales de los últimos 30 días; si la vista aún no existe, Tendencias
-      // cae al orden por fecha sin romper nada.
+      // Puntaje de aperturas reales con decaimiento (vida media 3 días, ventana de
+      // 30 días); si la vista aún no existe, Tendencias cae al orden por fecha sin romper nada.
       tendenciasConteo = new Map((t.error ? [] : t.data ?? []).map(f => [f.guide_id, f.aperturas]));
       // Categorías de la tabla (si aún no existe, se queda la lista de arranque)
       if (!cat.error && cat.data?.length) { CATEGORIAS = cat.data; pintarCategorias(); }
@@ -2292,7 +2292,7 @@
       document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
       requestAnimationFrame(activarDeslizamientos);
       document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías de pago.</p>';
-      // Tendencias reales: aperturas de los últimos 30 días; a igual conteo, la más nueva primero
+      // Tendencias reales: puntaje de aperturas con decaimiento; a igual puntaje, la más nueva primero
       const porTendencia = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
       document.getElementById('rowTendencias').innerHTML= porTendencia.slice(0,10).length ? porTendencia.slice(0,10).map((g,i)=>makeCard(g,i+1,true)).join('') : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
 
