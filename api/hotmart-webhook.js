@@ -75,9 +75,16 @@ async function perfilPorCorreo(db, correo) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  if (!tokenValido(req)) return res.status(403).json({ error: 'Token inválido' });
-
   const db = adminClient();
+  if (!tokenValido(req)) {
+    // Queda rastro del rechazo (sin el cuerpo, que no está verificado) para
+    // diagnosticar un token mal puesto en Vercel o en Hotmart.
+    const cab = String(req.headers['x-hotmart-hottok'] ?? '');
+    await registrar(db, { event: String(req.body?.event ?? ''), id: String(req.body?.id ?? ''), data: {} },
+      `rechazado: token inválido (${cab ? 'llegó token de ' + cab.length + ' caracteres' : 'sin cabecera X-HOTMART-HOTTOK'}; configurado en Vercel: ${process.env.HOTMART_HOTTOK ? 'sí' : 'NO'})`);
+    return res.status(403).json({ error: 'Token inválido' });
+  }
+
   const evento = req.body ?? {};
   const d = evento.data ?? {};
   const compra = d.purchase ?? {};
