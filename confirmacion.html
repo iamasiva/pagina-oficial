@@ -151,13 +151,20 @@
             mostrar('vistaCuenta');
             return;
           }
-          // Directo al recurso comprado (el bundle lleva al catálogo, donde están los tres)
+          // Un solo recurso: directo a él. Más de uno (el pack, entero o
+          // completado por la diferencia): a Tus compras, donde están las piezas.
           const PAGINAS = {
             '656f61d7-37b2-4e9c-8cf3-67065484493c': 'recurso-557.html',
             '0f0d6926-5328-4e3e-89a4-92b36ef13996': 'recurso-400.html',
             '2c296299-d9a4-4409-bc99-67b4999e47f8': 'recurso-200.html',
           };
-          if (PAGINAS[compra.product_id]) document.getElementById('btnAbrirRecurso').href = PAGINAS[compra.product_id];
+          const btn = document.getElementById('btnAbrirRecurso');
+          if (PAGINAS[compra.product_id]) {
+            btn.href = PAGINAS[compra.product_id];
+          } else {
+            btn.href = 'app.html?ver=compras';
+            btn.textContent = 'Ver mis compras';
+          }
           mostrar('vistaAprobada');
           return;
         }
