@@ -6,7 +6,7 @@
 // exacto: sin colchón ni redondeo), firma la transacción y devuelve la URL
 // del checkout de Wompi. La firma usa un secreto que solo existe aquí.
 import crypto from 'node:crypto';
-import { adminClient, userFromRequest, trmDelDia, componentesDelPack } from './_lib.js';
+import { adminClient, userFromRequest, trmDelDia, componentesDelPack, ofertaPorMonto } from './_lib.js';
 
 export default async function handler(req, res) {
   try {
@@ -119,9 +119,13 @@ export default async function handler(req, res) {
 
     // ===== HOTMART: el producto tiene su link de checkout en products.hotmart_url.
     // Cobro en USD (Hotmart lo convierte a la moneda del comprador). Completar
-    // un pack pagando la diferencia no existe en Hotmart (precio fijo por
-    // oferta), así que ese caso sigue por Wompi.
-    if (product.hotmart_url && !completandoPack) {
+    // un pack pagando la diferencia va a una oferta del pack con ese precio
+    // fijo (products.hotmart_ofertas, una por diferencia posible). Si no hay
+    // oferta para ese monto, ese caso sigue por Wompi con el monto exacto.
+    const oferta = completandoPack ? ofertaPorMonto(product.hotmart_ofertas, precioEfectivo) : null;
+    if (product.hotmart_url && (!completandoPack || oferta)) {
+      // Lo que Hotmart cobra de verdad: el precio de la oferta elegida
+      const cobro = oferta ? oferta.centavos : precioEfectivo;
       const reference = `hm_${Date.now().toString(36)}_${crypto.randomBytes(6).toString('hex')}`;
       await guardarPendiente({
         user_id: user?.id ?? null,
@@ -130,20 +134,20 @@ export default async function handler(req, res) {
         estado: 'PENDIENTE',
         gateway: 'hotmart',
         referencia: reference,
-        monto_centavos: precioEfectivo,
+        monto_centavos: cobro,
         moneda: 'USD',
-        monto_usd_centavos: precioEfectivo,
+        monto_usd_centavos: cobro,
         trm_aplicada: null,
         consintio_acceso: new Date().toISOString(),
         ...atribucion,
       });
-      const url = new URL(product.hotmart_url);
-      // sck vuelve en el webhook como purchase.sckPaymentLink: con él se casa
+      const url = new URL(oferta ? oferta.url : product.hotmart_url);
+      // sck vuelve en el webhook como purchase.origin.sck: con él se casa
       // la fila PENDIENTE. src llega como origen (xcod) para las métricas de Hotmart.
       url.searchParams.set('sck', reference);
       if (user?.email) url.searchParams.set('email', user.email);
       if (utm.utm_source) url.searchParams.set('src', utm.utm_source.replace(/[^a-z0-9_-]/g, '').slice(0, 40));
-      return res.status(200).json({ url: url.toString(), reference, pasarela: 'hotmart' });
+      return res.status(200).json({ url: url.toString(), reference, pasarela: 'hotmart', oferta: oferta?.nombre ?? null });
     }
 
     // ===== WOMPI: cobro en COP con la TRM del día

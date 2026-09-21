@@ -82,3 +82,24 @@ export async function trmDelDia() {
     throw new Error('No se pudo consultar la TRM oficial');
   }
 }
+
+// Completar un pack por Hotmart. El pack tiene ofertas de precio fijo en
+// products.hotmart_ofertas: [{ centavos, url, nombre }], una por cada
+// diferencia posible (lo que falta para llegar al pack según lo que la
+// persona ya pagó). Se elige la del monto exacto; si no existe, la más
+// cercana con hasta 3 USD de diferencia (empate: la más barata). Sin oferta
+// cercana devuelve null y el cobro sigue por Wompi con el monto exacto.
+export function ofertaPorMonto(ofertas, centavos) {
+  const lista = Array.isArray(ofertas) ? ofertas : [];
+  let mejor = null;
+  for (const o of lista) {
+    const c = Number(o?.centavos);
+    if (!Number.isFinite(c) || c <= 0 || !o?.url) continue;
+    const dist = Math.abs(c - centavos);
+    if (dist > 300) continue;
+    if (!mejor || dist < mejor.dist || (dist === mejor.dist && c < mejor.centavos)) {
+      mejor = { centavos: c, url: String(o.url), nombre: o.nombre ?? null, dist };
+    }
+  }
+  return mejor;
+}

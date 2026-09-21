@@ -185,7 +185,7 @@
       const componentesPack = (comps ?? []).map(c => c.componente_id);
       const nombreDe = (id) => (productos ?? []).find(p => p.id === id)?.nombre ?? '';
       let propios = [];
-      let pagadoPorPieza = {};   // dinero REAL pagado por pieza (solo wompi)
+      let pagadoPorPieza = {};   // dinero REAL pagado por pieza (wompi u hotmart)
       if (session && componentesPack.length) {
         const { data } = await sb.from('purchases').select('product_id, monto_usd_centavos, gateway')
           .in('product_id', componentesPack).eq('estado', 'APROBADA');
@@ -205,6 +205,21 @@
       let productoActivo = producto;
       let trmHoy = null;
 
+      // Completar el pack por Hotmart: el pack tiene ofertas de precio fijo
+      // (hotmart_ofertas), una por diferencia posible. Misma regla que el
+      // servidor: monto exacto, o el más cercano hasta 3 USD; si no hay, Wompi.
+      function ofertaPorMonto(ofertas, centavos) {
+        let mejor = null;
+        for (const o of Array.isArray(ofertas) ? ofertas : []) {
+          const c = Number(o?.centavos);
+          if (!Number.isFinite(c) || c <= 0 || !o?.url) continue;
+          const dist = Math.abs(c - centavos);
+          if (dist > 300) continue;
+          if (!mejor || dist < mejor.dist || (dist === mejor.dist && c < mejor.centavos)) mejor = { centavos: c, dist };
+        }
+        return mejor;
+      }
+
       function pintarResumen() {
         const p = productoActivo;
         const promo = p.precio_promo_usd_centavos ?? null;
@@ -214,11 +229,17 @@
         // servidor valida con esta misma regla: aquí solo se muestra.
         let cobro = precioEfectivo(p);
         let esRegalo = false;
+        let ofertaPack = null;
         const completa = componentesPack.length && propios.length > 0;
         if (completa) {
           const invertido = propios.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
           cobro = precioEfectivo(p) - invertido;
           esRegalo = cobro <= 0;
+          // Con Hotmart se cobra el precio de la oferta elegida: se muestra ese
+          if (!esRegalo && p.hotmart_url) {
+            ofertaPack = ofertaPorMonto(p.hotmart_ofertas, cobro);
+            if (ofertaPack) cobro = ofertaPack.centavos;
+          }
           const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];
           const tienes = enLista(propios.map(nombreDe).filter(Boolean));
           const faltan = enLista(componentesPack.filter(id => !propios.includes(id)).map(nombreDe));
@@ -242,9 +263,10 @@
         $('cajaConsent').classList.toggle('oculto', esRegalo);
         $('infoConsent').classList.toggle('oculto', esRegalo);
         $('btnPagar').classList.toggle('oculto', esRegalo);
-        // Hotmart cobra en USD o en la moneda del comprador; completar un pack
-        // por la diferencia sigue por Wompi (mismo criterio del servidor)
-        const usaHotmart = !!p.hotmart_url && !completa;
+        // Hotmart cobra en USD o en la moneda del comprador. Completar un pack
+        // por la diferencia va a Hotmart solo si hay oferta con ese precio;
+        // si no, sigue por Wompi (mismo criterio del servidor)
+        const usaHotmart = !!p.hotmart_url && (!completa || !!ofertaPack);
         if (usaHotmart) {
           $('prodCop').textContent = esRegalo ? '' : 'Pagas en dólares o en tu moneda local: Hotmart te muestra el precio en tu país antes de confirmar.';
           $('infoConsent').textContent = 'Entrega inmediata: tu acceso se activa apenas se apruebe el pago. Y si no es lo que esperabas, tienes 7 días para pedir el reembolso desde Hotmart.';

@@ -10,7 +10,9 @@
 //   (el parámetro sck del link) y se actualiza esa fila PENDIENTE. Si llegó
 //   por un link directo de Hotmart, se crea la fila con el correo del
 //   comprador (user_id null) y /api/reclamar la engancha al registrarse.
-//   Un pack desbloquea sus piezas (gateway 'bundle'), igual que con Wompi.
+//   Un pack desbloquea sus piezas (gateway 'bundle'), igual que con Wompi;
+//   las que ya tenía no se duplican (así funciona completar el pack por la
+//   diferencia: pago.html manda a la oferta del pack con ese precio fijo).
 // - PURCHASE_REFUNDED / PURCHASE_CHARGEBACK / PURCHASE_CANCELED: quita el
 //   acceso a la compra y a las piezas del pack (estado ANULADA: la tabla solo
 //   admite PENDIENTE, APROBADA, DECLINADA, ANULADA y ERROR, y el acceso lo da
@@ -37,8 +39,9 @@ function tokenValido(req) {
 async function productoNuestro(db, productoH) {
   const claves = [productoH?.id, productoH?.ucode].filter(v => v !== undefined && v !== null).map(String);
   if (!claves.length) return null;
-  const columnas = 'id, guide_id, nombre, precio_usd_centavos, precio_promo_usd_centavos';
-  const { data, error } = await db.from('products').select(columnas + ', hotmart_id').in('hotmart_id', claves).limit(1);
+  // select('*') y no una lista fija: hotmart_ofertas puede no existir aún.
+  const columnas = '*';
+  const { data, error } = await db.from('products').select(columnas).in('hotmart_id', claves).limit(1);
   if (!error && data?.length) return data[0];
   try {
     const mapa = JSON.parse(process.env.HOTMART_PRODUCTOS || '{}');
@@ -133,13 +136,14 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
   const producto = await productoNuestro(db, d.product);
   if (!producto) return 'producto desconocido: agrega el id de Hotmart al producto y reenvía el evento';
 
-  // 3) Montos: en USD si el checkout fue en USD; si fue en otra moneda, el
-  // valor de referencia en USD es el precio de lista vigente del producto.
+  // 3) Montos: en USD si el checkout fue en USD. Si fue en otra moneda, el
+  // valor de referencia en USD es el que pago.html dejó en la fila PENDIENTE
+  // (precio del producto o de la oferta de completar pack) y, sin fila, el
+  // precio de lista vigente del producto.
   const precio = compra.price ?? {};
   const moneda = String(precio.currency_value ?? 'USD').toUpperCase();
   const centavos = Math.round(Number(precio.value ?? 0) * 100);
   const lista = producto.precio_promo_usd_centavos ?? producto.precio_usd_centavos ?? 0;
-  const montoUsd = moneda === 'USD' && centavos > 0 ? centavos : lista;
   const ahora = new Date().toISOString();
 
   // 4) La fila PENDIENTE de pago.html (llega en sck), o una nueva por link directo
@@ -162,6 +166,19 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
     if (data?.length) fila = data[0];
   }
   const userId = fila?.user_id ?? perfil?.id ?? null;
+  const montoUsd = moneda === 'USD' && centavos > 0 ? centavos : (fila?.monto_usd_centavos || lista);
+
+  // Oferta de completar pack (precio fijo por diferencia). Sus links solo los
+  // entrega pago.html a quien ya tiene piezas; si llega una compra con esa
+  // oferta sin fila PENDIENTE, se entrega igual (ya pagó) pero queda avisado
+  // en la bitácora para revisar que de verdad tuviera las piezas.
+  const codigoOferta = String(compra.offer?.code ?? '').trim();
+  const ofertaCompletar = (Array.isArray(producto.hotmart_ofertas) ? producto.hotmart_ofertas : []).find(o => {
+    try { return !!codigoOferta && new URL(o?.url).searchParams.get('off') === codigoOferta; } catch (_) { return false; }
+  });
+  const aviso = ofertaCompletar && !fila
+    ? ` (OJO: pagó la oferta "${ofertaCompletar.nombre ?? codigoOferta}" de completar pack sin pasar por pago.html: revisar que tuviera las piezas)`
+    : ofertaCompletar ? ` (completó el pack con la oferta "${ofertaCompletar.nombre ?? codigoOferta}")` : '';
 
   const cambios = {
     estado: 'APROBADA',
@@ -229,7 +246,7 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
     });
     if (!e) piezas++;
   }
-  return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas` : ''}`;
+  return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${aviso}`;
 }
 
 async function revocar({ db, compra, transaccion }) {
