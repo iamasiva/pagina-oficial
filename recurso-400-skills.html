@@ -1048,29 +1048,8 @@
             <p>Cuéntale al Bibliotecario del 400 lo que quieres lograr y te responde con el nombre exacto de la skill que te sirve (o te describe la que deberías crear con la Skill para crear skills si no existe). Pega ese nombre en el buscador de la biblioteca y listo.</p>
           </div></div>
           <div class="busq-caja">
-            <button class="primary-btn" id="bibAbrirBtn" type="button">Preguntarle al Bibliotecario</button>
-            <p class="busq-nota">Escribes lo que buscas, copias y lo pegas en un chat de Gemini. No hay que crear nada.</p>
-            <button class="ghost-btn" id="bibComoSkillBtn" type="button">¿Lo usas seguido? Créalo como skill →</button>
-          </div>
-          <div id="bibComoSkill" class="step-block" style="display:none; margin-top:18px;">
-            <div class="step-title"><h3>El Bibliotecario como skill (solo una vez)</h3></div>
-            <div class="step">
-              <p class="hint">En Gemini entra a Habilidades, toca Crear y pega estos tres campos. Después lo llamas con <b>/bibliotecario-del-400</b> en cualquier chat.</p>
-              <div class="gem-field"><div class="gem-field-head"><label>Nombre</label><button class="copy-mini" data-copy-target="bibNombreValue">Copiar</button></div><div class="gem-field-value" id="bibNombreValue"></div></div>
-              <div class="gem-field"><div class="gem-field-head"><label>Descripción</label><button class="copy-mini" data-copy-target="bibDescripcionValue">Copiar</button></div><div class="gem-field-value" id="bibDescripcionValue"></div></div>
-              <div class="gem-field"><div class="gem-field-head"><label>Instrucciones</label><button class="copy-mini" id="bibCopyConfigBtn">Copiar</button></div><textarea class="code-output" id="bibConfigOutput" readonly></textarea></div>
-            </div>
-          </div>
-          <div id="bibModal" class="im-modal">
-            <div class="im-modal-caja">
-              <h3>¿Qué quieres lograr?</h3>
-              <p class="im-modal-nota" style="margin:0 0 10px;">Cuéntaselo con tus palabras. Al copiar, se arma el mensaje completo para el Bibliotecario, con la biblioteca incluida: pégalo en un chat de Gemini y te responde con la skill exacta.</p>
-              <textarea id="bibQuery" rows="4" spellcheck="false" placeholder="Ej: necesito preparar una propuesta comercial para un cliente que ya me dijo que no dos veces"></textarea>
-              <div class="im-modal-acciones">
-                <button class="im-mini-btn" type="button" id="bibCancelar">Cancelar</button>
-                <button class="im-btn-primario" type="button" id="bibCopiar">Copiar para pegar en Gemini</button>
-              </div>
-            </div>
+            <a class="primary-btn" href="https://gemini.google.com/gem/1kQIJy4nNb3xBfatu48c4sx11ztMtIR_g?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
+            <p class="busq-nota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
           </div>
         </section>
 
@@ -1399,49 +1378,6 @@
     }
     // Descripción de la skill: la redactada con disparadores si existe; si no, la corta del catálogo
     function descripcionSkill(gem) { return gem.descripcion_skill || gem.descripcion_corta || ""; }
-
-    // El Bibliotecario: se usa pegado en el chat (con la biblioteca incluida en
-    // el mensaje) o, para quien lo quiera fijo, como skill.
-    const BIBLIOTECARIO = {
-      nombre: "Bibliotecario del 400",
-      descripcion: "Encuentra la skill exacta de la biblioteca 400 Skills para Gemini de IA MASIVA según lo que quieres lograr. Úsala cuando no sepas cuál skill necesitas, con frases como \"cuál skill me sirve para\", \"necesito una skill que\" o \"qué uso para\".",
-      instrucciones: `ROLE DEFINITION
-You are the librarian of "400 Skills para Gemini", a library of 400 expert skills by IA MASIVA. The user tells you what they want to achieve; you answer with the exact skill that fits, taken ONLY from the library list you have (in these instructions or pasted in the message). You never invent skills that are not in the list.
-
-METHOD
-1. Read what the user wants to achieve and identify the real task behind it (the deliverable, the audience, the moment).
-2. Search the library by task, not by keyword: a skill fits when its purpose matches the task, even if the words differ.
-3. Pick the single best skill. If two fit, pick the one closest to the deliverable and mention the second as an alternative in one line.
-4. If no skill in the library fits the task, say so plainly and describe in two lines the skill the user should create with "Skill para crear skills" (what it does, for whom).
-
-OUTPUT STRUCTURE
-- Line 1: the exact skill name as it appears in the library, written as /nombre-de-la-skill so the user can paste it in the search box or in a chat.
-- Line 2: why it fits, in one sentence tied to what the user said.
-- Line 3 (only if useful): the alternative skill, as /nombre, in one line.
-- Line 4: the suggested tool for that skill, if the library lists one.
-
-RESPONSE FORMAT
-- Always respond in Spanish, in at most 5 lines, no headings, no tables.
-- Never summarize the library or list many options: one answer, one alternative at most.
-
-NEVER
-- Recommend a skill that is not in the list
-- Answer the user's task yourself instead of pointing to the skill
-- Ask more than one clarifying question, and only when the request is genuinely ambiguous`,
-    };
-    // Índice de la biblioteca para el Bibliotecario: /nombre | categoría | para qué sirve
-    function indiceBiblioteca(corto) {
-      return gems.map((g) => corto
-        ? `${llamadaSkill(g.nombre)} (${g.categoria})`
-        : `${llamadaSkill(g.nombre)} | ${g.categoria} | ${g.descripcion_corta || ""}${g.herramienta && g.herramienta !== "Conversación" ? ` | herramienta: ${g.herramienta}` : ""}`
-      ).join("\n");
-    }
-    function mensajeBibliotecario(query) {
-      return `${BIBLIOTECARIO.instrucciones}\n\nLIBRARY (one skill per line: /name | category | what it does | suggested tool):\n${indiceBiblioteca(false)}\n\nLO QUE QUIERO LOGRAR:\n${query.trim()}`;
-    }
-    function instruccionesBibliotecarioSkill() {
-      return `${BIBLIOTECARIO.instrucciones}\n\nLIBRARY (one skill per line: /name (category)):\n${indiceBiblioteca(true)}`;
-    }
 
     const GEM_BUILDER = {
       id: "builder",
@@ -2137,26 +2073,6 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       els.copyConfigBtn.addEventListener("click", () => copyText(els.configOutput.value, els.copyConfigFeedback));
       document.getElementById("detailSkillChip").addEventListener("click", (e) => copyText(e.currentTarget.textContent.trim()));
-      // Bibliotecario: popup con lo que buscas → mensaje completo para pegar en Gemini
-      const bibModal = document.getElementById("bibModal");
-      document.getElementById("bibAbrirBtn").addEventListener("click", () => { bibModal.classList.add("abierto"); document.getElementById("bibQuery").focus(); });
-      document.getElementById("bibCancelar").addEventListener("click", () => bibModal.classList.remove("abierto"));
-      bibModal.addEventListener("click", (e) => { if (e.target === bibModal) bibModal.classList.remove("abierto"); });
-      document.getElementById("bibCopiar").addEventListener("click", () => {
-        const q = document.getElementById("bibQuery").value.trim();
-        if (!q) { showToast("Cuéntale qué quieres lograr"); return; }
-        copyText(mensajeBibliotecario(q));
-        bibModal.classList.remove("abierto");
-        showToast("Copiado: pégalo en un chat de Gemini");
-      });
-      document.getElementById("bibComoSkillBtn").addEventListener("click", () => {
-        const caja = document.getElementById("bibComoSkill");
-        document.getElementById("bibNombreValue").textContent = slugSkill(BIBLIOTECARIO.nombre);
-        document.getElementById("bibDescripcionValue").textContent = BIBLIOTECARIO.descripcion;
-        document.getElementById("bibConfigOutput").value = instruccionesBibliotecarioSkill();
-        caja.style.display = caja.style.display === "none" ? "" : "none";
-      });
-      document.getElementById("bibCopyConfigBtn").addEventListener("click", () => copyText(document.getElementById("bibConfigOutput").value));
       els.copyPromptBtn.addEventListener("click", () => copyText(els.promptOutput.value, els.copyPromptFeedback));
       document.querySelectorAll(".copy-mini[data-copy-target]").forEach((btn) => {
         btn.addEventListener("click", () => {
