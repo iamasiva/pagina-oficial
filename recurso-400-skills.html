@@ -1106,7 +1106,7 @@
           <div id="imMgVacio" class="im-vacio" style="display:none">Tu caja está vacía. Guarda tu primera skill con el botón de arriba, o guárdala desde la ficha de cualquier skill del catálogo.</div>
         </section>
 
-        <!-- Modal: nombre y categoría del prompt (guardar desde el detalle) -->
+        <!-- Modal: nombre y caja del prompt (guardar desde el detalle) -->
         <div id="imModalMeta" class="im-modal">
           <div class="im-modal-caja">
             <h3>Guardar en mi caja</h3>
@@ -1114,12 +1114,12 @@
             <input id="imMetaNombre" type="text" readonly />
             <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
             <input id="imMetaUrl" type="text" placeholder="/nombre-de-la-skill" />
-            <label class="im-modal-label">Categoría (opcional)</label>
+            <label class="im-modal-label">Caja (opcional)</label>
             <select id="imMetaSelCat"></select>
-            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
-            <label class="im-modal-label">Subcategoría (opcional)</label>
+            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva caja" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Bandeja (opcional)</label>
             <select id="imMetaSelSub"></select>
-            <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+            <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva bandeja" style="display:none; margin-top:8px;" />
             <label class="im-check"><input type="checkbox" id="imMetaConPrompt" checked /> Guardar el prompt</label>
             <div id="imMetaPromptCampo">
               <label class="im-modal-label">Nombre del prompt</label>
@@ -1132,10 +1132,10 @@
           </div>
         </div>
 
-        <!-- Modal: crear/editar categoría o subcategoría -->
+        <!-- Modal: crear/editar caja o bandeja -->
         <div id="imModalNodo" class="im-modal">
           <div class="im-modal-caja">
-            <h3 id="imNodoTitulo">Crear categoría</h3>
+            <h3 id="imNodoTitulo">Crear caja</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
             <label class="im-modal-label">Descripción (opcional)</label>
@@ -1167,12 +1167,12 @@
                 <p class="im-modal-nota" style="margin:6px 0 0;">Con las instrucciones guardadas podrás crear el agente local de esta skill.</p>
               </div>
             </div>
-            <label class="im-modal-label">Categoría (opcional)</label>
+            <label class="im-modal-label">Caja (opcional)</label>
             <select id="imGemaSelCat"></select>
-            <input id="imGemaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
-            <label class="im-modal-label">Subcategoría (opcional)</label>
+            <input id="imGemaCatNueva" type="text" placeholder="Nombre de la nueva caja" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Bandeja (opcional)</label>
             <select id="imGemaSelSub"></select>
-            <input id="imGemaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+            <input id="imGemaSubNueva" type="text" placeholder="Nombre de la nueva bandeja" style="display:none; margin-top:8px;" />
             <div class="im-modal-acciones">
               <button id="imGemaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imGemaOk" class="im-btn-primario" type="button">Guardar</button>
@@ -1306,7 +1306,7 @@
         <div id="imModalBuscarGema" class="im-modal">
           <div class="im-modal-caja im-modal-ancha">
             <h3>Elige la skill del catálogo</h3>
-            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, categoría o herramienta…" style="margin-top:10px;" />
+            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, caja o herramienta…" style="margin-top:10px;" />
             <div id="imBuscarLista" style="max-height:320px; overflow-y:auto; margin-top:10px;"></div>
           </div>
         </div>
@@ -1328,11 +1328,11 @@
           </div>
         </div>
 
-        <!-- Modal: mover subcategoría a otra categoría -->
+        <!-- Modal: mover bandeja a otra caja -->
         <div id="imModalMoverSub" class="im-modal">
           <div class="im-modal-caja">
-            <h3>Mover subcategoría</h3>
-            <label class="im-modal-label">Categoría destino</label>
+            <h3>Mover bandeja</h3>
+            <label class="im-modal-label">Caja destino</label>
             <select id="imMoverSubSel"></select>
             <div class="im-modal-acciones">
               <button id="imMoverSubCancelar" class="im-mini-btn" type="button">Cancelar</button>
@@ -1798,7 +1798,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       els.libraryResults.style.display = "none";
       els.backToCategoriesBtn.style.display = "none";
       els.heroEyebrow.textContent = "Biblioteca completa";
-      els.heroTitle.textContent = "400 skills de Gemini, especializadas y listas para copiar";
+      els.heroTitle.textContent = "400 skills de Gemini, especializadas y listas para activar";
       els.heroDesc.textContent = "Explora por categoría o busca por nombre, herramienta o caso de uso. Cada skill trae su configuración exacta y un formulario propio para generar el prompt final en segundos.";
     }
 
@@ -2393,7 +2393,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       function render() {
         if ((vista.t === 'cat' || vista.t === 'sub') && !nodoDe(vista.id)) vista = { t: 'root' };
-        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear categoría', verBtnCat = true;
+        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear caja', verBtnCat = true;
 
         if (vista.t === 'root') {
           $('imMgVolver').style.display = 'none';
@@ -2403,7 +2403,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           const cat = nodoDe(vista.id);
           $('imMgVolver').style.display = '';
           encCat = cat.nombre;
-          btnCat = 'Crear subcategoría';
+          btnCat = 'Crear bandeja';
           cards = subsDe(cat.id).map(n => cardNodo(n, gemasEn(n.id).length)).join('');
           lista = gemasEn(cat.id);
         } else {
@@ -2423,13 +2423,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imMgNuevaCat').style.display = verBtnCat ? '' : 'none';
         $('imMgNuevaCat').textContent = btnCat;
         const titCards = $('imMgCardsTitulo');
-        if (cards) { titCards.textContent = vista.t === 'root' ? 'Categorías' : 'Subcategorías'; titCards.style.display = ''; }
+        if (cards) { titCards.textContent = vista.t === 'root' ? 'Cajas' : 'Bandejas'; titCards.style.display = ''; }
         else titCards.style.display = 'none';
         $('imMgCards').innerHTML = cards;
         // Cuando skills sueltas conviven con tarjetas, la lista lleva su título
         const tit = $('imMgListaTitulo');
         if (cards && lista.length && vista.t !== 'sub') {
-          tit.textContent = vista.t === 'root' ? 'Skills sin categoría' : 'Skills sin subcategoría';
+          tit.textContent = vista.t === 'root' ? 'Skills sueltas' : 'Skills sueltas';
           tit.style.display = '';
         } else tit.style.display = 'none';
         $('imMgLista').innerHTML = lista.map(gemaTile).join('');
@@ -2600,11 +2600,11 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imModalTipoGema').addEventListener('click', (e) => { if (e.target.id === 'imModalTipoGema') e.target.classList.remove('abierto'); });
 
-      // ── Mover subcategoría entre categorías (sus skills viajan con ella) ──
+      // ── Mover bandeja entre cajas (sus skills viajan con ella) ──
       let ctxMoverSub = null;
       function abrirModalMoverSub(n) {
         const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
-        if (!destinos.length) { showToast('No hay otra categoría a dónde moverla, crea una primero'); return; }
+        if (!destinos.length) { showToast('No hay otra caja a dónde moverla, crea una primero'); return; }
         ctxMoverSub = n;
         $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
         $('imModalMoverSub').classList.add('abierto');
@@ -2615,7 +2615,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const { error } = await db.from('user_gema_categorias').update({ parent_id: destino }).eq('id', ctxMoverSub.id);
         if (error) { showToast('No se pudo mover: ' + error.message); return; }
         $('imModalMoverSub').classList.remove('abierto');
-        showToast('Subcategoría movida'); cargarTodo();
+        showToast('Bandeja movida'); cargarTodo();
       });
       $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSub').classList.remove('abierto'));
       $('imModalMoverSub').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSub') e.target.classList.remove('abierto'); });
@@ -2646,7 +2646,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
       async function eliminarNodo(n) {
         const esSub = !!n.parent_id;
-        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'subcategorías, ') + 'skills, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'skill' : 'subcategoría o skill') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar la subcategoría?' : '¿Eliminar la categoría?', 'Sí, eliminar todo')) return;
+        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'bandejas, ') + 'skills, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'skill' : 'bandeja o skill') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar la bandeja?' : '¿Eliminar la caja?', 'Sí, eliminar todo')) return;
         const err = await borrarFila('user_gema_categorias', n.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
@@ -2674,7 +2674,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       function abrirModalNodo(ctx) {
         ctxNodo = ctx;
         const esSub = !!(ctx.parentId || ctx.nodo?.parent_id);
-        $('imNodoTitulo').textContent = (ctx.modo === 'crear' ? 'Crear ' : 'Editar ') + (esSub ? 'subcategoría' : 'categoría');
+        $('imNodoTitulo').textContent = (ctx.modo === 'crear' ? 'Crear ' : 'Editar ') + (esSub ? 'bandeja' : 'caja');
         $('imNodoNombre').value = ctx.nodo?.nombre ?? '';
         $('imNodoDesc').value = ctx.nodo?.descripcion ?? '';
         $('imModalNodo').classList.add('abierto');
@@ -2695,24 +2695,24 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imNodoCancelar').addEventListener('click', () => $('imModalNodo').classList.remove('abierto'));
       $('imModalNodo').addEventListener('click', (e) => { if (e.target.id === 'imModalNodo') e.target.classList.remove('abierto'); });
 
-      // ── Selects de categoría/subcategoría (los usan el modal de skill y el de guardar prompt) ──
+      // ── Selects de caja/bandeja (los usan el modal de skill y el de guardar prompt) ──
       const IDS_GEMA = { cat: 'imGemaSelCat', catN: 'imGemaCatNueva', sub: 'imGemaSelSub', subN: 'imGemaSubNueva' };
       const IDS_META = { cat: 'imMetaSelCat', catN: 'imMetaCatNueva', sub: 'imMetaSelSub', subN: 'imMetaSubNueva' };
       function llenarSelCat(ids, catSel, subSel) {
-        $(ids.cat).innerHTML = '<option value="">Sin categoría</option>' +
+        $(ids.cat).innerHTML = '<option value="">Sin caja</option>' +
           catsRaiz().map(n => `<option value="${n.id}" ${n.id === catSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-          '<option value="__nueva__">➕ Nueva categoría…</option>';
+          '<option value="__nueva__">➕ Nueva caja…</option>';
         $(ids.catN).style.display = 'none'; $(ids.catN).value = '';
         llenarSelSub(ids, catSel, subSel);
       }
       function llenarSelSub(ids, catId, subSel) {
         const sel = $(ids.sub);
         if (!catId || catId === '__nueva__') {
-          sel.innerHTML = '<option value="">Sin subcategoría</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva subcategoría…</option>' : '');
+          sel.innerHTML = '<option value="">Sin bandeja</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva bandeja…</option>' : '');
         } else {
-          sel.innerHTML = '<option value="">Sin subcategoría</option>' +
+          sel.innerHTML = '<option value="">Sin bandeja</option>' +
             subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-            '<option value="__nueva__">➕ Nueva subcategoría…</option>';
+            '<option value="__nueva__">➕ Nueva bandeja…</option>';
         }
         $(ids.subN).style.display = 'none'; $(ids.subN).value = '';
       }
@@ -2760,18 +2760,18 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         let subId = $(ids.sub).value || null;
         if (catId === '__nueva__') {
           const nombre = $(ids.catN).value.trim();
-          if (!nombre) { showToast('Escribe el nombre de la categoría'); return undefined; }
+          if (!nombre) { showToast('Escribe el nombre de la caja'); return undefined; }
           const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: null, nombre }).select('id').single();
-          if (error) { showToast('No se pudo crear la categoría'); return undefined; }
+          if (error) { showToast('No se pudo crear la caja'); return undefined; }
           catId = data.id;
         }
         if (subId === '__nueva__') {
           if (!catId) subId = null;
           else {
             const nombre = $(ids.subN).value.trim();
-            if (!nombre) { showToast('Escribe el nombre de la subcategoría'); return undefined; }
+            if (!nombre) { showToast('Escribe el nombre de la bandeja'); return undefined; }
             const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
-            if (error) { showToast('No se pudo crear la subcategoría'); return undefined; }
+            if (error) { showToast('No se pudo crear la bandeja'); return undefined; }
             subId = data.id;
           }
         }
@@ -3237,7 +3237,7 @@ ${ficha}`;
         let url = $('imMetaUrl').value.trim();
         url = normalizarLlamada(url);
         // El link es obligatorio salvo que la skill ya exista en la ubicación elegida.
-        // Se valida ANTES de resolver el nodo, para no crear categorías en un guardado fallido.
+        // Se valida ANTES de resolver el nodo, para no crear cajas en un guardado fallido.
         if (!url) {
           const catV = $(IDS_META.cat).value, subV = $(IDS_META.sub).value;
           const nodoPrevisto = (catV === '__nueva__' || subV === '__nueva__') ? '__no__' : (subV || catV || null);
