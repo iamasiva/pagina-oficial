@@ -7,7 +7,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <title>400 Gemas para Gemini - Biblioteca Interactiva</title>
+  <title>400 Skills para Gemini - Biblioteca Interactiva</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
       --sans: "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    /* ═══ Modo oscuro: la gema de noche ═══ */
+    /* ═══ Modo oscuro: la skill de noche ═══ */
     html[data-tema="oscuro"] {
       --bg: #0b1030;
       --surface: #141a44;
@@ -449,7 +449,7 @@
     .im-gate .im-btn:hover { background: var(--accent-hover); }
     .im-gate a { color: var(--accent-2); font-weight: 700; }
     .im-oculto { display: none !important; }
-    /* Espacio personal (gemas guardadas + prompts reutilizables) */
+    /* Espacio personal (skills guardadas + prompts reutilizables) */
     .im-det-acciones { display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; }
     .im-star { background: none; border: none; font-size: 1.6rem; line-height: 1; color: var(--gold); cursor: pointer; padding: 2px 6px; }
     .im-star:hover { transform: scale(1.15); }
@@ -488,13 +488,30 @@
     .im-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
     .im-chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 20px; padding: 7px 15px; font-size: 0.84rem; font-weight: 600; color: var(--muted); cursor: pointer; }
     .im-chip.activo { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-    .im-gema { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: visible; }
-    /* Mis gemas: cofres para las categorías y gemas talladas en cuadrícula */
+    .im-skill { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: visible; }
+    /* El nombre de la skill para llamarla en Gemini: se copia con un toque */
+    .skill-llamada { margin-top: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .skill-chip {
+      font-family: "Consolas", "Courier New", monospace; font-weight: 800; font-size: 0.92rem;
+      color: var(--accent); background: var(--accent-soft); border: 1.5px dashed var(--accent);
+      border-radius: 999px; padding: 7px 14px; cursor: pointer; transition: background 0.15s, transform 0.15s;
+    }
+    .skill-chip::after { content: " ⧉"; font-weight: 400; opacity: .6; }
+    .skill-chip:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+    .skill-llamada-nota { font-size: 0.8rem; color: var(--muted); line-height: 1.45; max-width: 520px; }
+    .busq-caja .ghost-btn { display: block; margin: 10px auto 0; }
+    #bibQuery { width: 100%; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; resize: vertical; background: var(--surface); color: var(--ink); }
+    /* Mi caja de herramientas: cada categoría es una caja con tapa y manija; cada skill, una herramienta */
     .im-cofre { cursor: pointer; }
     .im-cofre-tapa {
-      height: 32px; background: color-mix(in srgb, var(--code-bg) 75%, var(--accent));
-      border: 2px solid var(--code-bg); border-bottom: none; border-radius: 44px 44px 0 0;
+      position: relative; height: 26px; background: color-mix(in srgb, var(--code-bg) 70%, var(--accent));
+      border: 2px solid var(--code-bg); border-bottom: none; border-radius: 10px 10px 0 0;
       transition: transform 0.15s;
+    }
+    .im-cofre-tapa::before {
+      content: ''; position: absolute; left: 50%; top: -12px; transform: translateX(-50%);
+      width: 46px; height: 16px; border: 3px solid color-mix(in srgb, var(--code-bg) 60%, black);
+      border-bottom: none; border-radius: 10px 10px 0 0; background: transparent;
     }
     .im-cofre-caja {
       position: relative; background: var(--code-bg);
@@ -504,27 +521,30 @@
       display: flex; flex-direction: column; transition: transform 0.15s, box-shadow 0.15s;
     }
     .im-cofre-candado {
-      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-      width: 16px; height: 20px; background: var(--gold); border-radius: 4px;
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 22px; height: 14px; background: var(--gold); border-radius: 3px;
     }
     .im-cofre:hover .im-cofre-caja, .im-cofre:hover .im-cofre-tapa { transform: translateY(-3px); }
     .im-cofre:hover .im-cofre-caja { box-shadow: var(--shadow); }
     .im-cofre-caja h3 { margin: 6px 0 0; font-size: 0.98rem; color: var(--code-ink); }
     .im-cofre-caja p { margin: 4px 0 0; font-size: 0.78rem; color: color-mix(in srgb, var(--code-ink) 70%, transparent); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .im-cofre .im-count { margin-top: auto; padding-top: 8px; font-size: 0.75rem; font-weight: 700; color: color-mix(in srgb, var(--code-ink) 60%, var(--accent-2)); }
-    .im-cofre.sub .im-cofre-tapa { height: 24px; }
+    .im-cofre.sub .im-cofre-tapa { height: 20px; }
+    .im-cofre.sub .im-cofre-tapa::before { width: 36px; height: 12px; top: -9px; }
     .im-cofre.sub .im-cofre-caja { min-height: 62px; }
     .im-cofre .im-menu-btn { color: var(--code-ink); }
     #imMgLista { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 12px; align-items: start; }
     .im-gemtile { cursor: pointer; text-align: center; }
     .im-gem-wrap { position: relative; width: 96px; margin: 0 auto; }
     .im-gem {
-      position: relative; width: 96px; height: 78px;
-      clip-path: polygon(50% 100%, 0 34%, 22% 0, 78% 0, 100% 34%);
+      position: relative; width: 96px; height: 78px; border-radius: 16px;
       background: var(--accent); transition: transform 0.15s, filter 0.15s;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.18);
     }
-    .im-gem::before { content: ''; position: absolute; inset: 0; clip-path: polygon(50% 100%, 33% 27%, 67% 27%); background: rgba(255, 255, 255, 0.22); }
-    .im-gem::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 27px; clip-path: polygon(22% 0, 78% 0, 67% 100%, 33% 100%); background: rgba(255, 255, 255, 0.34); }
+    .im-gem::before { content: '/'; font-family: "Consolas", "Courier New", monospace; font-weight: 800; font-size: 2.4rem; color: rgba(255, 255, 255, 0.92); line-height: 1; }
+    .im-gem::after { content: ''; position: absolute; inset: 6px 6px auto 6px; height: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.28); }
+    .im-gem.mini::before { font-size: 1.6rem; }
     .im-gem.dorada { background: #c79a3b; }
     .im-gemtile:hover .im-gem { transform: translateY(-3px); filter: brightness(1.08); }
     .im-gem-badge {
@@ -539,11 +559,11 @@
     }
     .im-gemtile-meta { margin-top: 3px; font-size: 0.72rem; color: var(--muted); }
     .im-modal-caja.im-caja-mgdet { max-width: 640px; max-height: 86vh; overflow-y: auto; }
-    /* La vitrina de la gema: estuche con franja de acciones y bandejas por pestaña */
+    /* La vitrina de la skill: estuche con franja de acciones y bandejas por pestaña */
     .im-est-cab { display: flex; gap: 14px; align-items: flex-start; position: relative; }
     .im-gem-wrap.mini { width: 64px; flex: none; }
     .im-gem.mini { width: 64px; height: 52px; }
-    .im-gem.mini::after { height: 18px; }
+    .im-gem.mini::after { height: 7px; inset: 4px 4px auto 4px; }
     .im-est-tit { flex: 1; min-width: 0; }
     .im-est-tit h3 { margin: 0; font-size: 1.02rem; color: var(--ink); }
     .im-est-franja { margin-top: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -562,26 +582,26 @@
     .im-est-cuerpo { flex-basis: 100%; padding-top: 8px; }
     .im-est-vacio { padding: 14px 10px; font-size: 0.82rem; color: var(--muted); }
     .im-est-fila .im-menu-btn { position: static; padding: 2px 6px; }
-    .im-caja-mgdet .im-gema { border: none; margin: 0; }
-    /* Selector de color de la gema: 25 gemitas talladas en 5x5 */
+    .im-caja-mgdet .im-skill { border: none; margin: 0; }
+    /* Selector de color de la skill: 25 gemitas talladas en 5x5 */
     .im-paleta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 14px; justify-items: center; }
     .im-swatch { position: relative; width: 44px; height: 36px; cursor: pointer; border: none; background: none; padding: 0; }
-    .im-swatch-gema {
+    .im-swatch-skill {
       width: 44px; height: 36px;
       clip-path: polygon(50% 100%, 0 34%, 22% 0, 78% 0, 100% 34%);
       transition: transform 0.12s;
     }
-    .im-swatch-gema::before { content: ''; position: absolute; inset: 0; clip-path: polygon(50% 100%, 33% 27%, 67% 27%); background: rgba(255, 255, 255, 0.22); }
-    .im-swatch-gema::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 12px; clip-path: polygon(22% 0, 78% 0, 67% 100%, 33% 100%); background: rgba(255, 255, 255, 0.34); }
-    .im-swatch:hover .im-swatch-gema { transform: translateY(-2px) scale(1.08); }
-    .im-swatch.actual .im-swatch-gema { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
-    .im-gema-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; text-align: left; padding: 16px 18px; cursor: pointer; }
-    .im-gema-head:hover { background: var(--surface-2); }
-    .im-gema-head .chev { font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; }
-    .im-gema-head .chev.abierta { transform: rotate(90deg); }
-    .im-gema-head h3 { font-size: 0.95rem; margin: 0; }
-    .im-gema-meta { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
-    .im-gema-cuerpo { padding: 0 18px 16px; }
+    .im-swatch-skill::before { content: ''; position: absolute; inset: 0; clip-path: polygon(50% 100%, 33% 27%, 67% 27%); background: rgba(255, 255, 255, 0.22); }
+    .im-swatch-skill::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 12px; clip-path: polygon(22% 0, 78% 0, 67% 100%, 33% 100%); background: rgba(255, 255, 255, 0.34); }
+    .im-swatch:hover .im-swatch-skill { transform: translateY(-2px) scale(1.08); }
+    .im-swatch.actual .im-swatch-skill { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+    .im-skill-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; text-align: left; padding: 16px 18px; cursor: pointer; }
+    .im-skill-head:hover { background: var(--surface-2); }
+    .im-skill-head .chev { font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; }
+    .im-skill-head .chev.abierta { transform: rotate(90deg); }
+    .im-skill-head h3 { font-size: 0.95rem; margin: 0; }
+    .im-skill-meta { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
+    .im-skill-cuerpo { padding: 0 18px 16px; }
     .im-prompt { position: relative; border: 1px solid var(--surface-2); border-radius: 9px; margin-bottom: 8px; background: var(--surface); }
     .im-prompt-head { display: flex; align-items: center; gap: 10px; width: calc(100% - 44px); background: none; border: none; text-align: left; padding: 12px 14px; cursor: pointer; font-weight: 700; font-size: 0.87rem; color: var(--ink); }
     .im-prompt-head .chev { font-size: 0.65rem; color: var(--accent-2); transition: transform 0.15s; }
@@ -590,7 +610,7 @@
     .im-prompt-body { padding: 0 14px 12px; }
     .im-prompt-body .code-output { width: 100%; min-height: 120px; }
     .im-prompt-body .im-btn-primario { margin-top: 8px; }
-    .im-gema-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .im-skill-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .im-mg-acciones { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 14px; }
     .im-mg-desplegable { padding: 0 18px 14px; }
     .im-mg-sub { border: 1px solid var(--surface-2); border-radius: 9px; background: var(--surface); padding: 10px 12px; margin-bottom: 8px; position: relative; }
@@ -606,7 +626,7 @@
     .im-tag-propia { background: color-mix(in srgb, var(--gold) 14%, var(--surface)); color: var(--gold); }
     .im-lista-titulo { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 10px; }
     .im-modal-nota { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin: 14px 0 0; }
-    .im-gema-catinfo { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-weight: 700; font-size: 0.9rem; margin-top: 14px; }
+    .im-skill-catinfo { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-weight: 700; font-size: 0.9rem; margin-top: 14px; }
     /* Popup Crear agente local (patrón del popup de conexión del 557) */
     .im-modal-conectar { max-width: 640px; max-height: 88vh; overflow-y: auto; }
     .im-modal-conectar .code-output { min-height: 200px; height: 300px; font-size: 0.76rem; line-height: 1.5; margin-top: 12px; }
@@ -636,8 +656,8 @@
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
-    <h1>400 Gemas para Gemini</h1>
-    <p>Este es un recurso de pago de IA MASIVA: una biblioteca interactiva de gemas expertas para Gemini, con formularios personalizados por gema y prompts listos para usar.</p>
+    <h1>400 Skills para Gemini</h1>
+    <p>Este es un recurso de pago de IA MASIVA: una biblioteca interactiva de skills expertas para Gemini, con formularios personalizados por skill y prompts listos para usar.</p>
     <button class="im-btn" id="imBtnComprar">Comprar ahora</button>
     <p id="imMsjCompra" class="im-oculto"></p>
     <a href="app.html">← Volver a IA MASIVA</a>
@@ -665,7 +685,7 @@
         <div class="sidebar-links">
           <button class="sidebar-link active" data-nav="library">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
-            Biblioteca de gemas
+            Biblioteca de skills
           </button>
           <button class="sidebar-link" data-nav="busqueda">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path><path d="M11 8.2l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z"></path></svg>
@@ -673,16 +693,16 @@
           </button>
           <button class="tree-root" id="treeRootBtn" type="button">
             <svg class="chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            <span>Herramientas predeterminadas</span>
+            <span>Herramientas sugeridas</span>
           </button>
           <div id="toolTree" class="sidebar-tree-list"></div>
           <button class="sidebar-link sidebar-link-special" data-nav="builder">
             <svg viewBox="0 0 24 24"><path d="M12 3c.6 3.3 2.4 5.1 5.7 5.7-3.3.6-5.1 2.4-5.7 5.7-.6-3.3-2.4-5.1-5.7-5.7C9.6 8.1 11.4 6.3 12 3Z"></path><path d="M18.5 15c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z"></path></svg>
-            Gema para crear gemas
+            Skill para crear skills
           </button>
           <button class="sidebar-link" data-nav="misgemas">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9z"></path><path d="M2 9h20"></path></svg>
-            <span>Mis gemas</span>
+            <span>Mi caja de herramientas</span>
           </button>
           <button class="sidebar-link" data-nav="guide">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -707,7 +727,7 @@
       </div>
       <div class="sidebar-footer">
         <button type="button" class="tema-btn" id="imTemaBtn">☾ Modo oscuro</button>
-        <div style="margin-top:8px;">400 gemas · 20 categorías · exclusivo Gemini</div>
+        <div style="margin-top:8px;">400 skills · 20 categorías · exclusivo Gemini</div>
       </div>
     </aside>
 
@@ -723,8 +743,8 @@
           <div class="hero">
             <div class="intro">
               <p class="eyebrow" id="heroEyebrow">Biblioteca completa</p>
-              <h2 id="heroTitle">400 gemas de Gemini, especializadas y listas para copiar</h2>
-              <p id="heroDesc">Explora por categoría o busca por nombre, herramienta o caso de uso. Cada gema trae su configuración exacta y un formulario propio para generar el prompt final en segundos.</p>
+              <h2 id="heroTitle">400 skills de Gemini, especializadas y listas para activar</h2>
+              <p id="heroDesc">Explora por categoría o busca por nombre, herramienta o caso de uso. Cada skill trae sus tres campos listos para pegar en Gemini y un formulario propio para generar el prompt final en segundos.</p>
             </div>
           </div>
 
@@ -737,7 +757,7 @@
           <div class="chip-strip" id="toolFilters"></div>
 
           <div id="libraryExplore">
-            <p class="explore-heading">Elige una categoría para ver sus gemas</p>
+            <p class="explore-heading">Elige una categoría para ver sus skills</p>
             <div class="category-grid" id="categoryGrid"></div>
           </div>
 
@@ -745,7 +765,7 @@
             <h2 class="page-title" id="resultsTitle">Resultados</h2>
             <p class="page-desc" id="resultsDesc"></p>
             <div class="config-list-rich" id="gemList"></div>
-            <div class="empty" id="emptyState" style="display:none;">No encontramos gemas que coincidan con tu búsqueda. Prueba con otra palabra clave o vuelve a categorías.</div>
+            <div class="empty" id="emptyState" style="display:none;">No encontramos skills que coincidan con tu búsqueda. Prueba con otra palabra clave o vuelve a categorías.</div>
           </div>
         </section>
 
@@ -760,14 +780,18 @@
               <span class="meta-chip" id="detailCategoria">Categoría</span>
             </div>
             <div class="drawer-title">
-              <h2 id="detailTitle">Nombre de la gema</h2>
+              <h2 id="detailTitle">Nombre de la skill</h2>
               <p id="detailDesc">Descripción corta.</p>
             </div>
             <div class="drawer-meta" id="detailMeta"></div>
+            <div class="skill-llamada">
+              <button class="skill-chip" id="detailSkillChip" type="button" title="Copiar el nombre para pegarlo en Gemini">/nombre-de-la-skill</button>
+              <span class="skill-llamada-nota">Tócalo para copiarlo. En cualquier chat de Gemini, pega el nombre y escribe tu pedido a continuación. Si al pegar no se marca como skill, escribe la barra y elígela de la lista.</span>
+            </div>
           </div>
           <div class="drawer-body">
             <div class="step-block">
-              <div class="step-title"><h3>Para qué sirve esta gema</h3></div>
+              <div class="step-title"><h3>Para qué sirve esta skill</h3></div>
               <div class="step">
                 <div class="usage-explainer">
                   <div>
@@ -783,13 +807,13 @@
             </div>
 
             <div class="step-block">
-              <div class="step-title"><h3>Paso 1 · Crea tu Gema en Gemini</h3></div>
+              <div class="step-title"><h3>Paso 1 · Crea tu skill en Gemini (solo una vez)</h3></div>
               <div class="step">
-              <p class="hint">Copia cada campo tal cual en el formulario de creación de una Gema nueva en Gemini.</p>
+              <p class="hint">En Gemini entra a Habilidades, toca Crear y pega estos tres campos tal cual, en este orden. Se crea una sola vez; desde ahí queda lista en todos tus chats.</p>
 
               <div class="gem-field">
                 <div class="gem-field-head">
-                  <label>Nombre (sugerido)</label>
+                  <label>Nombre</label>
                   <button class="copy-mini" data-copy-target="detailNombreValue">Copiar</button>
                 </div>
                 <div class="gem-field-value" id="detailNombreValue"></div>
@@ -814,32 +838,32 @@
 
               <div class="gem-field">
                 <div class="gem-field-head">
-                  <label>Herramienta predeterminada</label>
+                  <label>Herramienta sugerida</label>
                 </div>
                 <div class="gem-field-value gem-field-fixed" id="detailHerramientaValue"></div>
-                <p class="hint">Selecciona esta opción en el desplegable "Herramienta predeterminada" de tu Gema. Es un valor fijo: cada gema fue diseñada para esa herramienta específica.</p>
+                <p class="hint">Las skills no tienen herramienta fija: cuando uses esta skill en el chat, elige esta herramienta en el botón de herramientas antes de enviar. Es con la que fue diseñada.</p>
               </div>
 
               <div class="gem-field">
                 <div class="gem-field-head">
-                  <label>Conocimiento (archivos sugeridos)</label>
+                  <label>Archivos sugeridos</label>
                 </div>
-                <p class="hint" style="margin-top:0;">Sube estos archivos en la sección "Conocimiento" al crear tu Gema, no se pegan como texto, se cargan como documentos.</p>
+                <p class="hint" style="margin-top:0;">Las skills no guardan archivos: adjúntalos en el chat cuando uses la skill y ella los toma como fuente principal.</p>
                 <div class="knowledge-list" id="detailKnowledgeList"></div>
               </div>
               </div>
             </div>
 
             <div class="step-block">
-              <div class="step-title"><h3>Paso 2 · Usa tu Gema</h3></div>
+              <div class="step-title"><h3>Paso 2 · Usa tu skill</h3></div>
               <div class="step">
-                <p class="hint">Completa estos campos para generar el prompt final que enviarás dentro de tu Gema ya configurada.</p>
+                <p class="hint">Completa estos campos y copia el prompt. Ya viene con el nombre de la skill adelante: pégalo en cualquier chat de Gemini y esa skill responde.</p>
                 <form id="promptForm" class="form-grid"></form>
                 <textarea class="code-output" id="promptOutput" readonly></textarea>
                 <div class="actions">
                   <button class="primary-btn" id="copyPromptBtn">Copiar prompt</button>
                   <button class="secondary-btn" id="resetBtn">Restablecer</button>
-                  <button class="secondary-btn" id="imGuardarPrompt" type="button">Guardar gema</button>
+                  <button class="secondary-btn" id="imGuardarPrompt" type="button">Guardar en mi caja</button>
                   <span class="copy-feedback" id="copyPromptFeedback">Copiado ✓</span>
                 </div>
               </div>
@@ -858,8 +882,8 @@
               <span class="meta-chip">Se instala una sola vez</span>
             </div>
             <div class="drawer-title">
-              <h2>Gema para crear gemas</h2>
-              <p>Las 400 gemas cubren muchísimo, pero tu caso puede ser único. Esta gema especial diseña gemas nuevas a tu medida: le describes tu caso y te entrega el Nombre, la Descripción, las Instrucciones, la Herramienta predeterminada y los archivos de Conocimiento sugeridos para crear tu propia gema en Gemini.</p>
+              <h2>Skill para crear skills</h2>
+              <p>Las 400 skills cubren muchísimo, pero tu caso puede ser único. Esta skill especial diseña skills nuevas a tu medida: le describes tu caso y te entrega el Nombre, la Descripción y las Instrucciones listos para pegar en Gemini, más la herramienta y los archivos sugeridos.</p>
             </div>
           </div>
 
@@ -875,65 +899,59 @@
               <div class="guide-path-body">
                 <div class="guide-step-row">
                   <div class="guide-step-text">
-                    <b>1. Crea la Gema para crear gemas</b>
-                    <span>Se instala una sola vez en Gemini, con sus propios 5 campos. <button class="ghost-btn" id="builderStep1Link" type="button">Ir a la instalación →</button></span>
+                    <b>1. Crea la Skill para crear skills</b>
+                    <span>Se crea una sola vez en Gemini, con sus propios 3 campos. <button class="ghost-btn" id="builderStep1Link" type="button">Ir a la instalación →</button></span>
                   </div>
                 </div>
                 <div class="guide-step-row">
                   <div class="guide-step-text">
                     <b>2. Llena el formulario con tu caso específico</b>
-                    <span>Describe la gema que necesitas y copia el prompt que se genera. <button class="ghost-btn" id="builderStep2Link" type="button">Ir al generador →</button></span>
+                    <span>Describe la skill que necesitas y copia el prompt que se genera. <button class="ghost-btn" id="builderStep2Link" type="button">Ir al generador →</button></span>
                   </div>
                 </div>
                 <div class="guide-step-row">
                   <div class="guide-step-text">
-                    <b>3. Pega el prompt en tu Gema para crear gemas</b>
-                    <span>Ábrela en Gemini y pega ahí el prompt que copiaste.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-01.jpg" loading="lazy" alt="Chat de la Gema para crear gemas en Gemini con el prompt pegado, listo para enviar"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>4. Recibe los datos de tu gema nueva</b>
-                    <span>Te responde con el Nombre, la Descripción y las Instrucciones listas para copiar, más la Herramienta predeterminada que debe tener y los archivos de Conocimiento sugeridos.</span>
-                  </div>
-                  <div class="guide-step-media">
-                    <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-02.jpg" loading="lazy" alt="Respuesta de la Gema para crear gemas con Nombre, Descripción e Instrucciones en bloques con botón de copiar" style="margin-bottom:10px;">
-                    <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-03.jpg" loading="lazy" alt="Respuesta de la Gema para crear gemas indicando la herramienta predeterminada y los archivos de conocimiento sugeridos">
+                    <b>3. Pega el prompt en un chat de Gemini</b>
+                    <span>El prompt ya empieza con el nombre de la skill, así que Gemini la usa de inmediato.</span>
                   </div>
                 </div>
                 <div class="guide-step-row">
                   <div class="guide-step-text">
-                    <b>5. Crea tu gema específica y empieza a usarla</b>
-                    <span>Con esos datos, crea tu nueva Gema en Gemini tal como creaste la Gema para crear gemas, y úsala para lo que la necesitas.</span>
+                    <b>4. Recibe los datos de tu skill nueva</b>
+                    <span>Te responde con el Nombre, la Descripción y las Instrucciones listas para copiar, más la herramienta sugerida y los archivos que conviene adjuntar al usarla.</span>
                   </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-04.jpg" loading="lazy" alt="Formulario Nueva Gem de Gemini con cada campo señalado, listo para crear tu gema específica"></div>
+                </div>
+                <div class="guide-step-row">
+                  <div class="guide-step-text">
+                    <b>5. Crea tu skill específica y empieza a usarla</b>
+                    <span>Con esos datos, crea tu nueva skill en Habilidades tal como creaste esta, y llámala por su nombre en cualquier chat.</span>
+                  </div>
                 </div>
               </div>
             </div>
             <div class="builder-choice-cards">
               <button class="builder-choice-card" id="chooseInstallBtn" type="button">
                 <span class="tag">Solo una vez</span>
-                <b>Crea esta Gema en Gemini</b>
-                <span>Los 5 campos de la Gema para crear gemas, listos para copiar y pegar. Si ya la creaste, no necesitas volver aquí.</span>
+                <b>Crea esta skill en Gemini</b>
+                <span>Los 3 campos de la Skill para crear skills, listos para copiar y pegar. Si ya la creaste, no necesitas volver aquí.</span>
               </button>
               <button class="builder-choice-card builder-choice-gold" id="chooseGenerateBtn" type="button">
-                <span class="tag">Cada vez que necesites una gema</span>
-                <b>Genera el prompt de tu gema nueva</b>
-                <span>Describe tu caso en el formulario y copia el prompt para pegarlo en tu Gema para crear gemas.</span>
+                <span class="tag">Cada vez que necesites una skill</span>
+                <b>Genera el prompt de tu skill nueva</b>
+                <span>Describe tu caso en el formulario y copia el prompt para pegarlo en un chat de Gemini.</span>
               </button>
             </div>
           </div>
 
           <div id="builderInstall" style="display:none;">
             <div class="step-block">
-              <div class="step-title"><h3>Crea esta Gema en Gemini (solo una vez)</h3></div>
+              <div class="step-title"><h3>Crea esta skill en Gemini (solo una vez)</h3></div>
               <div class="step">
-                <p class="hint">Copia cada campo tal cual en el formulario de creación de una Gema nueva en Gemini. ¿Ya la creaste antes? <button class="ghost-btn" id="builderGoGenerateLink" type="button">Ve directo a generar el prompt →</button></p>
+                <p class="hint">En Gemini entra a Habilidades, toca Crear y pega estos tres campos tal cual. ¿Ya la creaste antes? <button class="ghost-btn" id="builderGoGenerateLink" type="button">Ve directo a generar el prompt →</button></p>
 
                 <div class="gem-field">
                   <div class="gem-field-head">
-                    <label>Nombre (sugerido)</label>
+                    <label>Nombre</label>
                     <button class="copy-mini" data-copy-target="builderNombreValue">Copiar</button>
                   </div>
                   <div class="gem-field-value" id="builderNombreValue"></div>
@@ -957,50 +975,37 @@
 
                 <div class="gem-field">
                   <div class="gem-field-head">
-                    <label>Herramienta predeterminada</label>
+                    <label>Herramienta sugerida</label>
                   </div>
                   <div class="gem-field-value gem-field-fixed" id="builderHerramientaValue"></div>
-                  <p class="hint">Deja esta opción en el desplegable "Herramienta predeterminada" de tu Gema: así sus respuestas llegan al chat, donde cada campo trae su botón de copiar.</p>
+                  <p class="hint">Úsala en un chat sin herramienta activa: así sus respuestas llegan al chat, donde cada campo trae su botón de copiar.</p>
                 </div>
 
                 <div class="gem-field">
                   <div class="gem-field-head">
-                    <label>Conocimiento (archivos sugeridos)</label>
+                    <label>Archivos sugeridos</label>
                   </div>
-                  <div class="knowledge-list"><p class="knowledge-empty">Esta gema no requiere archivos de conocimiento para funcionar.</p></div>
+                  <div class="knowledge-list"><p class="knowledge-empty">Esta skill no necesita archivos para funcionar.</p></div>
                 </div>
               </div>
             </div>
 
-            <div class="step-block">
-              <div class="step">
-                <div class="im-builder-link field">
-                  <label>Link de tu Gema para crear gemas</label>
-                  <div class="im-builder-link-row">
-                    <input id="imBuilderUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
-                    <button class="primary-btn" id="imBuilderUrlBtn" type="button">Guardar</button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div id="builderGenerate" style="display:none;">
             <div class="step-block">
-              <div class="step-title"><h3>Genera el prompt de tu gema nueva</h3></div>
+              <div class="step-title"><h3>Genera el prompt de tu skill nueva</h3></div>
               <div class="step">
-                <p class="hint">Describe el caso de uso de la gema que quieres crear. El prompt se genera solo mientras escribes.</p>
+                <p class="hint">Describe el caso de uso de la skill que quieres crear. El prompt se genera solo mientras escribes y ya lleva el nombre de la skill adelante.</p>
                 <form id="builderForm" class="form-grid"></form>
                 <textarea class="code-output" id="builderPromptOutput" readonly></textarea>
                 <div class="actions">
                   <button class="primary-btn" id="builderCopyPromptBtn">Copiar prompt</button>
                   <button class="secondary-btn" id="builderResetBtn">Restablecer</button>
                   <span class="copy-feedback" id="builderCopyPromptFeedback">Copiado ✓</span>
-                  <button class="secondary-btn inactivo" id="builderIrGema" type="button">Ir a la Gema</button>
                 </div>
                 <div class="builder-after">
-                  <p class="txt"><b>RECUERDA</b> Pega el prompt en tu Gema para crear gemas en Gemini y envíalo. Te responderá con el Nombre, la Descripción y las Instrucciones de tu gema nueva (cada uno con botón de copiar), más la herramienta que debes seleccionar y los archivos sugeridos para el Conocimiento.</p>
-                  <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-05.jpg" loading="lazy" alt="Chat de la Gema para crear gemas en Gemini con el prompt pegado, listo para enviar">
+                  <p class="txt"><b>RECUERDA</b> Pega el prompt en un chat de Gemini y envíalo. Te responderá con el Nombre, la Descripción y las Instrucciones de tu skill nueva (cada uno con botón de copiar), más la herramienta sugerida y los archivos que conviene adjuntar al usarla.</p>
                 </div>
               </div>
             </div>
@@ -1011,92 +1016,26 @@
           <div class="hero">
             <div class="intro">
               <p class="eyebrow">Cómo usar el producto</p>
-              <h2>De la biblioteca a tu Gema funcionando en Gemini</h2>
-              <p>Este producto es exclusivo para Gemini Gems: cada gema trae su configuración y su formulario de uso ya resueltos, así que el camino es siempre el mismo, sin importar la categoría.</p>
+              <h2>De la biblioteca a tu skill funcionando en Gemini</h2>
+              <p>Cada skill trae sus tres campos y su formulario de uso ya resueltos, así que el camino es siempre el mismo, sin importar la categoría. Una skill se crea una sola vez y desde ahí responde en cualquier chat.</p>
             </div>
-          </div>
-          <div style="position:relative;padding-top:56.25%;border-radius:14px;overflow:hidden;margin:18px 0 26px;box-shadow:0 18px 44px rgba(0,0,0,0.25);">
-            <iframe src="https://www.youtube-nocookie.com/embed/6aZvZNop7E8?rel=0" title="Cómo funciona" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
           </div>
           <div class="guide-paths">
             <div class="guide-path open">
               <div class="guide-path-head" data-guide-toggle>
                 <div>
-                  <h3>Ruta única · Gemini Gems</h3>
-                  <p>10 pasos, con capturas de pantalla, para pasar de esta biblioteca a una Gema propia funcionando en tu cuenta de Gemini.</p>
+                  <h3>Ruta única · Skills de Gemini</h3>
+                  <p>6 pasos para pasar de esta biblioteca a una skill propia funcionando en tu cuenta de Gemini.</p>
                 </div>
                 <svg class="guide-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </div>
               <div class="guide-path-body">
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>1. Elige tu gema en esta biblioteca</b>
-                    <span>Busca por categoría, herramienta o palabra clave y abre la gema que se ajuste a tu caso de uso. Ahí vas a encontrar los 5 campos ya redactados y listos para copiar.</span>
-                  </div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>2. Entra a la sección "Gems" de Gemini</b>
-                    <span>En gemini.google.com, abre el menú lateral izquierdo y haz clic en "Gems".</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-06.jpg" loading="lazy" alt="Menú lateral de Gemini con la opción Gems resaltada"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>3. Crea una Gema nueva</b>
-                    <span>En el Administrador de Gems, haz clic en "+ Nueva Gem" arriba a la derecha.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-07.jpg" loading="lazy" alt="Administrador de Gems de Google con el botón Nueva Gem resaltado"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>4. Copia cada campo de tu gema</b>
-                    <span>Vuelve a esta biblioteca y copia, uno por uno, el Nombre, la Descripción, las Instrucciones, la Herramienta predeterminada y los archivos sugeridos de Conocimiento con el botón "Copiar" de cada campo.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-08.jpg" loading="lazy" alt="Paso 1 de esta biblioteca mostrando los 5 campos de la gema listos para copiar"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>5. Pega cada campo en el formulario de Gemini</b>
-                    <span>Pega el Nombre, la Descripción y las Instrucciones en su campo correspondiente, selecciona la Herramienta predeterminada en el desplegable y adjunta los archivos de Conocimiento sugeridos.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-09.jpg" loading="lazy" alt="Formulario Nueva Gem de Gemini con cada campo señalado"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>6. Guarda la Gema</b>
-                    <span>Con los 5 campos ya pegados, haz clic en "Guardar" arriba a la derecha del formulario.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-10.jpg" loading="lazy" alt="Formulario de Gemini con todos los campos llenos y flecha señalando el botón Guardar"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>7. Abre tu Gema</b>
-                    <span>Tu Gema recién creada va a aparecer en la lista de "Mis Gems". Haz clic en ella para abrirla.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-11.jpg" loading="lazy" alt="Lista de Mis Gems en Gemini con la Gema recién creada señalada"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>8. Llena los inputs y copia el prompt</b>
-                    <span>Vuelve a esta gema en la biblioteca. En el Paso 2 vas a ver los campos para iniciar la conversación con tu Gema en Gemini. Llénalos y copia el prompt generado.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-12.jpg" loading="lazy" alt="Paso 2 de esta biblioteca con el formulario lleno y flecha señalando el botón Copiar prompt"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>9. Pega el prompt en el chat de tu Gema</b>
-                    <span>Vuelve a la Gema abierta en Gemini y pega el prompt en el cuadro de mensaje para empezar la conversación.</span>
-                  </div>
-                  <div class="guide-step-media"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-400/400-13.jpg" loading="lazy" alt="Chat de la Gema en Gemini con flecha señalando el cuadro de mensaje para pegar el prompt"></div>
-                </div>
-                <div class="guide-step-row">
-                  <div class="guide-step-text">
-                    <b>10. Sigue conversando con la Gema</b>
-                    <span>A partir de aquí, continúa la conversación con normalidad: pide ajustes, da más contexto o profundiza en el resultado.</span>
-                  </div>
-                </div>
-                </div>
+                <div class="guide-step-row"><div class="guide-step-text"><b>1. Elige tu skill en esta biblioteca</b><span>Explora por categoría o busca por lo que necesitas lograr. Abre la ficha de la skill.</span></div></div>
+                <div class="guide-step-row"><div class="guide-step-text"><b>2. En Gemini, entra a Habilidades y toca Crear</b><span>Está en el menú de tu cuenta de Gemini. El formulario pide tres campos: nombre, descripción e instrucciones.</span></div></div>
+                <div class="guide-step-row"><div class="guide-step-text"><b>3. Copia y pega los tres campos</b><span>En la ficha, cada campo tiene su botón Copiar. Pégalos tal cual, en el mismo orden, y guarda. Esto se hace una sola vez por skill.</span></div></div>
+                <div class="guide-step-row"><div class="guide-step-text"><b>4. Llena el formulario de la skill y copia el prompt</b><span>El prompt se arma solo con tus datos y ya empieza con el nombre de la skill.</span></div></div>
+                <div class="guide-step-row"><div class="guide-step-text"><b>5. Pega el prompt en cualquier chat de Gemini</b><span>Si la ficha sugiere una herramienta, elígela en el chat antes de enviar. Si sugiere archivos, adjúntalos en ese mismo chat.</span></div></div>
+                <div class="guide-step-row"><div class="guide-step-text"><b>6. Sigue conversando</b><span>A partir de aquí, pide ajustes, da más contexto o profundiza en el resultado. La skill sigue activa en esa conversación.</span></div></div>
               </div>
             </div>
           </div>
@@ -1105,8 +1044,8 @@
         <section class="section" id="section-busqueda">
           <div class="hero"><div class="intro">
             <p class="eyebrow">Búsqueda guiada</p>
-            <h2>¿No sabes cuál gema necesitas?</h2>
-            <p>Cuéntale al Bibliotecario del 400 lo que quieres lograr y te responde con el nombre exacto de la gema que te sirve (o te describe la que deberías crear con la Gema para crear gemas si no existe). Pega ese nombre en el buscador de la biblioteca y listo.</p>
+            <h2>¿No sabes cuál skill necesitas?</h2>
+            <p>Cuéntale al Bibliotecario del 400 lo que quieres lograr y te responde con el nombre exacto de la skill que te sirve (o te describe la que deberías crear con la Skill para crear skills si no existe). Pega ese nombre en el buscador de la biblioteca y listo.</p>
           </div></div>
           <div class="busq-caja">
             <a class="primary-btn" href="https://gemini.google.com/gem/1kQIJy4nNb3xBfatu48c4sx11ztMtIR_g?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
@@ -1117,14 +1056,14 @@
         <section class="section" id="section-misgemas">
           <div class="hero"><div class="intro">
             <p class="eyebrow">Tu espacio</p>
-            <h2>Tus gemas, tus chats y tus prompts, en un solo lugar.</h2>
-            <p>Guarda los links de tus gemas de Gemini organizados con tus propias categorías, y dentro de cada gema: sus chats y los prompts que reutilizas.</p>
+            <h2>Mi caja de herramientas: tus skills, tus chats y tus prompts.</h2>
+            <p>Guarda las skills que ya creaste en Gemini, organizadas en cajas por tema, con su nombre listo para copiar y, dentro de cada una, sus chats y los prompts que reutilizas.</p>
           </div></div>
           <div class="im-toolbar">
             <button id="imMgVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
             <div class="im-toolbar-acciones">
-              <button id="imMgNuevaCat" class="im-mini-btn" type="button">Crear categoría</button>
-              <button id="imMgNuevaGema" class="im-btn-primario" type="button">Guardar gema</button>
+              <button id="imMgNuevaCat" class="im-mini-btn" type="button">Crear caja</button>
+              <button id="imMgNuevaGema" class="im-btn-primario" type="button">Guardar skill</button>
             </div>
           </div>
           <div id="imMgEncabezado" class="im-mg-enc" style="display:none">
@@ -1143,23 +1082,23 @@
               </div>
             </div>
           </div>
-          <div id="imMgVacio" class="im-vacio" style="display:none">Aún no guardas gemas. Guarda la primera con el botón de arriba, o guarda un prompt desde cualquier gema del catálogo.</div>
+          <div id="imMgVacio" class="im-vacio" style="display:none">Tu caja está vacía. Guarda tu primera skill con el botón de arriba, o guárdala desde la ficha de cualquier skill del catálogo.</div>
         </section>
 
-        <!-- Modal: nombre y categoría del prompt (guardar desde el detalle) -->
+        <!-- Modal: nombre y caja del prompt (guardar desde el detalle) -->
         <div id="imModalMeta" class="im-modal">
           <div class="im-modal-caja">
-            <h3>Guardar gema</h3>
-            <label class="im-modal-label">Nombre</label>
+            <h3>Guardar en mi caja</h3>
+            <label class="im-modal-label">Skill</label>
             <input id="imMetaNombre" type="text" readonly />
-            <label class="im-modal-label">Link de la gema</label>
-            <input id="imMetaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
-            <label class="im-modal-label">Categoría (opcional)</label>
+            <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
+            <input id="imMetaUrl" type="text" placeholder="/nombre-de-la-skill" />
+            <label class="im-modal-label">Caja (opcional)</label>
             <select id="imMetaSelCat"></select>
-            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
-            <label class="im-modal-label">Subcategoría (opcional)</label>
+            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva caja" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Bandeja (opcional)</label>
             <select id="imMetaSelSub"></select>
-            <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+            <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva bandeja" style="display:none; margin-top:8px;" />
             <label class="im-check"><input type="checkbox" id="imMetaConPrompt" checked /> Guardar el prompt</label>
             <div id="imMetaPromptCampo">
               <label class="im-modal-label">Nombre del prompt</label>
@@ -1172,10 +1111,10 @@
           </div>
         </div>
 
-        <!-- Modal: crear/editar categoría o subcategoría -->
+        <!-- Modal: crear/editar caja o bandeja -->
         <div id="imModalNodo" class="im-modal">
           <div class="im-modal-caja">
-            <h3 id="imNodoTitulo">Crear categoría</h3>
+            <h3 id="imNodoTitulo">Crear caja</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
             <label class="im-modal-label">Descripción (opcional)</label>
@@ -1187,32 +1126,32 @@
           </div>
         </div>
 
-        <!-- Modal: guardar/editar/mover una gema mía -->
+        <!-- Modal: guardar/editar/mover una skill mía -->
         <div id="imModalGema" class="im-modal">
           <div class="im-modal-caja">
-            <h3 id="imGemaTitulo">Guardar gema</h3>
+            <h3 id="imGemaTitulo">Guardar skill</h3>
             <div id="imGemaCampos">
-              <div id="imGemaCatalogoInfo" class="im-gema-catinfo" style="display:none"></div>
+              <div id="imGemaCatalogoInfo" class="im-skill-catinfo" style="display:none"></div>
               <div id="imGemaNombreCampo">
                 <label class="im-modal-label">Nombre</label>
-                <input id="imGemaNombre" type="text" placeholder="Ej: Mi gema de contenido semanal" />
+                <input id="imGemaNombre" type="text" placeholder="Ej: Mi skill de contenido semanal" />
               </div>
-              <label class="im-modal-label">Link de la gema</label>
-              <input id="imGemaUrl" type="text" placeholder="https://gemini.google.com/gem/…" />
+              <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
+              <input id="imGemaUrl" type="text" placeholder="/nombre-de-la-skill" />
               <label class="im-modal-label">¿Para qué es? (opcional)</label>
               <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte" />
               <div id="imGemaInstrCampo">
-                <label class="im-modal-label">Instrucción de la gema (opcional)</label>
-                <textarea id="imGemaInstr" rows="4" spellcheck="false" placeholder="Pégala desde Gemini: abre tu gema, Editar, campo Instrucciones."></textarea>
-                <p class="im-modal-nota" style="margin:6px 0 0;">Con la instrucción guardada podrás crear el agente local de esta gema.</p>
+                <label class="im-modal-label">Instrucciones de la skill (opcional)</label>
+                <textarea id="imGemaInstr" rows="4" spellcheck="false" placeholder="Pégalas desde Gemini: Habilidades, tu skill, campo Instrucciones."></textarea>
+                <p class="im-modal-nota" style="margin:6px 0 0;">Con las instrucciones guardadas podrás crear el agente local de esta skill.</p>
               </div>
             </div>
-            <label class="im-modal-label">Categoría (opcional)</label>
+            <label class="im-modal-label">Caja (opcional)</label>
             <select id="imGemaSelCat"></select>
-            <input id="imGemaCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
-            <label class="im-modal-label">Subcategoría (opcional)</label>
+            <input id="imGemaCatNueva" type="text" placeholder="Nombre de la nueva caja" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Bandeja (opcional)</label>
             <select id="imGemaSelSub"></select>
-            <input id="imGemaSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+            <input id="imGemaSubNueva" type="text" placeholder="Nombre de la nueva bandeja" style="display:none; margin-top:8px;" />
             <div class="im-modal-acciones">
               <button id="imGemaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imGemaOk" class="im-btn-primario" type="button">Guardar</button>
@@ -1226,21 +1165,21 @@
             <div class="im-con-cab">
               <div class="im-con-tabs">
                 <button id="imAgenteTabBloque" class="im-con-tab activa" type="button">Crear agente local</button>
-                <button id="imAgenteTabConoc" class="im-con-tab" type="button">¿Cómo llevas el Conocimiento de esta gema?</button>
+                <button id="imAgenteTabConoc" class="im-con-tab" type="button">¿Cómo llevas el Conocimiento de esta skill?</button>
               </div>
               <button id="imAgenteAyudaBtn" class="im-con-q" type="button" aria-label="¿Qué es esto?">?</button>
             </div>
-            <p class="im-modal-nota" id="imAgenteAyuda" style="display:none; margin:10px 0 0;">Tu gema queda como un agente local: lo llamas con @ dentro de cualquier solicitud en Claude Code o Codex, o lo integras en skills para que haga parte de flujos más grandes. Tiene su carpeta de conocimiento y puede conectarse en vivo a tus cuadernos de NotebookLM. Sin API keys y sin costos extra: corre con tu propia suscripción de esa herramienta. Nada pasa por IA MASIVA.</p>
+            <p class="im-modal-nota" id="imAgenteAyuda" style="display:none; margin:10px 0 0;">Tu skill queda como un agente local: lo llamas con @ dentro de cualquier solicitud en Claude Code o Codex, o lo integras en skills para que haga parte de flujos más grandes. Tiene su carpeta de conocimiento y puede conectarse en vivo a tus cuadernos de NotebookLM. Sin API keys y sin costos extra: corre con tu propia suscripción de esa herramienta. Nada pasa por IA MASIVA.</p>
             <div id="imAgentePanelBloque">
-              <p class="im-modal-nota" style="margin:10px 0 0;">Crea una carpeta en tu computador para esta gema, ábrela en Claude Code (o el agente que uses) y pega este bloque. El agente hace el resto.</p>
+              <p class="im-modal-nota" style="margin:10px 0 0;">Crea una carpeta en tu computador para esta skill, ábrela en Claude Code (o el agente que uses) y pega este bloque. El agente hace el resto.</p>
               <textarea id="imAgenteTexto" class="code-output" readonly spellcheck="false"></textarea>
             </div>
             <div id="imAgentePanelConoc" style="display:none;">
-              <p class="im-modal-nota" style="margin:10px 0 0;">Cuando se crea el agente, se crea también su carpeta <b>conocimiento/</b>. Ahí pega los mismos documentos que le subiste a tu gema en Gemini (los originales los tienes tú) y la gema los leerá siempre que trabaje.</p>
-              <p class="im-modal-nota" style="margin:12px 0 4px;"><b>¿Tu gema usa cuadernos de NotebookLM como conocimiento?</b> Dos vías:</p>
+              <p class="im-modal-nota" style="margin:10px 0 0;">Cuando se crea el agente, se crea también su carpeta <b>conocimiento/</b>. Ahí pega los mismos documentos que le subiste a tu skill en Gemini (los originales los tienes tú) y la skill los leerá siempre que trabaje.</p>
+              <p class="im-modal-nota" style="margin:12px 0 4px;"><b>¿Tu skill usa cuadernos de NotebookLM como conocimiento?</b> Dos vías:</p>
               <button id="imAgenteMcpBtn" class="im-con-link" type="button">Agregar por MCP ▾</button>
               <div id="imAgenteMcpPanel" style="display:none; margin:2px 0 8px;">
-                <p class="im-modal-nota" style="margin:0 0 8px;">Pega los links de los cuadernos que tu gema usa como conocimiento. Se guardan con tu gema y viajan dentro del bloque: el agente los conecta como fuentes vivas que consulta siempre al día (entras con tu cuenta de Google una sola vez).</p>
+                <p class="im-modal-nota" style="margin:0 0 8px;">Pega los links de los cuadernos que tu skill usa como conocimiento. Se guardan con tu skill y viajan dentro del bloque: el agente los conecta como fuentes vivas que consulta siempre al día (entras con tu cuenta de Google una sola vez).</p>
                 <div id="imAgenteLinksLista"></div>
                 <input id="imAgenteLinkNuevo" type="text" placeholder="https://notebooklm.google.com/notebook/…" style="margin-top:8px;" />
                 <div style="margin-top:8px;">
@@ -1249,7 +1188,7 @@
               </div>
               <button id="imAgenteExtBtn" class="im-con-link" type="button">Descargar con extensión de Chrome ▾</button>
               <div id="imAgenteExtPanel" style="display:none; margin:2px 0 8px;">
-                <p class="im-modal-nota" style="margin:0 0 8px;">Con la extensión NotebookLM Sources Exporter descargas el cuaderno como archivo .md y lo guardas en la carpeta conocimiento/ de tu gema. Ojo: es una foto del cuaderno tal como está hoy; si el cuaderno cambia, vuelves a exportar.</p>
+                <p class="im-modal-nota" style="margin:0 0 8px;">Con la extensión NotebookLM Sources Exporter descargas el cuaderno como archivo .md y lo guardas en la carpeta conocimiento/ de tu skill. Ojo: es una foto del cuaderno tal como está hoy; si el cuaderno cambia, vuelves a exportar.</p>
                 <button id="imAgenteIrExt" class="im-mini-btn" type="button">Ir a la extensión</button>
               </div>
               <p class="im-modal-nota" style="margin:12px 0 0;">¿Quieres sumarle cuadernos más adelante? Dile directo a tu agente: "Agrega este cuaderno de NotebookLM al conocimiento [link]". O descarga el .md con la extensión y pégalo en conocimiento/.</p>
@@ -1308,10 +1247,10 @@
           </div>
         </div>
 
-        <!-- Modal: cambiar el color de una gema (5x5) -->
+        <!-- Modal: cambiar el color de una skill (5x5) -->
         <div id="imModalColorGema" class="im-modal">
           <div class="im-modal-caja" style="max-width:380px;">
-            <h3>Elige el color de tu gema</h3>
+            <h3>Elige el color de tu skill</h3>
             <div class="im-paleta" id="imPaletaGema"></div>
             <div class="im-modal-acciones" style="margin-top:18px;">
               <button id="imColorReset" class="im-mini-btn" type="button">Restablecer color original</button>
@@ -1325,39 +1264,39 @@
           <div class="im-modal-caja">
             <h3>¿Cómo quieres crear el prompt?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
-              <button id="imOrigenCatalogo" class="im-btn-primario" type="button" style="width:100%;">Desde el formulario de la gema</button>
+              <button id="imOrigenCatalogo" class="im-btn-primario" type="button" style="width:100%;">Desde el formulario de la skill</button>
               <button id="imOrigenLibre" class="im-mini-btn" type="button" style="width:100%;">Redactado por mí (texto libre)</button>
             </div>
           </div>
         </div>
 
-        <!-- Modal: qué tipo de gema vas a guardar -->
+        <!-- Modal: qué tipo de skill vas a guardar -->
         <div id="imModalTipoGema" class="im-modal">
           <div class="im-modal-caja">
-            <h3>¿Qué gema quieres guardar?</h3>
+            <h3>¿Qué skill quieres guardar?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
-              <button id="imTipoCatalogo" class="im-btn-primario" type="button" style="width:100%;">Una gema del catálogo</button>
-              <button id="imTipoPropia" class="im-mini-btn" type="button" style="width:100%;">Una gema creada por mí</button>
+              <button id="imTipoCatalogo" class="im-btn-primario" type="button" style="width:100%;">Una skill del catálogo</button>
+              <button id="imTipoPropia" class="im-mini-btn" type="button" style="width:100%;">Una skill creada por mí</button>
             </div>
           </div>
         </div>
 
-        <!-- Modal: buscar gema del catálogo -->
+        <!-- Modal: buscar skill del catálogo -->
         <div id="imModalBuscarGema" class="im-modal">
           <div class="im-modal-caja im-modal-ancha">
-            <h3>Elige la gema del catálogo</h3>
-            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, categoría o herramienta…" style="margin-top:10px;" />
+            <h3>Elige la skill del catálogo</h3>
+            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, caja o herramienta…" style="margin-top:10px;" />
             <div id="imBuscarLista" style="max-height:320px; overflow-y:auto; margin-top:10px;"></div>
           </div>
         </div>
 
-        <!-- Modal: crear/editar prompt con el formulario real de la gema -->
+        <!-- Modal: crear/editar prompt con el formulario real de la skill -->
         <div id="imModalPromptForm" class="im-modal">
           <div class="im-modal-caja im-modal-ancha">
             <h3 id="imFPTitulo">Nuevo prompt</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imFPNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
-            <label class="im-modal-label">Campos de la gema</label>
+            <label class="im-modal-label">Campos de la skill</label>
             <div id="imFPForm" class="prompt-form"></div>
             <label class="im-modal-label">Prompt resultante</label>
             <textarea id="imFPOutput" class="code-output" readonly style="min-height:120px;"></textarea>
@@ -1368,11 +1307,11 @@
           </div>
         </div>
 
-        <!-- Modal: mover subcategoría a otra categoría -->
+        <!-- Modal: mover bandeja a otra caja -->
         <div id="imModalMoverSub" class="im-modal">
           <div class="im-modal-caja">
-            <h3>Mover subcategoría</h3>
-            <label class="im-modal-label">Categoría destino</label>
+            <h3>Mover bandeja</h3>
+            <label class="im-modal-label">Caja destino</label>
             <select id="imMoverSubSel"></select>
             <div class="im-modal-acciones">
               <button id="imMoverSubCancelar" class="im-mini-btn" type="button">Cancelar</button>
@@ -1415,70 +1354,97 @@
     ];
 
     const gems = window.__GEMS;
+
+    // ── Skills ──
+    // Nombre con guiones, como lo pide el formulario de Habilidades de Gemini,
+    // y el "/nombre" con el que se llama en cualquier chat.
+    function slugSkill(nombre) {
+      return String(nombre || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    }
+    function llamadaSkill(nombre) { return "/" + slugSkill(nombre); }
+    // Lo que escribe el usuario como nombre de su skill: siempre con la barra y sin espacios
+    function normalizarLlamada(texto) {
+      const t = String(texto || "").trim().replace(/^\/+/, "");
+      return t ? "/" + slugSkill(t) : "";
+    }
+    // Las instrucciones nacieron para skills (archivos de conocimiento): en una
+    // skill los archivos se adjuntan en el chat.
+    function instruccionSkill(texto) {
+      return String(texto || "")
+        .replace(/KNOWLEDGE FILES\nIf the user attached files to this Gem's knowledge,/g, "ATTACHED FILES\nIf the user attached files in this chat,")
+        .replace(/this Gem's knowledge/g, "this chat")
+        .replace(/\bthis Gem\b/g, "this skill");
+    }
+    // Descripción de la skill: la redactada con disparadores si existe; si no, la corta del catálogo
+    function descripcionSkill(gem) { return gem.descripcion_skill || gem.descripcion_corta || ""; }
+
     const GEM_BUILDER = {
       id: "builder",
-      nombre: "Gema para crear gemas",
+      nombre: "Skill para crear skills",
       herramienta: "Conversación",
       categoria: "Herramienta especial",
-      subcategoria: "Generador de gemas",
+      subcategoria: "Generador de skills",
       nivel: "Todos los niveles",
-      usuario_objetivo: "Cualquier persona con un caso de uso específico que no está cubierto en la biblioteca de 400 gemas",
-      descripcion_corta: "Diseña una gema de Gemini nueva y completa a partir de tu caso de uso exacto: entrega Nombre, Descripción, Instrucciones, Herramienta predeterminada y archivos de conocimiento sugeridos, listos para copiar y pegar.",
-      caso_uso_principal: "Tienes una tarea real y específica que ninguna de las 400 gemas de la biblioteca cubre tal cual, y en vez de escribir tú mismo el system prompt desde cero, quieres que se diseñe con el mismo estándar de calidad de esta biblioteca: un mecanismo propio, no un asistente genérico.",
-      resultado_esperado: "Los 5 bloques de una gema completa: Nombre, Descripción e Instrucciones cada uno en su propio bloque de código con botón de copiar de un clic (como los campos de esta biblioteca), y la Herramienta predeterminada y el Conocimiento sugerido explicados como texto, porque esos se seleccionan o se suben, no se pegan.",
-      diferenciacion: "A diferencia de las 400 gemas de la biblioteca, esta no resuelve una tarea directamente: genera la definición completa de una gema nueva para una tarea que tú describes, cuando ninguna de las 400 encaja con tu caso exacto.",
+      usuario_objetivo: "Cualquier persona con un caso de uso específico que no está cubierto en la biblioteca de 400 skills",
+      descripcion_corta: "Diseña una skill de Gemini nueva y completa a partir de tu caso de uso exacto: entrega Nombre, Descripción e Instrucciones listos para pegar en Habilidades, más la herramienta y los archivos sugeridos para usarla.",
+      descripcion_skill: "Diseña una skill de Gemini nueva y completa a partir de un caso de uso que el usuario describe: entrega el nombre, la descripción y las instrucciones listos para pegar en Habilidades. Úsala cuando el usuario diga \"quiero crear una skill\", \"necesito una skill que\" o \"diseña una skill para\".",
+      caso_uso_principal: "Tienes una tarea real y específica que ninguna de las 400 skills de la biblioteca cubre tal cual, y en vez de escribir tú mismo las instrucciones desde cero, quieres que se diseñen con el mismo estándar de calidad de esta biblioteca: un rol experto, un método propio de esa tarea y un formato de salida fijo.",
+      resultado_esperado: "Los 3 campos de una skill completa, Nombre, Descripción e Instrucciones, cada uno en su propio bloque de código con botón de copiar de un clic, más la herramienta sugerida y los archivos que conviene adjuntar al usarla, como texto normal.",
+      diferenciacion: "A diferencia de las 400 skills de la biblioteca, esta no resuelve una tarea directamente: genera la definición completa de una skill nueva para una tarea que tú describes, cuando ninguna de las 400 encaja con tu caso exacto.",
       configuracion: `ROLE DEFINITION
-You are an expert Gemini Gem architect. You specialize in turning one person's specific, real task into a complete, ready-to-use Gem definition: the same five fields Gemini asks for when creating a new Gem (Name, Description, Instructions, Default Tool, Knowledge). You never produce a generic "helpful assistant" gem; every gem you design has one clear mechanism that makes it useful for exactly the task described, nothing broader.
+You are an expert Gemini skill architect. You specialize in turning one person's specific, real task into a complete, ready-to-use skill definition: the same three fields Gemini asks for when creating a new skill (Name, Description, Instructions), plus the tool and the files the user should pick or attach in the chat when using it. You produce production-grade skills, never generic assistants.
 
 DESIGN PROTOCOL
 Before writing anything:
 1. Identify the real task, the audience, a typical real input, and the shape of the ideal output from what the user described.
-2. Identify the ONE mechanism that makes this gem non-generic: the specific expert judgment, structure, or rule that a plain chat prompt would not reliably apply on its own (a scoring system, a fixed output structure, a specific set of checks, a role-play protocol, etc.). If the task as described is too vague to support a real mechanism, pick the most reasonable interpretation and state it explicitly in the Description rather than staying generic.
-3. Choose exactly one Default Tool from this fixed list only: Canvas, Conversación (no default tool; in the current Gemini dropdown it is called "No hay herramienta predeterminada"), Deep Research, Crear Imagen, Crear Video, Aprendizaje Guiado. Whenever the chosen tool is Conversación, tell the user to select "No hay herramienta predeterminada" in the Gemini dropdown. Match it to the actual output: long structured documents, code, or spreadsheets go to Canvas; back-and-forth coaching, role-play, or short conversational tasks go to Conversación; multi-source research synthesis goes to Deep Research; a single visual asset goes to Crear Imagen; a video asset or script-to-video goes to Crear Video; step-by-step teaching with checks for understanding goes to Aprendizaje Guiado. If the user stated a preference that clearly does not fit the task, keep their preference but add one line explaining the mismatch.
+2. Identify the ONE mechanism that makes this skill non-generic: the specific expert judgment, structure, or rule that a plain chat prompt would not reliably apply on its own (a scoring system, a fixed output structure, a specific set of checks, a role-play protocol, a decision rule).
+3. Choose exactly one suggested tool from this fixed list only: Canvas, Conversación (plain chat, no tool), Deep Research, Crear Imagen, Crear Video, Aprendizaje Guiado. Prefer Conversación unless the task clearly needs the tool.
+4. Write the Description so Gemini can activate the skill on its own: what it does, for whom, and two or three phrases the user would naturally say when they need it.
 
 OUTPUT STRUCTURE
-Deliver exactly five clearly labeled sections, in this order. CRITICAL FORMAT RULE: sections 1, 2 and 3 are PASTE fields: their heading goes as normal text, but their copyable CONTENT must be wrapped in its own fenced code block (\`\`\`), one code block per section, so that Gemini renders an individual one-click copy button on each. Never put explanations, comments or the heading inside a code block: only the exact text the user will paste into Gemini. Sections 4 and 5 are NOT paste fields: they are actions the user performs (picking from a dropdown, uploading files), so write them as normal chat text, never inside code blocks.
-1. NOMBRE (code block): a short, specific gem name, never generic like "Asistente de Marketing"
-2. DESCRIPCIÓN (code block): one or two sentences describing exactly what it does and for whom, written the way it would appear under the Gem's name in Gemini
-3. INSTRUCCIONES (code block): the full system prompt for the Gem, written in English, following this fixed internal structure: ROLE DEFINITION, METHOD (numbered steps specific to this exact task, never generic steps like "clarify audience, objective, context"), OUTPUT STRUCTURE (the exact sections or format the gem must always produce), NEVER (3 to 5 specific failure modes for this task), RESPONSE FORMAT (language, tone, length)
-4. HERRAMIENTA PREDETERMINADA (normal text): the single chosen tool from the fixed list, with one line explaining why it fits this task and a reminder to select it in the "Herramienta predeterminada" dropdown of the Gem
-5. CONOCIMIENTO (ARCHIVOS SUGERIDOS) (normal text): 1 to 3 real file suggestions the user could upload to the Gem's knowledge, each with a one-line reason; if the task genuinely needs none, say so explicitly instead of inventing filler suggestions
+Deliver exactly five clearly labeled sections, in this order. CRITICAL FORMAT RULE: sections 1, 2 and 3 are PASTE fields: their heading goes as normal text, but their copyable CONTENT must be wrapped in its own fenced code block (\`\`\`), one code block per section, nothing else inside it. Sections 4 and 5 are normal chat text, never inside a code block.
+1. NOMBRE (code block): a short, specific skill name in lowercase with hyphens and no accents, never generic like "asistente-de-marketing"
+2. DESCRIPCIÓN (code block): two or three sentences in Spanish: exactly what it does and for whom, followed by "Úsala cuando..." with the phrases that should trigger it
+3. INSTRUCCIONES (code block): the full instructions for the skill, written in English, following this fixed internal structure: ROLE DEFINITION, METHOD (numbered steps specific to this exact task, never generic steps like "clarify audience, objective, context"), OUTPUT STRUCTURE (the fixed shape of the answer), RESPONSE FORMAT (language, length, format rules), ATTACHED FILES (if the user attached files in this chat, treat them as the primary source and do not ask to repeat what they contain; if none, work with what the user wrote), NEVER (the specific mistakes this skill must avoid)
+4. HERRAMIENTA SUGERIDA (normal text): the single chosen tool from the fixed list, with one line explaining why it fits this task and a reminder to pick it in the chat's tools button before sending
+5. ARCHIVOS SUGERIDOS (normal text): 1 to 3 real files the user should attach in the chat when using the skill, each with a one-line reason; if the task genuinely needs none, say so explicitly instead of inventing filler suggestions
 
 NEVER:
-- Produce a Gem whose Instructions could apply to almost any other task with the topic swapped
-- Choose a Default Tool outside the six valid Gemini options
-- Suggest more than 3 knowledge files, or suggest a file that does not clearly help this specific task
-- Leave any of the 5 blocks empty, vague, or generic
+- Produce a skill whose Instructions could apply to almost any other task with the topic swapped
+- Choose a suggested tool outside the six valid Gemini options
+- Suggest more than 3 files, or suggest a file that does not clearly help this specific task
+- Leave any of the 5 sections empty, vague, or generic
 - Deliver sections 1-3 without their fenced code block, put sections 4-5 inside code blocks, or mix explanatory text inside a code block
 
-KNOWLEDGE FILES
-If the user attached files to this Gem's knowledge (past gems they liked, examples of good output), use them as a style or quality reference for the gem you design; do not ask the user to repeat information already present in an attached file. If no files were attached, work normally from the form answers alone.
+ATTACHED FILES
+If the user attached files in this chat (past skills they liked, examples of good output), use them as a style or quality reference for the skill you design; do not ask the user to repeat information already present in an attached file. If no files were attached, work normally with only what the user provides in the conversation; do not require or request a file to function.
 
 RESPONSE FORMAT
 - Always respond in Spanish (except INSTRUCCIONES content, which is written in English)
 - Present sections 1-3 with their headings as normal text and their content inside individual fenced code blocks, and sections 4-5 entirely as normal chat text, never a single merged paragraph or one big code block
-- Keep INSTRUCCIONES as detailed as a real production system prompt, not a summary of one
+- Keep INSTRUCCIONES as detailed as real production instructions, not a summary of them
 - Do not open Canvas or any other tool: respond directly in the chat, so each code block keeps its copy button`,
-      prompt_template: `Quiero que diseñes una Gema de Gemini nueva y completa para esta tarea específica.
+      prompt_template: `Quiero que diseñes una skill de Gemini nueva y completa para esta tarea específica.
 
 Tarea que debe resolver: {{TAREA_ESPECIFICA}}
 Para quién es: {{PARA_QUIEN}}
 Lo que normalmente le voy a dar: {{ENTRADA_TIPICA}}
 Cómo debería verse el resultado ideal: {{SALIDA_ESPERADA}}
-Herramienta predeterminada preferida: {{HERRAMIENTA_PREFERIDA}}
+Herramienta sugerida preferida: {{HERRAMIENTA_PREFERIDA}}
 Restricciones o lo que NO debe hacer: {{RESTRICCIONES}}
 
-Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su propio bloque de código (para copiarlos con un solo clic y pegarlos al crear la Gema en Gemini), y la Herramienta predeterminada y los archivos de Conocimiento sugeridos como texto normal, ya que esos no se pegan: se seleccionan o se suben.`,
+Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su propio bloque de código (para copiarlos con un solo clic y pegarlos al crear la skill en Habilidades de Gemini), y la herramienta sugerida y los archivos sugeridos como texto normal.`,
       inputs: [
-        { id: "TAREA_ESPECIFICA", label: "¿Qué tarea específica quieres que haga tu gema?", type: "textarea" },
+        { id: "TAREA_ESPECIFICA", label: "¿Qué tarea específica quieres que haga tu skill?", type: "textarea" },
         { id: "PARA_QUIEN", label: "¿Para quién es? (tu rol, tu negocio o tu situación)", type: "text" },
         { id: "ENTRADA_TIPICA", label: "¿Qué le vas a dar normalmente? (pega un ejemplo real si tienes uno)", type: "textarea" },
         { id: "SALIDA_ESPERADA", label: "¿Cómo debería verse el resultado ideal? (formato, estructura, tono)", type: "textarea" },
         {
           id: "HERRAMIENTA_PREFERIDA",
-          label: "¿Alguna herramienta predeterminada en mente?",
+          label: "¿Alguna herramienta sugerida en mente?",
           type: "select",
-          options: ["Que la gema decida", "Canvas", "No hay herramienta predeterminada", "Deep Research", "Crear Imagen", "Crear Video", "Aprendizaje Guiado", "Otro"],
+          options: ["Que la skill decida", "Canvas", "Conversación (sin herramienta)", "Deep Research", "Crear Imagen", "Crear Video", "Aprendizaje Guiado", "Otro"],
         },
         { id: "RESTRICCIONES", label: "¿Qué NO debe hacer o qué límites tiene? (opcional)", type: "textarea" },
       ],
@@ -1598,7 +1564,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     const iconoDeCategoria = (cat) => ICONS_NORM[sinTildes(cat)] || DEFAULT_ICON;
 
     const TOOL_DISPLAY_MAP = {
-      "Conversación": "No hay herramienta predeterminada",
+      "Conversación": "Sin herramienta (chat normal)",
       "Crear Imagen": "Crear imagen",
       "Crear Video": "Crear video",
       "Aprendizaje Guiado": "Aprendizaje guiado",
@@ -1692,7 +1658,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           </span>
           <span class="category-card-body">
             <h3>${escapeHtml(cat)}</h3>
-            <p>${cats.get(cat).length} gemas</p>
+            <p>${cats.get(cat).length} skills</p>
           </span>
         </button>`
         )
@@ -1768,8 +1734,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       els.libraryResults.style.display = "none";
       els.backToCategoriesBtn.style.display = "none";
       els.heroEyebrow.textContent = "Biblioteca completa";
-      els.heroTitle.textContent = "400 gemas de Gemini, especializadas y listas para copiar";
-      els.heroDesc.textContent = "Explora por categoría o busca por nombre, herramienta o caso de uso. Cada gema trae su configuración exacta y un formulario propio para generar el prompt final en segundos.";
+      els.heroTitle.textContent = "400 skills de Gemini, especializadas y listas para activar";
+      els.heroDesc.textContent = "Explora por categoría o busca por nombre, herramienta o caso de uso. Cada skill trae su configuración exacta y un formulario propio para generar el prompt final en segundos.";
     }
 
     function showResultsView() {
@@ -1779,19 +1745,19 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       if (activeTool && activeCategoria) {
         els.heroEyebrow.textContent = toolLabel(activeTool);
         els.heroTitle.textContent = activeCategoria;
-        els.heroDesc.textContent = `Gemas de ${toolLabel(activeTool)} dentro de ${activeCategoria}.`;
+        els.heroDesc.textContent = `Skills de ${toolLabel(activeTool)} dentro de ${activeCategoria}.`;
       } else if (activeTool) {
         els.heroEyebrow.textContent = "Herramienta";
         els.heroTitle.textContent = toolLabel(activeTool);
-        els.heroDesc.textContent = `Todas las gemas diseñadas para usarse con ${toolLabel(activeTool)}.`;
+        els.heroDesc.textContent = `Todas las skills diseñadas para usarse con ${toolLabel(activeTool)}.`;
       } else if (activeCategoria) {
         els.heroEyebrow.textContent = "Categoría";
         els.heroTitle.textContent = activeCategoria;
-        els.heroDesc.textContent = `${categoriesData().get(activeCategoria).length} gemas especializadas dentro de esta categoría.`;
+        els.heroDesc.textContent = `${categoriesData().get(activeCategoria).length} skills especializadas dentro de esta categoría.`;
       } else if (searchQuery) {
         els.heroEyebrow.textContent = "Búsqueda";
         els.heroTitle.textContent = `Resultados para "${searchQuery}"`;
-        els.heroDesc.textContent = "Gemas que coinciden con tu búsqueda en nombre, categoría, herramienta o caso de uso.";
+        els.heroDesc.textContent = "Skills que coinciden con tu búsqueda en nombre, categoría, herramienta o caso de uso.";
       }
       renderResults();
     }
@@ -1824,8 +1790,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
     function renderResults() {
       const list = filteredGems();
-      els.resultsTitle.textContent = activeCategoria || (searchQuery ? `Resultados para "${searchQuery}"` : "Todas las gemas");
-      els.resultsDesc.textContent = `${list.length} gema${list.length === 1 ? "" : "s"} encontrada${list.length === 1 ? "" : "s"}.`;
+      els.resultsTitle.textContent = activeCategoria || (searchQuery ? `Resultados para "${searchQuery}"` : "Todas las skills");
+      els.resultsDesc.textContent = `${list.length} skill${list.length === 1 ? "" : "s"} encontrada${list.length === 1 ? "" : "s"}.`;
       els.emptyState.style.display = list.length ? "none" : "";
       els.gemList.innerHTML = list
         .map(
@@ -1871,7 +1837,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     }
 
     function buildPrompt(gem) {
-      let text = gem.prompt_template || "";
+      let text = llamadaSkill(gem.nombre) + " " + (gem.prompt_template || "");
       (gem.inputs || []).forEach((input) => {
         const value = getValue(input) || `[${input.label}]`;
         const token = new RegExp(`{{\\s*${input.id}\\s*}}`, "g");
@@ -1947,8 +1913,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         .join("");
       els.detailCasoUso.textContent = gem.caso_uso_principal || "";
       els.detailResultado.textContent = gem.resultado_esperado || "";
-      els.detailNombreValue.textContent = gem.nombre || "";
-      els.detailDescripcionValue.textContent = gem.descripcion_corta || "";
+      els.detailNombreValue.textContent = slugSkill(gem.nombre);
+      els.detailDescripcionValue.textContent = descripcionSkill(gem);
+      document.getElementById("detailSkillChip").textContent = llamadaSkill(gem.nombre);
       els.detailHerramientaValue.textContent = toolLabel(gem.herramienta);
       const archivos = gem.archivos_sugeridos || [];
       els.detailKnowledgeList.innerHTML = archivos.length
@@ -1961,8 +1928,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         </div>`
             )
             .join("")
-        : `<p class="knowledge-empty">Esta gema no requiere archivos de conocimiento adicionales para funcionar.</p>`;
-      els.configOutput.value = gem.configuracion || "";
+        : `<p class="knowledge-empty">Esta skill no necesita archivos para funcionar.</p>`;
+      els.configOutput.value = instruccionSkill(gem.configuracion);
       renderForm(gem);
       updatePromptOutput();
     }
@@ -1997,8 +1964,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     }
 
     function initBuilderInstall() {
-      els.builderNombreValue.textContent = GEM_BUILDER.nombre;
-      els.builderDescripcionValue.textContent = GEM_BUILDER.descripcion_corta;
+      els.builderNombreValue.textContent = slugSkill(GEM_BUILDER.nombre);
+      els.builderDescripcionValue.textContent = descripcionSkill(GEM_BUILDER);
       els.builderConfigOutput.value = GEM_BUILDER.configuracion;
       els.builderHerramientaValue.textContent = toolLabel(GEM_BUILDER.herramienta);
     }
@@ -2075,7 +2042,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             openGemBuilder();
             return;
           }
-          // Biblioteca de gemas = el viejo Inicio: limpia filtros y vuelve a la portada
+          // Biblioteca de skills = el viejo Inicio: limpia filtros y vuelve a la portada
           if (nav === "library") { goHome(); return; }
           showSection(nav);
         });
@@ -2105,6 +2072,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
 
       els.copyConfigBtn.addEventListener("click", () => copyText(els.configOutput.value, els.copyConfigFeedback));
+      document.getElementById("detailSkillChip").addEventListener("click", (e) => copyText(e.currentTarget.textContent.trim()));
       els.copyPromptBtn.addEventListener("click", () => copyText(els.promptOutput.value, els.copyPromptFeedback));
       document.querySelectorAll(".copy-mini[data-copy-target]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -2164,7 +2132,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     showExplore();
 
 
-    // ═══ IA MASIVA · Mis gemas: tus gemas + chats + prompts, unificado ═══
+    // ═══ IA MASIVA · Mis skills: tus skills + chats + prompts, unificado ═══
     (function imMisGemas() {
       const IM = window.__IM;
       if (!IM) return;
@@ -2177,7 +2145,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       let nodos = [], misGemas = [], chats = [], prompts = [];
       let vista = { t: 'root' };
       let abiertos = { chats: new Set(), prompts: new Set(), textos: new Set() };
-      let menu = null;                 // 'nodo-id' | 'gema-id' | 'chat-id' | 'prompt-id'
+      let menu = null;                 // 'nodo-id' | 'skill-id' | 'chat-id' | 'prompt-id'
       let ctxNodo = null, ctxGema = null, ctxChat = null, ctxMeta = null, ctxForm = null, ctxLibre = null, ctxOrigen = null, ctxTipo = null;
 
       const catsRaiz = () => nodos.filter(n => !n.parent_id).sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -2216,7 +2184,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
               <button type="button" data-nodoaccion="eliminar" data-nid="${id}">Eliminar</button>
             </div>`;
         }
-        if (tipo === 'gema') return `
+        if (tipo === 'skill') return `
           <div class="im-menu">
             <button type="button" data-gemaaccion="editar" data-gid="${id}">Editar</button>
             <button type="button" data-gemaaccion="mover" data-gid="${id}">Mover</button>
@@ -2248,12 +2216,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
               ${menu === 'nodo-' + n.id ? menuHtmlMG('nodo-' + n.id) : ''}
               <h3>${escapeHtml(n.nombre)}</h3>
               ${n.descripcion ? `<p>${escapeHtml(n.descripcion)}</p>` : ''}
-              <div class="im-count">💎 ${count} ${count === 1 ? 'gema' : 'gemas'}</div>
+              <div class="im-count">🔧 ${count} ${count === 1 ? 'skill' : 'skills'}</div>
             </div>
           </div>`;
       }
 
-      // La gema en la cuadrícula: tallada, azul si es del catálogo y dorada
+      // La skill en la cuadrícula: tallada, azul si es del catálogo y dorada
       // si es propia; su vitrina completa vive en el popup (filaGema)
       let detalleGemaId = null;
       let vitrinaTab = 'chats';
@@ -2268,6 +2236,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             <div class="im-gemtile-nombre">${escapeHtml(g.titulo)}</div>
             <div class="im-gemtile-meta">💬 ${cs.length} · ⚡ ${ps.length}</div>
           </div>`;
+      }
+      // El "/nombre" de una skill guardada: lo que escribió el usuario, o el del catálogo, o el del título
+      function llamadaDeGuardada(g) {
+        if (g.url && g.url.startsWith('/')) return g.url;
+        const cat = gemDeCatalogo(g);
+        return llamadaSkill(cat ? cat.nombre : g.titulo);
       }
       function cerrarDetalleGema() {
         detalleGemaId = null;
@@ -2300,21 +2274,21 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const cs = chatsDe(g.id), ps = promptsDe(g.id);
         const tabChats = vitrinaTab !== 'prompts';
         return `
-          <div class="im-gema im-estuche" data-gemaid="${g.id}" style="border:none; margin:0; overflow:visible;">
+          <div class="im-skill im-estuche" data-gemaid="${g.id}" style="border:none; margin:0; overflow:visible;">
             <div class="im-est-cab">
               <div class="im-gem-wrap mini"><div class="im-gem mini ${g.color ? '' : (g.item_id ? '' : 'dorada')}"${g.color ? ` style="background:${escapeHtml(g.color)};"` : ''}></div></div>
               <div class="im-est-tit">
                 <h3>${escapeHtml(g.titulo)} <span class="im-tag ${g.item_id ? 'im-tag-catalogo' : 'im-tag-propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span></h3>
-                ${g.descripcion ? `<div class="im-gema-meta">${escapeHtml(g.descripcion)}</div>` : ''}
+                ${g.descripcion ? `<div class="im-skill-meta">${escapeHtml(g.descripcion)}</div>` : ''}
               </div>
-              <button class="im-menu-btn" type="button" data-menu="gema-${g.id}" style="position:static; flex:none;">⋮</button>
-              ${menu === 'gema-' + g.id ? menuHtmlMG('gema-' + g.id) : ''}
+              <button class="im-menu-btn" type="button" data-menu="skill-${g.id}" style="position:static; flex:none;">⋮</button>
+              ${menu === 'skill-' + g.id ? menuHtmlMG('skill-' + g.id) : ''}
             </div>
             <div class="im-est-franja">
-              ${g.url ? `<button class="im-btn-primario" type="button" data-abrirgema="${escapeHtml(g.url)}">Abrir gema</button>` : `<button class="im-mini-btn" type="button" data-gemaaccion="editar" data-gid="${g.id}">Agregar link</button>`}
+              <button class="skill-chip" type="button" data-copiarskill="${escapeHtml(llamadaDeGuardada(g))}" title="Copiar el nombre para pegarlo en Gemini">${escapeHtml(llamadaDeGuardada(g))}</button>
               ${g.item_id || (g.instruccion && g.instruccion.trim())
                 ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}">Crear agente local</button>`
-                : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta gema, primero guarda su instrucción: edita la gema y pega la instrucción desde Gemini (abre tu gema, Editar, campo Instrucciones).</span></span>`}
+                : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta skill, primero guarda su instrucción: edita la skill y pega la instrucción desde Gemini (abre tu skill, Editar, campo Instrucciones).</span></span>`}
             </div>
             <div class="im-est-tabs">
               <div class="im-est-tabbar">
@@ -2327,15 +2301,15 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             </div>
             <div class="im-est-bandeja">
               ${tabChats
-                ? (cs.length ? cs.map(filaChat).join('') : `<div class="im-est-vacio">Aún no guardas chats de esta gema.</div>`)
-                : (ps.length ? ps.map(filaPrompt).join('') : `<div class="im-est-vacio">Aún no guardas prompts de esta gema.</div>`)}
+                ? (cs.length ? cs.map(filaChat).join('') : `<div class="im-est-vacio">Aún no guardas chats de esta skill.</div>`)
+                : (ps.length ? ps.map(filaPrompt).join('') : `<div class="im-est-vacio">Aún no guardas prompts de esta skill.</div>`)}
             </div>
           </div>`;
       }
 
       function render() {
         if ((vista.t === 'cat' || vista.t === 'sub') && !nodoDe(vista.id)) vista = { t: 'root' };
-        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear categoría', verBtnCat = true;
+        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear caja', verBtnCat = true;
 
         if (vista.t === 'root') {
           $('imMgVolver').style.display = 'none';
@@ -2345,7 +2319,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           const cat = nodoDe(vista.id);
           $('imMgVolver').style.display = '';
           encCat = cat.nombre;
-          btnCat = 'Crear subcategoría';
+          btnCat = 'Crear bandeja';
           cards = subsDe(cat.id).map(n => cardNodo(n, gemasEn(n.id).length)).join('');
           lista = gemasEn(cat.id);
         } else {
@@ -2365,18 +2339,18 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imMgNuevaCat').style.display = verBtnCat ? '' : 'none';
         $('imMgNuevaCat').textContent = btnCat;
         const titCards = $('imMgCardsTitulo');
-        if (cards) { titCards.textContent = vista.t === 'root' ? 'Categorías' : 'Subcategorías'; titCards.style.display = ''; }
+        if (cards) { titCards.textContent = vista.t === 'root' ? 'Cajas' : 'Bandejas'; titCards.style.display = ''; }
         else titCards.style.display = 'none';
         $('imMgCards').innerHTML = cards;
-        // Cuando gemas sueltas conviven con tarjetas, la lista lleva su título
+        // Cuando skills sueltas conviven con tarjetas, la lista lleva su título
         const tit = $('imMgListaTitulo');
         if (cards && lista.length && vista.t !== 'sub') {
-          tit.textContent = vista.t === 'root' ? 'Gemas sin categoría' : 'Gemas sin subcategoría';
+          tit.textContent = vista.t === 'root' ? 'Skills sueltas' : 'Skills sueltas';
           tit.style.display = '';
         } else tit.style.display = 'none';
         $('imMgLista').innerHTML = lista.map(gemaTile).join('');
         $('imMgVacio').style.display = (!cards && !lista.length) ? '' : 'none';
-        // La vitrina abierta se repinta con el mismo estado; si la gema ya no
+        // La vitrina abierta se repinta con el mismo estado; si la skill ya no
         // existe (la eliminaron), se cierra sola
         if (detalleGemaId !== null) {
           const g = misGemas.find(x => x.id === detalleGemaId);
@@ -2422,12 +2396,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           e.stopPropagation(); return;
         }
 
-        const abrirG = e.target.closest('[data-abrirgema]');
-        if (abrirG) { window.open(abrirG.dataset.abrirgema, '_blank', 'noopener'); return; }
+        const copiarS = e.target.closest('[data-copiarskill]');
+        if (copiarS) { copyText(copiarS.dataset.copiarskill); return; }
         const al = e.target.closest('[data-agentelocal]');
         if (al) { const g = misGemas.find(x => x.id === al.dataset.agentelocal); if (g) abrirModalAgente(g); return; }
         const aoff = e.target.closest('[data-agenteoff]');
-        if (aoff) { showToast('Edita la gema y guarda su instrucción para poder crear el agente local'); return; }
+        if (aoff) { showToast('Edita la skill y guarda su instrucción para poder crear el agente local'); return; }
         const abrirC = e.target.closest('[data-abrirchat]');
         if (abrirC) { window.open(abrirC.dataset.abrirchat, '_blank', 'noopener'); return; }
 
@@ -2466,9 +2440,9 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const ga = e.target.closest('[data-gemaaccion]');
         if (ga) {
           const g = misGemas.find(x => x.id === ga.dataset.gid); menu = null; render();
-          if (ga.dataset.gemaaccion === 'editar') abrirModalGema({ modo: 'editar', gema: g });
+          if (ga.dataset.gemaaccion === 'editar') abrirModalGema({ modo: 'editar', skill: g });
           if (ga.dataset.gemaaccion === 'color') abrirModalColor(g);
-          if (ga.dataset.gemaaccion === 'mover')  abrirModalGema({ modo: 'mover', gema: g });
+          if (ga.dataset.gemaaccion === 'mover')  abrirModalGema({ modo: 'mover', skill: g });
           if (ga.dataset.gemaaccion === 'eliminar') eliminarGema(g);
           return;
         }
@@ -2498,7 +2472,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (np) {
           const g = misGemas.find(x => x.id === np.dataset.nuevoprompt);
           if (!g) return;
-          // Gema del catálogo: formulario o texto libre. Gema propia: lo redactas tú.
+          // Skill del catálogo: formulario o texto libre. Skill propia: lo redactas tú.
           if (g.item_id) { ctxOrigen = { gemaId: g.id }; $('imModalOrigen').classList.add('abierto'); }
           else abrirModalLibre({ modo: 'crear', gemaId: g.id });
           return;
@@ -2542,11 +2516,11 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imModalTipoGema').addEventListener('click', (e) => { if (e.target.id === 'imModalTipoGema') e.target.classList.remove('abierto'); });
 
-      // ── Mover subcategoría entre categorías (sus gemas viajan con ella) ──
+      // ── Mover bandeja entre cajas (sus skills viajan con ella) ──
       let ctxMoverSub = null;
       function abrirModalMoverSub(n) {
         const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
-        if (!destinos.length) { showToast('No hay otra categoría a dónde moverla, crea una primero'); return; }
+        if (!destinos.length) { showToast('No hay otra caja a dónde moverla, crea una primero'); return; }
         ctxMoverSub = n;
         $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
         $('imModalMoverSub').classList.add('abierto');
@@ -2557,7 +2531,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const { error } = await db.from('user_gema_categorias').update({ parent_id: destino }).eq('id', ctxMoverSub.id);
         if (error) { showToast('No se pudo mover: ' + error.message); return; }
         $('imModalMoverSub').classList.remove('abierto');
-        showToast('Subcategoría movida'); cargarTodo();
+        showToast('Bandeja movida'); cargarTodo();
       });
       $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSub').classList.remove('abierto'));
       $('imModalMoverSub').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSub') e.target.classList.remove('abierto'); });
@@ -2588,13 +2562,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
       async function eliminarNodo(n) {
         const esSub = !!n.parent_id;
-        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'subcategorías, ') + 'gemas, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'gema' : 'subcategoría o gema') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar la subcategoría?' : '¿Eliminar la categoría?', 'Sí, eliminar todo')) return;
+        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'bandejas, ') + 'skills, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'skill' : 'bandeja o skill') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar la bandeja?' : '¿Eliminar la caja?', 'Sí, eliminar todo')) return;
         const err = await borrarFila('user_gema_categorias', n.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
       }
       async function eliminarGema(g) {
-        if (!await confirmar('Se eliminará con sus chats y prompts guardados.', '¿Eliminar la gema?', 'Sí, eliminar')) return;
+        if (!await confirmar('Se eliminará con sus chats y prompts guardados.', '¿Eliminar la skill?', 'Sí, eliminar')) return;
         const err = await borrarFila('user_gemas', g.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
@@ -2616,7 +2590,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       function abrirModalNodo(ctx) {
         ctxNodo = ctx;
         const esSub = !!(ctx.parentId || ctx.nodo?.parent_id);
-        $('imNodoTitulo').textContent = (ctx.modo === 'crear' ? 'Crear ' : 'Editar ') + (esSub ? 'subcategoría' : 'categoría');
+        $('imNodoTitulo').textContent = (ctx.modo === 'crear' ? 'Crear ' : 'Editar ') + (esSub ? 'bandeja' : 'caja');
         $('imNodoNombre').value = ctx.nodo?.nombre ?? '';
         $('imNodoDesc').value = ctx.nodo?.descripcion ?? '';
         $('imModalNodo').classList.add('abierto');
@@ -2637,24 +2611,24 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imNodoCancelar').addEventListener('click', () => $('imModalNodo').classList.remove('abierto'));
       $('imModalNodo').addEventListener('click', (e) => { if (e.target.id === 'imModalNodo') e.target.classList.remove('abierto'); });
 
-      // ── Selects de categoría/subcategoría (los usan el modal de gema y el de guardar prompt) ──
+      // ── Selects de caja/bandeja (los usan el modal de skill y el de guardar prompt) ──
       const IDS_GEMA = { cat: 'imGemaSelCat', catN: 'imGemaCatNueva', sub: 'imGemaSelSub', subN: 'imGemaSubNueva' };
       const IDS_META = { cat: 'imMetaSelCat', catN: 'imMetaCatNueva', sub: 'imMetaSelSub', subN: 'imMetaSubNueva' };
       function llenarSelCat(ids, catSel, subSel) {
-        $(ids.cat).innerHTML = '<option value="">Sin categoría</option>' +
+        $(ids.cat).innerHTML = '<option value="">Sin caja</option>' +
           catsRaiz().map(n => `<option value="${n.id}" ${n.id === catSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-          '<option value="__nueva__">➕ Nueva categoría…</option>';
+          '<option value="__nueva__">➕ Nueva caja…</option>';
         $(ids.catN).style.display = 'none'; $(ids.catN).value = '';
         llenarSelSub(ids, catSel, subSel);
       }
       function llenarSelSub(ids, catId, subSel) {
         const sel = $(ids.sub);
         if (!catId || catId === '__nueva__') {
-          sel.innerHTML = '<option value="">Sin subcategoría</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva subcategoría…</option>' : '');
+          sel.innerHTML = '<option value="">Sin bandeja</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva bandeja…</option>' : '');
         } else {
-          sel.innerHTML = '<option value="">Sin subcategoría</option>' +
+          sel.innerHTML = '<option value="">Sin bandeja</option>' +
             subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-            '<option value="__nueva__">➕ Nueva subcategoría…</option>';
+            '<option value="__nueva__">➕ Nueva bandeja…</option>';
         }
         $(ids.subN).style.display = 'none'; $(ids.subN).value = '';
       }
@@ -2671,21 +2645,21 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       conectarSelCat(IDS_GEMA);
       conectarSelCat(IDS_META);
 
-      // ── Modal gema (crear/editar/mover) ──
+      // ── Modal skill (crear/editar/mover) ──
       function abrirModalGema(ctx) {
         ctxGema = ctx;
-        const g = ctx.gema;
+        const g = ctx.skill;
         const catalogo = ctx.catalogo ?? gemDeCatalogo(g);
-        $('imGemaTitulo').textContent = ctx.modo === 'crear' ? 'Guardar gema' : (ctx.modo === 'editar' ? 'Editar gema' : 'Mover gema');
+        $('imGemaTitulo').textContent = ctx.modo === 'crear' ? 'Guardar skill' : (ctx.modo === 'editar' ? 'Editar skill' : 'Mover skill');
         $('imGemaCampos').style.display = ctx.modo === 'mover' ? 'none' : '';
-        // Gema del catálogo: el nombre viene del catálogo y no se toca
+        // Skill del catálogo: el nombre viene del catálogo y no se toca
         $('imGemaCatalogoInfo').style.display = catalogo ? '' : 'none';
         $('imGemaNombreCampo').style.display = catalogo ? 'none' : '';
         if (catalogo) $('imGemaCatalogoInfo').innerHTML = `<span class="im-tag im-tag-catalogo" style="margin:0 8px 0 0;">Catálogo</span>${escapeHtml(catalogo.nombre)}`;
         $('imGemaNombre').value = g?.titulo ?? '';
-        $('imGemaUrl').value = g?.url ?? '';
+        $('imGemaUrl').value = (g?.url && g.url.startsWith('/')) ? g.url : (catalogo ? llamadaSkill(catalogo.nombre) : (g?.titulo ? llamadaSkill(g.titulo) : ''));
         $('imGemaDesc').value = g?.descripcion ?? catalogo?.descripcion_corta ?? '';
-        // La instrucción solo aplica a gemas propias (las de catálogo la traen de la biblioteca)
+        // La instrucción solo aplica a skills propias (las de catálogo la traen de la biblioteca)
         $('imGemaInstrCampo').style.display = catalogo ? 'none' : '';
         $('imGemaInstr').value = g?.instruccion ?? '';
         let catId = ctx.prefCat ?? null, subId = ctx.prefSub ?? null;
@@ -2702,18 +2676,18 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         let subId = $(ids.sub).value || null;
         if (catId === '__nueva__') {
           const nombre = $(ids.catN).value.trim();
-          if (!nombre) { showToast('Escribe el nombre de la categoría'); return undefined; }
+          if (!nombre) { showToast('Escribe el nombre de la caja'); return undefined; }
           const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: null, nombre }).select('id').single();
-          if (error) { showToast('No se pudo crear la categoría'); return undefined; }
+          if (error) { showToast('No se pudo crear la caja'); return undefined; }
           catId = data.id;
         }
         if (subId === '__nueva__') {
           if (!catId) subId = null;
           else {
             const nombre = $(ids.subN).value.trim();
-            if (!nombre) { showToast('Escribe el nombre de la subcategoría'); return undefined; }
+            if (!nombre) { showToast('Escribe el nombre de la bandeja'); return undefined; }
             const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
-            if (error) { showToast('No se pudo crear la subcategoría'); return undefined; }
+            if (error) { showToast('No se pudo crear la bandeja'); return undefined; }
             subId = data.id;
           }
         }
@@ -2726,13 +2700,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (nodoId === undefined) return;
         let error;
         if (modo === 'mover') {
-          ({ error } = await db.from('user_gemas').update({ nodo_id: nodoId }).eq('id', ctxGema.gema.id));
+          ({ error } = await db.from('user_gemas').update({ nodo_id: nodoId }).eq('id', ctxGema.skill.id));
         } else {
-          const catalogo = ctxGema.catalogo ?? gemDeCatalogo(ctxGema.gema);
-          const titulo = catalogo ? (ctxGema.gema?.titulo ?? catalogo.nombre) : $('imGemaNombre').value.trim();
+          const catalogo = ctxGema.catalogo ?? gemDeCatalogo(ctxGema.skill);
+          const titulo = catalogo ? (ctxGema.skill?.titulo ?? catalogo.nombre) : $('imGemaNombre').value.trim();
           if (!titulo) { showToast('Escribe el nombre'); return; }
           let url = $('imGemaUrl').value.trim();
-          if (!url) { showToast('Pega el link de tu gema'); return; }
+          if (!url) { showToast('Pega el link de tu skill'); return; }
           if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
           const descripcion = $('imGemaDesc').value.trim() || null;
           if (modo === 'crear') {
@@ -2742,12 +2716,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           } else {
             const cambios = { titulo, url, descripcion, nodo_id: nodoId, updated_at: new Date().toISOString() };
             if (!catalogo) cambios.instruccion = $('imGemaInstr').value.trim() || null;
-            ({ error } = await db.from('user_gemas').update(cambios).eq('id', ctxGema.gema.id));
+            ({ error } = await db.from('user_gemas').update(cambios).eq('id', ctxGema.skill.id));
           }
         }
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
         $('imModalGema').classList.remove('abierto');
-        showToast(modo === 'mover' ? 'Gema movida' : 'Guardada');
+        showToast(modo === 'mover' ? 'Skill movida' : 'Guardada');
         cargarTodo();
       });
       $('imGemaCancelar').addEventListener('click', () => $('imModalGema').classList.remove('abierto'));
@@ -2755,7 +2729,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       // ── Crear agente local (bloque copiable) ──
       const slugDeGema = (t) => ((t || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)) || 'mi-gema';
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)) || 'mi-skill';
 
       function bloqueAgenteLocal(g) {
         const cat = gemDeCatalogo(g);
@@ -2775,20 +2749,20 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         // Receta MCP: viene de app_config (mcp_notebooklm.conocimiento_400) si
         // existe, para poder actualizarla sin deploy cuando el ecosistema cambie
         const recetaMcp = (mcpCfg && mcpCfg.conocimiento_400) ||
-          'Conecta además estos cuadernos de NotebookLM (hoy Gemini Notebook), que son parte del conocimiento de mi gema. Para conectarlos usa el plugin mantenido "notebooklm" de roomi-fields: en Claude Code ejecuta `claude plugin marketplace add roomi-fields/claude-plugins` y `claude plugin install notebooklm@roomi-fields`, luego corre `npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth` y déjame iniciar sesión con Google (una sola vez; si la sesión caduca, corre de nuevo el setup-auth y me pides entrar). En otras herramientas registra como servidor MCP `npx -y @roomi-fields/notebooklm-mcp@latest`. Si sale "Executable doesn\'t exist ... chromium", corre `patchright install chromium` y reintenta. NO uses los paquetes notebooklm-mcp-2026 ni notebooklm-mcp de PleasePrompto: están rotos desde agosto de 2026. Consulta estos cuadernos como fuentes vivas cuando la gema trabaje:';
+          'Conecta además estos cuadernos de NotebookLM (hoy Gemini Notebook), que son parte del conocimiento de mi skill. Para conectarlos usa el plugin mantenido "notebooklm" de roomi-fields: en Claude Code ejecuta `claude plugin marketplace add roomi-fields/claude-plugins` y `claude plugin install notebooklm@roomi-fields`, luego corre `npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth` y déjame iniciar sesión con Google (una sola vez; si la sesión caduca, corre de nuevo el setup-auth y me pides entrar). En otras herramientas registra como servidor MCP `npx -y @roomi-fields/notebooklm-mcp@latest`. Si sale "Executable doesn\'t exist ... chromium", corre `patchright install chromium` y reintenta. NO uses los paquetes notebooklm-mcp-2026 ni notebooklm-mcp de PleasePrompto: están rotos desde agosto de 2026. Consulta estos cuadernos como fuentes vivas cuando la skill trabaje:';
         const cuadernosSeccion = links.length
           ? recetaMcp + '\n' + links.map(l => '- ' + l).join('\n') + '\n'
           : '';
         // Delimitador dinámico: si la instrucción trae líneas de guiones, se alarga
         let delim = '----';
         while (instr.includes(delim)) delim += '--';
-        return `Quiero montar en mi computador un agente local a partir de esta gema que
+        return `Quiero montar en mi computador un agente local a partir de esta skill que
 tengo guardada en IA MASIVA. Estoy parado en la carpeta que creé para
-esta gema. Sigue estos pasos en orden, sin saltarte ninguno y sin
+esta skill. Sigue estos pasos en orden, sin saltarte ninguno y sin
 hacerme preguntas que este mensaje ya responde; adapta rutas y formatos
 a mi sistema operativo.
 
-PASO 1. EL AGENTE. Crea la gema como subagente nativo de esta
+PASO 1. EL AGENTE. Crea la skill como subagente nativo de esta
 herramienta, en este proyecto (en Claude Code: un archivo
 .claude/agents/${slug}.md con nombre y descripción en el frontmatter y
 la instrucción del PASO 3 como prompt del agente; en otras herramientas,
@@ -2800,7 +2774,7 @@ PASO 2. LA CASA DE LA GEMA. Crea en esta carpeta:
   una línea de cómo invoco al agente (el arroba).
 - instruccion.md: el archivo del PASO 3.
 - conocimiento/: carpeta vacía donde yo pondré los mismos documentos
-  que subí al Conocimiento de mi gema en Gemini (.md, .txt, PDF,
+  que subí al Conocimiento de mi skill en Gemini (.md, .txt, PDF,
   documentos). Configura el subagente para que la revise siempre que
   trabaje.
 ${cuadernosSeccion}Si más adelante te escribo "Agrega este cuaderno de NotebookLM al
@@ -2818,12 +2792,12 @@ predeterminada, replica su función con lo que tenga tu entorno y dime
 con honestidad qué queda igual y qué no:
 - Conversación (en Gemini: "No hay herramienta predeterminada") o
   Aprendizaje Guiado: no necesitan nada extra.
-- Canvas: la gema produce documentos. Entrégalos como archivos reales.
+- Canvas: la skill produce documentos. Entrégalos como archivos reales.
 - Deep Research: usa tus herramientas de búsqueda web si las tienes; si
-  no, dime que la gema trabajará solo con la información que yo le
+  no, dime que la skill trabajará solo con la información que yo le
   entregue.
 - Crear Imagen o Crear Video: la generación del archivo no viaja al
-  agente local en esta versión; la gema me entrega el prompt o brief
+  agente local en esta versión; la skill me entrega el prompt o brief
   perfecto para generarlo donde siempre lo hago.
 
 PASO 4. LA PRUEBA. Invoca tú el subagente con un mensaje corto y
@@ -2831,7 +2805,7 @@ muéstrame su respuesta. Al cerrar, recuérdame en pocas líneas:
 - que lo llamo con el arroba dentro de cualquier solicitud, y que puedo
   integrarlo en skills para que haga parte de flujos más grandes,
 - que en esta carpeta quedó conocimiento/ para meter los archivos de
-  conocimiento de mi gema,
+  conocimiento de mi skill,
 - que si quiero ajustar, modificar o sumarle funcionalidades a mi
   agente, te lo pido aquí mismo y tú ejecutas los cambios,
 - y que todo corre con mi suscripción de esta herramienta: sin API keys
@@ -2887,7 +2861,7 @@ ${ficha}`;
 
       const normalizarLink = (v) => {
         let url = v.trim();
-        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+        url = normalizarLlamada(url);
         return url;
       };
 
@@ -2902,7 +2876,7 @@ ${ficha}`;
 
       function abrirModalAgente(g) {
         const bloque = bloqueAgenteLocal(g);
-        if (!bloque) { showToast('Esta gema no tiene instrucción guardada'); return; }
+        if (!bloque) { showToast('Esta skill no tiene instrucción guardada'); return; }
         ctxAgente = g;
         cuadernoEditIdx = null;
         $('imAgenteTexto').value = bloque;
@@ -2959,7 +2933,7 @@ ${ficha}`;
         }
         const del = e.target.closest('[data-cuaddel]');
         if (del) {
-          const ok = await confirmar('¿Eliminar este cuaderno del conocimiento de la gema?', 'Eliminar cuaderno', 'Sí, eliminar');
+          const ok = await confirmar('¿Eliminar este cuaderno del conocimiento de la skill?', 'Eliminar cuaderno', 'Sí, eliminar');
           if (!ok) return;
           const links = linksDeGema(ctxAgente);
           links.splice(Number(del.dataset.cuaddel), 1);
@@ -3003,7 +2977,7 @@ ${ficha}`;
         $('imModalOrigen').classList.remove('abierto');
         const g = misGemas.find(x => x.id === ctxOrigen.gemaId);
         const gem = gemDeCatalogo(g);
-        if (!gem) { showToast('No encontré esta gema en el catálogo'); return; }
+        if (!gem) { showToast('No encontré esta skill en el catálogo'); return; }
         abrirPopupPrompt(gem, null, g.id);
       });
       $('imOrigenLibre').addEventListener('click', () => {
@@ -3061,7 +3035,7 @@ ${ficha}`;
         // inputs listos para llenar y copiar
         abrirUsarPrompt(fila);
       });
-      // ── Cambiar color de la gema: 25 tonos y el regreso al original ──
+      // ── Cambiar color de la skill: 25 tonos y el regreso al original ──
       // 25 tonos curados para que ningún par se confunda: cada vecino cambia
       // de familia o da un salto fuerte de luminosidad
       const PALETA_GEMAS = [
@@ -3076,7 +3050,7 @@ ${ficha}`;
         ctxColorGema = g;
         $('imPaletaGema').innerHTML = PALETA_GEMAS.map(c => `
           <button class="im-swatch ${g.color === c ? 'actual' : ''}" type="button" data-color="${c}" aria-label="${c}">
-            <div class="im-swatch-gema" style="background:${c};"></div>
+            <div class="im-swatch-skill" style="background:${c};"></div>
           </button>`).join('');
         $('imModalColorGema').classList.add('abierto');
       }
@@ -3149,15 +3123,15 @@ ${ficha}`;
       $('imLibreCancelar').addEventListener('click', () => $('imModalLibre').classList.remove('abierto'));
       $('imModalLibre').addEventListener('click', (e) => { if (e.target.id === 'imModalLibre') e.target.classList.remove('abierto'); });
 
-      // ── "Guardar gema" desde el detalle del catálogo ──
-      // Guarda la gema (nombre inmutable del catálogo, link opcional, ubicación)
-      // y, si el check está activo, también el prompt del formulario. Si la gema
+      // ── "Guardar skill" desde el detalle del catálogo ──
+      // Guarda la skill (nombre inmutable del catálogo, link opcional, ubicación)
+      // y, si el check está activo, también el prompt del formulario. Si la skill
       // ya existe en esa ubicación, solo se ofrece guardar el prompt.
       $('imGuardarPrompt').addEventListener('click', () => {
         if (!activeGem) return;
         ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
         $('imMetaNombre').value = activeGem.nombre;
-        $('imMetaUrl').value = '';
+        $('imMetaUrl').value = llamadaSkill(activeGem.nombre);
         $('imMetaConPrompt').checked = true;
         $('imMetaPromptNombre').value = '';
         $('imMetaPromptCampo').style.display = '';
@@ -3177,14 +3151,14 @@ ${ficha}`;
         if (conPrompt && !nombrePrompt) { showToast('Ponle nombre al prompt'); return; }
         const itemUuid = uuidDeCatalogo(ctxMeta.gem.id);
         let url = $('imMetaUrl').value.trim();
-        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
-        // El link es obligatorio salvo que la gema ya exista en la ubicación elegida.
-        // Se valida ANTES de resolver el nodo, para no crear categorías en un guardado fallido.
+        url = normalizarLlamada(url);
+        // El link es obligatorio salvo que la skill ya exista en la ubicación elegida.
+        // Se valida ANTES de resolver el nodo, para no crear cajas en un guardado fallido.
         if (!url) {
           const catV = $(IDS_META.cat).value, subV = $(IDS_META.sub).value;
           const nodoPrevisto = (catV === '__nueva__' || subV === '__nueva__') ? '__no__' : (subV || catV || null);
           const yaExiste = nodoPrevisto !== '__no__' && misGemas.some(g => g.item_id === itemUuid && (g.nodo_id ?? null) === nodoPrevisto);
-          if (!yaExiste) { showToast('Pega el link de tu gema'); return; }
+          if (!yaExiste) { showToast('Escribe el nombre de la skill'); return; }
         }
         const nodoId = await resolverNodoDestino(IDS_META);
         if (nodoId === undefined) return;
@@ -3193,8 +3167,8 @@ ${ficha}`;
         if (existente) {
           // Si la existente quedó sin link de una versión anterior y aquí pegaste uno, se aprovecha
           if (url && !existente.url) await db.from('user_gemas').update({ url }).eq('id', existente.id);
-          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta gema en esa ubicación'); cargarTodo(); return; }
-          const ok = await confirmar('La gema ya existe en esa ubicación. ¿Deseas guardar el prompt dentro de esa gema?', 'La gema ya existe', 'Sí, guardar el prompt');
+          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta skill en esa caja'); cargarTodo(); return; }
+          const ok = await confirmar('La skill ya está en esa caja. ¿Deseas guardar el prompt dentro de esa skill?', 'La skill ya existe', 'Sí, guardar el prompt');
           if (!ok) return;
         } else {
           const { data, error } = await db.from('user_gemas').insert({
@@ -3202,7 +3176,7 @@ ${ficha}`;
             descripcion: ctxMeta.gem.descripcion_corta ?? null,
             nodo_id: nodoId, item_id: itemUuid,
           }).select('id').single();
-          if (error) { showToast('No se pudo guardar la gema: ' + error.message); return; }
+          if (error) { showToast('No se pudo guardar la skill: ' + error.message); return; }
           gemaId = data.id;
         }
         if (conPrompt) {
@@ -3213,13 +3187,13 @@ ${ficha}`;
           if (error) { showToast('No se pudo guardar el prompt: ' + error.message); return; }
         }
         $('imModalMeta').classList.remove('abierto');
-        showToast(conPrompt ? (existente ? 'Prompt guardado en tu gema' : 'Gema guardada con su prompt') : 'Gema guardada');
+        showToast(conPrompt ? (existente ? 'Prompt guardado en tu skill' : 'Skill guardada con su prompt') : 'Skill guardada');
         cargarTodo();
       });
       $('imMetaCancelar').addEventListener('click', () => $('imModalMeta').classList.remove('abierto'));
       $('imModalMeta').addEventListener('click', (e) => { if (e.target.id === 'imModalMeta') e.target.classList.remove('abierto'); });
 
-      // ── Pop-up con el formulario real de la gema (crear/editar) ──
+      // ── Pop-up con el formulario real de la skill (crear/editar) ──
       function abrirPopupPrompt(gem, promptRow, userGemaId) {
         ctxForm = { gem, promptRow, userGemaId, prev: { gem: activeGem, form: formState, formEl: activeFormEl, outEl: activeOutputEl } };
         $('imFPTitulo').textContent = (promptRow ? 'Editar prompt: ' : 'Nuevo prompt: ') + gem.nombre;
@@ -3266,9 +3240,10 @@ ${ficha}`;
       $('imFPCancelar').addEventListener('click', cerrarPopupPrompt);
       $('imModalPromptForm').addEventListener('click', (e) => { if (e.target.id === 'imModalPromptForm') cerrarPopupPrompt(); });
 
-      // ── Link de la "Gema para crear gemas" del usuario (uno por usuario) ──
+      // ── Link de la "Skill para crear skills" del usuario (uno por usuario) ──
       let builderUrl = null;
       function pintarBuilderLink() {
+        if (!$('imBuilderUrl')) return;
         $('imBuilderUrl').value = builderUrl ?? '';
         $('imBuilderUrl').readOnly = !!builderUrl;
         $('imBuilderUrlBtn').textContent = builderUrl ? 'Editar' : 'Guardar';
@@ -3279,7 +3254,7 @@ ${ficha}`;
         builderUrl = data?.url ?? null;
         pintarBuilderLink();
       }
-      $('imBuilderUrlBtn').addEventListener('click', async () => {
+      if ($('imBuilderUrlBtn')) $('imBuilderUrlBtn').addEventListener('click', async () => {
         const inp = $('imBuilderUrl');
         if (builderUrl && inp.readOnly) {
           inp.readOnly = false;
@@ -3288,7 +3263,7 @@ ${ficha}`;
           return;
         }
         let url = inp.value.trim();
-        if (!url) { showToast('Pega el link de tu Gema para crear gemas'); return; }
+        if (!url) { showToast('Pega el link de tu Skill para crear skills'); return; }
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
         const { error } = await db.from('user_builder_links').upsert({ user_id: IM.userId, product_id: IM.productId, url, updated_at: new Date().toISOString() });
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
@@ -3296,9 +3271,9 @@ ${ficha}`;
         pintarBuilderLink();
         showToast('Link guardado');
       });
-      $('builderIrGema').addEventListener('click', () => {
+      if ($('builderIrGema')) $('builderIrGema').addEventListener('click', () => {
         if (builderUrl) window.open(builderUrl, '_blank', 'noopener');
-        else showToast('Primero guarda el link de tu gema, al final del generador');
+        else showToast('Primero guarda el link de tu skill, al final del generador');
       });
       cargarBuilderLink();
 
