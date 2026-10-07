@@ -792,6 +792,14 @@
       background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface));
       border: 1px solid var(--line); border-radius: 12px;
     }
+    /* Conectar este cuaderno: discreto, alineado con el texto del popup y con el
+       mismo morado suave de la caja de Abrir (los tokens cambian solos en oscuro) */
+    #imCuadDetConectar {
+      margin-right: auto; margin-left: 34px; height: 34px; padding: 0 12px; font-size: 0.82rem;
+      background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface));
+      color: var(--accent); border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+    }
+    #imCuadDetConectar:hover { background: var(--accent-soft); border-color: var(--accent); }
     .im-btn-apagado {
       display: inline-block; background: color-mix(in srgb, var(--line) 40%, var(--surface));
       color: var(--muted); border: 1px solid var(--line); border-radius: 10px;
@@ -1446,7 +1454,7 @@
     <div class="im-modal-caja im-caja-cuad">
       <div id="imCuadDetCuerpo"></div>
       <div class="im-modal-acciones">
-        <button id="imCuadDetConectar" class="secondary-btn" type="button" style="margin-right:auto;"><span>Conectar este cuaderno</span></button>
+        <button id="imCuadDetConectar" class="secondary-btn" type="button"><span>Conectar este cuaderno</span></button>
         <button id="imCuadDetCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
     </div>
@@ -3490,7 +3498,6 @@ ${clean}`;
         const x = tt();
         return `
           <div class="im-menu">
-            <button type="button" data-accion="conectar">${escapeHtml(x.conCuaderno)}</button>
             <button type="button" data-accion="editar">${escapeHtml(x.editar)}</button>
             <button type="button" data-accion="mover">${escapeHtml(x.mover)}</button>
             <button type="button" data-accion="eliminar">${escapeHtml(x.eliminar)}</button>
