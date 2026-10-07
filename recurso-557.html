@@ -962,37 +962,37 @@
                 <div class="field" id="variantField" style="display:none">
                   <label for="variantSelect">Tu situación / variante</label>
                   <select id="variantSelect" data-other-target="otherVariant"></select>
-                  <input id="otherVariant" class="other-language" type="text" placeholder="Describe tu situación específica">
+                  <input id="otherVariant" class="other-language" type="text" placeholder="Describe tu situación específica" autocomplete="off">
                   <button id="imGuardarVar" class="secondary-btn" type="button"><span>Guardar como variante</span></button>
                 </div>
                 <div class="field">
                   <label for="platformSelect">Plataforma</label>
                   <select id="platformSelect" data-other-target="otherPlatform"></select>
-                  <input id="otherPlatform" class="other-language" type="text" placeholder="Escribe la plataforma">
+                  <input id="otherPlatform" class="other-language" type="text" placeholder="Escribe la plataforma" autocomplete="off">
                 </div>
                 <div class="field">
                   <label for="languageSelect">Idioma de respuesta</label>
                   <select id="languageSelect" data-other-target="otherLanguage"></select>
-                  <input id="otherLanguage" class="other-language" type="text" placeholder="Escribe el idioma">
+                  <input id="otherLanguage" class="other-language" type="text" placeholder="Escribe el idioma" autocomplete="off">
                 </div>
                 <div class="field">
                   <label for="toneSelect">Tono</label>
                   <select id="toneSelect" data-other-target="otherTone"></select>
-                  <input id="otherTone" class="other-language" type="text" placeholder="Escribe el tono">
+                  <input id="otherTone" class="other-language" type="text" placeholder="Escribe el tono" autocomplete="off">
                 </div>
                 <div class="field">
                   <label for="detailSelect">Nivel de detalle</label>
                   <select id="detailSelect" data-other-target="otherDetail"></select>
-                  <input id="otherDetail" class="other-language" type="text" placeholder="Describe el nivel de detalle">
+                  <input id="otherDetail" class="other-language" type="text" placeholder="Describe el nivel de detalle" autocomplete="off">
                 </div>
                 <div class="field">
                   <label for="questionsSelect">Preguntas máximas</label>
                   <select id="questionsSelect" data-other-target="otherQuestions"></select>
-                  <input id="otherQuestions" class="other-language" type="text" placeholder="Escribe un número u otra regla">
+                  <input id="otherQuestions" class="other-language" type="text" placeholder="Escribe un número u otra regla" autocomplete="off">
                 </div>
                 <div class="field">
                   <label for="focusInput">Foco opcional</label>
-                  <textarea id="focusInput" placeholder="Ej: automatización para restaurantes, impuestos Colombia, pitch para inversionistas. Puedes describir tu situación con más detalle si quieres."></textarea>
+                  <textarea id="focusInput" placeholder="Ej: automatización para restaurantes, impuestos Colombia, pitch para inversionistas. Puedes describir tu situación con más detalle si quieres." autocomplete="off"></textarea>
                 </div>
                 <div class="controls-actions">
                   <button id="generateConfig" class="primary-btn" type="button">Generar configuración</button>
@@ -1006,7 +1006,7 @@
                     <button id="copyConfig" class="primary-btn" type="button"><span>Copiar configuración</span></button>
                     <button id="imSaveConfig" class="secondary-btn" type="button"><span>Guardar en mis configuraciones</span></button>
                   </div>
-                  <textarea id="configOutput" class="textarea-output" spellcheck="false"></textarea>
+                  <textarea id="configOutput" class="textarea-output" spellcheck="false" autocomplete="off"></textarea>
                   <div class="how-use">
                     <strong>Cómo usar</strong>
                     <div class="steps">
@@ -1048,15 +1048,15 @@
         </div>
 
         <div class="builder">
-          <form id="customForm" class="builder-panel">
+          <form id="customForm" class="builder-panel" autocomplete="off">
             <h3 class="panel-title">Datos del rol</h3>
             <div class="field">
               <label for="customRole">Nombre del rol</label>
-              <input id="customRole" type="text" placeholder="Ej: Asesor de turismo sostenible">
+              <input id="customRole" type="text" placeholder="Ej: Asesor de turismo sostenible" autocomplete="off">
             </div>
             <div class="field">
               <label for="customSpecialty">Área de especialidad</label>
-              <input id="customSpecialty" type="text" placeholder="Ej: Ecoturismo en Colombia y el Caribe">
+              <input id="customSpecialty" type="text" placeholder="Ej: Ecoturismo en Colombia y el Caribe" autocomplete="off">
             </div>
             <div class="field">
               <label for="customUserType">Para quién</label>
@@ -1068,26 +1068,26 @@
                 <option>Uso personal</option>
                 <option>Otro</option>
               </select>
-              <input id="customOtherUserType" class="other-language" type="text" placeholder="Describe para quién es">
+              <input id="customOtherUserType" class="other-language" type="text" placeholder="Describe para quién es" autocomplete="off">
             </div>
             <div class="field">
               <label for="customExpertise">Áreas clave de expertise</label>
-              <textarea id="customExpertise" placeholder="Ej: Certificaciones de turismo sostenible, manejo de grupos, normas ambientales LATAM"></textarea>
+              <textarea id="customExpertise" placeholder="Ej: Certificaciones de turismo sostenible, manejo de grupos, normas ambientales LATAM" autocomplete="off"></textarea>
             </div>
             <div class="field">
               <label for="customPlatform">Plataforma</label>
               <select id="customPlatform" data-other-target="customOtherPlatform"></select>
-              <input id="customOtherPlatform" class="other-language" type="text" placeholder="Escribe la plataforma">
+              <input id="customOtherPlatform" class="other-language" type="text" placeholder="Escribe la plataforma" autocomplete="off">
             </div>
             <div class="field">
               <label for="customLanguage">Idioma de respuesta</label>
               <select id="customLanguage" data-other-target="customOtherLanguage"></select>
-              <input id="customOtherLanguage" class="other-language" type="text" placeholder="Escribe el idioma">
+              <input id="customOtherLanguage" class="other-language" type="text" placeholder="Escribe el idioma" autocomplete="off">
             </div>
             <div class="field">
               <label for="customTone">Tono</label>
               <select id="customTone" data-other-target="customOtherTone"></select>
-              <input id="customOtherTone" class="other-language" type="text" placeholder="Escribe el tono">
+              <input id="customOtherTone" class="other-language" type="text" placeholder="Escribe el tono" autocomplete="off">
             </div>
             <button id="openAdvanced" class="secondary-btn" type="button">Opciones avanzadas</button>
           </form>
@@ -1098,7 +1098,7 @@
               <button id="copyCustom" class="primary-btn" type="button"><span>Copiar</span></button>
               <button id="imSaveCustom" class="secondary-btn" type="button"><span>Guardar en mis configuraciones</span></button>
             </div>
-            <textarea id="customOutput" class="textarea-output" spellcheck="false" placeholder="Completa los campos para generar tu configuración personalizada."></textarea>
+            <textarea id="customOutput" class="textarea-output" spellcheck="false" placeholder="Completa los campos para generar tu configuración personalizada." autocomplete="off"></textarea>
           </div>
         </div>
       </section>
@@ -1370,7 +1370,7 @@
     <div class="im-modal-caja">
       <h3 id="imCreadorModalTitulo">Pega la respuesta del Creador</h3>
       <p class="busq-nota" id="imCreadorModalHint">Copia el bloque final que te dio la gema (empieza con { y termina con }). Si pegas la respuesta completa también sirve.</p>
-      <textarea id="imCreadorTexto" placeholder='{ "rol": "...", "especialidad": "...", ... }'></textarea>
+      <textarea id="imCreadorTexto" placeholder='{ "rol": "...", "especialidad": "...", ... }' autocomplete="off"></textarea>
       <p class="busq-nota" id="imCreadorError" style="display:none"></p>
       <div class="im-modal-acciones">
         <button id="imCreadorCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
@@ -1383,10 +1383,10 @@
   <div id="imModalNombre" class="im-modal">
     <div class="im-modal-caja">
       <h3 id="imModalTitulo">Ponle un nombre para recordarla</h3>
-      <input id="imModalInput" type="text" placeholder="Ej: Mi validador para la pastelería" />
+      <input id="imModalInput" type="text" placeholder="Ej: Mi validador para la pastelería"  autocomplete="off" />
       <label class="im-modal-label" id="imModalCatLabel">Categoría (opcional)</label>
       <select id="imModalCat"></select>
-      <input id="imModalCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
+      <input id="imModalCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;"  autocomplete="off" />
       <div class="im-modal-acciones">
         <button id="imModalCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imModalGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
@@ -1417,9 +1417,9 @@
     <div class="im-modal-caja">
       <h3 id="imVarModalTitulo">Guarda tu variante</h3>
       <label class="im-modal-label" id="imVarLblNombre">Nombre corto</label>
-      <input id="imVarNombre" type="text" placeholder="Ej: Mi negocio de repostería" />
+      <input id="imVarNombre" type="text" placeholder="Ej: Mi negocio de repostería"  autocomplete="off" />
       <label class="im-modal-label" id="imVarLblTexto">Tu situación</label>
-      <textarea id="imVarTexto" rows="5" placeholder="Describe tu situación tal como se la contarías a un experto..."></textarea>
+      <textarea id="imVarTexto" rows="5" placeholder="Describe tu situación tal como se la contarías a un experto..." autocomplete="off"></textarea>
       <div class="im-modal-acciones">
         <button id="imVarCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imVarGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
@@ -1446,6 +1446,7 @@
     <div class="im-modal-caja im-caja-cuad">
       <div id="imCuadDetCuerpo"></div>
       <div class="im-modal-acciones">
+        <button id="imCuadDetConectar" class="secondary-btn" type="button" style="margin-right:auto;"><span>Conectar este cuaderno</span></button>
         <button id="imCuadDetCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
     </div>
@@ -1456,9 +1457,9 @@
     <div class="im-modal-caja">
       <h3 id="imModalNodoTitulo">Crear categoría</h3>
       <label class="im-modal-label" id="imNodoLblNombre">Nombre</label>
-      <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
+      <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA"  autocomplete="off" />
       <label class="im-modal-label" id="imNodoLblDesc">Objetivo (opcional)</label>
-      <input id="imNodoDesc" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
+      <input id="imNodoDesc" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?"  autocomplete="off" />
       <div class="im-modal-acciones">
         <button id="imNodoCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imNodoGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
@@ -1472,16 +1473,16 @@
       <h3 id="imModalCuadTitulo">Agregar cuaderno</h3>
       <div id="imCuadCampos">
         <label class="im-modal-label" id="imCuadLblTitulo">Título</label>
-        <input id="imCuadTitInput" type="text" placeholder="Ej: Investigación mercado panadería" />
+        <input id="imCuadTitInput" type="text" placeholder="Ej: Investigación mercado panadería"  autocomplete="off" />
         <div class="im-modal-bloque">
           <label class="im-modal-label" id="imCuadLblUrlGem">Link del cuaderno en Gemini</label>
-          <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…" />
+          <input id="imCuadUrlGemInput" type="text" placeholder="https://gemini.google.com/…"  autocomplete="off" />
           <label class="im-modal-label" id="imCuadLblUrlNb">Link del cuaderno en NotebookLM</label>
-          <input id="imCuadUrlNbInput" type="text" placeholder="https://notebook.google.com/… o notebooklm.google.com/…" />
+          <input id="imCuadUrlNbInput" type="text" placeholder="https://notebook.google.com/… o notebooklm.google.com/…"  autocomplete="off" />
         </div>
         <div class="im-modal-bloque">
           <label class="im-modal-label" id="imCuadLblDesc">Objetivo (opcional)</label>
-          <input id="imCuadDescInput" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
+          <input id="imCuadDescInput" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?"  autocomplete="off" />
           <label class="im-modal-label" id="imCuadLblCfg">Configuración (opcional)</label>
           <div id="imCuadCfgSelects">
             <select id="imCuadSelCfgCat"></select>
@@ -1493,10 +1494,10 @@
       <div class="im-modal-bloque">
         <label class="im-modal-label" id="imCuadLblCat">Categoría (opcional)</label>
         <select id="imCuadSelCat"></select>
-        <input id="imCuadCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;" />
+        <input id="imCuadCatNueva" type="text" placeholder="Nombre de la nueva categoría" style="display:none; margin-top:8px;"  autocomplete="off" />
         <label class="im-modal-label" id="imCuadLblSub">Subcategoría (opcional)</label>
         <select id="imCuadSelSub"></select>
-        <input id="imCuadSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;" />
+        <input id="imCuadSubNueva" type="text" placeholder="Nombre de la nueva subcategoría" style="display:none; margin-top:8px;"  autocomplete="off" />
       </div>
       <div class="im-modal-acciones">
         <button id="imCuadCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
@@ -1510,11 +1511,11 @@
     <div class="im-modal-caja">
       <h3 id="imChatCTitulo">Guardar chat</h3>
       <label class="im-modal-label" id="imChatCLblTit">Título</label>
-      <input id="imChatCTit" type="text" placeholder="Ej: Guion semana 22" />
+      <input id="imChatCTit" type="text" placeholder="Ej: Guion semana 22"  autocomplete="off" />
       <label class="im-modal-label" id="imChatCLblUrl">Link del chat</label>
-      <input id="imChatCUrl" type="text" placeholder="https://gemini.google.com/app/…" />
+      <input id="imChatCUrl" type="text" placeholder="https://gemini.google.com/app/…"  autocomplete="off" />
       <label class="im-modal-label" id="imChatCLblNota">Objetivo (opcional)</label>
-      <input id="imChatCNota" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?" />
+      <input id="imChatCNota" type="text" placeholder="¿Qué problema resuelve o qué objetivo logra?"  autocomplete="off" />
       <div class="im-modal-acciones">
         <button id="imChatCCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imChatCOk" class="primary-btn" type="button"><span>Guardar</span></button>
@@ -1528,7 +1529,7 @@
       <h3 id="imImpTitulo">Importar árbol</h3>
       <div id="imImpZonaPegar">
         <p class="im-modal-nota" id="imImpAyuda" style="margin:0 0 10px;">Pega aquí el bloque que te entregó el Arquitecto y revisa la vista previa antes de crear.</p>
-        <textarea id="imImpTexto" rows="9" spellcheck="false"></textarea>
+        <textarea id="imImpTexto" rows="9" spellcheck="false" autocomplete="off"></textarea>
       </div>
       <p class="im-modal-nota im-imp-error" id="imImpError" style="display:none;"></p>
       <div id="imImpPreview" style="display:none;">
@@ -1553,7 +1554,7 @@
         <button id="imConAyudaBtn" class="im-con-q" type="button" aria-label="¿Qué es esto?">?</button>
       </div>
       <p class="im-modal-nota" id="imConAyuda" style="display:none; margin:0 0 10px;"></p>
-      <textarea id="imConTexto" rows="12" readonly spellcheck="false"></textarea>
+      <textarea id="imConTexto" rows="12" readonly spellcheck="false" autocomplete="off"></textarea>
       <div class="im-modal-acciones">
         <button id="imConCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
         <button id="imConCopiar" class="primary-btn" type="button"><span>Copiar</span></button>
@@ -1599,32 +1600,32 @@
         <div class="field">
           <label for="customDetail">Nivel de detalle</label>
           <select id="customDetail" data-other-target="customOtherDetail"></select>
-          <input id="customOtherDetail" class="other-language" type="text" placeholder="Describe el nivel de detalle">
+          <input id="customOtherDetail" class="other-language" type="text" placeholder="Describe el nivel de detalle" autocomplete="off">
         </div>
         <div class="field">
           <label for="customQuestions">Preguntas máximas</label>
           <select id="customQuestions" data-other-target="customOtherQuestions"></select>
-          <input id="customOtherQuestions" class="other-language" type="text" placeholder="Escribe un número u otra regla">
+          <input id="customOtherQuestions" class="other-language" type="text" placeholder="Escribe un número u otra regla" autocomplete="off">
         </div>
         <div class="field">
           <label for="customRegion">Contexto / región</label>
-          <input id="customRegion" type="text" placeholder="Ej: América Latina, España, mercado global (por defecto: América Latina)">
+          <input id="customRegion" type="text" placeholder="Ej: América Latina, España, mercado global (por defecto: América Latina)" autocomplete="off">
         </div>
         <div class="field">
           <label for="customFocus">Foco opcional</label>
-          <textarea id="customFocus" placeholder="Ej: automatización para restaurantes, impuestos Colombia. Puedes describir tu situación con más detalle si quieres."></textarea>
+          <textarea id="customFocus" placeholder="Ej: automatización para restaurantes, impuestos Colombia. Puedes describir tu situación con más detalle si quieres." autocomplete="off"></textarea>
         </div>
         <div class="field">
           <label for="customJudgment">Criterios de buen resultado (uno por línea)</label>
-          <textarea id="customJudgment" placeholder="Ej: Se identifica el riesgo real antes de recomendar&#10;Se distingue una corazonada de una señal real"></textarea>
+          <textarea id="customJudgment" placeholder="Ej: Se identifica el riesgo real antes de recomendar&#10;Se distingue una corazonada de una señal real" autocomplete="off"></textarea>
         </div>
         <div class="field">
           <label for="customFailures">Qué debe evitar (uno por línea)</label>
-          <textarea id="customFailures" placeholder="Ej: Dar cifras sin fuente&#10;Recomendar sin conocer el contexto local"></textarea>
+          <textarea id="customFailures" placeholder="Ej: Dar cifras sin fuente&#10;Recomendar sin conocer el contexto local" autocomplete="off"></textarea>
         </div>
         <div class="field">
           <label for="customBoundary">Límite / advertencia ética</label>
-          <input id="customBoundary" type="text" placeholder="Ej: No sustituye asesoría legal o financiera formal">
+          <input id="customBoundary" type="text" placeholder="Ej: No sustituye asesoría legal o financiera formal" autocomplete="off">
         </div>
       </div>
       <div class="modal-foot">
@@ -1651,7 +1652,7 @@
       <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
       <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
       <div id="imMejorarForm">
-        <textarea id="imMejorarTexto" maxlength="2000"></textarea>
+        <textarea id="imMejorarTexto" maxlength="2000" autocomplete="off"></textarea>
         <p id="imMejorarError" style="display:none;"></p>
         <div class="im-mejorar-acciones">
           <button class="primary-btn" id="imMejorarEnviar" type="button">Enviar</button>
@@ -3360,7 +3361,7 @@ ${clean}`;
         const [cu, no, ch] = await Promise.all([
           db.from('user_cuadernos').select('*').order('orden', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false }),
           db.from('user_cuaderno_categorias').select('*'),
-          db.from('user_cuaderno_chats').select('*').order('created_at'),
+          db.from('user_cuaderno_chats').select('*').order('created_at', { ascending: false }),
         ]);
         if (cu.error || no.error || ch.error) { showToast(tt().errCargar); return; }
         cuadernos = cu.data ?? [];
@@ -3589,6 +3590,7 @@ ${clean}`;
           else {
             $('imCuadDetCuerpo').innerHTML = filaCuaderno(c);
             $('imCuadDetCerrar').querySelector('span').textContent = x.cerrarDet;
+            $('imCuadDetConectar').querySelector('span').textContent = x.conCuaderno;
           }
         }
       }
@@ -3723,6 +3725,7 @@ ${clean}`;
       $('imCuadList').addEventListener('click', clicEnCuaderno);
       $('imCuadDetCuerpo').addEventListener('click', clicEnCuaderno);
       $('imCuadDetCerrar').addEventListener('click', cerrarDetalleCuad);
+      $('imCuadDetConectar').addEventListener('click', () => { if (cuadDetalleId) abrirModalConectar({ tipo: 'cuaderno', cuadernoId: cuadDetalleId }); });
       $('imModalCuadDet').addEventListener('click', (e) => { if (e.target.id === 'imModalCuadDet') cerrarDetalleCuad(); });
 
       document.addEventListener('click', (e) => {
