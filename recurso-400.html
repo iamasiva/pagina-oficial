@@ -1076,7 +1076,7 @@
           <h4 id="imMgListaTitulo" class="im-lista-titulo" style="display:none"></h4>
           <div id="imMgLista"></div>
           <div id="imMgDet" class="im-modal">
-            <div class="im-modal-servidor im-servidor-mgdet">
+            <div class="im-modal-caja im-caja-mgdet">
               <div id="imMgDetCuerpo"></div>
               <div class="im-modal-acciones">
                 <button class="im-mini-btn" type="button" data-cerrardet="1">Cerrar</button>
@@ -1088,7 +1088,7 @@
 
         <!-- Modal: nombre y servidor del prompt (guardar desde el detalle) -->
         <div id="imModalMeta" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3>Guardar en mis agentes</h3>
             <label class="im-modal-label">Skill</label>
             <input id="imMetaNombre" type="text" readonly />
@@ -1114,7 +1114,7 @@
 
         <!-- Modal: crear/editar servidor o módulo -->
         <div id="imModalNodo" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3 id="imNodoTitulo">Crear servidor</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
@@ -1129,7 +1129,7 @@
 
         <!-- Modal: guardar/editar/mover una skill mía -->
         <div id="imModalGema" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3 id="imGemaTitulo">Guardar skill</h3>
             <div id="imGemaCampos">
               <div id="imGemaCatalogoInfo" class="im-skill-catinfo" style="display:none"></div>
@@ -1162,7 +1162,7 @@
 
         <!-- Modal: crear agente local (bloque copiable) -->
         <div id="imModalAgente" class="im-modal">
-          <div class="im-modal-servidor im-modal-conectar">
+          <div class="im-modal-caja im-modal-conectar">
             <div class="im-con-cab">
               <div class="im-con-tabs">
                 <button id="imAgenteTabBloque" class="im-con-tab activa" type="button">Crear agente local</button>
@@ -1203,7 +1203,7 @@
 
         <!-- Modal: guardar/editar chat -->
         <div id="imModalChat" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3 id="imChatTitulo">Guardar chat</h3>
             <label class="im-modal-label">Título</label>
             <input id="imChatNombre" type="text" placeholder="Ej: Guion semana 22" />
@@ -1220,7 +1220,7 @@
 
         <!-- Modal: prompt redactado libre -->
         <div id="imModalLibre" class="im-modal">
-          <div class="im-modal-servidor im-modal-ancha">
+          <div class="im-modal-caja im-modal-ancha">
             <h3 id="imLibreTitulo">Nuevo prompt</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imLibreNombre" type="text" placeholder="Ej: Mi prompt de cierre de ventas" />
@@ -1236,7 +1236,7 @@
 
         <!-- Modal: usar un prompt propio (los [pedazos] entre corchetes son inputs) -->
         <div id="imModalUsarPrompt" class="im-modal">
-          <div class="im-modal-servidor" style="max-width:560px;">
+          <div class="im-modal-caja" style="max-width:560px;">
             <h3 id="imUsarNombre"></h3>
             <div id="imUsarCampos"></div>
             <textarea id="imUsarPreview" class="code-output" style="min-height:170px; margin-top:12px;" readonly></textarea>
@@ -1250,7 +1250,7 @@
 
         <!-- Modal: cambiar el color de una skill (5x5) -->
         <div id="imModalColorGema" class="im-modal">
-          <div class="im-modal-servidor" style="max-width:380px;">
+          <div class="im-modal-caja" style="max-width:380px;">
             <h3>Elige el color de tu agente</h3>
             <div class="im-paleta" id="imPaletaGema"></div>
             <div class="im-modal-acciones" style="margin-top:18px;">
@@ -1262,7 +1262,7 @@
 
         <!-- Modal: elegir origen del prompt nuevo -->
         <div id="imModalOrigen" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3>¿Cómo quieres crear el prompt?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
               <button id="imOrigenCatalogo" class="im-btn-primario" type="button" style="width:100%;">Desde el formulario de la skill</button>
@@ -1273,7 +1273,7 @@
 
         <!-- Modal: qué tipo de skill vas a guardar -->
         <div id="imModalTipoGema" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3>¿Qué skill quieres guardar?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
               <button id="imTipoCatalogo" class="im-btn-primario" type="button" style="width:100%;">Una skill del catálogo</button>
@@ -1284,7 +1284,7 @@
 
         <!-- Modal: buscar skill del catálogo -->
         <div id="imModalBuscarGema" class="im-modal">
-          <div class="im-modal-servidor im-modal-ancha">
+          <div class="im-modal-caja im-modal-ancha">
             <h3>Elige la skill del catálogo</h3>
             <input id="imBuscarInput" type="text" placeholder="Busca por nombre, servidor o herramienta…" style="margin-top:10px;" />
             <div id="imBuscarLista" style="max-height:320px; overflow-y:auto; margin-top:10px;"></div>
@@ -1293,7 +1293,7 @@
 
         <!-- Modal: crear/editar prompt con el formulario real de la skill -->
         <div id="imModalPromptForm" class="im-modal">
-          <div class="im-modal-servidor im-modal-ancha">
+          <div class="im-modal-caja im-modal-ancha">
             <h3 id="imFPTitulo">Nuevo prompt</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imFPNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
@@ -1310,7 +1310,7 @@
 
         <!-- Modal: mover módulo a otro servidor -->
         <div id="imModalMoverSub" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3>Mover módulo</h3>
             <label class="im-modal-label">Servidor destino</label>
             <select id="imMoverSubSel"></select>
@@ -1323,7 +1323,7 @@
 
         <!-- Modal: confirmación (reemplaza el confirm() nativo) -->
         <div id="imModalConfirmar" class="im-modal">
-          <div class="im-modal-servidor">
+          <div class="im-modal-caja">
             <h3 id="imConfTitulo">¿Estás seguro?</h3>
             <p class="im-modal-nota" id="imConfTexto" style="margin-top:10px;"></p>
             <div class="im-modal-acciones">
@@ -2211,7 +2211,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         return `
           <div class="im-cofre ${n.parent_id ? 'sub' : ''}" data-navnodo="${n.id}">
             <div class="im-srv"><svg viewBox="0 0 140 110" aria-hidden="true"><use href="#imTorre"/></svg></div>
-            <div class="im-cofre-servidor">
+            <div class="im-cofre-caja">
               <button class="im-menu-btn" type="button" data-menu="nodo-${n.id}">⋮</button>
               ${menu === 'nodo-' + n.id ? menuHtmlMG('nodo-' + n.id) : ''}
               <h3>${escapeHtml(n.nombre)}</h3>
@@ -2299,7 +2299,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
                 ? `<button class="im-mini-btn" type="button" data-nuevochat="${g.id}">＋ Guardar chat</button>`
                 : `<button class="im-mini-btn" type="button" data-nuevoprompt="${g.id}">＋ Agregar prompt</button>`}
             </div>
-            <div class="im-est-módulo">
+            <div class="im-est-bandeja">
               ${tabChats
                 ? (cs.length ? cs.map(filaChat).join('') : `<div class="im-est-vacio">Aún no guardas chats de esta skill.</div>`)
                 : (ps.length ? ps.map(filaPrompt).join('') : `<div class="im-est-vacio">Aún no guardas prompts de esta skill.</div>`)}
@@ -2389,8 +2389,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
               el.style.right = 'auto';
               const claveAbierta = clave;
               const cerrarSiScroll = () => { if (menu === claveAbierta) { menu = null; cerrarMenusMG(); } };
-              m.closest('.im-est-módulo')?.addEventListener('scroll', cerrarSiScroll, { once: true });
-              m.closest('.im-servidor-mgdet')?.addEventListener('scroll', cerrarSiScroll, { once: true });
+              m.closest('.im-est-bandeja')?.addEventListener('scroll', cerrarSiScroll, { once: true });
+              m.closest('.im-caja-mgdet')?.addEventListener('scroll', cerrarSiScroll, { once: true });
             }
           }
           e.stopPropagation(); return;
@@ -3374,7 +3374,7 @@ ${ficha}`;
   })();
   </script>
 <div class="im-modal" id="imMejorarModal">
-    <div class="im-modal-servidor">
+    <div class="im-modal-caja">
       <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
       <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
       <div id="imMejorarForm">
