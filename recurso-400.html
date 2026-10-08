@@ -551,6 +551,7 @@
     .im-est-bandeja { margin-top: 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 6px 8px; max-height: 200px; overflow-y: auto; }
     .im-est-fila { position: relative; background: var(--surface); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
     .im-est-fila:last-child { margin-bottom: 0; }
+    .im-fila-catalogo { border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent); }
     .im-est-txt { flex: 1; min-width: 0; font-size: 0.85rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .im-est-rayo { flex: none; color: var(--gold); font-size: 0.8rem; }
     .im-est-btn { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); border-radius: 8px; padding: 4px 12px; font: inherit; font-size: 0.76rem; font-weight: 800; cursor: pointer; }
@@ -752,7 +753,7 @@
           <div class="toolbar">
             <div class="search-wrap">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" id="searchInput" placeholder="Buscar por nombre, categoría, herramienta o caso de uso...">
+              <input type="text" id="searchInput" placeholder="Buscar por nombre, categoría, herramienta o caso de uso..." autocomplete="off">
             </div>
           </div>
           <div class="chip-strip" id="toolFilters"></div>
@@ -833,7 +834,7 @@
                   <label>Instrucciones</label>
                   <button class="copy-mini" id="copyConfigBtn">Copiar</button>
                 </div>
-                <textarea class="code-output" id="configOutput" readonly></textarea>
+                <textarea class="code-output" id="configOutput" readonly autocomplete="off"></textarea>
                 <span class="copy-feedback" id="copyConfigFeedback">Copiado ✓</span>
               </div>
 
@@ -859,8 +860,8 @@
               <div class="step-title"><h3>Paso 2 · Usa tu skill</h3></div>
               <div class="step">
                 <p class="hint">Completa estos campos y copia el prompt. Ya viene con el nombre de la skill adelante: pégalo en cualquier chat de Gemini y esa skill responde.</p>
-                <form id="promptForm" class="form-grid"></form>
-                <textarea class="code-output" id="promptOutput" readonly></textarea>
+                <form id="promptForm" class="form-grid" autocomplete="off"></form>
+                <textarea class="code-output" id="promptOutput" readonly autocomplete="off"></textarea>
                 <div class="actions">
                   <button class="primary-btn" id="copyPromptBtn">Copiar prompt</button>
                   <button class="secondary-btn" id="resetBtn">Restablecer</button>
@@ -971,7 +972,7 @@
                     <label>Instrucciones</label>
                     <button class="copy-mini" id="builderCopyConfigBtn">Copiar</button>
                   </div>
-                  <textarea class="code-output" id="builderConfigOutput" readonly></textarea>
+                  <textarea class="code-output" id="builderConfigOutput" readonly autocomplete="off"></textarea>
                 </div>
 
                 <div class="gem-field">
@@ -998,8 +999,8 @@
               <div class="step-title"><h3>Genera el prompt de tu skill nueva</h3></div>
               <div class="step">
                 <p class="hint">Describe el caso de uso de la skill que quieres crear. El prompt se genera solo mientras escribes y ya lleva el nombre de la skill adelante.</p>
-                <form id="builderForm" class="form-grid"></form>
-                <textarea class="code-output" id="builderPromptOutput" readonly></textarea>
+                <form id="builderForm" class="form-grid" autocomplete="off"></form>
+                <textarea class="code-output" id="builderPromptOutput" readonly autocomplete="off"></textarea>
                 <div class="actions">
                   <button class="primary-btn" id="builderCopyPromptBtn">Copiar prompt</button>
                   <button class="secondary-btn" id="builderResetBtn">Restablecer</button>
@@ -1091,19 +1092,19 @@
           <div class="im-modal-caja">
             <h3>Guardar en mis agentes</h3>
             <label class="im-modal-label">Skill</label>
-            <input id="imMetaNombre" type="text" readonly />
+            <input id="imMetaNombre" type="text" readonly  autocomplete="off" />
             <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
-            <input id="imMetaUrl" type="text" placeholder="/nombre-de-la-skill" />
+            <input id="imMetaUrl" type="text" placeholder="/nombre-de-la-skill"  autocomplete="off" />
             <label class="im-modal-label">Servidor (opcional)</label>
             <select id="imMetaSelCat"></select>
-            <input id="imMetaCatNueva" type="text" placeholder="Nombre de el nuevo servidor" style="display:none; margin-top:8px;" />
+            <input id="imMetaCatNueva" type="text" placeholder="Nombre del nuevo servidor" style="display:none; margin-top:8px;"  autocomplete="off" />
             <label class="im-modal-label">Módulo (opcional)</label>
             <select id="imMetaSelSub"></select>
-            <input id="imMetaSubNueva" type="text" placeholder="Nombre de el nuevo módulo" style="display:none; margin-top:8px;" />
-            <label class="im-check"><input type="checkbox" id="imMetaConPrompt" checked /> Guardar el prompt</label>
-            <div id="imMetaPromptCampo">
+            <input id="imMetaSubNueva" type="text" placeholder="Nombre del nuevo módulo" style="display:none; margin-top:8px;"  autocomplete="off" />
+            <label class="im-check" style="display:none;"><input type="checkbox" id="imMetaConPrompt" /> Guardar el prompt</label>
+            <div id="imMetaPromptCampo" style="display:none;">
               <label class="im-modal-label">Nombre del prompt</label>
-              <input id="imMetaPromptNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
+              <input id="imMetaPromptNombre" type="text" placeholder="Ej: Briefing mensual de competencia"  autocomplete="off" />
             </div>
             <div class="im-modal-acciones">
               <button id="imMetaCancelar" class="im-mini-btn" type="button">Cancelar</button>
@@ -1117,9 +1118,9 @@
           <div class="im-modal-caja">
             <h3 id="imNodoTitulo">Crear servidor</h3>
             <label class="im-modal-label">Nombre</label>
-            <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
+            <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA"  autocomplete="off" />
             <label class="im-modal-label">Descripción (opcional)</label>
-            <input id="imNodoDesc" type="text" placeholder="Ej: Todo lo de la marca" />
+            <input id="imNodoDesc" type="text" placeholder="Ej: Todo lo de la marca"  autocomplete="off" />
             <div class="im-modal-acciones">
               <button id="imNodoCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imNodoGuardar" class="im-btn-primario" type="button">Guardar</button>
@@ -1135,24 +1136,24 @@
               <div id="imGemaCatalogoInfo" class="im-skill-catinfo" style="display:none"></div>
               <div id="imGemaNombreCampo">
                 <label class="im-modal-label">Nombre</label>
-                <input id="imGemaNombre" type="text" placeholder="Ej: Mi skill de contenido semanal" />
+                <input id="imGemaNombre" type="text" placeholder="Ej: Mi skill de contenido semanal"  autocomplete="off" />
               </div>
               <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
-              <input id="imGemaUrl" type="text" placeholder="/nombre-de-la-skill" />
+              <input id="imGemaUrl" type="text" placeholder="/nombre-de-la-skill"  autocomplete="off" />
               <label class="im-modal-label">¿Para qué es? (opcional)</label>
-              <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte" />
+              <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte"  autocomplete="off" />
               <div id="imGemaInstrCampo">
                 <label class="im-modal-label">Instrucciones de la skill (opcional)</label>
-                <textarea id="imGemaInstr" rows="4" spellcheck="false" placeholder="Pégalas desde Gemini: Habilidades, tu skill, campo Instrucciones."></textarea>
+                <textarea id="imGemaInstr" rows="4" spellcheck="false" placeholder="Pégalas desde Gemini: Habilidades, tu skill, campo Instrucciones." autocomplete="off"></textarea>
                 <p class="im-modal-nota" style="margin:6px 0 0;">Con las instrucciones guardadas podrás crear el agente local de esta skill.</p>
               </div>
             </div>
             <label class="im-modal-label">Servidor (opcional)</label>
             <select id="imGemaSelCat"></select>
-            <input id="imGemaCatNueva" type="text" placeholder="Nombre de el nuevo servidor" style="display:none; margin-top:8px;" />
+            <input id="imGemaCatNueva" type="text" placeholder="Nombre del nuevo servidor" style="display:none; margin-top:8px;"  autocomplete="off" />
             <label class="im-modal-label">Módulo (opcional)</label>
             <select id="imGemaSelSub"></select>
-            <input id="imGemaSubNueva" type="text" placeholder="Nombre de el nuevo módulo" style="display:none; margin-top:8px;" />
+            <input id="imGemaSubNueva" type="text" placeholder="Nombre del nuevo módulo" style="display:none; margin-top:8px;"  autocomplete="off" />
             <div class="im-modal-acciones">
               <button id="imGemaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imGemaOk" class="im-btn-primario" type="button">Guardar</button>
@@ -1173,7 +1174,7 @@
             <p class="im-modal-nota" id="imAgenteAyuda" style="display:none; margin:10px 0 0;">Tu skill queda como un agente local: lo llamas con @ dentro de cualquier solicitud en Claude Code o Codex, o lo integras en skills para que haga parte de flujos más grandes. Tiene su carpeta de conocimiento y puede conectarse en vivo a tus cuadernos de NotebookLM. Sin API keys y sin costos extra: corre con tu propia suscripción de esa herramienta. Nada pasa por IA MASIVA.</p>
             <div id="imAgentePanelBloque">
               <p class="im-modal-nota" style="margin:10px 0 0;">Crea una carpeta en tu computador para esta skill, ábrela en Claude Code (o el agente que uses) y pega este bloque. El agente hace el resto.</p>
-              <textarea id="imAgenteTexto" class="code-output" readonly spellcheck="false"></textarea>
+              <textarea id="imAgenteTexto" class="code-output" readonly spellcheck="false" autocomplete="off"></textarea>
             </div>
             <div id="imAgentePanelConoc" style="display:none;">
               <p class="im-modal-nota" style="margin:10px 0 0;">Cuando se crea el agente, se crea también su carpeta <b>conocimiento/</b>. Ahí pega los mismos documentos que le subiste a tu skill en Gemini (los originales los tienes tú) y la skill los leerá siempre que trabaje.</p>
@@ -1182,7 +1183,7 @@
               <div id="imAgenteMcpPanel" style="display:none; margin:2px 0 8px;">
                 <p class="im-modal-nota" style="margin:0 0 8px;">Pega los links de los cuadernos que tu skill usa como conocimiento. Se guardan con tu skill y viajan dentro del bloque: el agente los conecta como fuentes vivas que consulta siempre al día (entras con tu cuenta de Google una sola vez).</p>
                 <div id="imAgenteLinksLista"></div>
-                <input id="imAgenteLinkNuevo" type="text" placeholder="https://notebooklm.google.com/notebook/…" style="margin-top:8px;" />
+                <input id="imAgenteLinkNuevo" type="text" placeholder="https://notebooklm.google.com/notebook/…" style="margin-top:8px;"  autocomplete="off" />
                 <div style="margin-top:8px;">
                   <button id="imAgenteAgregarLink" class="im-btn-primario" type="button">Agregar cuaderno</button>
                 </div>
@@ -1206,11 +1207,11 @@
           <div class="im-modal-caja">
             <h3 id="imChatTitulo">Guardar chat</h3>
             <label class="im-modal-label">Título</label>
-            <input id="imChatNombre" type="text" placeholder="Ej: Guion semana 22" />
+            <input id="imChatNombre" type="text" placeholder="Ej: Guion semana 22"  autocomplete="off" />
             <label class="im-modal-label">Link del chat</label>
-            <input id="imChatUrl" type="text" placeholder="https://gemini.google.com/app/…" />
+            <input id="imChatUrl" type="text" placeholder="https://gemini.google.com/app/…"  autocomplete="off" />
             <label class="im-modal-label">Nota (opcional)</label>
-            <input id="imChatNota" type="text" placeholder="De qué trató" />
+            <input id="imChatNota" type="text" placeholder="De qué trató"  autocomplete="off" />
             <div class="im-modal-acciones">
               <button id="imChatCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imChatOk" class="im-btn-primario" type="button">Guardar</button>
@@ -1223,9 +1224,9 @@
           <div class="im-modal-caja im-modal-ancha">
             <h3 id="imLibreTitulo">Nuevo prompt</h3>
             <label class="im-modal-label">Nombre</label>
-            <input id="imLibreNombre" type="text" placeholder="Ej: Mi prompt de cierre de ventas" />
+            <input id="imLibreNombre" type="text" placeholder="Ej: Mi prompt de cierre de ventas"  autocomplete="off" />
             <label class="im-modal-label">Prompt</label>
-            <textarea id="imLibreTexto" class="code-output" style="min-height:180px;" placeholder="Escribe o pega aquí tu prompt…"></textarea>
+            <textarea id="imLibreTexto" class="code-output" style="min-height:180px;" placeholder="Escribe o pega aquí tu prompt…" autocomplete="off"></textarea>
             <p class="im-modal-nota" style="margin-top:8px;">Tip: escribe los pedazos que cambian entre corchetes, por ejemplo [tipo de comida], y al usar el prompt se convertirán en campos para llenar.</p>
             <div class="im-modal-acciones">
               <button id="imLibreCancelar" class="im-mini-btn" type="button">Cancelar</button>
@@ -1239,7 +1240,7 @@
           <div class="im-modal-caja" style="max-width:560px;">
             <h3 id="imUsarNombre"></h3>
             <div id="imUsarCampos"></div>
-            <textarea id="imUsarPreview" class="code-output" style="min-height:170px; margin-top:12px;" readonly></textarea>
+            <textarea id="imUsarPreview" class="code-output" style="min-height:170px; margin-top:12px;" readonly autocomplete="off"></textarea>
             <div class="im-modal-acciones">
               <button id="imUsarEditar" class="im-mini-btn" type="button">Editar plantilla</button>
               <button id="imUsarCancelar" class="im-mini-btn" type="button">Cancelar</button>
@@ -1286,7 +1287,7 @@
         <div id="imModalBuscarGema" class="im-modal">
           <div class="im-modal-caja im-modal-ancha">
             <h3>Elige la skill del catálogo</h3>
-            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, servidor o herramienta…" style="margin-top:10px;" />
+            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, servidor o herramienta…" style="margin-top:10px;"  autocomplete="off" />
             <div id="imBuscarLista" style="max-height:320px; overflow-y:auto; margin-top:10px;"></div>
           </div>
         </div>
@@ -1295,12 +1296,14 @@
         <div id="imModalPromptForm" class="im-modal">
           <div class="im-modal-caja im-modal-ancha">
             <h3 id="imFPTitulo">Nuevo prompt</h3>
-            <label class="im-modal-label">Nombre</label>
-            <input id="imFPNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
+            <div id="imFPNombreCampo">
+              <label class="im-modal-label">Nombre</label>
+              <input id="imFPNombre" type="text" placeholder="Ej: Briefing mensual de competencia"  autocomplete="off" />
+            </div>
             <label class="im-modal-label">Campos de la skill</label>
             <div id="imFPForm" class="prompt-form"></div>
             <label class="im-modal-label">Prompt resultante</label>
-            <textarea id="imFPOutput" class="code-output" readonly style="min-height:120px;"></textarea>
+            <textarea id="imFPOutput" class="code-output" readonly style="min-height:120px;" autocomplete="off"></textarea>
             <div class="im-modal-acciones">
               <button id="imFPCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imFPGuardar" class="im-btn-primario" type="button">Copiar</button>
@@ -1860,7 +1863,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             return `
             <div class="field full" data-field="${input.id}">
               <label>${escapeHtml(input.label)}</label>
-              <textarea data-input="${input.id}">${escapeHtml(formState[input.id] || "")}</textarea>
+              <textarea data-input="${input.id}" autocomplete="off">${escapeHtml(formState[input.id] || "")}</textarea>
             </div>`;
           }
           if (input.type === "select") {
@@ -1871,13 +1874,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             <div class="field${isOther ? " has-other" : ""}" data-field="${input.id}">
               <label>${escapeHtml(input.label)}</label>
               <select data-input="${input.id}">${opts}</select>
-              <input class="other-input" type="text" placeholder="Escribe tu opción" data-input-other="${input.id}" value="${escapeHtml(formState[input.id + "__otro"] || "")}">
+              <input class="other-input" type="text" placeholder="Escribe tu opción" data-input-other="${input.id}" value="${escapeHtml(formState[input.id + "__otro"] || "")}" autocomplete="off">
             </div>`;
           }
           return `
             <div class="field" data-field="${input.id}">
               <label>${escapeHtml(input.label)}</label>
-              <input type="text" data-input="${input.id}" value="${escapeHtml(formState[input.id] || "")}">
+              <input type="text" data-input="${input.id}" value="${escapeHtml(formState[input.id] || "")}" autocomplete="off">
             </div>`;
         })
         .join("");
@@ -2260,6 +2263,15 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           </div>`;
       }
 
+      // El prompt que viene con la skill del catálogo: se llena y se copia, no se guarda
+      function filaPromptCatalogo(g) {
+        return `
+          <div class="im-est-fila im-fila-catalogo">
+            <span class="im-est-rayo">⚡</span>
+            <span class="im-est-txt">Prompt de la skill <span class="im-prompt-cat">catálogo</span></span>
+            <button class="im-est-btn" type="button" data-usarcatalogo="${g.id}">Llenar y copiar</button>
+          </div>`;
+      }
       function filaPrompt(p) {
         return `
           <div class="im-est-fila">
@@ -2302,7 +2314,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             <div class="im-est-bandeja">
               ${tabChats
                 ? (cs.length ? cs.map(filaChat).join('') : `<div class="im-est-vacio">Aún no guardas chats de esta skill.</div>`)
-                : (ps.length ? ps.map(filaPrompt).join('') : `<div class="im-est-vacio">Aún no guardas prompts de esta skill.</div>`)}
+                : ((g.item_id ? filaPromptCatalogo(g) : '') + (ps.length ? ps.map(filaPrompt).join('') : (g.item_id ? '' : `<div class="im-est-vacio">Aún no guardas prompts de esta skill.</div>`)))}
             </div>
           </div>`;
       }
@@ -2407,6 +2419,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
         const vt = e.target.closest('[data-vtab]');
         if (vt) { vitrinaTab = vt.dataset.vtab; menu = null; cerrarMenusMG(); render(); return; }
+        const uc = e.target.closest('[data-usarcatalogo]');
+        if (uc) {
+          const g = misGemas.find(x => x.id === uc.dataset.usarcatalogo);
+          const gem = g && g.item_id ? gems.find(x => x.id === numByUuid.get(g.item_id)) : null;
+          if (gem) abrirPopupPrompt(gem, null, g.id, 'usar');
+          return;
+        }
         const vp = e.target.closest('[data-verprompt]');
         if (vp) {
           const p = prompts.find(x => x.id === vp.dataset.verprompt);
@@ -2472,9 +2491,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (np) {
           const g = misGemas.find(x => x.id === np.dataset.nuevoprompt);
           if (!g) return;
-          // Skill del catálogo: formulario o texto libre. Skill propia: lo redactas tú.
-          if (g.item_id) { ctxOrigen = { gemaId: g.id }; $('imModalOrigen').classList.add('abierto'); }
-          else abrirModalLibre({ modo: 'crear', gemaId: g.id });
+          // El prompt del catálogo ya viene con la skill; lo que se agrega es un prompt propio
+          abrirModalLibre({ modo: 'crear', gemaId: g.id });
           return;
         }
 
@@ -2835,7 +2853,7 @@ ${ficha}`;
         $('imAgenteLinksLista').innerHTML = links.length
           ? links.map((l, i) => cuadernoEditIdx === i
             ? `<div class="im-cuaderno-fila">
-                <input type="text" id="imAgenteLinkEdit" value="${escapeHtml(l)}" />
+                <input type="text" id="imAgenteLinkEdit" value="${escapeHtml(l)}"  autocomplete="off" />
                 <button class="im-mini-btn" type="button" data-cuadok="${i}" style="padding:6px 10px;">Guardar</button>
                 <button class="im-mini-btn" type="button" data-cuadcancel="1" style="padding:6px 10px;">Cancelar</button>
               </div>`
@@ -3086,7 +3104,7 @@ ${ficha}`;
         $('imUsarNombre').textContent = p.nombre;
         $('imUsarCampos').innerHTML = campos.map(c => `
           <label class="im-modal-label">${escapeHtml(c)}</label>
-          <input type="text" data-usarcampo="${escapeHtml(c)}" value="${escapeHtml(ctxUsar.valores[c] ?? '')}" placeholder="${escapeHtml(c)}" />`).join('');
+          <input type="text" data-usarcampo="${escapeHtml(c)}" value="${escapeHtml(ctxUsar.valores[c] ?? '')}" placeholder="${escapeHtml(c)}"  autocomplete="off" />`).join('');
         actualizarUsarPreview();
         $('imModalUsarPrompt').classList.add('abierto');
         const primero = $('imUsarCampos').querySelector('input');
@@ -3132,9 +3150,9 @@ ${ficha}`;
         ctxMeta = { gem: activeGem, valores: { ...formState }, contenido: buildPrompt(activeGem) };
         $('imMetaNombre').value = activeGem.nombre;
         $('imMetaUrl').value = llamadaSkill(activeGem.nombre);
-        $('imMetaConPrompt').checked = true;
+        $('imMetaConPrompt').checked = false;
         $('imMetaPromptNombre').value = '';
-        $('imMetaPromptCampo').style.display = '';
+        $('imMetaPromptCampo').style.display = 'none';
         llenarSelCat(IDS_META, null, null);
         $('imModalMeta').classList.add('abierto');
         $('imMetaUrl').focus();
@@ -3194,9 +3212,12 @@ ${ficha}`;
       $('imModalMeta').addEventListener('click', (e) => { if (e.target.id === 'imModalMeta') e.target.classList.remove('abierto'); });
 
       // ── Pop-up con el formulario real de la skill (crear/editar) ──
-      function abrirPopupPrompt(gem, promptRow, userGemaId) {
-        ctxForm = { gem, promptRow, userGemaId, prev: { gem: activeGem, form: formState, formEl: activeFormEl, outEl: activeOutputEl } };
-        $('imFPTitulo').textContent = (promptRow ? 'Editar prompt: ' : 'Nuevo prompt: ') + gem.nombre;
+      function abrirPopupPrompt(gem, promptRow, userGemaId, modo) {
+        const usar = modo === 'usar';
+        ctxForm = { gem, promptRow, userGemaId, usar, prev: { gem: activeGem, form: formState, formEl: activeFormEl, outEl: activeOutputEl } };
+        $('imFPTitulo').textContent = usar ? gem.nombre : (promptRow ? 'Editar prompt: ' : 'Nuevo prompt: ') + gem.nombre;
+        $('imFPNombreCampo').style.display = usar ? 'none' : '';
+        $('imFPGuardar').textContent = usar ? 'Copiar prompt' : 'Guardar y copiar';
         $('imFPNombre').value = promptRow?.nombre ?? gem.nombre;
         activeGem = gem;
         resetFormState(gem);
@@ -3216,6 +3237,13 @@ ${ficha}`;
       }
 
       $('imFPGuardar').addEventListener('click', async () => {
+        if (ctxForm?.usar) {
+          // Llenar y copiar: el prompt viene con la skill, no se guarda nada
+          const texto = buildPrompt(ctxForm.gem);
+          cerrarPopupPrompt();
+          copyText(texto);
+          return;
+        }
         const nombre = $('imFPNombre').value.trim();
         if (!nombre) { showToast('Escribe un nombre'); return; }
         const gem = ctxForm.gem;
@@ -3378,7 +3406,7 @@ ${ficha}`;
       <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
       <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
       <div id="imMejorarForm">
-        <textarea id="imMejorarTexto" maxlength="2000"></textarea>
+        <textarea id="imMejorarTexto" maxlength="2000" autocomplete="off"></textarea>
         <p id="imMejorarError" style="display:none;"></p>
         <div class="im-mejorar-acciones">
           <button class="primary-btn" id="imMejorarEnviar" type="button">Enviar</button>
