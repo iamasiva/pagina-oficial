@@ -501,52 +501,30 @@
     .skill-llamada-nota { font-size: 0.8rem; color: var(--muted); line-height: 1.45; max-width: 520px; }
     .busq-caja .ghost-btn { display: block; margin: 10px auto 0; }
     #bibQuery { width: 100%; box-sizing: border-box; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; resize: vertical; background: var(--surface); color: var(--ink); }
-    /* Mi caja de herramientas: cada categoría es una caja con tapa y manija; cada skill, una herramienta */
+    /* Mis agentes: cada categoría es un servidor (torre) sobre su base; cada skill, un agente humanoide */
     .im-cofre { cursor: pointer; }
-    .im-cofre-tapa {
-      position: relative; height: 26px; background: color-mix(in srgb, var(--code-bg) 70%, var(--accent));
-      border: 2px solid var(--code-bg); border-bottom: none; border-radius: 10px 10px 0 0;
-      transition: transform 0.15s;
-    }
-    .im-cofre-tapa::before {
-      content: ''; position: absolute; left: 50%; top: -12px; transform: translateX(-50%);
-      width: 46px; height: 16px; border: 3px solid color-mix(in srgb, var(--code-bg) 60%, black);
-      border-bottom: none; border-radius: 10px 10px 0 0; background: transparent;
-    }
+    .im-srv { display: flex; justify-content: center; margin-bottom: -4px; }
+    .im-srv svg { width: 104px; height: 82px; display: block; transition: transform 0.15s; }
     .im-cofre-caja {
       position: relative; background: var(--code-bg);
       border: 2px solid color-mix(in srgb, var(--code-bg) 60%, black);
       border-top: 3px solid color-mix(in srgb, var(--code-bg) 55%, black);
-      border-radius: 0 0 12px 12px; padding: 14px 14px 12px; min-height: 74px;
+      border-radius: 12px; padding: 14px 14px 12px; min-height: 74px;
       display: flex; flex-direction: column; transition: transform 0.15s, box-shadow 0.15s;
     }
-    .im-cofre-candado {
-      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-      width: 22px; height: 14px; background: var(--gold); border-radius: 3px;
-    }
-    .im-cofre:hover .im-cofre-caja, .im-cofre:hover .im-cofre-tapa { transform: translateY(-3px); }
-    .im-cofre:hover .im-cofre-caja { box-shadow: var(--shadow); }
+    .im-cofre:hover .im-cofre-caja { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .im-cofre:hover .im-srv svg { transform: translateY(-3px); }
     .im-cofre-caja h3 { margin: 6px 0 0; font-size: 0.98rem; color: var(--code-ink); }
     .im-cofre-caja p { margin: 4px 0 0; font-size: 0.78rem; color: color-mix(in srgb, var(--code-ink) 70%, transparent); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .im-cofre .im-count { margin-top: auto; padding-top: 8px; font-size: 0.75rem; font-weight: 700; color: color-mix(in srgb, var(--code-ink) 60%, var(--accent-2)); }
-    .im-cofre.sub .im-cofre-tapa { height: 20px; }
-    .im-cofre.sub .im-cofre-tapa::before { width: 36px; height: 12px; top: -9px; }
+    .im-cofre.sub .im-srv svg { width: 84px; height: 66px; }
     .im-cofre.sub .im-cofre-caja { min-height: 62px; }
     .im-cofre .im-menu-btn { color: var(--code-ink); }
     #imMgLista { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 12px; align-items: start; }
     .im-gemtile { cursor: pointer; text-align: center; }
     .im-gem-wrap { position: relative; width: 96px; margin: 0 auto; }
-    .im-gem {
-      position: relative; width: 96px; height: 78px; border-radius: 16px;
-      background: var(--accent); transition: transform 0.15s, filter 0.15s;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.18);
-    }
-    .im-gem::before { content: '/'; font-family: "Consolas", "Courier New", monospace; font-weight: 800; font-size: 2.4rem; color: rgba(255, 255, 255, 0.92); line-height: 1; }
-    .im-gem::after { content: ''; position: absolute; inset: 6px 6px auto 6px; height: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.28); }
-    .im-gem.mini::before { font-size: 1.6rem; }
-    .im-gem.dorada { background: #c79a3b; }
-    .im-gemtile:hover .im-gem { transform: translateY(-3px); filter: brightness(1.08); }
+    .im-bot { width: 96px; height: 96px; display: block; margin: 0 auto; transition: transform 0.15s, filter 0.15s; }
+    .im-gemtile:hover .im-bot { transform: translateY(-3px); filter: brightness(1.06); }
     .im-gem-badge {
       position: absolute; top: 0; right: -8px; background: var(--surface);
       border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px;
@@ -562,8 +540,7 @@
     /* La vitrina de la skill: estuche con franja de acciones y bandejas por pestaña */
     .im-est-cab { display: flex; gap: 14px; align-items: flex-start; position: relative; }
     .im-gem-wrap.mini { width: 64px; flex: none; }
-    .im-gem.mini { width: 64px; height: 52px; }
-    .im-gem.mini::after { height: 7px; inset: 4px 4px auto 4px; }
+    .im-bot.mini { width: 64px; height: 64px; }
     .im-est-tit { flex: 1; min-width: 0; }
     .im-est-tit h3 { margin: 0; font-size: 1.02rem; color: var(--ink); }
     .im-est-franja { margin-top: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -585,16 +562,11 @@
     .im-caja-mgdet .im-skill { border: none; margin: 0; }
     /* Selector de color de la skill: 25 gemitas talladas en 5x5 */
     .im-paleta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 14px; justify-items: center; }
-    .im-swatch { position: relative; width: 44px; height: 36px; cursor: pointer; border: none; background: none; padding: 0; }
-    .im-swatch-skill {
-      width: 44px; height: 36px;
-      clip-path: polygon(50% 100%, 0 34%, 22% 0, 78% 0, 100% 34%);
-      transition: transform 0.12s;
+    .im-swatch { position: relative; width: 56px; height: 56px; cursor: pointer; border: 2px solid transparent; border-radius: 50%; background: none; padding: 2px; }
+    .im-swatch.actual { border-color: var(--accent); }
+    .im-swatch-bot { width: 100%; height: 100%; display: block; transition: transform 0.15s; }
+    .im-swatch:hover .im-swatch-bot { transform: translateY(-2px) scale(1.08); }
     }
-    .im-swatch-skill::before { content: ''; position: absolute; inset: 0; clip-path: polygon(50% 100%, 33% 27%, 67% 27%); background: rgba(255, 255, 255, 0.22); }
-    .im-swatch-skill::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 12px; clip-path: polygon(22% 0, 78% 0, 67% 100%, 33% 100%); background: rgba(255, 255, 255, 0.34); }
-    .im-swatch:hover .im-swatch-skill { transform: translateY(-2px) scale(1.08); }
-    .im-swatch.actual .im-swatch-skill { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
     .im-skill-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; text-align: left; padding: 16px 18px; cursor: pointer; }
     .im-skill-head:hover { background: var(--surface-2); }
     .im-skill-head .chev { font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; }
@@ -663,6 +635,35 @@
     <a href="app.html">← Volver a IA MASIVA</a>
   </div>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="imTorre" viewBox="0 0 140 110">
+        <rect x="40" y="4" width="60" height="102" rx="8" style="fill:var(--accent-soft);stroke:var(--accent);stroke-width:2"/>
+        <rect x="48" y="12" width="44" height="14" rx="3" style="fill:var(--surface);stroke:var(--accent);stroke-width:1.5"/>
+        <rect x="48" y="30" width="44" height="14" rx="3" style="fill:var(--surface);stroke:var(--accent);stroke-width:1.5"/>
+        <g style="stroke:var(--accent);stroke-width:2.5;opacity:.45"><line x1="50" y1="54" x2="90" y2="54"/><line x1="50" y1="62" x2="90" y2="62"/><line x1="50" y1="70" x2="90" y2="70"/><line x1="50" y1="78" x2="90" y2="78"/><line x1="50" y1="86" x2="90" y2="86"/></g>
+        <circle cx="84" cy="19" r="3" fill="#22c55e"/><circle cx="84" cy="37" r="3" style="fill:var(--accent)"/>
+        <rect x="54" y="94" width="32" height="5" rx="2" style="fill:var(--accent)"/>
+      </symbol>
+      <symbol id="imBot" viewBox="0 0 100 100">
+        <path d="M6 100 C6 74 20 62 38 58 L50 56 L62 58 C80 62 94 74 94 100 Z" fill="currentColor"/>
+        <path d="M6 100 C6 80 14 70 24 65 L24 100 Z" fill="#000" opacity=".16"/>
+        <path d="M94 100 C94 80 86 70 76 65 L76 100 Z" fill="#000" opacity=".16"/>
+        <rect x="2" y="86" width="16" height="14" rx="5" fill="#2C2C2A"/>
+        <rect x="82" y="86" width="16" height="14" rx="5" fill="#2C2C2A"/>
+        <path d="M30 70 Q50 64 70 70" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55"/>
+        <rect x="47" y="72" width="6" height="6" rx="1" fill="#2C2C2A" opacity=".75"/>
+        <rect x="47" y="80" width="6" height="6" rx="1" fill="#2C2C2A" opacity=".45"/>
+        <rect x="43" y="48" width="14" height="12" rx="4" fill="currentColor"/>
+        <ellipse cx="50" cy="31" rx="21" ry="26" fill="currentColor"/>
+        <ellipse cx="51" cy="31" rx="15" ry="20" fill="#1A1A1A"/>
+        <path d="M41 18 Q47 12 55 14" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".55"/>
+        <rect x="52" y="30" width="3.5" height="3.5" fill="#fff" opacity=".9"/>
+        <rect x="55.5" y="33.5" width="3.5" height="3.5" fill="#fff" opacity=".9"/>
+        <rect x="52" y="37" width="3.5" height="3.5" fill="#fff" opacity=".9"/>
+      </symbol>
+    </defs>
+  </svg>
   <div class="app">
     <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menú">
       <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -702,7 +703,7 @@
           </button>
           <button class="sidebar-link" data-nav="misgemas">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9z"></path><path d="M2 9h20"></path></svg>
-            <span>Mi caja de herramientas</span>
+            <span>Mis agentes</span>
           </button>
           <button class="sidebar-link" data-nav="guide">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -863,7 +864,7 @@
                 <div class="actions">
                   <button class="primary-btn" id="copyPromptBtn">Copiar prompt</button>
                   <button class="secondary-btn" id="resetBtn">Restablecer</button>
-                  <button class="secondary-btn" id="imGuardarPrompt" type="button">Guardar en mi caja</button>
+                  <button class="secondary-btn" id="imGuardarPrompt" type="button">Guardar en mis agentes</button>
                   <span class="copy-feedback" id="copyPromptFeedback">Copiado ✓</span>
                 </div>
               </div>
@@ -1056,13 +1057,13 @@
         <section class="section" id="section-misgemas">
           <div class="hero"><div class="intro">
             <p class="eyebrow">Tu espacio</p>
-            <h2>Mi caja de herramientas: tus skills, tus chats y tus prompts.</h2>
-            <p>Guarda las skills que ya creaste en Gemini, organizadas en cajas por tema, con su nombre listo para copiar y, dentro de cada una, sus chats y los prompts que reutilizas.</p>
+            <h2>Mis agentes: tus skills, tus chats y tus prompts.</h2>
+            <p>Guarda las skills que ya creaste en Gemini, organizadas en servidores por tema, con su nombre listo para copiar y, dentro de cada una, sus chats y los prompts que reutilizas.</p>
           </div></div>
           <div class="im-toolbar">
             <button id="imMgVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
             <div class="im-toolbar-acciones">
-              <button id="imMgNuevaCat" class="im-mini-btn" type="button">Crear caja</button>
+              <button id="imMgNuevaCat" class="im-mini-btn" type="button">Crear servidor</button>
               <button id="imMgNuevaGema" class="im-btn-primario" type="button">Guardar skill</button>
             </div>
           </div>
@@ -1075,30 +1076,30 @@
           <h4 id="imMgListaTitulo" class="im-lista-titulo" style="display:none"></h4>
           <div id="imMgLista"></div>
           <div id="imMgDet" class="im-modal">
-            <div class="im-modal-caja im-caja-mgdet">
+            <div class="im-modal-servidor im-servidor-mgdet">
               <div id="imMgDetCuerpo"></div>
               <div class="im-modal-acciones">
                 <button class="im-mini-btn" type="button" data-cerrardet="1">Cerrar</button>
               </div>
             </div>
           </div>
-          <div id="imMgVacio" class="im-vacio" style="display:none">Tu caja está vacía. Guarda tu primera skill con el botón de arriba, o guárdala desde la ficha de cualquier skill del catálogo.</div>
+          <div id="imMgVacio" class="im-vacio" style="display:none">Aún no tienes agentes. Guarda tu primera skill con el botón de arriba, o guárdala desde la ficha de cualquier skill del catálogo.</div>
         </section>
 
-        <!-- Modal: nombre y caja del prompt (guardar desde el detalle) -->
+        <!-- Modal: nombre y servidor del prompt (guardar desde el detalle) -->
         <div id="imModalMeta" class="im-modal">
-          <div class="im-modal-caja">
-            <h3>Guardar en mi caja</h3>
+          <div class="im-modal-servidor">
+            <h3>Guardar en mis agentes</h3>
             <label class="im-modal-label">Skill</label>
             <input id="imMetaNombre" type="text" readonly />
             <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
             <input id="imMetaUrl" type="text" placeholder="/nombre-de-la-skill" />
-            <label class="im-modal-label">Caja (opcional)</label>
+            <label class="im-modal-label">Servidor (opcional)</label>
             <select id="imMetaSelCat"></select>
-            <input id="imMetaCatNueva" type="text" placeholder="Nombre de la nueva caja" style="display:none; margin-top:8px;" />
-            <label class="im-modal-label">Bandeja (opcional)</label>
+            <input id="imMetaCatNueva" type="text" placeholder="Nombre de el nuevo servidor" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Módulo (opcional)</label>
             <select id="imMetaSelSub"></select>
-            <input id="imMetaSubNueva" type="text" placeholder="Nombre de la nueva bandeja" style="display:none; margin-top:8px;" />
+            <input id="imMetaSubNueva" type="text" placeholder="Nombre de el nuevo módulo" style="display:none; margin-top:8px;" />
             <label class="im-check"><input type="checkbox" id="imMetaConPrompt" checked /> Guardar el prompt</label>
             <div id="imMetaPromptCampo">
               <label class="im-modal-label">Nombre del prompt</label>
@@ -1111,10 +1112,10 @@
           </div>
         </div>
 
-        <!-- Modal: crear/editar caja o bandeja -->
+        <!-- Modal: crear/editar servidor o módulo -->
         <div id="imModalNodo" class="im-modal">
-          <div class="im-modal-caja">
-            <h3 id="imNodoTitulo">Crear caja</h3>
+          <div class="im-modal-servidor">
+            <h3 id="imNodoTitulo">Crear servidor</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imNodoNombre" type="text" placeholder="Ej: IA MASIVA" />
             <label class="im-modal-label">Descripción (opcional)</label>
@@ -1128,7 +1129,7 @@
 
         <!-- Modal: guardar/editar/mover una skill mía -->
         <div id="imModalGema" class="im-modal">
-          <div class="im-modal-caja">
+          <div class="im-modal-servidor">
             <h3 id="imGemaTitulo">Guardar skill</h3>
             <div id="imGemaCampos">
               <div id="imGemaCatalogoInfo" class="im-skill-catinfo" style="display:none"></div>
@@ -1146,12 +1147,12 @@
                 <p class="im-modal-nota" style="margin:6px 0 0;">Con las instrucciones guardadas podrás crear el agente local de esta skill.</p>
               </div>
             </div>
-            <label class="im-modal-label">Caja (opcional)</label>
+            <label class="im-modal-label">Servidor (opcional)</label>
             <select id="imGemaSelCat"></select>
-            <input id="imGemaCatNueva" type="text" placeholder="Nombre de la nueva caja" style="display:none; margin-top:8px;" />
-            <label class="im-modal-label">Bandeja (opcional)</label>
+            <input id="imGemaCatNueva" type="text" placeholder="Nombre de el nuevo servidor" style="display:none; margin-top:8px;" />
+            <label class="im-modal-label">Módulo (opcional)</label>
             <select id="imGemaSelSub"></select>
-            <input id="imGemaSubNueva" type="text" placeholder="Nombre de la nueva bandeja" style="display:none; margin-top:8px;" />
+            <input id="imGemaSubNueva" type="text" placeholder="Nombre de el nuevo módulo" style="display:none; margin-top:8px;" />
             <div class="im-modal-acciones">
               <button id="imGemaCancelar" class="im-mini-btn" type="button">Cancelar</button>
               <button id="imGemaOk" class="im-btn-primario" type="button">Guardar</button>
@@ -1161,7 +1162,7 @@
 
         <!-- Modal: crear agente local (bloque copiable) -->
         <div id="imModalAgente" class="im-modal">
-          <div class="im-modal-caja im-modal-conectar">
+          <div class="im-modal-servidor im-modal-conectar">
             <div class="im-con-cab">
               <div class="im-con-tabs">
                 <button id="imAgenteTabBloque" class="im-con-tab activa" type="button">Crear agente local</button>
@@ -1202,7 +1203,7 @@
 
         <!-- Modal: guardar/editar chat -->
         <div id="imModalChat" class="im-modal">
-          <div class="im-modal-caja">
+          <div class="im-modal-servidor">
             <h3 id="imChatTitulo">Guardar chat</h3>
             <label class="im-modal-label">Título</label>
             <input id="imChatNombre" type="text" placeholder="Ej: Guion semana 22" />
@@ -1219,7 +1220,7 @@
 
         <!-- Modal: prompt redactado libre -->
         <div id="imModalLibre" class="im-modal">
-          <div class="im-modal-caja im-modal-ancha">
+          <div class="im-modal-servidor im-modal-ancha">
             <h3 id="imLibreTitulo">Nuevo prompt</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imLibreNombre" type="text" placeholder="Ej: Mi prompt de cierre de ventas" />
@@ -1235,7 +1236,7 @@
 
         <!-- Modal: usar un prompt propio (los [pedazos] entre corchetes son inputs) -->
         <div id="imModalUsarPrompt" class="im-modal">
-          <div class="im-modal-caja" style="max-width:560px;">
+          <div class="im-modal-servidor" style="max-width:560px;">
             <h3 id="imUsarNombre"></h3>
             <div id="imUsarCampos"></div>
             <textarea id="imUsarPreview" class="code-output" style="min-height:170px; margin-top:12px;" readonly></textarea>
@@ -1249,8 +1250,8 @@
 
         <!-- Modal: cambiar el color de una skill (5x5) -->
         <div id="imModalColorGema" class="im-modal">
-          <div class="im-modal-caja" style="max-width:380px;">
-            <h3>Elige el color de tu skill</h3>
+          <div class="im-modal-servidor" style="max-width:380px;">
+            <h3>Elige el color de tu agente</h3>
             <div class="im-paleta" id="imPaletaGema"></div>
             <div class="im-modal-acciones" style="margin-top:18px;">
               <button id="imColorReset" class="im-mini-btn" type="button">Restablecer color original</button>
@@ -1261,7 +1262,7 @@
 
         <!-- Modal: elegir origen del prompt nuevo -->
         <div id="imModalOrigen" class="im-modal">
-          <div class="im-modal-caja">
+          <div class="im-modal-servidor">
             <h3>¿Cómo quieres crear el prompt?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
               <button id="imOrigenCatalogo" class="im-btn-primario" type="button" style="width:100%;">Desde el formulario de la skill</button>
@@ -1272,7 +1273,7 @@
 
         <!-- Modal: qué tipo de skill vas a guardar -->
         <div id="imModalTipoGema" class="im-modal">
-          <div class="im-modal-caja">
+          <div class="im-modal-servidor">
             <h3>¿Qué skill quieres guardar?</h3>
             <div class="im-modal-acciones" style="justify-content:stretch; flex-direction:column; gap:8px; margin-top:14px;">
               <button id="imTipoCatalogo" class="im-btn-primario" type="button" style="width:100%;">Una skill del catálogo</button>
@@ -1283,16 +1284,16 @@
 
         <!-- Modal: buscar skill del catálogo -->
         <div id="imModalBuscarGema" class="im-modal">
-          <div class="im-modal-caja im-modal-ancha">
+          <div class="im-modal-servidor im-modal-ancha">
             <h3>Elige la skill del catálogo</h3>
-            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, caja o herramienta…" style="margin-top:10px;" />
+            <input id="imBuscarInput" type="text" placeholder="Busca por nombre, servidor o herramienta…" style="margin-top:10px;" />
             <div id="imBuscarLista" style="max-height:320px; overflow-y:auto; margin-top:10px;"></div>
           </div>
         </div>
 
         <!-- Modal: crear/editar prompt con el formulario real de la skill -->
         <div id="imModalPromptForm" class="im-modal">
-          <div class="im-modal-caja im-modal-ancha">
+          <div class="im-modal-servidor im-modal-ancha">
             <h3 id="imFPTitulo">Nuevo prompt</h3>
             <label class="im-modal-label">Nombre</label>
             <input id="imFPNombre" type="text" placeholder="Ej: Briefing mensual de competencia" />
@@ -1307,11 +1308,11 @@
           </div>
         </div>
 
-        <!-- Modal: mover bandeja a otra caja -->
+        <!-- Modal: mover módulo a otro servidor -->
         <div id="imModalMoverSub" class="im-modal">
-          <div class="im-modal-caja">
-            <h3>Mover bandeja</h3>
-            <label class="im-modal-label">Caja destino</label>
+          <div class="im-modal-servidor">
+            <h3>Mover módulo</h3>
+            <label class="im-modal-label">Servidor destino</label>
             <select id="imMoverSubSel"></select>
             <div class="im-modal-acciones">
               <button id="imMoverSubCancelar" class="im-mini-btn" type="button">Cancelar</button>
@@ -1322,7 +1323,7 @@
 
         <!-- Modal: confirmación (reemplaza el confirm() nativo) -->
         <div id="imModalConfirmar" class="im-modal">
-          <div class="im-modal-caja">
+          <div class="im-modal-servidor">
             <h3 id="imConfTitulo">¿Estás seguro?</h3>
             <p class="im-modal-nota" id="imConfTexto" style="margin-top:10px;"></p>
             <div class="im-modal-acciones">
@@ -2209,14 +2210,13 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       function cardNodo(n, count) {
         return `
           <div class="im-cofre ${n.parent_id ? 'sub' : ''}" data-navnodo="${n.id}">
-            <div class="im-cofre-tapa"></div>
-            <div class="im-cofre-caja">
-              <div class="im-cofre-candado"></div>
+            <div class="im-srv"><svg viewBox="0 0 140 110" aria-hidden="true"><use href="#imTorre"/></svg></div>
+            <div class="im-cofre-servidor">
               <button class="im-menu-btn" type="button" data-menu="nodo-${n.id}">⋮</button>
               ${menu === 'nodo-' + n.id ? menuHtmlMG('nodo-' + n.id) : ''}
               <h3>${escapeHtml(n.nombre)}</h3>
               ${n.descripcion ? `<p>${escapeHtml(n.descripcion)}</p>` : ''}
-              <div class="im-count">🔧 ${count} ${count === 1 ? 'skill' : 'skills'}</div>
+              <div class="im-count">🤖 ${count} ${count === 1 ? 'skill' : 'skills'}</div>
             </div>
           </div>`;
       }
@@ -2230,7 +2230,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         return `
           <div class="im-gemtile" data-abrirdetgema="${g.id}" role="button" tabindex="0" aria-label="${escapeHtml(g.titulo)}">
             <div class="im-gem-wrap">
-              <div class="im-gem ${g.color ? '' : (g.item_id ? '' : 'dorada')}"${g.color ? ` style="background:${escapeHtml(g.color)};"` : ''}></div>
+              <svg class="im-bot" viewBox="0 0 100 100" aria-hidden="true" style="color:${escapeHtml(g.color || (g.item_id ? 'var(--accent)' : '#c79a3b'))};"><use href="#imBot"/></svg>
               <span class="im-gem-badge ${g.item_id ? '' : 'propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span>
             </div>
             <div class="im-gemtile-nombre">${escapeHtml(g.titulo)}</div>
@@ -2276,7 +2276,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         return `
           <div class="im-skill im-estuche" data-gemaid="${g.id}" style="border:none; margin:0; overflow:visible;">
             <div class="im-est-cab">
-              <div class="im-gem-wrap mini"><div class="im-gem mini ${g.color ? '' : (g.item_id ? '' : 'dorada')}"${g.color ? ` style="background:${escapeHtml(g.color)};"` : ''}></div></div>
+              <div class="im-gem-wrap mini"><svg class="im-bot mini" viewBox="0 0 100 100" aria-hidden="true" style="color:${escapeHtml(g.color || (g.item_id ? 'var(--accent)' : '#c79a3b'))};"><use href="#imBot"/></svg></div>
               <div class="im-est-tit">
                 <h3>${escapeHtml(g.titulo)} <span class="im-tag ${g.item_id ? 'im-tag-catalogo' : 'im-tag-propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span></h3>
                 ${g.descripcion ? `<div class="im-skill-meta">${escapeHtml(g.descripcion)}</div>` : ''}
@@ -2299,7 +2299,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
                 ? `<button class="im-mini-btn" type="button" data-nuevochat="${g.id}">＋ Guardar chat</button>`
                 : `<button class="im-mini-btn" type="button" data-nuevoprompt="${g.id}">＋ Agregar prompt</button>`}
             </div>
-            <div class="im-est-bandeja">
+            <div class="im-est-módulo">
               ${tabChats
                 ? (cs.length ? cs.map(filaChat).join('') : `<div class="im-est-vacio">Aún no guardas chats de esta skill.</div>`)
                 : (ps.length ? ps.map(filaPrompt).join('') : `<div class="im-est-vacio">Aún no guardas prompts de esta skill.</div>`)}
@@ -2309,7 +2309,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
 
       function render() {
         if ((vista.t === 'cat' || vista.t === 'sub') && !nodoDe(vista.id)) vista = { t: 'root' };
-        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear caja', verBtnCat = true;
+        let cards = '', lista = [], encCat = '', encSub = '', btnCat = 'Crear servidor', verBtnCat = true;
 
         if (vista.t === 'root') {
           $('imMgVolver').style.display = 'none';
@@ -2319,7 +2319,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           const cat = nodoDe(vista.id);
           $('imMgVolver').style.display = '';
           encCat = cat.nombre;
-          btnCat = 'Crear bandeja';
+          btnCat = 'Crear módulo';
           cards = subsDe(cat.id).map(n => cardNodo(n, gemasEn(n.id).length)).join('');
           lista = gemasEn(cat.id);
         } else {
@@ -2339,7 +2339,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imMgNuevaCat').style.display = verBtnCat ? '' : 'none';
         $('imMgNuevaCat').textContent = btnCat;
         const titCards = $('imMgCardsTitulo');
-        if (cards) { titCards.textContent = vista.t === 'root' ? 'Cajas' : 'Bandejas'; titCards.style.display = ''; }
+        if (cards) { titCards.textContent = vista.t === 'root' ? 'Servidores' : 'Módulos'; titCards.style.display = ''; }
         else titCards.style.display = 'none';
         $('imMgCards').innerHTML = cards;
         // Cuando skills sueltas conviven con tarjetas, la lista lleva su título
@@ -2389,8 +2389,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
               el.style.right = 'auto';
               const claveAbierta = clave;
               const cerrarSiScroll = () => { if (menu === claveAbierta) { menu = null; cerrarMenusMG(); } };
-              m.closest('.im-est-bandeja')?.addEventListener('scroll', cerrarSiScroll, { once: true });
-              m.closest('.im-caja-mgdet')?.addEventListener('scroll', cerrarSiScroll, { once: true });
+              m.closest('.im-est-módulo')?.addEventListener('scroll', cerrarSiScroll, { once: true });
+              m.closest('.im-servidor-mgdet')?.addEventListener('scroll', cerrarSiScroll, { once: true });
             }
           }
           e.stopPropagation(); return;
@@ -2516,11 +2516,11 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       });
       $('imModalTipoGema').addEventListener('click', (e) => { if (e.target.id === 'imModalTipoGema') e.target.classList.remove('abierto'); });
 
-      // ── Mover bandeja entre cajas (sus skills viajan con ella) ──
+      // ── Mover módulo entre servidores (sus skills viajan con ella) ──
       let ctxMoverSub = null;
       function abrirModalMoverSub(n) {
         const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
-        if (!destinos.length) { showToast('No hay otra caja a dónde moverla, crea una primero'); return; }
+        if (!destinos.length) { showToast('No hay otro servidor a dónde moverla, crea una primero'); return; }
         ctxMoverSub = n;
         $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
         $('imModalMoverSub').classList.add('abierto');
@@ -2531,7 +2531,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const { error } = await db.from('user_gema_categorias').update({ parent_id: destino }).eq('id', ctxMoverSub.id);
         if (error) { showToast('No se pudo mover: ' + error.message); return; }
         $('imModalMoverSub').classList.remove('abierto');
-        showToast('Bandeja movida'); cargarTodo();
+        showToast('Módulo movida'); cargarTodo();
       });
       $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSub').classList.remove('abierto'));
       $('imModalMoverSub').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSub') e.target.classList.remove('abierto'); });
@@ -2562,7 +2562,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
       async function eliminarNodo(n) {
         const esSub = !!n.parent_id;
-        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'bandejas, ') + 'skills, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'skill' : 'bandeja o skill') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar la bandeja?' : '¿Eliminar la caja?', 'Sí, eliminar todo')) return;
+        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'módulos, ') + 'skills, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'skill' : 'módulo o skill') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar el módulo?' : '¿Eliminar el servidor?', 'Sí, eliminar todo')) return;
         const err = await borrarFila('user_gema_categorias', n.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
@@ -2590,7 +2590,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       function abrirModalNodo(ctx) {
         ctxNodo = ctx;
         const esSub = !!(ctx.parentId || ctx.nodo?.parent_id);
-        $('imNodoTitulo').textContent = (ctx.modo === 'crear' ? 'Crear ' : 'Editar ') + (esSub ? 'bandeja' : 'caja');
+        $('imNodoTitulo').textContent = (ctx.modo === 'crear' ? 'Crear ' : 'Editar ') + (esSub ? 'módulo' : 'servidor');
         $('imNodoNombre').value = ctx.nodo?.nombre ?? '';
         $('imNodoDesc').value = ctx.nodo?.descripcion ?? '';
         $('imModalNodo').classList.add('abierto');
@@ -2611,24 +2611,24 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       $('imNodoCancelar').addEventListener('click', () => $('imModalNodo').classList.remove('abierto'));
       $('imModalNodo').addEventListener('click', (e) => { if (e.target.id === 'imModalNodo') e.target.classList.remove('abierto'); });
 
-      // ── Selects de caja/bandeja (los usan el modal de skill y el de guardar prompt) ──
+      // ── Selects de servidor/módulo (los usan el modal de skill y el de guardar prompt) ──
       const IDS_GEMA = { cat: 'imGemaSelCat', catN: 'imGemaCatNueva', sub: 'imGemaSelSub', subN: 'imGemaSubNueva' };
       const IDS_META = { cat: 'imMetaSelCat', catN: 'imMetaCatNueva', sub: 'imMetaSelSub', subN: 'imMetaSubNueva' };
       function llenarSelCat(ids, catSel, subSel) {
-        $(ids.cat).innerHTML = '<option value="">Sin caja</option>' +
+        $(ids.cat).innerHTML = '<option value="">Sin servidor</option>' +
           catsRaiz().map(n => `<option value="${n.id}" ${n.id === catSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-          '<option value="__nueva__">➕ Nueva caja…</option>';
+          '<option value="__nueva__">➕ Nueva servidor…</option>';
         $(ids.catN).style.display = 'none'; $(ids.catN).value = '';
         llenarSelSub(ids, catSel, subSel);
       }
       function llenarSelSub(ids, catId, subSel) {
         const sel = $(ids.sub);
         if (!catId || catId === '__nueva__') {
-          sel.innerHTML = '<option value="">Sin bandeja</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva bandeja…</option>' : '');
+          sel.innerHTML = '<option value="">Sin módulo</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva módulo…</option>' : '');
         } else {
-          sel.innerHTML = '<option value="">Sin bandeja</option>' +
+          sel.innerHTML = '<option value="">Sin módulo</option>' +
             subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-            '<option value="__nueva__">➕ Nueva bandeja…</option>';
+            '<option value="__nueva__">➕ Nueva módulo…</option>';
         }
         $(ids.subN).style.display = 'none'; $(ids.subN).value = '';
       }
@@ -2676,18 +2676,18 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         let subId = $(ids.sub).value || null;
         if (catId === '__nueva__') {
           const nombre = $(ids.catN).value.trim();
-          if (!nombre) { showToast('Escribe el nombre de la caja'); return undefined; }
+          if (!nombre) { showToast('Escribe el nombre de el servidor'); return undefined; }
           const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: null, nombre }).select('id').single();
-          if (error) { showToast('No se pudo crear la caja'); return undefined; }
+          if (error) { showToast('No se pudo crear el servidor'); return undefined; }
           catId = data.id;
         }
         if (subId === '__nueva__') {
           if (!catId) subId = null;
           else {
             const nombre = $(ids.subN).value.trim();
-            if (!nombre) { showToast('Escribe el nombre de la bandeja'); return undefined; }
+            if (!nombre) { showToast('Escribe el nombre de el módulo'); return undefined; }
             const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
-            if (error) { showToast('No se pudo crear la bandeja'); return undefined; }
+            if (error) { showToast('No se pudo crear el módulo'); return undefined; }
             subId = data.id;
           }
         }
@@ -3050,7 +3050,7 @@ ${ficha}`;
         ctxColorGema = g;
         $('imPaletaGema').innerHTML = PALETA_GEMAS.map(c => `
           <button class="im-swatch ${g.color === c ? 'actual' : ''}" type="button" data-color="${c}" aria-label="${c}">
-            <div class="im-swatch-skill" style="background:${c};"></div>
+            <svg class="im-swatch-bot" viewBox="0 0 100 100" aria-hidden="true" style="color:${c};"><use href="#imBot"/></svg>
           </button>`).join('');
         $('imModalColorGema').classList.add('abierto');
       }
@@ -3153,7 +3153,7 @@ ${ficha}`;
         let url = $('imMetaUrl').value.trim();
         url = normalizarLlamada(url);
         // El link es obligatorio salvo que la skill ya exista en la ubicación elegida.
-        // Se valida ANTES de resolver el nodo, para no crear cajas en un guardado fallido.
+        // Se valida ANTES de resolver el nodo, para no crear servidores en un guardado fallido.
         if (!url) {
           const catV = $(IDS_META.cat).value, subV = $(IDS_META.sub).value;
           const nodoPrevisto = (catV === '__nueva__' || subV === '__nueva__') ? '__no__' : (subV || catV || null);
@@ -3167,8 +3167,8 @@ ${ficha}`;
         if (existente) {
           // Si la existente quedó sin link de una versión anterior y aquí pegaste uno, se aprovecha
           if (url && !existente.url) await db.from('user_gemas').update({ url }).eq('id', existente.id);
-          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta skill en esa caja'); cargarTodo(); return; }
-          const ok = await confirmar('La skill ya está en esa caja. ¿Deseas guardar el prompt dentro de esa skill?', 'La skill ya existe', 'Sí, guardar el prompt');
+          if (!conPrompt) { $('imModalMeta').classList.remove('abierto'); showToast('Ya tienes esta skill en ese servidor'); cargarTodo(); return; }
+          const ok = await confirmar('La skill ya está en ese servidor. ¿Deseas guardar el prompt dentro de esa skill?', 'La skill ya existe', 'Sí, guardar el prompt');
           if (!ok) return;
         } else {
           const { data, error } = await db.from('user_gemas').insert({
@@ -3374,7 +3374,7 @@ ${ficha}`;
   })();
   </script>
 <div class="im-modal" id="imMejorarModal">
-    <div class="im-modal-caja">
+    <div class="im-modal-servidor">
       <h3 id="imMejorarTitulo" style="margin: 0 0 6px;">Ayúdanos a mejorar</h3>
       <p id="imMejorarCopy" style="margin: 0 0 12px; color: var(--muted);"></p>
       <div id="imMejorarForm">
