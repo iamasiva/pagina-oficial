@@ -491,7 +491,7 @@
     .busq-caja .primary-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; }
     .busq-nota { color: var(--muted); font-size: 13px; margin: 0; }
     /* Creador de configuraciones: tarjeta al inicio de "Crea tu configuración" */
-    .creador-caja { margin: 0 0 18px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .creador-caja { margin: 0 0 18px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
     .creador-caja h3 { margin: 8px 0 4px; font-size: 17px; }
     .creador-caja p { margin: 0; color: var(--muted); font-size: 14px; max-width: 620px; }
     .creador-acciones { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -562,6 +562,25 @@
     .im-modal-caja select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; outline: none; background: var(--surface); }
     .im-modal-caja select:focus { border-color: var(--accent); }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+    /* Asistentes como skills de Gemini: aviso en cada caja y ventana con los 3 campos */
+    .im-skill-aviso { margin-top: 14px; padding: 12px 14px; border-radius: 10px; border: 1px solid color-mix(in srgb, #e9a23b 45%, transparent); background: color-mix(in srgb, #e9a23b 12%, var(--surface)); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; max-width: 640px; flex-basis: 100%; }
+    .im-skill-aviso p { margin: 0; font-size: 14px; color: var(--ink); line-height: 1.5; max-width: none; }
+    .im-skill-aviso code, .im-modal-skill code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; color: var(--accent); }
+    .im-skill-aviso button { min-height: 38px; height: 38px; padding: 0 14px; font-size: 0.86rem; cursor: pointer; }
+    .im-modal-caja.im-modal-skill { max-width: 580px; max-height: calc(100% - 36px); overflow: auto; }
+    .im-modal-skill h3 { margin: 10px 0 4px; }
+    .im-skill-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; }
+    .im-skill-pasos { margin: 0 0 6px; padding: 0; list-style: none; display: grid; gap: 6px; }
+    .im-skill-pasos li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink); line-height: 1.45; }
+    .im-skill-pasos li b { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+    .im-skill-campo { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 10px; background: var(--surface); }
+    .im-skill-campo-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .im-skill-campo-cab span { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .im-skill-campo-cab button { min-height: 32px; height: 32px; padding: 0 12px; font-size: 0.8rem; cursor: pointer; }
+    .im-skill-valor { font-size: 13.5px; color: var(--ink); white-space: pre-wrap; word-break: break-word; line-height: 1.5; }
+    .im-skill-valor.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .im-skill-valor.recorte { max-height: 96px; overflow: hidden; color: var(--muted); }
+    .im-skill-estado { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
     /* Mis variantes: etiquetas colgantes con ojal, apenas giradas */
     .im-tags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; padding: 6px 2px; }
     .im-tag { cursor: pointer; }
@@ -1053,6 +1072,10 @@
             <a class="primary-btn" id="imCreadorBtn" href="#" target="_blank" rel="noopener">Abrir el Creador en Gemini</a>
             <button class="secondary-btn" id="imCreadorPegar" type="button"><span>Pegar respuesta del Creador</span></button>
           </div>
+          <div class="im-skill-aviso" id="imSkillAvisoCreador">
+            <p>Las gemas de Gemini van a desaparecer. Por ahora el Creador sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/creador-de-configuraciones-557</code> en cualquier chat.</p>
+            <button class="secondary-btn" type="button" data-skill="creador-de-configuraciones-557"><span>Crea la skill</span></button>
+          </div>
         </div>
 
         <div class="builder">
@@ -1296,6 +1319,10 @@
         <div class="busq-caja">
           <a class="primary-btn" id="imBusqBtn" href="https://gemini.google.com/gem/12SRZ1JGpNGIbARoG2qGHOVoYaai-4nSh?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
           <p class="busq-nota" id="imBusqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
+          <div class="im-skill-aviso" id="imSkillAvisoBusq">
+            <p>Las gemas de Gemini van a desaparecer. Por ahora el Bibliotecario sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/bibliotecario-del-557</code> en cualquier chat.</p>
+            <button class="secondary-btn" type="button" data-skill="bibliotecario-del-557"><span>Crea la skill</span></button>
+          </div>
         </div>
         <div class="hero" style="margin-top:34px;"><div class="intro">
           <p class="eyebrow" id="imArqEyebrow">Estructura tu proyecto</p>
@@ -1305,6 +1332,10 @@
         <div class="busq-caja">
           <a class="primary-btn" id="imArqBtn" href="https://gemini.google.com/gem/1lT34etjW4rxD3X4cS9FmQdh0A8p-cJum?usp=sharing" target="_blank" rel="noopener">Abrir el Arquitecto en Gemini</a>
           <p class="busq-nota" id="imArqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
+          <div class="im-skill-aviso" id="imSkillAvisoArq">
+            <p>Las gemas de Gemini van a desaparecer. Por ahora el Arquitecto sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/arquitecto-del-557</code> en cualquier chat.</p>
+            <button class="secondary-btn" type="button" data-skill="arquitecto-del-557"><span>Crea la skill</span></button>
+          </div>
         </div>
       </section>
 
@@ -1383,6 +1414,40 @@
       <div class="im-modal-acciones">
         <button id="imCreadorCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imCreadorRellenar" class="primary-btn" type="button"><span>Rellenar campos</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: crear el asistente (gema) como skill de Gemini, con sus 3 campos listos para copiar -->
+  <div id="imModalSkill" class="im-modal">
+    <div class="im-modal-caja im-modal-skill">
+      <span class="badge" id="imSkillBadge">Skill de Gemini</span>
+      <h3 id="imSkillTitulo">Crea esta skill en Gemini</h3>
+      <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar. Se crea una sola vez.</p>
+      <ol class="im-skill-pasos">
+        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Habilidades y toca Nueva habilidad.</span></li>
+        <li><b>2</b><span id="imSkillPaso2">Copia y pega cada campo en su lugar y guarda.</span></li>
+        <li><b>3</b><span id="imSkillPaso3">En cualquier chat escribe el nombre de la skill y lo que necesitas.</span></li>
+      </ol>
+      <p class="im-skill-estado" id="imSkillEstado">Cargando los campos...</p>
+      <div id="imSkillCampos" style="display:none">
+        <div class="im-skill-campo">
+          <div class="im-skill-campo-cab"><span id="imSkillLblNombre">Nombre</span><button class="secondary-btn" type="button" data-copia="nombre"><span>Copiar</span></button></div>
+          <div class="im-skill-valor mono" id="imSkillNombre"></div>
+        </div>
+        <div class="im-skill-campo">
+          <div class="im-skill-campo-cab"><span id="imSkillLblDesc">Descripción</span><button class="secondary-btn" type="button" data-copia="descripcion"><span>Copiar</span></button></div>
+          <div class="im-skill-valor" id="imSkillDesc"></div>
+        </div>
+        <div class="im-skill-campo">
+          <div class="im-skill-campo-cab"><span id="imSkillLblInstr">Instrucciones</span><button class="secondary-btn" type="button" data-copia="instrucciones"><span>Copiar</span></button></div>
+          <div class="im-skill-valor recorte" id="imSkillInstr"></div>
+          <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
+        </div>
+      </div>
+      <p class="im-skill-estado" id="imSkillNota">La gema sigue activa. Cuando Google la retire, tu skill ya está lista.</p>
+      <div class="im-modal-acciones">
+        <button id="imSkillCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
     </div>
   </div>
@@ -2723,6 +2788,13 @@ ${clean}`;
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo. Si te dice que la crees, lleva esa descripción al Creador de configuraciones (en Crea tu configuración) y te llena los campos.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
+          skillAviso: 'Las gemas de Gemini van a desaparecer. Por ahora {nombre} sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con {llamada} en cualquier chat.',
+          skillNombres: { 'creador-de-configuraciones-557': 'el Creador', 'bibliotecario-del-557': 'el Bibliotecario', 'arquitecto-del-557': 'el Arquitecto' },
+          skillBtn: 'Crea la skill', skillBadge: 'Skill de Gemini', skillTitulo: 'Crea esta skill en Gemini', skillSub: 'Los 3 campos listos para copiar y pegar. Se crea una sola vez.',
+          skillPaso1: 'En Gemini abre Habilidades y toca Nueva habilidad.', skillPaso2: 'Copia y pega cada campo en su lugar y guarda.', skillPaso3: 'En cualquier chat escribe {llamada} y lo que necesitas.',
+          skillLblNombre: 'Nombre', skillLblDesc: 'Descripción', skillLblInstr: 'Instrucciones', skillCopiar: 'Copiar', skillCopiado: 'Copiado', skillCerrar: 'Cerrar',
+          skillInstrNota: 'Se copian completas, aunque aquí solo se vea el inicio.', skillNota: 'La gema sigue activa. Cuando Google la retire, tu skill ya está lista.',
+          skillCargando: 'Cargando los campos...', skillNoDisp: 'No pudimos cargar esta skill. Recarga la página e inténtalo de nuevo.',
           arqEyebrow: 'Estructura tu proyecto', arqTitulo: '¿Tienes un proyecto y no sabes por dónde empezar a organizarlo?',
           arqCopy: 'El Bibliotecario te encuentra la configuración; el Arquitecto te estructura el proyecto completo. Cuéntale qué quieres lograr y arma contigo el árbol: categoría, subcategorías, cuadernos y chats, cada uno con su objetivo. Al final te entrega un bloque que pegas en Mis cuadernos con "Importar árbol" y toda la estructura se crea sola.',
           arqBtn: 'Abrir el Arquitecto en Gemini', arqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
@@ -2744,6 +2816,13 @@ ${clean}`;
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set. If it tells you to create one, take that description to the Configuration Creator (in Create your own) and it fills the fields for you.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
+          skillAviso: 'Gemini gems are going away. For now {nombre} still works, but you can already create it as a Gemini skill and call it with {llamada} in any chat.',
+          skillNombres: { 'creador-de-configuraciones-557': 'the Creator', 'bibliotecario-del-557': 'the Librarian', 'arquitecto-del-557': 'the Architect' },
+          skillBtn: 'Create the skill', skillBadge: 'Gemini skill', skillTitulo: 'Create this skill in Gemini', skillSub: 'The 3 fields, ready to copy and paste. You create it once.',
+          skillPaso1: 'In Gemini open Skills and tap New skill.', skillPaso2: 'Copy and paste each field in its place and save.', skillPaso3: 'In any chat type {llamada} followed by what you need.',
+          skillLblNombre: 'Name', skillLblDesc: 'Description', skillLblInstr: 'Instructions', skillCopiar: 'Copy', skillCopiado: 'Copied', skillCerrar: 'Close',
+          skillInstrNota: 'They are copied in full, even though only the beginning is shown here.', skillNota: 'The gem still works. When Google retires it, your skill is already there.',
+          skillCargando: 'Loading the fields...', skillNoDisp: 'We could not load this skill. Reload the page and try again.',
           arqEyebrow: 'Structure your project', arqTitulo: 'Do you have a project and no idea how to start organizing it?',
           arqCopy: 'The Librarian finds you the configuration; the Architect structures your whole project. Tell it what you want to achieve and it builds the tree with you: category, subcategories, notebooks and chats, each with its objective. At the end it hands you a block you paste in My notebooks with "Import tree" and the whole structure creates itself.',
           arqBtn: 'Open the Architect in Gemini', arqNota: 'Opens in a new tab with your Google account.',
@@ -4345,6 +4424,58 @@ ${clean}`;
       $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSubC').classList.remove('abierto'));
       $('imModalMoverSubC').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSubC') e.target.classList.remove('abierto'); });
 
+      // ── Skills de Gemini: cada asistente (gema) se ofrece también como skill con sus 3 campos ──
+      const SKILL_CACHE = {};
+      let skillAbierta = null;
+      const llamadaSkillIM = (clave) => '/' + clave;
+      function avisoSkillHtml(x, clave) {
+        const nombre = (x.skillNombres || {})[clave] || clave;
+        return escapeHtml(x.skillAviso).replace('{nombre}', escapeHtml(nombre)).replace('{llamada}', '<code>' + escapeHtml(llamadaSkillIM(clave)) + '</code>');
+      }
+      function pintarPasosSkill(x, clave) {
+        $('imSkillPaso1').textContent = x.skillPaso1;
+        $('imSkillPaso2').textContent = x.skillPaso2;
+        $('imSkillPaso3').innerHTML = escapeHtml(x.skillPaso3).replace('{llamada}', '<code>' + escapeHtml(llamadaSkillIM(clave)) + '</code>');
+      }
+      function actualizarTextosSkill(x) {
+        document.querySelectorAll('.im-skill-aviso').forEach(caja => {
+          const btn = caja.querySelector('[data-skill]'); const p = caja.querySelector('p');
+          if (btn && p) p.innerHTML = avisoSkillHtml(x, btn.dataset.skill);
+          if (btn) btn.querySelector('span').textContent = x.skillBtn;
+        });
+        $('imSkillBadge').textContent = x.skillBadge; $('imSkillTitulo').textContent = x.skillTitulo; $('imSkillSub').textContent = x.skillSub;
+        $('imSkillLblNombre').textContent = x.skillLblNombre; $('imSkillLblDesc').textContent = x.skillLblDesc; $('imSkillLblInstr').textContent = x.skillLblInstr;
+        $('imSkillInstrNota').textContent = x.skillInstrNota; $('imSkillNota').textContent = x.skillNota;
+        $('imSkillCerrar').querySelector('span').textContent = x.skillCerrar;
+        document.querySelectorAll('#imModalSkill [data-copia] span').forEach(s => { s.textContent = x.skillCopiar; });
+        pintarPasosSkill(x, skillAbierta || 'bibliotecario-del-557');
+      }
+      async function abrirModalSkill(clave) {
+        const x = tt();
+        skillAbierta = clave;
+        pintarPasosSkill(x, clave);
+        $('imSkillCampos').style.display = 'none';
+        const estado = $('imSkillEstado'); estado.style.display = ''; estado.textContent = x.skillCargando;
+        $('imModalSkill').classList.add('abierto');
+        let fila = SKILL_CACHE[clave];
+        if (!fila) {
+          const { data, error } = await db.from('producto_skills').select('clave,nombre,descripcion,instrucciones').eq('clave', clave).maybeSingle();
+          if (error || !data) { estado.textContent = x.skillNoDisp; return; }
+          fila = SKILL_CACHE[clave] = data;
+        }
+        if (skillAbierta !== clave) return;
+        $('imSkillNombre').textContent = fila.nombre; $('imSkillDesc').textContent = fila.descripcion; $('imSkillInstr').textContent = fila.instrucciones;
+        estado.style.display = 'none'; $('imSkillCampos').style.display = '';
+      }
+      document.querySelectorAll('[data-skill]').forEach(btn => btn.addEventListener('click', () => abrirModalSkill(btn.dataset.skill)));
+      $('imSkillCerrar').addEventListener('click', () => $('imModalSkill').classList.remove('abierto'));
+      $('imModalSkill').addEventListener('click', (e) => { if (e.target.id === 'imModalSkill') e.target.classList.remove('abierto'); });
+      document.querySelectorAll('#imModalSkill [data-copia]').forEach(btn => btn.addEventListener('click', () => {
+        const fila = skillAbierta && SKILL_CACHE[skillAbierta]; if (!fila) return;
+        copyText(fila[btn.dataset.copia] || '', tt().skillCopiado);
+      }));
+      actualizarTextosSkill(tt());
+
       // ── Idioma: textos propios sincronizados con el selector de la app ──
       function actualizarTextosIM() {
         const x = tt();
@@ -4364,6 +4495,7 @@ ${clean}`;
         $('imArqCopy').textContent = x.arqCopy;
         $('imArqBtn').textContent = x.arqBtn;
         $('imArqNota').textContent = x.arqNota;
+        actualizarTextosSkill(x);
         $('imBtnArbol').querySelector('span').textContent = x.arbolBtn;
         $('imArbolCopiar').textContent = x.arbolCopiar;
         $('imFavEyebrow').textContent = x.espacio; $('imMisEyebrow').textContent = x.espacio; $('imCuadEyebrow').textContent = x.espacio;
