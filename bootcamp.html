@@ -98,6 +98,13 @@
     .sello { flex: none; width: 112px; height: 112px; border-radius: 50%; background: var(--azul); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 34px; letter-spacing: -0.03em; line-height: 1; transform: rotate(-8deg); box-shadow: 0 16px 34px rgba(36,107,253,0.3); }
     .sello small { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; margin-top: 4px; }
     .oferta-texto { margin-top: 16px; font-size: 17px; color: var(--muted); max-width: 680px; position: relative; z-index: 1; }
+    .vida { margin-top: 22px; background: var(--halo); border-radius: 20px; padding: 18px 22px; position: relative; z-index: 1; }
+    .vida-titulo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; }
+    .vida-titulo svg { width: 24px; height: 24px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .vida-lista { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 18px; }
+    .vida-lista li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: var(--muted); }
+    .vida-lista li b { color: var(--ink); font-weight: 600; }
+    .vida-lista li svg { width: 20px; height: 20px; stroke: var(--azul); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; margin-top: 2px; }
     .valor { margin-top: 28px; border-top: 1px solid var(--linea); position: relative; z-index: 1; }
     .fila { display: grid; grid-template-columns: 44px 1fr auto; gap: 16px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--linea); }
     .fila .nombre { font-weight: 600; font-size: 17px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -216,6 +223,7 @@
       .oferta-cabeza { flex-direction: column-reverse; align-items: flex-start; }
       .sello { width: 92px; height: 92px; font-size: 28px; }
       .incluidos { grid-template-columns: 1fr; }
+      .vida-lista { grid-template-columns: 1fr; }
       .total { grid-template-columns: 1fr; }
       .preguntas, .dos, .grid2, .grid3, .como, .dosCajas { grid-template-columns: 1fr; }
       .hilo { grid-template-columns: 1fr; gap: 26px; }
@@ -297,7 +305,16 @@
           </div>
           <div class="sello"><span data-pctsello></span><small>Black Friday</small></div>
         </div>
-        <p class="oferta-texto">Solo el bootcamp vale <b data-bootcamp></b>. Por Black Friday te lo llevas por <b data-hoy></b> y, de regalo, las tres herramientas de IA MASIVA que vas a usar en las clases, que por su cuenta cuestan <b data-bonos></b>.</p>
+        <p class="oferta-texto">Solo el bootcamp vale <b data-bootcamp></b>. Por Black Friday te lo llevas por <b data-hoy></b> y, de regalo, las tres herramientas de IA MASIVA que vas a usar en las clases, que por separado cuestan <b data-bonos></b>.</p>
+
+        <div class="vida">
+          <div class="vida-titulo"><svg viewBox="0 0 24 24"><path d="M7 12c-2.2 0-4-1.8-4-4s1.8-4 4-4c2.5 0 3.8 2 5 4 1.2 2 2.5 4 5 4 2.2 0 4-1.8 4-4s-1.8-4-4-4c-2.5 0-3.8 2-5 4-1.2 2-2.5 4-5 4z" transform="translate(0 4)"/></svg>Pagas una vez y es tuyo para toda la vida.</div>
+          <ul class="vida-lista">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>Las grabaciones de las 3 clases,</b> siempre disponibles para repetirlas cuando quieras.</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>Los recursos del bootcamp,</b> siempre a la mano en tu cuenta.</span></li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>Las 557 configuraciones, las 400 skills y los 200 diseños,</b> para siempre y con todas sus actualizaciones.</span></li>
+          </ul>
+        </div>
 
         <div class="valor">
           <div class="fila">
