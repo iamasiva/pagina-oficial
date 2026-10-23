@@ -77,7 +77,10 @@
     .h1 .azul { color: var(--azul); }
     .hero-linea { margin-top: 18px; font-size: clamp(20px, 2.4vw, 28px); font-weight: 500; color: var(--ink); }
     .hero-texto { margin-top: 14px; font-size: 18px; color: var(--muted); max-width: 560px; }
-    .datos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .agenda { margin-top: 24px; display: grid; grid-template-columns: auto 1fr; gap: 10px 22px; align-items: center; width: fit-content; background: #fff; border: 1px solid var(--linea); border-radius: 18px; padding: 16px 22px; box-shadow: var(--sombra); }
+    .agenda-clase { font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--azul); }
+    .agenda-fecha { font-size: 17px; font-weight: 500; color: var(--ink); }
+    .datos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
     .datos span { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--linea); border-radius: 999px; padding: 8px 14px; font-size: 14px; color: var(--ink); box-shadow: 0 4px 14px rgba(25,35,51,0.05); }
     .datos svg { width: 16px; height: 16px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
     .hero-cta { margin-top: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -229,6 +232,7 @@
       .pregunta { border-radius: 22px; align-items: flex-start; }
       .barra .btn.chico .largo { display: none; }
       .datos span { border-radius: 16px; line-height: 1.35; }
+      .agenda { width: 100%; }
       .ph { font-style: normal; }
     }
   </style>
@@ -260,8 +264,12 @@
         <h1 class="h1"><span>Gemini</span><span class="azul">de 0 a 100</span></h1>
         <p class="hero-linea">De una idea a un proyecto real.</p>
         <p class="hero-texto">Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. Sin saber programar y sin haber usado Gemini antes.</p>
+        <div class="agenda" id="agenda">
+          <span class="agenda-clase">Clase 1</span><span class="agenda-fecha" data-fecha="0"><i class="ph">fecha</i></span>
+          <span class="agenda-clase">Clase 2</span><span class="agenda-fecha" data-fecha="1"><i class="ph">fecha</i></span>
+          <span class="agenda-clase">Clase 3</span><span class="agenda-fecha" data-fecha="2"><i class="ph">fecha</i></span>
+        </div>
         <div class="datos">
-          <span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span id="fechasHero">Martes <i class="ph">DD</i>, miércoles <i class="ph">DD</i> y jueves <i class="ph">DD</i> de <i class="ph">mes</i></span></span>
           <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>7:00 pm Bogotá</span>
           <span><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>Google Meet</span>
           <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Queda grabado</span>
@@ -289,7 +297,7 @@
           </div>
           <div class="sello"><span data-pctsello></span><small>Black Friday</small></div>
         </div>
-        <p class="oferta-texto">Solo el bootcamp vale <b data-bootcamp></b> (500.000 pesos colombianos). Por Black Friday te lo llevas por <b data-hoy></b> y, de regalo, las tres herramientas de IA MASIVA que vas a usar en las clases, que por su cuenta cuestan <b data-bonos></b>.</p>
+        <p class="oferta-texto">Solo el bootcamp vale <b data-bootcamp></b>. Por Black Friday te lo llevas por <b data-hoy></b> y, de regalo, las tres herramientas de IA MASIVA que vas a usar en las clases, que por su cuenta cuestan <b data-bonos></b>.</p>
 
         <div class="valor">
           <div class="fila">
@@ -396,7 +404,7 @@
         <div>
           <span class="etiqueta">Clase 1</span>
           <h3>Gemini primeros pasos</h3>
-          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Martes <i class="ph">DD</i> · 7:00 pm Bogotá</span>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
           <div class="sub">Lo que ves</div>
           <ul class="ves">
             <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Los dos principios que separan a los que dicen “la IA no sirve” de los que obtienen resultados.</li>
@@ -415,7 +423,7 @@
         <div>
           <span class="etiqueta">Clase 2</span>
           <h3>Proyectos grandes con Gemini</h3>
-          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Miércoles <i class="ph">DD</i> · 7:00 pm Bogotá</span>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
           <div class="sub">Lo que ves</div>
           <ul class="ves">
             <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Seguimiento sin hojas de cálculo a mano: un formulario de Google que confirma invitados y un panel de control creado con Gemini dentro de Sheets, con compras, gastos y tareas.</li>
@@ -433,7 +441,7 @@
         <div>
           <span class="etiqueta">Clase 3</span>
           <h3>Gemini para automatización y trabajo agéntico</h3>
-          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Jueves <i class="ph">DD</i> · 7:00 pm Bogotá</span>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
           <div class="sub">Lo que ves</div>
           <ul class="ves">
             <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Un agente que conoce tu negocio: conectas todos tus cuadernos a Antigravity y le pides el brief completo en PDF, o que te diga qué pasa si el cliente quiere pasar de 40 a 50 invitados sin subir el presupuesto.</li>
@@ -455,7 +463,7 @@
       <h2 class="titulo">Tres noches, en vivo, <b>con Sergio</b></h2>
       <div class="como">
         <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span><div><b>En vivo por Google Meet</b>No instalas nada: compras y te llega el enlace a tu correo.</div></div>
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><b>Martes, miércoles y jueves, 7:00 pm</b>Hora de Bogotá. Cada clase dura alrededor de dos horas.</div></div>
+        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><b id="diasComo">Martes, miércoles y jueves, 7:00 pm</b>Hora de Bogotá. Cada clase dura alrededor de dos horas.</div></div>
         <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><div><b>Todo queda grabado</b>Si una noche no puedes, la ves al día siguiente en tu área de miembros.</div></div>
         <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 20l1.5-4A8 8 0 1 1 8 18.5z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg></span><div><b>Soporte por WhatsApp</b>Durante el bootcamp, para que no te quedes atascado.</div></div>
         <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 21V11M12 11c0-4 3-7 7-7 0 4-3 7-7 7zM12 14c0-3-2.5-5-5.5-5 0 3 2.5 5 5.5 5z"/></svg></span><div><b>Pensado para principiantes</b>Si nunca has abierto Gemini, empiezas desde cero. Si ya lo usas, vas a dejar de usarlo como un buscador.</div></div>
@@ -523,7 +531,7 @@
       </div>
       <div class="hero-cta" style="align-items:center; margin-top: 24px;">
         <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-        <p class="nota" id="fechasCierre">Martes <i class="ph">DD</i>, miércoles <i class="ph">DD</i> y jueves <i class="ph">DD</i> · 7:00 pm Bogotá · Queda grabado · Garantía hasta terminar la clase 1</p>
+        <p class="nota" id="fechasCierre"><i class="ph">fechas</i> · 7:00 pm Bogotá · Queda grabado · Garantía hasta terminar la clase 1</p>
         <div class="urgencia"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><b>Única versión en vivo.</b> Después, pregrabado por <b data-pregrabado></b>.</span></div>
       </div>
     </div>
@@ -542,9 +550,14 @@
     // Datos de la oferta. Cambiar aquí y toda la página se actualiza.
     const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
     const OFERTA = { bootcamp: 157, b557: 42, b400: 34, b200: 24, hoy: 97, pregrabado: 157 };
-    // Fechas: cuando se definan, se escriben aquí y reemplazan los puntos azules.
-    // Ejemplo: { clases: ['martes 1', 'miércoles 2', 'jueves 3'], mes: 'diciembre', cierre: '2026-11-28T23:59:00-05:00', cierreTexto: 'viernes 28 de noviembre a las 11:59 pm' }
-    const FECHAS = { clases: null, mes: null, cierre: null, cierreTexto: null };
+    // Fechas de las clases (ISO). El día de la semana se calcula solo.
+    // cierre: fecha ISO del fin de la oferta (activa la cuenta regresiva); cierreTexto: como se lee.
+    // Ejemplo: cierre: '2026-11-01T23:59:00-05:00', cierreTexto: 'domingo 1 de noviembre a las 11:59 pm'
+    const FECHAS = { clases: ['2026-11-04', '2026-11-05', '2026-11-06'], cierre: null, cierreTexto: null };
+    const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+    function partes(iso) { const [y, m, d] = iso.split('-').map(Number); return { d, mes: MESES[m - 1], dia: DIAS[new Date(y, m - 1, d).getDay()] }; }
 
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
     const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
@@ -572,13 +585,13 @@
 
     function pintarFechas() {
       if (FECHAS.clases?.length === 3) {
-        const [c1, c2, c3] = FECHAS.clases;
-        const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-        $('fechasHero').textContent = `${cap(c1)}, ${c2} y ${c3}${FECHAS.mes ? ' de ' + FECHAS.mes : ''}`;
-        $('fechasCierre').textContent = `${cap(c1)}, ${c2} y ${c3} · 7:00 pm Bogotá · Queda grabado · Garantía hasta terminar la clase 1`;
+        const f = FECHAS.clases.map(partes);
+        document.querySelectorAll('[data-fecha]').forEach(el => { const x = f[Number(el.dataset.fecha)]; el.textContent = `${cap(x.dia)} ${x.d} de ${x.mes}`; });
+        $('fechasCierre').textContent = `${f[0].d}, ${f[1].d} y ${f[2].d} de ${f[2].mes} · 7:00 pm Bogotá · Queda grabado · Garantía hasta terminar la clase 1`;
+        $('diasComo').textContent = `${cap(f[0].dia)}, ${f[1].dia} y ${f[2].dia}, 7:00 pm`;
         document.querySelectorAll('.clase .cuando').forEach((el, i) => {
           const svg = el.querySelector('svg').outerHTML;
-          el.innerHTML = `${svg}${cap(FECHAS.clases[i])} · 7:00 pm Bogotá`;
+          el.innerHTML = `${svg}${cap(f[i].dia)} ${f[i].d} de ${f[i].mes} · 7:00 pm Bogotá`;
         });
       }
       if (FECHAS.cierreTexto) $('notaCierre').textContent = `La oferta de Black Friday termina el ${FECHAS.cierreTexto} hora de Bogotá, o cuando se llene la sala.`;
