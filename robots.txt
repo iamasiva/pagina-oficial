@@ -12,6 +12,7 @@ Disallow: /app.html
 Disallow: /admin.html
 Disallow: /panel.html
 Disallow: /bonos.html
+Disallow: /bootcamp.html
 Disallow: /pago.html
 Disallow: /confirmacion.html
 Disallow: /recurso-

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es" data-gate="1">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Bootcamp Gemini de 0 a 100 · IA MASIVA</title>
+  <meta name="description" content="Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. De una idea a un proyecto real." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    /* Identidad del bootcamp (DIRECCION_DE_DISENO.md): blanco, halo azul,
+       azul de énfasis, carbón azulado, superficies redondeadas, sombras suaves. */
+    :root {
+      --blanco: #ffffff;
+      --casi: #f7f8fa;
+      --halo: #e8f3ff;
+      --halo2: #d7ebff;
+      --azul: #246bfd;
+      --azul2: #124dc5;
+      --ink: #192333;
+      --muted: #52647c;
+      --linea: #e7edf4;
+      --disco: #e9f2ff;
+      --radio: 24px;
+      --sombra: 0 12px 36px rgba(25, 35, 51, 0.08);
+      --sombra2: 0 20px 60px rgba(36, 107, 253, 0.14);
+      --fuente: 'Google Sans Flex', 'Google Sans', 'Product Sans', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+    }
+    html[data-gate] body { visibility: hidden; }
+    * { box-sizing: border-box; }
+    html { background: var(--blanco); scroll-behavior: smooth; }
+    body { margin: 0; font-family: var(--fuente); color: var(--ink); background: var(--blanco); line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    h1, h2, h3, p { margin: 0; }
+    .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+    section { padding: 72px 0; position: relative; }
+    .etiqueta { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--azul); }
+    .titulo { font-size: clamp(30px, 4vw, 46px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.12; margin-top: 14px; }
+    .titulo b, .azul { color: var(--azul); font-weight: inherit; }
+    .texto { font-size: 18px; color: var(--muted); max-width: 680px; margin-top: 16px; }
+    .ph { color: var(--azul); border-bottom: 2px dotted var(--azul); padding-bottom: 1px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--azul); color: #fff; border: 0; border-radius: 999px; padding: 18px 34px; font: inherit; font-size: 18px; font-weight: 600; cursor: pointer; text-decoration: none; box-shadow: 0 14px 34px rgba(36, 107, 253, 0.28); transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+    .btn:hover { transform: translateY(-1px); background: var(--azul2); box-shadow: 0 18px 40px rgba(36, 107, 253, 0.32); }
+    .btn svg { width: 20px; height: 20px; }
+    .btn.chico { padding: 11px 20px; font-size: 15px; box-shadow: none; }
+    .pastilla-bf { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; border-radius: 999px; padding: 8px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+    .pastilla-bf svg { width: 14px; height: 14px; }
+    .ico { width: 44px; height: 44px; border-radius: 50%; background: var(--disco); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+    .ico svg { width: 22px; height: 22px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .nota { font-size: 15px; color: var(--muted); }
+    .urgencia { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: var(--ink); background: var(--halo); border-radius: 16px; padding: 12px 16px; }
+    .urgencia svg { width: 20px; height: 20px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; margin-top: 2px; }
+    .urgencia b { font-weight: 600; }
+
+    /* Barra superior */
+    .barra { position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--linea); }
+    .barra .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
+    .marca { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; letter-spacing: 0.14em; font-size: 13px; text-decoration: none; }
+    .marca svg { width: 18px; height: 18px; }
+    .barra-der { display: flex; align-items: center; gap: 12px; }
+    .admin-chip { font-size: 12px; color: var(--muted); background: var(--casi); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+
+    /* Hero */
+    .hero { padding: 64px 0 40px; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: -20% -10% auto auto; width: 70vw; max-width: 900px; aspect-ratio: 1; background: radial-gradient(closest-side, var(--halo2), rgba(215,235,255,0) 72%); z-index: 0; pointer-events: none; }
+    .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: center; gap: 32px; }
+    .hero-cabeza { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .h1 { margin-top: 22px; font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(58px, 9.2vw, 124px); }
+    .h1 span { display: block; }
+    .h1 .azul { color: var(--azul); }
+    .hero-linea { margin-top: 18px; font-size: clamp(20px, 2.4vw, 28px); font-weight: 500; color: var(--ink); }
+    .hero-texto { margin-top: 14px; font-size: 18px; color: var(--muted); max-width: 560px; }
+    .datos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .datos span { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--linea); border-radius: 999px; padding: 8px 14px; font-size: 14px; color: var(--ink); box-shadow: 0 4px 14px rgba(25,35,51,0.05); }
+    .datos svg { width: 16px; height: 16px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .hero-cta { margin-top: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .hero-sub { font-size: 16px; color: var(--ink); }
+    .hero-sub b { font-weight: 600; color: var(--azul); }
+    .hero-estrella { position: relative; display: flex; justify-content: center; }
+    .hero-estrella img { width: min(100%, 460px); height: auto; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); }
+
+    /* Oferta */
+    .oferta { padding-top: 24px; }
+    .oferta-caja { background: #fff; border-radius: 32px; box-shadow: var(--sombra2); padding: 40px; position: relative; overflow: hidden; }
+    .oferta-caja::after { content: ''; position: absolute; right: -120px; top: -120px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, var(--halo), rgba(232,243,255,0)); pointer-events: none; }
+    .oferta-cabeza { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; position: relative; z-index: 1; }
+    .oferta-titulo { font-size: clamp(28px, 3.6vw, 42px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.12; margin-top: 12px; max-width: 640px; }
+    .sello { flex: none; width: 112px; height: 112px; border-radius: 50%; background: var(--azul); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 34px; letter-spacing: -0.03em; line-height: 1; transform: rotate(-8deg); box-shadow: 0 16px 34px rgba(36,107,253,0.3); }
+    .sello small { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; margin-top: 4px; }
+    .oferta-texto { margin-top: 16px; font-size: 17px; color: var(--muted); max-width: 680px; position: relative; z-index: 1; }
+    .valor { margin-top: 28px; border-top: 1px solid var(--linea); position: relative; z-index: 1; }
+    .fila { display: grid; grid-template-columns: 44px 1fr auto; gap: 16px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--linea); }
+    .fila .nombre { font-weight: 600; font-size: 17px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .fila .desc { font-size: 15px; color: var(--muted); margin-top: 2px; }
+    .fila .precio { font-weight: 600; font-size: 20px; color: var(--ink); white-space: nowrap; }
+    .tag-bono { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--azul); background: var(--disco); border-radius: 999px; padding: 3px 9px; }
+    .incluido-titulo { margin-top: 24px; font-weight: 600; font-size: 17px; }
+    .incluidos { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+    .incluidos li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: var(--muted); padding: 10px 12px; background: var(--casi); border-radius: 14px; }
+    .incluidos li svg { width: 20px; height: 20px; stroke: var(--azul); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; margin-top: 2px; }
+    .incluidos li b { color: var(--ink); font-weight: 600; }
+    .incluidos .chip { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--azul); white-space: nowrap; }
+    .total { margin-top: 24px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; background: var(--halo); border-radius: 22px; padding: 22px 26px; position: relative; z-index: 1; }
+    .total .tachado { font-size: 17px; color: var(--muted); }
+    .total .tachado s { text-decoration-thickness: 2px; }
+    .total .hoy { font-size: 15px; color: var(--muted); margin-top: 4px; }
+    .total .grande { font-size: clamp(44px, 6vw, 64px); font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--azul); }
+    .total .ahorro { display: inline-block; margin-top: 8px; background: #fff; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink); }
+    .oferta-pie { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
+    .oferta-pie .btn { align-self: stretch; }
+    #cuentaRegresiva { display: none; align-items: center; gap: 10px; font-size: 15px; color: var(--ink); }
+    #cuentaRegresiva b { font-variant-numeric: tabular-nums; color: var(--azul); }
+
+    /* Tarjetas genéricas */
+    .tarjeta { background: #fff; border-radius: var(--radio); box-shadow: var(--sombra); padding: 28px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+    /* ¿Es para ti? */
+    .fondo-casi { background: var(--casi); }
+    .preguntas { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pregunta { display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 999px; padding: 14px 22px 14px 14px; box-shadow: var(--sombra); font-size: 17px; font-weight: 500; }
+    .giro { margin-top: 24px; background: #fff; border-radius: var(--radio); padding: 26px 30px; box-shadow: var(--sombra); font-size: 20px; line-height: 1.5; border-left: 6px solid var(--azul); }
+    .giro b { color: var(--azul); font-weight: 600; }
+
+    /* Dos preguntas */
+    .dos { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .campo { position: relative; background: #fff; border-radius: 999px; padding: 22px 28px 22px 22px; box-shadow: var(--sombra); display: flex; align-items: center; gap: 16px; font-size: clamp(19px, 2.2vw, 24px); font-weight: 500; overflow: hidden; }
+    .campo .num { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); font-size: 64px; font-weight: 700; color: var(--halo2); letter-spacing: -0.04em; line-height: 1; }
+
+    /* Hilo */
+    .hilo { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; position: relative; }
+    .hilo::before { content: ''; position: absolute; left: 12%; right: 12%; top: 44px; height: 2px; background: linear-gradient(90deg, var(--halo2), var(--azul), var(--halo2)); opacity: .6; }
+    .hito { text-align: center; position: relative; }
+    .hito .ico { width: 88px; height: 88px; background: #fff; box-shadow: var(--sombra); border: 6px solid var(--blanco); outline: 1px solid var(--linea); }
+    .hito .ico svg { width: 38px; height: 38px; }
+    .hito h3 { margin-top: 18px; font-size: 20px; font-weight: 600; }
+    .hito h3 span { color: var(--azul); }
+    .hito p { margin-top: 8px; font-size: 15px; color: var(--muted); }
+
+    /* Clases */
+    .clase { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 28px; align-items: start; margin-top: 22px; }
+    .clase:first-of-type { margin-top: 32px; }
+    .clase .visual { border-radius: 22px; overflow: hidden; background: var(--casi); position: sticky; top: 84px; }
+    .clase .visual img { width: 100%; height: auto; }
+    .clase h3 { font-size: clamp(26px, 3vw, 34px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin-top: 10px; }
+    .clase .cuando { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--ink); background: var(--halo); border-radius: 999px; padding: 7px 12px; }
+    .clase .cuando svg { width: 16px; height: 16px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .clase .sub { margin-top: 20px; font-size: 13px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+    .ves { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+    .ves li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; color: var(--ink); }
+    .ves li svg { width: 22px; height: 22px; flex: none; stroke: var(--azul); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
+    .sales { margin-top: 18px; background: #fff; border: 1px solid var(--linea); border-radius: 18px; padding: 16px 18px; font-size: 16px; box-shadow: var(--sombra); }
+    .sales b { color: var(--azul); font-weight: 600; }
+
+    /* Cómo funciona */
+    .como { margin-top: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .como .tarjeta { display: flex; flex-direction: column; gap: 12px; padding: 24px; font-size: 16px; color: var(--muted); }
+    .como .tarjeta b { color: var(--ink); font-weight: 600; display: block; margin-bottom: 4px; }
+
+    /* Garantía + Quién enseña */
+    .dosCajas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+    .caja-dest { background: #fff; border-radius: var(--radio); box-shadow: var(--sombra); padding: 30px; display: flex; gap: 18px; align-items: flex-start; }
+    .caja-dest h3 { font-size: 22px; font-weight: 600; }
+    .caja-dest p { margin-top: 10px; color: var(--muted); font-size: 16px; }
+
+    /* FAQ */
+    .faq { margin-top: 24px; display: grid; gap: 10px; max-width: 820px; }
+    .faq details { background: #fff; border-radius: 18px; box-shadow: var(--sombra); padding: 0 22px; }
+    .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; font-weight: 600; font-size: 17px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: '+'; color: var(--azul); font-size: 24px; font-weight: 400; flex: none; }
+    .faq details[open] summary::after { content: '−'; }
+    .faq p { padding: 0 0 18px; color: var(--muted); font-size: 16px; }
+
+    /* Cierre */
+    .cierre { text-align: center; padding-bottom: 96px; }
+    .cierre::before { content: ''; position: absolute; left: 50%; top: 10%; transform: translateX(-50%); width: 80vw; max-width: 900px; aspect-ratio: 1; background: radial-gradient(closest-side, var(--halo), rgba(232,243,255,0) 72%); z-index: 0; pointer-events: none; }
+    .cierre .wrap { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+    .cierre .titulo { max-width: 760px; }
+    .cierre .texto { text-align: center; }
+    .cierre .remate { margin-top: 18px; font-size: 22px; font-weight: 600; }
+    .cierre .remate b { color: var(--azul); }
+    .cuenta { margin-top: 30px; background: #fff; border-radius: 22px; box-shadow: var(--sombra2); padding: 22px 28px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 14px; font-size: 16px; }
+    .cuenta .mas { color: var(--muted); }
+    .cuenta .res { font-weight: 700; font-size: 22px; color: var(--azul); }
+    .cuenta s { color: var(--muted); }
+
+    /* Pie */
+    footer { border-top: 1px solid var(--linea); padding: 26px 0; font-size: 13px; color: var(--muted); }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+    footer nav a { margin-left: 16px; text-decoration: none; }
+    footer nav a:hover { color: var(--azul); }
+
+    /* Aviso flotante (solo admin) */
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 14px 18px; border-radius: 14px; font-size: 14px; max-width: min(520px, calc(100% - 32px)); opacity: 0; pointer-events: none; transition: all .2s ease; z-index: 60; box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+    .toast.ver { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 900px) {
+      section { padding: 56px 0; }
+      .hero { padding: 36px 0 24px; }
+      .hero .wrap { grid-template-columns: 1fr; gap: 8px; }
+      .hero-estrella { order: -1; margin-bottom: -10px; }
+      .hero-estrella img { width: min(52vw, 230px); }
+      .oferta-caja { padding: 28px 22px; border-radius: 26px; }
+      .oferta-cabeza { flex-direction: column-reverse; align-items: flex-start; }
+      .sello { width: 92px; height: 92px; font-size: 28px; }
+      .incluidos { grid-template-columns: 1fr; }
+      .total { grid-template-columns: 1fr; }
+      .preguntas, .dos, .grid2, .grid3, .como, .dosCajas { grid-template-columns: 1fr; }
+      .hilo { grid-template-columns: 1fr; gap: 26px; }
+      .hilo::before { display: none; }
+      .clase { grid-template-columns: 1fr; gap: 18px; }
+      .clase .visual { position: static; }
+      .admin-chip { display: none; }
+    }
+    @media (max-width: 480px) {
+      .wrap { width: min(1120px, 100% - 32px); }
+      .fila { grid-template-columns: 1fr auto; }
+      .fila .ico { display: none; }
+      .campo .num { font-size: 48px; right: 16px; }
+      .pregunta { border-radius: 22px; align-items: flex-start; }
+      .barra .btn.chico .largo { display: none; }
+      .datos span { border-radius: 16px; line-height: 1.35; }
+      .ph { font-style: normal; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra superior -->
+  <div class="barra">
+    <div class="wrap">
+      <a class="marca" href="index.html" aria-label="IA MASIVA">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gEstrella" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset=".45" stop-color="#3b82f6"/><stop offset=".8" stop-color="#22d3b5"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><path fill="url(#gEstrella)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg>
+        IA MASIVA
+      </a>
+      <div class="barra-der">
+        <span class="admin-chip">Vista previa · solo admin</span>
+        <button class="btn chico" type="button" data-comprar><span class="largo">Llévalo hoy por&nbsp;</span><span data-hoy>$97</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <div class="hero-cabeza">
+          <span class="etiqueta">Bootcamp en vivo · 3 clases</span>
+          <span class="pastilla-bf"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="url(#gEstrella)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg>Black Friday</span>
+        </div>
+        <h1 class="h1"><span>Gemini</span><span class="azul">de 0 a 100</span></h1>
+        <p class="hero-linea">De una idea a un proyecto real.</p>
+        <p class="hero-texto">Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. Sin saber programar y sin haber usado Gemini antes.</p>
+        <div class="datos">
+          <span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span id="fechasHero">Martes <i class="ph">DD</i>, miércoles <i class="ph">DD</i> y jueves <i class="ph">DD</i> de <i class="ph">mes</i></span></span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>7:00 pm Bogotá</span>
+          <span><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>Google Meet</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Queda grabado</span>
+        </div>
+        <div class="hero-cta">
+          <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <p class="hero-sub">Todo vale <s data-total></s>. Por Black Friday te lo llevas por <b data-hoy></b> (<b data-pct></b> menos).</p>
+          <div class="urgencia"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Es la <b>única versión en vivo</b> que se va a dictar. Después queda disponible pregrabado por <b data-pregrabado></b>.</span></div>
+        </div>
+      </div>
+      <div class="hero-estrella">
+        <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" width="720" height="795" fetchpriority="high" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. La oferta -->
+  <section class="oferta" id="oferta">
+    <div class="wrap">
+      <div class="oferta-caja">
+        <div class="oferta-cabeza">
+          <div>
+            <span class="etiqueta">Oferta Black Friday</span>
+            <h2 class="oferta-titulo">Todo esto vale <s data-total></s>. Por Black Friday te lo llevas por <span class="azul" data-hoy></span>.</h2>
+          </div>
+          <div class="sello"><span data-pctsello></span><small>Black Friday</small></div>
+        </div>
+        <p class="oferta-texto">Solo el bootcamp vale <b data-bootcamp></b> (500.000 pesos colombianos). Por Black Friday te lo llevas por <b data-hoy></b> y, de regalo, las tres herramientas de IA MASIVA que vas a usar en las clases, que por su cuenta cuestan <b data-bonos></b>.</p>
+
+        <div class="valor">
+          <div class="fila">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z"/></svg></span>
+            <div><div class="nombre">Bootcamp Gemini de 0 a 100</div><div class="desc">3 clases en vivo con Sergio, grabaciones y soporte por WhatsApp.</div></div>
+            <div class="precio" data-bootcamp></div>
+          </div>
+          <div class="fila">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v6h6M8 13h8M8 17h5"/></svg></span>
+            <div><div class="nombre">557 Configuraciones para NotebookLM y Gemini <span class="tag-bono">Bono</span></div><div class="desc">El especialista listo para cada cuaderno. La usas en la clase 2.</div></div>
+            <div class="precio" data-b557></div>
+          </div>
+          <div class="fila">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.3L20 9.3l-4.4 3.8 1.4 5.9L12 16l-5 3 1.4-5.9L4 9.3l5.8-1z"/></svg></span>
+            <div><div class="nombre">400 Skills para Gemini <span class="tag-bono">Bono</span></div><div class="desc">Tu biblioteca de skills, organizada y a un clic. Ahí guardas las que construyes en la clase 3.</div></div>
+            <div class="precio" data-b400></div>
+          </div>
+          <div class="fila">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M7 9h6M7 12h10"/></svg></span>
+            <div><div class="nombre">200 Diseños para Presentaciones en NotebookLM <span class="tag-bono">Bono</span></div><div class="desc">Presentaciones con diseño en minutos. Con uno de ellos haces la propuesta para el cliente en la clase 2.</div></div>
+            <div class="precio" data-b200></div>
+          </div>
+        </div>
+
+        <div class="incluido-titulo">Además, el bootcamp viene con:</div>
+        <ul class="incluidos">
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>Biblioteca de 42 formatos de respuesta.</b> Pegas el formato debajo de tu petición y sabes qué vas a recibir.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>61 instrucciones para trabajar con imágenes,</b> con la skill que las creó para que hagas las tuyas.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>Tu equipo de carruseles con IA:</b> el plugin, las cinco skills, la ficha para adaptarlo a tu negocio y la versión para Gemini Tasks.</span></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span><b>El mapa completo de las IA de Google</b> en PDF.</span></li>
+        </ul>
+
+        <div class="total">
+          <div>
+            <div class="tachado">Valor total <s data-total></s></div>
+            <div class="hoy">Precio Black Friday</div>
+            <div class="grande" data-hoy></div>
+            <span class="ahorro">Ahorras <span data-ahorro></span></span>
+          </div>
+          <div class="sello"><span data-pctsello></span><small>Black Friday</small></div>
+        </div>
+
+        <div class="oferta-pie">
+          <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <p class="nota">Pago único en Hotmart, en tu moneda: tarjeta, PSE, Nequi, efectivo o el método de tu país. Garantía hasta terminar la clase 1.</p>
+          <p class="nota" id="notaCierre">La oferta de Black Friday termina el <i class="ph">día</i> a las <i class="ph">hora</i> hora de Bogotá, o cuando se llene la sala.</p>
+          <p id="cuentaRegresiva"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#246bfd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Termina en <b id="cuentaTexto"></b></span></p>
+          <div class="urgencia"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5"/></svg><span>Esta es la <b>única vez</b> que el bootcamp se dicta en vivo, con Sergio respondiendo tus preguntas. Después solo queda la versión pregrabada, por <b data-pregrabado></b> y sin las herramientas de regalo.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. ¿Es para ti? -->
+  <section class="fondo-casi">
+    <div class="wrap">
+      <span class="etiqueta">Evalúa si es para ti</span>
+      <h2 class="titulo">Evalúa rápidamente si este bootcamp <b>es para ti</b></h2>
+      <div class="preguntas">
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z"/><path d="M9 10h.01M13 10h.01"/></svg></span>¿Le preguntas cosas a Gemini y sientes que te responde cualquier cosa?</div>
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h7l2 2h7v10H4z"/><path d="M8 13h8"/></svg></span>¿Tienes un reguero de chats y nunca encuentras lo que hiciste la semana pasada?</div>
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h.01"/></svg></span>¿Escuchas “cuadernos”, “skills”, “agentes” y no sabes ni por dónde empezar?</div>
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h10M10 6l6 6-6 6"/><path d="M20 5v14"/></svg></span>¿Sientes que la IA te dirige a ti, en vez de tú dirigirla a ella?</div>
+      </div>
+      <div class="giro">Si respondiste que sí a algo, el problema no es Gemini y tampoco eres tú. <b>Nadie te ha enseñado a dirigirlo.</b> En este bootcamp lo haces con un proyecto real, de principio a fin.</div>
+    </div>
+  </section>
+
+  <!-- 4. Dos preguntas -->
+  <section>
+    <div class="wrap">
+      <span class="etiqueta">El método</span>
+      <h2 class="titulo">Todo empieza con <b>dos preguntas</b></h2>
+      <div class="dos">
+        <div class="campo"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>¿Qué quiero conseguir?<span class="num">01</span></div>
+        <div class="campo"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h6l2 2h8v9H4z"/></svg></span>¿Qué tengo para empezar?<span class="num">02</span></div>
+      </div>
+      <p class="texto">La IA no te lee la mente. Entre más claro tengas qué quieres y qué tienes a la mano, más precisa es la respuesta. Esa es la pregunta que te va a acompañar las tres clases, y con la que vas a resolver cualquier proyecto que se te ocurra después.</p>
+    </div>
+  </section>
+
+  <!-- 5. El hilo -->
+  <section class="fondo-casi">
+    <div class="wrap">
+      <span class="etiqueta">El hilo del bootcamp</span>
+      <h2 class="titulo">Un asado, una agencia <b>y un agente</b></h2>
+      <p class="texto">No vas a ver funciones sueltas. Vas a seguir un solo caso que crece clase a clase, y en cada paso aprendes la herramienta justo cuando la necesitas.</p>
+      <div class="hilo">
+        <div class="hito"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 11h14v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 11V8M12 11V7M16 11V8M8 5v1M12 4v1M16 5v1"/></svg></span><h3>Clase 1 · <span>Organizas</span></h3><p>Un asado de cumpleaños para 16 personas, con presupuesto, lista de compras e invitación hechos con Gemini.</p></div>
+        <div class="hito"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg></span><h3>Clase 2 · <span>Conviertes</span></h3><p>Ese gusto en una agencia de eventos y atiendes a tu primer cliente con cuadernos.</p></div>
+        <div class="hito"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.6L18.5 9.5l-4.7 1.9L12 16l-1.8-4.6L5.5 9.5l4.7-1.9z"/><path d="M5 19h14"/></svg></span><h3>Clase 3 · <span>Delegas</span></h3><p>Conectas todo a un agente de IA que responde, produce contenido y te arma la página del negocio.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Las tres clases -->
+  <section>
+    <div class="wrap">
+      <span class="etiqueta">Las tres clases</span>
+      <h2 class="titulo">Lo que ves y con lo que <b>sales</b> cada noche</h2>
+
+      <article class="clase">
+        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-1.jpg" alt="Cuaderno con lista de tareas e invitación de cumpleaños" width="820" height="509" loading="lazy" /></div>
+        <div>
+          <span class="etiqueta">Clase 1</span>
+          <h3>Gemini primeros pasos</h3>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Martes <i class="ph">DD</i> · 7:00 pm Bogotá</span>
+          <div class="sub">Lo que ves</div>
+          <ul class="ves">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Los dos principios que separan a los que dicen “la IA no sirve” de los que obtienen resultados.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Gemini por dentro: memoria, aplicaciones conectadas e instrucciones personales. Tres ajustes que cambian todas tus respuestas.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Cuándo usar un chat y cuándo un cuaderno, y cómo configurar un cuaderno para que entienda tu proyecto.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Tu primera skill: un investigador que trae precios reales de hoy, no de 2021.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Pedir el formato de respuesta: el mismo presupuesto como Google Sheets que se recalcula solo, como calculadora o como paso a paso.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Crear imágenes con método: referencias, estilo y ficha de personaje para una invitación original, no una copia. Y cómo agregar o cambiar elementos con Gemini y Google Flow.</li>
+          </ul>
+          <div class="sales"><b>Sales con:</b> la investigación de precios, el presupuesto que se actualiza al cambiar los invitados, la lista de lo que hay que hacer el día previo y la invitación lista para enviar.</div>
+        </div>
+      </article>
+
+      <article class="clase">
+        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-2.jpg" alt="Carpeta con documentos, gráficos y notas de un proyecto" width="820" height="509" loading="lazy" /></div>
+        <div>
+          <span class="etiqueta">Clase 2</span>
+          <h3>Proyectos grandes con Gemini</h3>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Miércoles <i class="ph">DD</i> · 7:00 pm Bogotá</span>
+          <div class="sub">Lo que ves</div>
+          <ul class="ves">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Seguimiento sin hojas de cálculo a mano: un formulario de Google que confirma invitados y un panel de control creado con Gemini dentro de Sheets, con compras, gastos y tareas.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>De pasatiempo a negocio: creas una agencia de eventos y aprendes el oficio con un cuaderno de estudio de Gemini, con lecciones y quices.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Tu forma de trabajar: Antigravity se conecta a tu cuaderno y te propone el pipeline de la agencia, etapa por etapa y con su entregable.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Un cliente simulado: una cena de aniversario sorpresa para 40 personas con USD 4.000 de presupuesto. Formulario para el cliente, brief, búsqueda de locaciones por objetivos y propuesta en presentación.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Configurar cuadernos con las 557 configuraciones y tu variante personal, para no volver a explicarle a la IA quién eres.</li>
+          </ul>
+          <div class="sales"><b>Sales con:</b> el pipeline de tu negocio en un archivo, el brief del cliente y la presentación de la propuesta, hechos en NotebookLM con tu dirección de diseño.</div>
+        </div>
+      </article>
+
+      <article class="clase">
+        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-3.jpg" alt="Computador con un agente de IA conectado a documentos, tareas y calendario" width="820" height="509" loading="lazy" /></div>
+        <div>
+          <span class="etiqueta">Clase 3</span>
+          <h3>Gemini para automatización y trabajo agéntico</h3>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Jueves <i class="ph">DD</i> · 7:00 pm Bogotá</span>
+          <div class="sub">Lo que ves</div>
+          <ul class="ves">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Un agente que conoce tu negocio: conectas todos tus cuadernos a Antigravity y le pides el brief completo en PDF, o que te diga qué pasa si el cliente quiere pasar de 40 a 50 invitados sin subir el presupuesto.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Pedirle que programe: el mismo brief convertido en una página web, sin escribir una línea de código.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Skills y plugins explicados con un ejemplo: un equipo de cinco skills que investiga, encuentra el ángulo, escribe, diseña y genera un carrusel de Instagram completo con una sola instrucción.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>El mismo proceso en Gemini Tasks, programado para que se repita solo.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>La página de tu negocio: dirección visual con tu agente, diseño en Stitch, construcción en Google AI Studio y publicación en internet con Netlify.</li>
+          </ul>
+          <div class="sales"><b>Sales con:</b> un agente conectado a tu información, el sistema de carruseles listo para adaptar a tu negocio y una página publicada.</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 7. Cómo funciona -->
+  <section class="fondo-casi">
+    <div class="wrap">
+      <span class="etiqueta">Cómo funciona</span>
+      <h2 class="titulo">Tres noches, en vivo, <b>con Sergio</b></h2>
+      <div class="como">
+        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span><div><b>En vivo por Google Meet</b>No instalas nada: compras y te llega el enlace a tu correo.</div></div>
+        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><b>Martes, miércoles y jueves, 7:00 pm</b>Hora de Bogotá. Cada clase dura alrededor de dos horas.</div></div>
+        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><div><b>Todo queda grabado</b>Si una noche no puedes, la ves al día siguiente en tu área de miembros.</div></div>
+        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 20l1.5-4A8 8 0 1 1 8 18.5z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg></span><div><b>Soporte por WhatsApp</b>Durante el bootcamp, para que no te quedes atascado.</div></div>
+        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 21V11M12 11c0-4 3-7 7-7 0 4-3 7-7 7zM12 14c0-3-2.5-5-5.5-5 0 3 2.5 5 5.5 5z"/></svg></span><div><b>Pensado para principiantes</b>Si nunca has abierto Gemini, empiezas desde cero. Si ya lo usas, vas a dejar de usarlo como un buscador.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 y 9. Garantía y quién enseña -->
+  <section>
+    <div class="wrap">
+      <div class="dosCajas">
+        <div class="caja-dest">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+          <div>
+            <span class="etiqueta">Garantía</span>
+            <h3>Entra a la clase 1 completa y decide</h3>
+            <p>Si al terminar la primera clase sientes que esto no es para ti, nos escribes y te devolvemos el 100% de tu dinero. Sin preguntas. La única condición es que lo pidas antes de la clase 2.</p>
+          </div>
+        </div>
+        <div class="caja-dest">
+          <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+          <div>
+            <span class="etiqueta">Quién enseña</span>
+            <h3>Con Sergio Lizcano, creador de IA MASIVA</h3>
+            <p><i class="ph">Aquí van tus 2 o 3 líneas.</i> Las herramientas que vas a usar en el bootcamp las construyó con su equipo y las usa todos los días para trabajar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Preguntas frecuentes -->
+  <section class="fondo-casi">
+    <div class="wrap">
+      <span class="etiqueta">Preguntas frecuentes</span>
+      <h2 class="titulo">Lo que nos <b>preguntan</b></h2>
+      <div class="faq">
+        <details><summary>¿Necesito saber algo de IA o de programación?</summary><p>No. El bootcamp empieza desde cero y todo lo que se construye se hace hablándole a la IA. Lo único que necesitas es un computador y una cuenta de Google.</p></details>
+        <details><summary>¿Necesito pagar Gemini?</summary><p>Puedes seguir las tres clases con una cuenta de Google. Algunas funciones avanzadas rinden más con Google AI Pro, y te decimos cuáles en la clase 1 para que decidas con calma.</p></details>
+        <details><summary>¿Puedo verlo desde el celular?</summary><p>Puedes entrar a la clase desde el celular, pero para practicar al tiempo te recomendamos un computador. Lo que construimos vive en carpetas, hojas de cálculo y cuadernos.</p></details>
+        <details><summary>¿Qué pasa si no puedo asistir a una clase en vivo?</summary><p>Queda grabada y la ves cuando puedas en tu área de miembros. El soporte por WhatsApp sigue disponible para tus dudas.</p></details>
+        <details><summary>¿Las herramientas son por un tiempo?</summary><p>No. Las 557 configuraciones, las 400 skills y los 200 diseños son tuyos para siempre, con las actualizaciones que hagamos.</p></details>
+        <details><summary>Ya compré alguna de las herramientas. ¿Qué pasa?</summary><p>Escríbenos antes de comprar y te damos un cupón por el valor de lo que ya tienes.</p></details>
+        <details><summary>¿Cómo entro a las clases?</summary><p>Al comprar te llega un correo con el enlace de Google Meet, la invitación al calendario y el acceso a tus herramientas. El día de cada clase te recordamos una hora antes.</p></details>
+        <details><summary>¿En qué idioma es?</summary><p>Todo en español. Las herramientas funcionan en español e inglés.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Cierre -->
+  <section class="cierre">
+    <div class="wrap">
+      <span class="etiqueta">Tú decides</span>
+      <h2 class="titulo">Puedes seguir preguntándole cosas a Gemini y recibiendo respuestas que sirven a medias.</h2>
+      <p class="texto">O puedes aprender a dirigirlo en tres noches, con un caso real, y salir con un proyecto hecho, una forma de trabajar y un agente trabajando por ti.</p>
+      <p class="remate">La diferencia no es la herramienta. <b>Es quién dirige a quién.</b></p>
+      <div class="cuenta">
+        <span>Bootcamp <b data-bootcamp></b></span><span class="mas">+</span>
+        <span>557 (<span data-b557></span>)</span><span class="mas">+</span>
+        <span>400 (<span data-b400></span>)</span><span class="mas">+</span>
+        <span>200 (<span data-b200></span>)</span><span class="mas">+</span>
+        <span>recursos de clase</span><span class="mas">=</span>
+        <span><s data-total></s></span>
+        <span class="mas">Black Friday:</span><span class="res"><span data-hoy></span> (<span data-pctsello></span>)</span>
+      </div>
+      <div class="hero-cta" style="align-items:center; margin-top: 24px;">
+        <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <p class="nota" id="fechasCierre">Martes <i class="ph">DD</i>, miércoles <i class="ph">DD</i> y jueves <i class="ph">DD</i> · 7:00 pm Bogotá · Queda grabado · Garantía hasta terminar la clase 1</p>
+        <div class="urgencia"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><b>Única versión en vivo.</b> Después, pregrabado por <b data-pregrabado></b>.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <a class="marca" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="url(#gEstrella)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg>IA MASIVA</a>
+      <nav><a href="terminos.html">Términos</a><a href="privacidad.html">Privacidad</a><a href="app.html">Mi cuenta</a></nav>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    // Datos de la oferta. Cambiar aquí y toda la página se actualiza.
+    const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+    const OFERTA = { bootcamp: 157, b557: 42, b400: 34, b200: 24, hoy: 97, pregrabado: 157 };
+    // Fechas: cuando se definan, se escriben aquí y reemplazan los puntos azules.
+    // Ejemplo: { clases: ['martes 1', 'miércoles 2', 'jueves 3'], mes: 'diciembre', cierre: '2026-11-28T23:59:00-05:00', cierreTexto: 'viernes 28 de noviembre a las 11:59 pm' }
+    const FECHAS = { clases: null, mes: null, cierre: null, cierreTexto: null };
+
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+    const $ = (id) => document.getElementById(id);
+    const usd = (n) => '$' + n;
+
+    function pintarOferta() {
+      const bonos = OFERTA.b557 + OFERTA.b400 + OFERTA.b200;
+      const total = OFERTA.bootcamp + bonos;
+      const ahorro = total - OFERTA.hoy;
+      const pct = Math.round(ahorro / total * 100);
+      const set = (attr, val) => document.querySelectorAll(`[data-${attr}]`).forEach(el => { el.textContent = val; });
+      set('total', usd(total));
+      set('hoy', usd(OFERTA.hoy));
+      set('bootcamp', usd(OFERTA.bootcamp));
+      set('b557', usd(OFERTA.b557));
+      set('b400', usd(OFERTA.b400));
+      set('b200', usd(OFERTA.b200));
+      set('bonos', usd(bonos));
+      set('ahorro', usd(ahorro));
+      set('pct', pct + '%');
+      set('pctsello', '-' + pct + '%');
+      document.querySelectorAll('[data-pregrabado]').forEach(el => { el.textContent = usd(OFERTA.pregrabado); });
+    }
+
+    function pintarFechas() {
+      if (FECHAS.clases?.length === 3) {
+        const [c1, c2, c3] = FECHAS.clases;
+        const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+        $('fechasHero').textContent = `${cap(c1)}, ${c2} y ${c3}${FECHAS.mes ? ' de ' + FECHAS.mes : ''}`;
+        $('fechasCierre').textContent = `${cap(c1)}, ${c2} y ${c3} · 7:00 pm Bogotá · Queda grabado · Garantía hasta terminar la clase 1`;
+        document.querySelectorAll('.clase .cuando').forEach((el, i) => {
+          const svg = el.querySelector('svg').outerHTML;
+          el.innerHTML = `${svg}${cap(FECHAS.clases[i])} · 7:00 pm Bogotá`;
+        });
+      }
+      if (FECHAS.cierreTexto) $('notaCierre').textContent = `La oferta de Black Friday termina el ${FECHAS.cierreTexto} hora de Bogotá, o cuando se llene la sala.`;
+      if (FECHAS.cierre) {
+        const fin = new Date(FECHAS.cierre).getTime();
+        const caja = $('cuentaRegresiva');
+        const tic = () => {
+          const d = Math.max(0, fin - Date.now());
+          const dias = Math.floor(d / 864e5), h = Math.floor(d % 864e5 / 36e5), m = Math.floor(d % 36e5 / 6e4), s = Math.floor(d % 6e4 / 1e3);
+          $('cuentaTexto').textContent = (dias ? dias + 'd ' : '') + String(h).padStart(2, '0') + 'h ' + String(m).padStart(2, '0') + 'm ' + String(s).padStart(2, '0') + 's';
+          if (d <= 0) { caja.style.display = 'none'; clearInterval(reloj); }
+        };
+        caja.style.display = 'flex';
+        tic();
+        const reloj = setInterval(tic, 1000);
+      }
+    }
+
+    let toastTimer = null;
+    function aviso(texto) {
+      const t = $('toast');
+      t.textContent = texto;
+      t.classList.add('ver');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('ver'), 4200);
+    }
+
+    // Evento del embudo con el mismo criterio de producto.html (el equipo no cuenta)
+    async function registrarEvento(tipo) {
+      if (localStorage.getItem('im_es_admin') === '1') return;
+      try {
+        await fetch('https://api.iamasiva.co/rest/v1/eventos', {
+          method: 'POST', keepalive: true,
+          headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ tipo, product_id: PRODUCT_ID }),
+        });
+      } catch (_) {}
+    }
+
+    let producto = null;
+    function comprar() {
+      registrarEvento('clic_comprar');
+      if (producto?.activo && producto?.hotmart_url) { location.href = `pago.html?p=${PRODUCT_ID}`; return; }
+      aviso('Checkout pendiente: el producto sigue inactivo o sin link de Hotmart. Cuando lo actives, este botón lleva al pago.');
+    }
+
+    function fuera() { location.replace('index.html'); }
+
+    async function init() {
+      pintarOferta();
+      pintarFechas();
+      document.querySelectorAll('[data-comprar]').forEach(b => b.addEventListener('click', comprar));
+
+      // Puerta: por ahora la página solo existe para el equipo (perfil es_admin).
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return fuera();
+        const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
+        if (!perfil?.es_admin) return fuera();
+        try { localStorage.setItem('im_es_admin', '1'); } catch (_) {}
+      } catch (_) { return fuera(); }
+      document.documentElement.removeAttribute('data-gate');
+
+      const { data } = await sb.from('products').select('id, activo, hotmart_url, precio_usd_centavos').eq('id', PRODUCT_ID).maybeSingle();
+      producto = data;
+      registrarEvento('visita_landing');
+    }
+
+    init();
+  </script>
+</body>
+</html>
