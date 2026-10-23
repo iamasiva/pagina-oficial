@@ -125,6 +125,9 @@
     .total .ahorro { display: inline-block; margin-top: 8px; background: #fff; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink); }
     .oferta-pie { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
     .oferta-pie .btn { align-self: stretch; }
+    .garantia-dest { display: flex; align-items: center; gap: 12px; background: #fff; border: 2px solid var(--azul); border-radius: 16px; padding: 14px 18px; font-size: 17px; color: var(--ink); }
+    .garantia-dest b { color: var(--azul); font-weight: 700; }
+    .garantia-dest svg { width: 26px; height: 26px; stroke: var(--azul); fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
     #cuentaRegresiva { display: none; align-items: center; gap: 10px; font-size: 15px; color: var(--ink); }
     #cuentaRegresiva b { font-variant-numeric: tabular-nums; color: var(--azul); }
 
@@ -140,25 +143,10 @@
     .giro { margin-top: 24px; background: #fff; border-radius: var(--radio); padding: 26px 30px; box-shadow: var(--sombra); font-size: 20px; line-height: 1.5; border-left: 6px solid var(--azul); }
     .giro b { color: var(--azul); font-weight: 600; }
 
-    /* Dos preguntas */
-    .dos { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .campo { position: relative; background: #fff; border-radius: 999px; padding: 22px 28px 22px 22px; box-shadow: var(--sombra); display: flex; align-items: center; gap: 16px; font-size: clamp(19px, 2.2vw, 24px); font-weight: 500; overflow: hidden; }
-    .campo .num { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); font-size: 64px; font-weight: 700; color: var(--halo2); letter-spacing: -0.04em; line-height: 1; }
-
-    /* Hilo */
-    .hilo { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; position: relative; }
-    .hilo::before { content: ''; position: absolute; left: 12%; right: 12%; top: 44px; height: 2px; background: linear-gradient(90deg, var(--halo2), var(--azul), var(--halo2)); opacity: .6; }
-    .hito { text-align: center; position: relative; }
-    .hito .ico { width: 88px; height: 88px; background: #fff; box-shadow: var(--sombra); border: 6px solid var(--blanco); outline: 1px solid var(--linea); }
-    .hito .ico svg { width: 38px; height: 38px; }
-    .hito h3 { margin-top: 18px; font-size: 20px; font-weight: 600; }
-    .hito h3 span { color: var(--azul); }
-    .hito p { margin-top: 8px; font-size: 15px; color: var(--muted); }
-
     /* Clases */
     .clase { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 28px; align-items: start; margin-top: 22px; }
     .clase:first-of-type { margin-top: 32px; }
-    .clase .visual { border-radius: 22px; overflow: hidden; background: var(--casi); position: sticky; top: 84px; }
+    .clase .visual { border-radius: 22px; overflow: hidden; background: #fff; box-shadow: var(--sombra); position: sticky; top: 84px; }
     .clase .visual img { width: 100%; height: auto; }
     .clase h3 { font-size: clamp(26px, 3vw, 34px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin-top: 10px; }
     .clase .cuando { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--ink); background: var(--halo); border-radius: 999px; padding: 7px 12px; }
@@ -198,10 +186,16 @@
     .cierre .texto { text-align: center; }
     .cierre .remate { margin-top: 18px; font-size: 22px; font-weight: 600; }
     .cierre .remate b { color: var(--azul); }
-    .cuenta { margin-top: 30px; background: #fff; border-radius: 22px; box-shadow: var(--sombra2); padding: 22px 28px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 14px; font-size: 16px; }
-    .cuenta .mas { color: var(--muted); }
-    .cuenta .res { font-weight: 700; font-size: 22px; color: var(--azul); }
-    .cuenta s { color: var(--muted); }
+    .cuenta { margin-top: 30px; width: min(100%, 600px); background: #fff; border-radius: 22px; box-shadow: var(--sombra2); padding: 8px 26px; text-align: left; }
+    .cuenta-fila { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--linea); font-size: 16px; }
+    .cuenta-fila:last-child { border-bottom: 0; }
+    .cuenta-fila > span { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .cuenta-fila .tag-bono { font-style: normal; }
+    .cuenta-fila b, .cuenta-fila s { font-weight: 600; white-space: nowrap; }
+    .cuenta-fila.suma { color: var(--muted); }
+    .cuenta-fila.final { font-size: 18px; font-weight: 600; padding-top: 16px; }
+    .cuenta-fila.final b { color: var(--azul); font-size: 28px; }
+    .cuenta-fila.final small { font-size: 15px; font-weight: 600; }
 
     /* Pie */
     footer { border-top: 1px solid var(--linea); padding: 26px 0; font-size: 13px; color: var(--muted); }
@@ -324,17 +318,17 @@
           </div>
           <div class="fila">
             <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v6h6M8 13h8M8 17h5"/></svg></span>
-            <div><div class="nombre">557 Configuraciones para NotebookLM y Gemini <span class="tag-bono">Bono</span></div><div class="desc">El especialista listo para cada cuaderno. La usas en la clase 2.</div></div>
+            <div><div class="nombre">557 Configuraciones para NotebookLM y Gemini <span class="tag-bono">Bono</span></div><div class="desc">El especialista listo para cada uno de tus cuadernos.</div></div>
             <div class="precio" data-b557></div>
           </div>
           <div class="fila">
             <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.3L20 9.3l-4.4 3.8 1.4 5.9L12 16l-5 3 1.4-5.9L4 9.3l5.8-1z"/></svg></span>
-            <div><div class="nombre">400 Skills para Gemini <span class="tag-bono">Bono</span></div><div class="desc">Tu biblioteca de skills, organizada y a un clic. Ahí guardas las que construyes en la clase 3.</div></div>
+            <div><div class="nombre">400 Skills para Gemini <span class="tag-bono">Bono</span></div><div class="desc">Tu biblioteca de skills, organizada y a un clic.</div></div>
             <div class="precio" data-b400></div>
           </div>
           <div class="fila">
             <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M7 9h6M7 12h10"/></svg></span>
-            <div><div class="nombre">200 Diseños para Presentaciones en NotebookLM <span class="tag-bono">Bono</span></div><div class="desc">Presentaciones con diseño en minutos. Con uno de ellos haces la propuesta para el cliente en la clase 2.</div></div>
+            <div><div class="nombre">200 Diseños para Presentaciones en NotebookLM <span class="tag-bono">Bono</span></div><div class="desc">Presentaciones con diseño en minutos.</div></div>
             <div class="precio" data-b200></div>
           </div>
         </div>
@@ -359,117 +353,13 @@
 
         <div class="oferta-pie">
           <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-          <p class="nota">Pago único en Hotmart, en tu moneda: tarjeta, PSE, Nequi, efectivo o el método de tu país. Garantía hasta terminar la clase 1.</p>
-          <p class="nota" id="notaCierre">La oferta de Black Friday termina el <i class="ph">día</i> a las <i class="ph">hora</i> hora de Bogotá, o cuando se llene la sala.</p>
+          <p class="nota">Pago único en Hotmart, en tu moneda: tarjeta, PSE, Nequi, efectivo o el método de tu país.</p>
+          <div class="garantia-dest"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span><b>Garantía:</b> si la primera clase no te gusta, pides el reembolso y te devolvemos el 100% de tu dinero.</span></div>
+          <p class="nota" id="notaCierre">La oferta de Black Friday termina el martes 3 de noviembre a las 6:00 pm, hora de Bogotá, una hora antes de empezar el bootcamp. O antes, si se llena la sala.</p>
           <p id="cuentaRegresiva"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#246bfd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Termina en <b id="cuentaTexto"></b></span></p>
           <div class="urgencia"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5"/></svg><span>Esta es la <b>única vez</b> que el bootcamp se dicta en vivo, con Sergio respondiendo tus preguntas. Después solo queda la versión pregrabada, por <b data-pregrabado></b> y sin las herramientas de regalo.</span></div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- 3. ¿Es para ti? -->
-  <section class="fondo-casi">
-    <div class="wrap">
-      <span class="etiqueta">Evalúa si es para ti</span>
-      <h2 class="titulo">Evalúa rápidamente si este bootcamp <b>es para ti</b></h2>
-      <div class="preguntas">
-        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z"/><path d="M9 10h.01M13 10h.01"/></svg></span>¿Le preguntas cosas a Gemini y sientes que te responde cualquier cosa?</div>
-        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h7l2 2h7v10H4z"/><path d="M8 13h8"/></svg></span>¿Tienes un reguero de chats y nunca encuentras lo que hiciste la semana pasada?</div>
-        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h.01"/></svg></span>¿Escuchas “cuadernos”, “skills”, “agentes” y no sabes ni por dónde empezar?</div>
-        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h10M10 6l6 6-6 6"/><path d="M20 5v14"/></svg></span>¿Sientes que la IA te dirige a ti, en vez de tú dirigirla a ella?</div>
-      </div>
-      <div class="giro">Si respondiste que sí a algo, el problema no es Gemini y tampoco eres tú. <b>Nadie te ha enseñado a dirigirlo.</b> En este bootcamp lo haces con un proyecto real, de principio a fin.</div>
-    </div>
-  </section>
-
-  <!-- 4. Dos preguntas -->
-  <section>
-    <div class="wrap">
-      <span class="etiqueta">El método</span>
-      <h2 class="titulo">Todo empieza con <b>dos preguntas</b></h2>
-      <div class="dos">
-        <div class="campo"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>¿Qué quiero conseguir?<span class="num">01</span></div>
-        <div class="campo"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h6l2 2h8v9H4z"/></svg></span>¿Qué tengo para empezar?<span class="num">02</span></div>
-      </div>
-      <p class="texto">La IA no te lee la mente. Entre más claro tengas qué quieres y qué tienes a la mano, más precisa es la respuesta. Esa es la pregunta que te va a acompañar las tres clases, y con la que vas a resolver cualquier proyecto que se te ocurra después.</p>
-    </div>
-  </section>
-
-  <!-- 5. El hilo -->
-  <section class="fondo-casi">
-    <div class="wrap">
-      <span class="etiqueta">El hilo del bootcamp</span>
-      <h2 class="titulo">Un asado, una agencia <b>y un agente</b></h2>
-      <p class="texto">No vas a ver funciones sueltas. Vas a seguir un solo caso que crece clase a clase, y en cada paso aprendes la herramienta justo cuando la necesitas.</p>
-      <div class="hilo">
-        <div class="hito"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 11h14v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 11V8M12 11V7M16 11V8M8 5v1M12 4v1M16 5v1"/></svg></span><h3>Clase 1 · <span>Organizas</span></h3><p>Un asado de cumpleaños para 16 personas, con presupuesto, lista de compras e invitación hechos con Gemini.</p></div>
-        <div class="hito"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg></span><h3>Clase 2 · <span>Conviertes</span></h3><p>Ese gusto en una agencia de eventos y atiendes a tu primer cliente con cuadernos.</p></div>
-        <div class="hito"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.6L18.5 9.5l-4.7 1.9L12 16l-1.8-4.6L5.5 9.5l4.7-1.9z"/><path d="M5 19h14"/></svg></span><h3>Clase 3 · <span>Delegas</span></h3><p>Conectas todo a un agente de IA que responde, produce contenido y te arma la página del negocio.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. Las tres clases -->
-  <section>
-    <div class="wrap">
-      <span class="etiqueta">Las tres clases</span>
-      <h2 class="titulo">Lo que ves y con lo que <b>sales</b> cada noche</h2>
-
-      <article class="clase">
-        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-1.jpg" alt="Cuaderno con lista de tareas e invitación de cumpleaños" width="820" height="509" loading="lazy" /></div>
-        <div>
-          <span class="etiqueta">Clase 1</span>
-          <h3>Gemini primeros pasos</h3>
-          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
-          <div class="sub">Lo que ves</div>
-          <ul class="ves">
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Los dos principios que separan a los que dicen “la IA no sirve” de los que obtienen resultados.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Gemini por dentro: memoria, aplicaciones conectadas e instrucciones personales. Tres ajustes que cambian todas tus respuestas.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Cuándo usar un chat y cuándo un cuaderno, y cómo configurar un cuaderno para que entienda tu proyecto.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Tu primera skill: un investigador que trae precios reales de hoy, no de 2021.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Pedir el formato de respuesta: el mismo presupuesto como Google Sheets que se recalcula solo, como calculadora o como paso a paso.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Crear imágenes con método: referencias, estilo y ficha de personaje para una invitación original, no una copia. Y cómo agregar o cambiar elementos con Gemini y Google Flow.</li>
-          </ul>
-          <div class="sales"><b>Sales con:</b> la investigación de precios, el presupuesto que se actualiza al cambiar los invitados, la lista de lo que hay que hacer el día previo y la invitación lista para enviar.</div>
-        </div>
-      </article>
-
-      <article class="clase">
-        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-2.jpg" alt="Carpeta con documentos, gráficos y notas de un proyecto" width="820" height="509" loading="lazy" /></div>
-        <div>
-          <span class="etiqueta">Clase 2</span>
-          <h3>Proyectos grandes con Gemini</h3>
-          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
-          <div class="sub">Lo que ves</div>
-          <ul class="ves">
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Seguimiento sin hojas de cálculo a mano: un formulario de Google que confirma invitados y un panel de control creado con Gemini dentro de Sheets, con compras, gastos y tareas.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>De pasatiempo a negocio: creas una agencia de eventos y aprendes el oficio con un cuaderno de estudio de Gemini, con lecciones y quices.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Tu forma de trabajar: Antigravity se conecta a tu cuaderno y te propone el pipeline de la agencia, etapa por etapa y con su entregable.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Un cliente simulado: una cena de aniversario sorpresa para 40 personas con USD 4.000 de presupuesto. Formulario para el cliente, brief, búsqueda de locaciones por objetivos y propuesta en presentación.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Configurar cuadernos con las 557 configuraciones y tu variante personal, para no volver a explicarle a la IA quién eres.</li>
-          </ul>
-          <div class="sales"><b>Sales con:</b> el pipeline de tu negocio en un archivo, el brief del cliente y la presentación de la propuesta, hechos en NotebookLM con tu dirección de diseño.</div>
-        </div>
-      </article>
-
-      <article class="clase">
-        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-3.jpg" alt="Computador con un agente de IA conectado a documentos, tareas y calendario" width="820" height="509" loading="lazy" /></div>
-        <div>
-          <span class="etiqueta">Clase 3</span>
-          <h3>Gemini para automatización y trabajo agéntico</h3>
-          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
-          <div class="sub">Lo que ves</div>
-          <ul class="ves">
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Un agente que conoce tu negocio: conectas todos tus cuadernos a Antigravity y le pides el brief completo en PDF, o que te diga qué pasa si el cliente quiere pasar de 40 a 50 invitados sin subir el presupuesto.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Pedirle que programe: el mismo brief convertido en una página web, sin escribir una línea de código.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Skills y plugins explicados con un ejemplo: un equipo de cinco skills que investiga, encuentra el ángulo, escribe, diseña y genera un carrusel de Instagram completo con una sola instrucción.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>El mismo proceso en Gemini Tasks, programado para que se repita solo.</li>
-            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>La página de tu negocio: dirección visual con tu agente, diseño en Stitch, construcción en Google AI Studio y publicación en internet con Netlify.</li>
-          </ul>
-          <div class="sales"><b>Sales con:</b> un agente conectado a tu información, el sistema de carruseles listo para adaptar a tu negocio y una página publicada.</div>
-        </div>
-      </article>
     </div>
   </section>
 
@@ -485,6 +375,79 @@
         <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 20l1.5-4A8 8 0 1 1 8 18.5z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg></span><div><b>Soporte por WhatsApp</b>Durante el bootcamp, para que no te quedes atascado.</div></div>
         <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 21V11M12 11c0-4 3-7 7-7 0 4-3 7-7 7zM12 14c0-3-2.5-5-5.5-5 0 3 2.5 5 5.5 5z"/></svg></span><div><b>Pensado para principiantes</b>Si nunca has abierto Gemini, empiezas desde cero. Si ya lo usas, vas a dejar de usarlo como un buscador.</div></div>
       </div>
+    </div>
+  </section>
+
+  <!-- 3. ¿Es para ti? -->
+  <section>
+    <div class="wrap">
+      <span class="etiqueta">Evalúa si es para ti</span>
+      <h2 class="titulo">Evalúa rápidamente si este bootcamp <b>es para ti</b></h2>
+      <div class="preguntas">
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z"/><path d="M9 10h.01M13 10h.01"/></svg></span>¿Le preguntas cosas a Gemini y sientes que te responde cualquier cosa?</div>
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h7l2 2h7v10H4z"/><path d="M8 13h8"/></svg></span>¿Tienes un reguero de chats y nunca encuentras lo que hiciste la semana pasada?</div>
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h.01"/></svg></span>¿Escuchas “cuadernos”, “skills”, “agentes” y no sabes ni por dónde empezar?</div>
+        <div class="pregunta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h10M10 6l6 6-6 6"/><path d="M20 5v14"/></svg></span>¿Sientes que la IA te dirige a ti, en vez de tú dirigirla a ella?</div>
+      </div>
+      <div class="giro">Si respondiste que sí a algo, el problema no es Gemini y tampoco eres tú. <b>Nadie te ha enseñado a dirigirlo.</b> En este bootcamp lo aprendes con un proyecto práctico, de principio a fin, que luego puedes replicar en tus propios proyectos.</div>
+    </div>
+  </section>
+
+  <!-- 6. Las tres clases -->
+  <section class="fondo-casi">
+    <div class="wrap">
+      <span class="etiqueta">Las tres clases</span>
+      <h2 class="titulo">Lo que aprendes y con lo que <b>sales</b> cada noche</h2>
+
+      <article class="clase">
+        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-1.jpg" alt="Cuaderno con lista de tareas e invitación de cumpleaños" width="820" height="509" loading="lazy" /></div>
+        <div>
+          <span class="etiqueta">Clase 1</span>
+          <h3>Gemini primeros pasos</h3>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
+          <div class="sub">Lo que aprendes</div>
+          <ul class="ves">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Los dos principios que separan a quienes dicen “la IA no sirve” de quienes obtienen resultados.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Configuras Gemini para que te entienda a ti, y aprendes cuándo usar un chat y cuándo un cuaderno.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Creas tus primeras skills: asistentes especializados que llamas en cualquier chat.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Pides exactamente el formato que quieres recibir y creas imágenes con método, no al azar.</li>
+          </ul>
+          <div class="sales"><b>Sales con:</b> Gemini configurado a tu medida, tus primeras skills y tu primer proyecto completo organizado en un cuaderno.</div>
+        </div>
+      </article>
+
+      <article class="clase">
+        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-2.jpg" alt="Carpeta con documentos, gráficos y notas de un proyecto" width="820" height="509" loading="lazy" /></div>
+        <div>
+          <span class="etiqueta">Clase 2</span>
+          <h3>Proyectos grandes con Gemini</h3>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
+          <div class="sub">Lo que aprendes</div>
+          <ul class="ves">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Seguimiento sin trabajo manual: formularios y paneles de control que Gemini te arma dentro de Google.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Aprendes cualquier oficio con un cuaderno de estudio, con lecciones y quices a tu ritmo.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Conviertes lo aprendido en una forma de trabajar: etapas, entregables y cuadernos configurados con las 557 configuraciones.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Investigas por objetivos en NotebookLM y conviertes tus fuentes en documentos y presentaciones listas para entregar.</li>
+          </ul>
+          <div class="sales"><b>Sales con:</b> tu propia forma de trabajar documentada y la capacidad de llevar un proyecto desde el primer dato hasta la propuesta final.</div>
+        </div>
+      </article>
+
+      <article class="clase">
+        <div class="visual"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-3.jpg" alt="Computador con un agente de IA conectado a documentos, tareas y calendario" width="820" height="509" loading="lazy" /></div>
+        <div>
+          <span class="etiqueta">Clase 3</span>
+          <h3>Gemini para automatización y trabajo agéntico</h3>
+          <span class="cuando"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><i class="ph">fecha</i> · 7:00 pm Bogotá</span>
+          <div class="sub">Lo que aprendes</div>
+          <ul class="ves">
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Un agente que conoce tu negocio: conectas tus cuadernos a Antigravity y le pides análisis, documentos y hasta que programe por ti.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Skills y plugins: armas un proceso completo que corre con una sola instrucción y lo programas para que se repita solo con Gemini Tasks.</li>
+            <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Publicas en internet lo que construyes, sin escribir una línea de código.</li>
+          </ul>
+          <div class="sales"><b>Sales con:</b> un agente conectado a tu información, un sistema que trabaja por ti y las 400 skills para guardar y organizar todo lo que construyas.</div>
+        </div>
+      </article>
     </div>
   </section>
 
@@ -535,16 +498,16 @@
     <div class="wrap">
       <span class="etiqueta">Tú decides</span>
       <h2 class="titulo">Puedes seguir preguntándole cosas a Gemini y recibiendo respuestas que sirven a medias.</h2>
-      <p class="texto">O puedes aprender a dirigirlo en tres noches, con un caso real, y salir con un proyecto hecho, una forma de trabajar y un agente trabajando por ti.</p>
+      <p class="texto">O puedes aprender a dirigirlo en tres noches, con un proyecto práctico, y salir con un proyecto hecho, una forma de trabajar y un agente trabajando por ti.</p>
       <p class="remate">La diferencia no es la herramienta. <b>Es quién dirige a quién.</b></p>
       <div class="cuenta">
-        <span>Bootcamp <b data-bootcamp></b></span><span class="mas">+</span>
-        <span>557 (<span data-b557></span>)</span><span class="mas">+</span>
-        <span>400 (<span data-b400></span>)</span><span class="mas">+</span>
-        <span>200 (<span data-b200></span>)</span><span class="mas">+</span>
-        <span>recursos de clase</span><span class="mas">=</span>
-        <span><s data-total></s></span>
-        <span class="mas">Black Friday:</span><span class="res"><span data-hoy></span> (<span data-pctsello></span>)</span>
+        <div class="cuenta-fila"><span>Bootcamp Gemini de 0 a 100</span><b data-bootcamp></b></div>
+        <div class="cuenta-fila"><span>557 Configuraciones para NotebookLM y Gemini <em class="tag-bono">Bono</em></span><b data-b557></b></div>
+        <div class="cuenta-fila"><span>400 Skills para Gemini <em class="tag-bono">Bono</em></span><b data-b400></b></div>
+        <div class="cuenta-fila"><span>200 Diseños para Presentaciones en NotebookLM <em class="tag-bono">Bono</em></span><b data-b200></b></div>
+        <div class="cuenta-fila"><span>Recursos del bootcamp y grabaciones</span><b>Incluidos</b></div>
+        <div class="cuenta-fila suma"><span>Valor total</span><s data-total></s></div>
+        <div class="cuenta-fila final"><span>Black Friday</span><b><span data-hoy></span> <small>(<span data-pctsello></span>)</small></b></div>
       </div>
       <div class="hero-cta" style="align-items:center; margin-top: 24px;">
         <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -570,7 +533,7 @@
     // Fechas de las clases (ISO). El día de la semana se calcula solo.
     // cierre: fecha ISO del fin de la oferta (activa la cuenta regresiva); cierreTexto: como se lee.
     // Ejemplo: cierre: '2026-11-01T23:59:00-05:00', cierreTexto: 'domingo 1 de noviembre a las 11:59 pm'
-    const FECHAS = { clases: ['2026-11-04', '2026-11-05', '2026-11-06'], cierre: null, cierreTexto: null };
+    const FECHAS = { clases: ['2026-11-03', '2026-11-04', '2026-11-05'], cierre: '2026-11-03T18:00:00-05:00', cierreTexto: null };
     const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
     const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
