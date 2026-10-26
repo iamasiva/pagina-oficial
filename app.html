@@ -1540,10 +1540,23 @@
     const LANDING_PRODUCTO = {
       '6c01d354-e05d-47be-a6d6-3075abcc16d3': 'bootcamp.html',
     };
+    // Lo mismo resuelto por guía: sirve mientras el producto siga INACTIVO (no
+    // viene en allProducts) y el equipo ya ve su tarjeta en el catálogo
+    const LANDING_GUIA = {
+      '94122704-34a4-4e9b-be9c-0d7946b9a1f9': { landing: 'bootcamp.html', pagina: 'recurso-bootcamp.html' },
+    };
 
     async function comprarGuia(guideId) {
       const product = allProducts.find(p => p.guide_id === guideId && p.activo);
-      if (!product) { alert('Esta es una guía de pago. Pronto podrás adquirirla.'); return; }
+      if (!product) {
+        const propio = LANDING_GUIA[guideId];
+        if (propio) {
+          const admin = (typeof isAdmin !== 'undefined' && isAdmin) || localStorage.getItem('im_es_admin') === '1';
+          window.location.href = admin && propio.pagina ? propio.pagina : propio.landing;
+          return;
+        }
+        alert('Esta es una guía de pago. Pronto podrás adquirirla.'); return;
+      }
       // Si ya es suyo, directo al recurso: jamás de vuelta a la página de venta
       const { data: compra } = await sb.from('purchases').select('id')
         .eq('product_id', product.id).eq('estado', 'APROBADA').maybeSingle();
