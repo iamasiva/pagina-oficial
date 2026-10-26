@@ -147,6 +147,7 @@
             <input id="modAnuncio" type="text" placeholder="Anuncio fijo (vacío para quitarlo)" maxlength="300" />
             <button class="btn chico" id="modAnuncioBtn">Fijar</button>
             <button class="btn sec chico" id="modLimpiar">Limpiar chat</button>
+            <button class="btn sec chico" id="modReiniciar">Reiniciar sala</button>
           </div>
           <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" maxlength="280" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
         </aside>
@@ -322,7 +323,7 @@
         ws.onopen = () => { chat.abierto = true; chat.intentos = 0; $('chatConexion').textContent = `Conectado como ${chat.alias}`; $('chatMod').hidden = chat.rol !== 'admin'; clearInterval(chat.ping); chat.ping = setInterval(() => mandar({ t: 'ping' }), 25000); pintarChat(); };
         ws.onmessage = (ev) => {
           let m; try { m = JSON.parse(ev.data); } catch (_) { return; }
-          if (m.t === 'hola') { chat.modo = m.modo; chat.mensajes = m.mensajes || []; chat.preguntas = m.preguntas || []; $('chatAnuncio').textContent = m.anuncio || ''; $('modAnuncio').value = m.anuncio || ''; $('chatConexion').textContent = `Conectado como ${m.alias} · ${m.conectados} en sala`; pintarChat(); }
+          if (m.t === 'hola') { chat.modo = m.modo; chat.mensajes = m.mensajes || []; chat.preguntas = m.preguntas || []; $('chatAnuncio').textContent = m.anuncio || ''; $('modAnuncio').value = m.anuncio || ''; $('chatConexion').textContent = `Conectado como ${m.alias || chat.alias} · ${m.conectados} en sala`; pintarChat(); }
           else if (m.t === 'msg') { chat.mensajes.push(m.m); if (chat.mensajes.length > 200) chat.mensajes.shift(); if (chat.tab === 'chat') pintarChat(); }
           else if (m.t === 'pregunta') { const i = chat.preguntas.findIndex(p => p.id === m.p.id); if (i >= 0) chat.preguntas[i] = m.p; else chat.preguntas.push(m.p); if (chat.tab === 'preguntas') pintarChat(); }
           else if (m.t === 'borrar') { chat.mensajes = chat.mensajes.filter(x => x.id !== m.id); chat.preguntas = chat.preguntas.filter(x => x.id !== m.id); pintarChat(); }
@@ -379,6 +380,7 @@
       $('modChat').addEventListener('change', (e) => mandar({ t: 'modo', modo: e.target.value }));
       $('modAnuncioBtn').addEventListener('click', () => mandar({ t: 'anuncio', texto: $('modAnuncio').value.trim() }));
       $('modLimpiar').addEventListener('click', () => { if (confirm('¿Borrar todos los mensajes del chat (las preguntas se conservan)?')) mandar({ t: 'limpiar' }); });
+      $('modReiniciar').addEventListener('click', () => { if (confirm('¿Reiniciar la sala completa? Borra mensajes, preguntas, anuncio y silencios, y vuelve al modo normal.')) mandar({ t: 'reiniciar' }); });
       $('btnReconectar').addEventListener('click', montarReproductor);
       $('btnPantalla').addEventListener('click', () => { const f = document.querySelector('#player iframe'); if (f?.requestFullscreen) f.requestFullscreen(); });
       document.title = `Clase ${clase.numero}: ${clase.titulo} · IA MASIVA`;

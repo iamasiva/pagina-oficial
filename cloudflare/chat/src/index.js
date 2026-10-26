@@ -122,6 +122,13 @@ export class SalaChat {
         return;
       }
       if (m.t === 'limpiar') { e.mensajes = []; await this.guardar('mensajes'); this.difundir({ t: 'limpiar' }); return; }
+      // Reinicio total de la sala (antes de una clase real, después de las pruebas)
+      if (m.t === 'reiniciar') {
+        e.mensajes = []; e.preguntas = []; e.anuncio = ''; e.silenciados = {}; e.modo = 'normal';
+        await Promise.all(['mensajes', 'preguntas', 'anuncio', 'silenciados', 'modo'].map(c => this.guardar(c)));
+        this.difundir({ t: 'hola', modo: e.modo, anuncio: '', mensajes: [], preguntas: [], rol: null, alias: null, conectados: this.state.getWebSockets().length });
+        return;
+      }
     }
 
     if (m.t !== 'msg' && m.t !== 'pregunta') return;
