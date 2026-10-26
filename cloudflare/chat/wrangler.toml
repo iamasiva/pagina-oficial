@@ -1,0 +1,15 @@
+# Chat del bootcamp: un Worker que valida tickets firmados y una sala
+# (Durable Object) por clase con WebSockets en modo hibernación.
+# Despliegue: cd cloudflare/chat && npx wrangler deploy
+# Secreto compartido con Vercel: npx wrangler secret put CHAT_TICKET_SECRET
+name = "bootcamp-chat"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[durable_objects]
+bindings = [{ name = "SALAS", class_name = "SalaChat" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SalaChat"]

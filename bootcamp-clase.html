@@ -53,7 +53,25 @@
     .tabs { display: flex; border-bottom: 1px solid var(--line); }
     .tabs button { flex: 1; background: transparent; border: 0; color: var(--muted); padding: 12px; font: inherit; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; }
     .tabs button.activa { color: var(--white); border-bottom-color: var(--blue-elec); }
-    .chat-cuerpo { flex: 1; padding: 16px; color: var(--muted); font-size: 0.92rem; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .chat-cuerpo { flex: 1; padding: 10px 12px; color: var(--gray); font-size: 0.9rem; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+    .chat-cuerpo.vacio { align-items: center; justify-content: center; text-align: center; color: var(--muted); }
+    .chat-anuncio { background: rgba(47,107,255,0.16); border-bottom: 1px solid rgba(47,107,255,0.35); padding: 8px 12px; font-size: 0.85rem; }
+    .chat-anuncio:empty { display: none; }
+    .chat-estado { font-size: 0.72rem; color: var(--muted); padding: 4px 12px 0; display: flex; justify-content: space-between; gap: 8px; }
+    .cm { display: flex; gap: 8px; align-items: flex-start; line-height: 1.35; }
+    .cm b { color: var(--cyan); font-weight: 600; white-space: nowrap; max-width: 38%; overflow: hidden; text-overflow: ellipsis; }
+    .cm.admin b { color: #ffd166; }
+    .cm span { word-break: break-word; }
+    .cm .acc { margin-left: auto; display: none; gap: 4px; }
+    .cm:hover .acc, .cm.pregunta .acc { display: inline-flex; }
+    .cm .acc button { background: transparent; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 0 6px; font-size: 0.72rem; cursor: pointer; line-height: 1.4; }
+    .cm.pregunta { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 6px 8px; }
+    .cm.destacada { background: rgba(255,209,102,0.12); border: 1px solid rgba(255,209,102,0.4); }
+    .cm.respondida { opacity: 0.5; }
+    .chat-mod { border-top: 1px solid var(--line); padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.78rem; color: var(--muted); }
+    .chat-mod select, .chat-mod input { background: #090c22; border: 1px solid var(--line); border-radius: 8px; color: var(--white); padding: 5px 8px; font: inherit; font-size: 0.8rem; }
+    .chat-mod input { flex: 1; min-width: 120px; }
+    .chat-aviso { font-size: 0.78rem; color: #ffb3c0; padding: 0 12px 6px; min-height: 1em; }
     .chat-pie { border-top: 1px solid var(--line); padding: 10px; display: flex; gap: 8px; }
     .chat-pie input { flex: 1; background: #090c22; border: 1px solid var(--line); border-radius: 10px; color: var(--white); padding: 10px 12px; font: inherit; }
     .chat-pie input:disabled { opacity: .5; }
@@ -119,8 +137,18 @@
             <button class="activa" data-tab="chat">Chat</button>
             <button data-tab="preguntas">Preguntas para Sergio</button>
           </div>
-          <div class="chat-cuerpo" id="chatCuerpo">El chat se abre con la clase.</div>
-          <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
+          <div class="chat-anuncio" id="chatAnuncio"></div>
+          <div class="chat-estado"><span id="chatConexion">Desconectado</span><span id="chatModoTxt"></span></div>
+          <div class="chat-cuerpo vacio" id="chatCuerpo">El chat se abre con la clase.</div>
+          <div class="chat-aviso" id="chatAviso"></div>
+          <div class="chat-mod" id="chatMod" hidden>
+            <span>Modo</span>
+            <select id="modChat"><option value="normal">normal</option><option value="slow_mode">slow_mode (30 s)</option><option value="questions_only">solo preguntas</option><option value="read_only">solo lectura</option><option value="off">cerrado</option></select>
+            <input id="modAnuncio" type="text" placeholder="Anuncio fijo (vacío para quitarlo)" maxlength="300" />
+            <button class="btn chico" id="modAnuncioBtn">Fijar</button>
+            <button class="btn sec chico" id="modLimpiar">Limpiar chat</button>
+          </div>
+          <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" maxlength="280" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
         </aside>
       </div>
 
@@ -206,6 +234,7 @@
       clearInterval(reloj); clearTimeout(esperaSenal);
       const chatCuerpo = $('chatCuerpo');
       $('chatInput').disabled = true; $('chatEnviar').disabled = true;
+      if (!['lobby', 'live'].includes(estado)) cerrarChat();
 
       if (estado === 'scheduled' || estado === 'rescheduled') {
         const tic = () => { mensajePlayer(estado === 'rescheduled' ? 'Nueva fecha confirmada' : 'La clase empieza en', '', `<div class="cuenta" id="cuenta">${textoCuenta(inicio - Date.now())}</div><span>${esc(cap(fmtFecha.format(inicio)))} a las ${esc(hora(inicio))}, hora de Bogotá</span>`); };
@@ -214,11 +243,11 @@
         if (clase.aviso) { aviso.textContent = clase.aviso; aviso.hidden = false; }
       } else if (estado === 'lobby') {
         mensajePlayer('La sala está abierta', `La señal aparece aquí a las ${hora(inicio)}. Puedes dejar el video listo y revisar las instrucciones de abajo.`);
-        chatCuerpo.textContent = 'Ya puedes saludar. Las preguntas se responden durante la clase.';
         montarReproductor();
+        conectarChat();
       } else if (estado === 'live') {
         montarReproductor();
-        chatCuerpo.textContent = 'Chat en preparación (se activa en la fase 4).';
+        conectarChat();
       } else if (estado === 'ended_pending_upload') {
         mensajePlayer('Clase terminada', 'Estamos preparando la grabación. En cuanto esté en tu área de Hotmart, esta tarjeta cambia a "Ver repetición".');
         chatCuerpo.textContent = 'El chat de esta clase cerró.';
@@ -232,6 +261,89 @@
         chatCuerpo.textContent = 'Sin chat.';
       }
       if (config?.anuncio && estado !== 'cancelled') { aviso.textContent = config.anuncio; aviso.hidden = false; }
+    }
+
+    // ── Chat en vivo (Worker + Durable Object). Nunca toca el video. ──
+    const chat = { ws: null, rol: 'alumno', alias: '', modo: 'normal', mensajes: [], preguntas: [], tab: 'chat', intentos: 0, timer: null, ping: null, abierto: false };
+    function cerrarChat() {
+      chat.abierto = false; clearTimeout(chat.timer); clearInterval(chat.ping);
+      if (chat.ws) { try { chat.ws.close(); } catch (_) {} chat.ws = null; }
+      $('chatConexion').textContent = 'Desconectado';
+      const c = $('chatCuerpo'); c.className = 'chat-cuerpo vacio'; c.textContent = estadoActual() === 'ended_pending_upload' || estadoActual() === 'evergreen_ready' ? 'El chat de esta clase cerró.' : 'El chat se abre con la clase.';
+    }
+    function mandar(obj) { if (chat.ws && chat.ws.readyState === 1) chat.ws.send(JSON.stringify(obj)); }
+    function avisoChat(t) { $('chatAviso').textContent = t; clearTimeout(avisoChat.t); avisoChat.t = setTimeout(() => { $('chatAviso').textContent = ''; }, 4000); }
+    function modoTexto(m) { return { normal: '', slow_mode: 'Modo lento: un mensaje cada 30 s', questions_only: 'Solo preguntas para Sergio', read_only: 'Solo lectura', off: 'Chat cerrado' }[m] || ''; }
+    function aplicarModo() {
+      $('chatModoTxt').textContent = modoTexto(chat.modo);
+      $('modChat').value = chat.modo;
+      const esAdmin = chat.rol === 'admin';
+      const bloqueado = !esAdmin && (chat.modo === 'read_only' || chat.modo === 'off');
+      $('chatInput').disabled = bloqueado || !chat.abierto; $('chatEnviar').disabled = bloqueado || !chat.abierto;
+      if (!esAdmin && chat.modo === 'questions_only' && chat.tab !== 'preguntas') { chat.tab = 'preguntas'; document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('activa', x.dataset.tab === 'preguntas')); }
+      $('chatInput').placeholder = bloqueado ? modoTexto(chat.modo) : (chat.tab === 'preguntas' ? 'Escribe tu pregunta para Sergio' : 'Escribe un mensaje');
+    }
+    function pintarChat() {
+      const c = $('chatCuerpo'); const esAdmin = chat.rol === 'admin';
+      const lista = chat.tab === 'preguntas' ? chat.preguntas : chat.mensajes;
+      aplicarModo();
+      if (!chat.abierto) return;
+      if (!lista.length) { c.className = 'chat-cuerpo vacio'; c.textContent = chat.tab === 'preguntas' ? 'Aquí dejas tus preguntas; Sergio las responde por bloques durante la clase.' : 'Saluda, ya estás en la sala.'; return; }
+      c.className = 'chat-cuerpo';
+      const abajo = c.scrollHeight - c.scrollTop - c.clientHeight < 60;
+      c.innerHTML = lista.map(m => {
+        const acc = esAdmin ? `<span class="acc">${chat.tab === 'preguntas' ? `<button data-acc="destacar" data-id="${m.id}" title="Destacar">★</button><button data-acc="respondida" data-id="${m.id}" title="Respondida">✓</button>` : ''}<button data-acc="silenciar" data-u="${esc(m.u)}" title="Silenciar 10 min">🔇</button><button data-acc="borrar" data-id="${m.id}" title="Borrar">×</button></span>` : '';
+        return `<div class="cm${m.r === 'admin' ? ' admin' : ''}${chat.tab === 'preguntas' ? ' pregunta' : ''}${m.destacada ? ' destacada' : ''}${m.respondida ? ' respondida' : ''}"><b>${esc(m.a)}</b><span>${esc(m.texto)}</span>${acc}</div>`;
+      }).join('');
+      c.querySelectorAll('[data-acc]').forEach(b => b.addEventListener('click', () => {
+        const acc = b.dataset.acc;
+        if (acc === 'silenciar') mandar({ t: 'silenciar', u: b.dataset.u, min: 10 });
+        else mandar({ t: acc, id: b.dataset.id });
+      }));
+      if (abajo) c.scrollTop = c.scrollHeight;
+    }
+    function enviarChat() {
+      const texto = $('chatInput').value.trim();
+      if (!texto || !chat.abierto) return;
+      mandar({ t: chat.tab === 'preguntas' ? 'pregunta' : 'msg', texto });
+      $('chatInput').value = '';
+    }
+    async function conectarChat() {
+      if (chat.abierto || chat.ws) return;
+      clearTimeout(chat.timer);
+      $('chatConexion').textContent = 'Conectando...';
+      try {
+        const r = await fetch(`/api/bootcamp-chat-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+        const b = await r.json().catch(() => ({}));
+        if (!r.ok || !b.ws) throw new Error(b.error || 'Chat no disponible');
+        chat.rol = b.rol; chat.alias = b.alias;
+        const ws = new WebSocket(b.ws);
+        chat.ws = ws;
+        ws.onopen = () => { chat.abierto = true; chat.intentos = 0; $('chatConexion').textContent = `Conectado como ${chat.alias}`; $('chatMod').hidden = chat.rol !== 'admin'; clearInterval(chat.ping); chat.ping = setInterval(() => mandar({ t: 'ping' }), 25000); pintarChat(); };
+        ws.onmessage = (ev) => {
+          let m; try { m = JSON.parse(ev.data); } catch (_) { return; }
+          if (m.t === 'hola') { chat.modo = m.modo; chat.mensajes = m.mensajes || []; chat.preguntas = m.preguntas || []; $('chatAnuncio').textContent = m.anuncio || ''; $('modAnuncio').value = m.anuncio || ''; $('chatConexion').textContent = `Conectado como ${m.alias} · ${m.conectados} en sala`; pintarChat(); }
+          else if (m.t === 'msg') { chat.mensajes.push(m.m); if (chat.mensajes.length > 200) chat.mensajes.shift(); if (chat.tab === 'chat') pintarChat(); }
+          else if (m.t === 'pregunta') { const i = chat.preguntas.findIndex(p => p.id === m.p.id); if (i >= 0) chat.preguntas[i] = m.p; else chat.preguntas.push(m.p); if (chat.tab === 'preguntas') pintarChat(); }
+          else if (m.t === 'borrar') { chat.mensajes = chat.mensajes.filter(x => x.id !== m.id); chat.preguntas = chat.preguntas.filter(x => x.id !== m.id); pintarChat(); }
+          else if (m.t === 'limpiar') { chat.mensajes = []; pintarChat(); }
+          else if (m.t === 'modo') { chat.modo = m.modo; aplicarModo(); avisoChat(modoTexto(m.modo) || 'Chat en modo normal'); }
+          else if (m.t === 'anuncio') { $('chatAnuncio').textContent = m.texto || ''; $('modAnuncio').value = m.texto || ''; }
+          else if (m.t === 'error') { avisoChat(m.texto); }
+        };
+        ws.onclose = () => { const estaba = chat.abierto; chat.abierto = false; chat.ws = null; clearInterval(chat.ping); $('chatConexion').textContent = 'Desconectado'; aplicarModo(); if (['lobby', 'live'].includes(estadoActual())) reintentarChat(estaba ? 'Se perdió la conexión del chat. Reconectando...' : ''); };
+        ws.onerror = () => {};
+      } catch (e) {
+        chat.ws = null; $('chatConexion').textContent = 'Chat no disponible';
+        const c = $('chatCuerpo'); c.className = 'chat-cuerpo vacio'; c.textContent = e.message + ' El video sigue normal.';
+        if (['lobby', 'live'].includes(estadoActual())) reintentarChat('');
+      }
+    }
+    function reintentarChat(aviso) {
+      if (aviso) avisoChat(aviso);
+      chat.intentos = Math.min(chat.intentos + 1, 6);
+      clearTimeout(chat.timer);
+      chat.timer = setTimeout(conectarChat, Math.min(5000 * 2 ** (chat.intentos - 1), 60000));
     }
 
     async function recargarClase() {
@@ -260,8 +372,13 @@
       }
       document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
         document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('activa', x === b));
-        $('chatCuerpo').textContent = b.dataset.tab === 'preguntas' ? 'Aquí dejas tus preguntas; Sergio las responde por bloques durante la clase.' : $('chatCuerpo').textContent;
+        chat.tab = b.dataset.tab; pintarChat();
       }));
+      $('chatEnviar').addEventListener('click', enviarChat);
+      $('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); enviarChat(); } });
+      $('modChat').addEventListener('change', (e) => mandar({ t: 'modo', modo: e.target.value }));
+      $('modAnuncioBtn').addEventListener('click', () => mandar({ t: 'anuncio', texto: $('modAnuncio').value.trim() }));
+      $('modLimpiar').addEventListener('click', () => { if (confirm('¿Borrar todos los mensajes del chat (las preguntas se conservan)?')) mandar({ t: 'limpiar' }); });
       $('btnReconectar').addEventListener('click', montarReproductor);
       $('btnPantalla').addEventListener('click', () => { const f = document.querySelector('#player iframe'); if (f?.requestFullscreen) f.requestFullscreen(); });
       document.title = `Clase ${clase.numero}: ${clase.titulo} · IA MASIVA`;
