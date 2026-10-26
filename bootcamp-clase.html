@@ -165,15 +165,28 @@
 
     // El reproductor pide un ticket firmado al servidor (fase 2). Sin ticket no hay video:
     // el UID del directo nunca viaja al navegador.
+    let esperaSenal = null;
+    async function haySenal(manifest) {
+      // 200 = ya hay transmisión; 204 = el live input existe pero nadie emite aún
+      try { const r = await fetch(manifest, { cache: 'no-store' }); return r.status === 200; } catch (_) { return null; }
+    }
     async function montarReproductor() {
+      clearTimeout(esperaSenal);
       $('btnReconectar').hidden = true;
       mensajePlayer('Conectando con la señal...', 'Un momento.');
       try {
         const r = await fetch(`/api/bootcamp-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
         const cuerpo = await r.json().catch(() => ({}));
         if (!r.ok || !cuerpo.iframe) throw new Error(cuerpo.error || 'El reproductor no está disponible todavía.');
-        $('player').innerHTML = `<iframe src="${esc(cuerpo.iframe)}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-        $('btnPantalla').hidden = false;
+        const senal = cuerpo.manifest ? await haySenal(cuerpo.manifest) : true;
+        if (senal === false) {
+          // Sin transmisión todavía: se vuelve a mirar cada 15 s hasta que empiece
+          mensajePlayer('Esperando la señal', 'La clase aparece aquí sola en cuanto empiece la transmisión. No hace falta recargar.');
+          esperaSenal = setTimeout(montarReproductor, 15000);
+        } else {
+          $('player').innerHTML = `<iframe src="${esc(cuerpo.iframe)}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+          $('btnPantalla').hidden = false;
+        }
       } catch (e) {
         mensajePlayer('Sin señal por ahora', e.message);
       }
@@ -190,7 +203,7 @@
       $('chipLive').hidden = estado !== 'live';
       $('btnPantalla').hidden = true; $('btnReconectar').hidden = true;
       const aviso = $('aviso'); aviso.hidden = true; aviso.className = 'aviso';
-      clearInterval(reloj);
+      clearInterval(reloj); clearTimeout(esperaSenal);
       const chatCuerpo = $('chatCuerpo');
       $('chatInput').disabled = true; $('chatEnviar').disabled = true;
 

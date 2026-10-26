@@ -64,6 +64,8 @@ export default async function handler(req, res) {
     const token = firmarToken(uid);
     return res.status(200).json({
       iframe: `https://${customer}.cloudflarestream.com/${token}/iframe`,
+      // Con el manifiesto el navegador sabe si ya hay señal (200) o todavía no (204)
+      manifest: `https://${customer}.cloudflarestream.com/${token}/manifest/video.m3u8`,
       expira_en: VIGENCIA_SEG,
     });
   } catch (err) {
