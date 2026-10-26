@@ -66,4 +66,4 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/
 - iPhone: la primera vez el botón grande de reproducir no arrancó (sesión del 26 oct, antes del arreglo); ahora, si el toque falla, pasa solo al iframe de Cloudflare. En la segunda prueba el botón funcionó y el retraso fue de 6 s.
 - Chat: mensajes en sala desde escritorio y celular, "2 en sala".
 - Lección de StreamYard: crear SIEMPRE la transmisión con "Estudio reutilizable"; sin él, al dar "Finalizar" no se puede volver a emitir y toca crear otra transmisión (nuevo enlace). Con el estudio reutilizable, un corte se resuelve dando Transmitir en vivo otra vez.
-- Pendiente: descargar y revisar la grabación en Biblioteca; consumo de minutos en Stream analytics; volver la clase 1 a `scheduled` y el chat a `off` tras el ensayo.
+- Cierre del ensayo: las dos grabaciones se descargaron completas desde Biblioteca. Cloudflare: 1 video guardado, 7 de 1.000 minutos de almacenamiento (la copia automática del directo; se puede borrar en Stream → Videos). Clase 1 devuelta a `scheduled`, chat en `off` y sala reiniciada.
