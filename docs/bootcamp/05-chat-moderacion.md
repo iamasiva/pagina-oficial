@@ -30,6 +30,17 @@
 
 Una sala por clase en un solo Durable Object. Con hibernación, una sala aguanta miles de conexiones; el límite real es el reparto de mensajes: en `normal` con cientos de personas escribiendo, el volumen crece rápido. Por eso el runbook sube a `slow_mode` o `questions_only` cuando el chat se satura (fase 7: medir con 100, 1.000 y, si aplica, 10.000 conexiones antes de prometer nada; el plan gratuito de Workers sirve para ensayar, para el evento conviene Workers Paid, $5 al mes).
 
-## GATE 4 (pendiente de prueba)
+## GATE 4: cumplido el 26 oct 2026
 
-Dos usuarios reales (admin y comprador de prueba) en escritorio y celular: enviar, recibir, pregunta destacada, silencio, cambio de modo sin recargar, corte del WebSocket con el video intacto, reconexión.
+Worker desplegado en `https://bootcamp-chat.estraticaoperativo-1a0.workers.dev` (subdominio ya existente de la cuenta; es interno, los alumnos no lo ven). Secreto compartido puesto en el Worker y en Vercel; `CHAT_WS_URL` en Vercel.
+
+Prueba con dos usuarios reales contra producción: Sergio como admin desde Chrome y una compradora desechable (compra aprobada, borrada al terminar) desde un cliente WebSocket en Node:
+- Los dos se vieron entre sí ("2 en sala"); mensajes de ida y vuelta al instante.
+- Segundo mensaje inmediato de la alumna: rechazado ("Espera 2 s"). Mensaje con enlace: rechazado.
+- Pregunta de la alumna llegó a la pestaña de preguntas; el admin la destacó y la alumna recibió la actualización.
+- Anuncio fijado por el admin llegó a la alumna; cambio a `slow_mode` y vuelta a `normal` se reflejaron sin recargar.
+- Intento de la alumna de cambiar el modo (`modo: off`): ignorado por la sala.
+- Ids de usuario: la sala reparte un hash corto, no el id real; los correos nunca viajan.
+- Pendiente para el ensayo largo (fase 6): corte del WebSocket con el video emitiendo y reconexión automática, y chat en celular con teclado abierto.
+
+Después de las pruebas, la sala de la clase 1 se reinició con el botón "Reiniciar sala" (mensajes, preguntas, anuncio y modo a cero).

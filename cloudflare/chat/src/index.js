@@ -17,6 +17,13 @@ const ESPERA_MS = { normal: 2000, slow_mode: 30000, questions_only: 10000 };
 const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 const deB64url = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
 
+// Identificador público de cada persona dentro de la sala: un hash corto del
+// id de usuario. Sirve para moderar (silenciar) sin repartir ids reales.
+async function idPublico(userId, secreto) {
+  const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secreto + ':' + userId));
+  return b64url(h).slice(0, 12);
+}
+
 async function verificarTicket(ticket, secreto) {
   if (!ticket || !secreto) return null;
   const partes = ticket.split('.');
@@ -77,8 +84,9 @@ export class SalaChat {
     if (e.modo === 'off' && claims.r !== 'admin') return new Response('El chat está cerrado', { status: 403 });
     const par = new WebSocketPair();
     const [cliente, servidor] = [par[0], par[1]];
-    servidor.serializeAttachment({ u: claims.u, a: claims.a || 'Alumno', r: claims.r || 'alumno', ultimo: 0 });
-    this.state.acceptWebSocket(servidor, [claims.u]);
+    const u = await idPublico(claims.u, this.env.CHAT_TICKET_SECRET);
+    servidor.serializeAttachment({ u, a: claims.a || 'Alumno', r: claims.r || 'alumno', ultimo: 0 });
+    this.state.acceptWebSocket(servidor, [u]);
     servidor.send(JSON.stringify({ t: 'hola', modo: e.modo, anuncio: e.anuncio, mensajes: e.mensajes.slice(-60), preguntas: e.preguntas.slice(-60), rol: claims.r || 'alumno', alias: claims.a || 'Alumno', conectados: this.state.getWebSockets().length }));
     return new Response(null, { status: 101, webSocket: cliente });
   }
