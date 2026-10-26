@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>Clase · Bootcamp Gemini de 0 a 100 · IA MASIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --black: #050505; --blue-deep: #0B1E6D; --blue-elec: #2F6BFF; --white: #FFFFFF; --gray: #D1D5DB; --muted: #9aa3b8;
+      --cyan: #00E5FF; --green: #00FF9C; --red: #ff3b5c; --card: #0d1230; --line: rgba(255,255,255,0.1);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; --display: Poppins, Inter, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--sans); background: var(--black); color: var(--white); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    body[data-cargando] main, body[data-cargando] .nav { visibility: hidden; }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, p { margin: 0; }
+    .wrap { width: min(1240px, 100% - 32px); margin: 0 auto; }
+    .nav { position: sticky; top: 0; z-index: 20; background: rgba(5,5,5,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .nav-logo { font-weight: 900; letter-spacing: 0.12em; font-size: 1.05rem; }
+    .nav-der { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--gray); }
+    .chip { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--gray); }
+    .chip.admin { border-color: rgba(0,229,255,0.5); color: var(--cyan); }
+    .chip.live { border-color: rgba(255,59,92,0.6); color: #ffb3c0; display: inline-flex; align-items: center; gap: 6px; }
+    .punto { width: 9px; height: 9px; border-radius: 50%; background: var(--red); animation: late 1.2s infinite; }
+    @keyframes late { 50% { opacity: .4; } }
+    main { padding: 22px 0 48px; }
+    .cabeza { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
+    .etq { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
+    h1 { font-family: var(--display); font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; line-height: 1.15; margin-top: 6px; }
+    .cuando { color: var(--gray); font-size: 0.95rem; }
+    .sala { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr); gap: 16px; align-items: start; }
+    .video { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .player { position: relative; aspect-ratio: 16 / 9; background: #000; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--gray); }
+    .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .player .msg { max-width: 520px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .player .msg b { color: var(--white); font-size: 1.1rem; }
+    .cuenta { font-family: var(--display); font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800; color: var(--white); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+    .bajo-video { padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--gray); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue-elec); color: #fff; border: 0; border-radius: 10px; padding: 11px 16px; font: inherit; font-weight: 700; cursor: pointer; }
+    .btn.sec { background: transparent; border: 1px solid var(--line); color: var(--gray); }
+    .btn.chico { padding: 8px 12px; font-size: 0.85rem; }
+    .chat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; display: flex; flex-direction: column; min-height: 420px; max-height: calc(100vh - 120px); position: sticky; top: 76px; }
+    .tabs { display: flex; border-bottom: 1px solid var(--line); }
+    .tabs button { flex: 1; background: transparent; border: 0; color: var(--muted); padding: 12px; font: inherit; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; }
+    .tabs button.activa { color: var(--white); border-bottom-color: var(--blue-elec); }
+    .chat-cuerpo { flex: 1; padding: 16px; color: var(--muted); font-size: 0.92rem; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .chat-pie { border-top: 1px solid var(--line); padding: 10px; display: flex; gap: 8px; }
+    .chat-pie input { flex: 1; background: #090c22; border: 1px solid var(--line); border-radius: 10px; color: var(--white); padding: 10px 12px; font: inherit; }
+    .chat-pie input:disabled { opacity: .5; }
+    .info { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .info .caja { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; font-size: 0.92rem; color: var(--gray); }
+    .info .caja b { color: var(--white); display: block; margin-bottom: 6px; }
+    .info ul { margin: 0; padding-left: 18px; }
+    .aviso { margin-top: 14px; background: rgba(47,107,255,0.14); border: 1px solid rgba(47,107,255,0.4); border-radius: 12px; padding: 12px 14px; font-size: 0.95rem; }
+    .aviso.alerta { background: rgba(255,59,92,0.12); border-color: rgba(255,59,92,0.45); }
+    .sim { position: fixed; right: 14px; bottom: 14px; background: #0a0f2a; border: 1px solid rgba(0,229,255,0.4); border-radius: 12px; padding: 10px 12px; font-size: 0.8rem; color: var(--gray); display: flex; gap: 8px; align-items: center; z-index: 30; }
+    .sim select { background: #090c22; color: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; }
+    @media (max-width: 900px) {
+      .sala { grid-template-columns: 1fr; } .chat { position: static; min-height: 280px; max-height: none; } .info { grid-template-columns: 1fr; } .wrap { width: min(1240px, 100% - 24px); }
+      .nav-der { gap: 6px; font-size: 0.8rem; white-space: nowrap; } .chip { padding: 4px 8px; font-size: 0.62rem; letter-spacing: 0.08em; } .chip.admin { display: none; } .nav-der a span { display: none; }
+      .sim { position: static; margin: 0 0 14px; width: fit-content; }
+    }
+  </style>
+</head>
+<body data-cargando="1">
+  <div class="nav">
+    <div class="wrap">
+      <a class="nav-logo" href="app.html">IA MASIVA</a>
+      <div class="nav-der">
+        <span class="chip live" id="chipLive" hidden><span class="punto"></span>En vivo</span>
+        <span class="chip admin" id="chipAdmin" hidden>Vista previa admin</span>
+        <a href="recurso-bootcamp.html">← <span>Volver al bootcamp</span></a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="wrap">
+      <div class="cabeza">
+        <div>
+          <span class="etq" id="etqClase">Clase</span>
+          <h1 id="titulo">Cargando...</h1>
+          <div class="cuando" id="cuando"></div>
+        </div>
+        <span class="chip" id="chipEstado"></span>
+      </div>
+
+      <div class="sim" id="sim" hidden>
+        <span>Simular estado (solo tú lo ves):</span>
+        <select id="simEstado">
+          <option value="">real</option><option value="scheduled">scheduled</option><option value="lobby">lobby</option><option value="live">live</option>
+          <option value="ended_pending_upload">ended_pending_upload</option><option value="evergreen_ready">evergreen_ready</option><option value="rescheduled">rescheduled</option><option value="cancelled">cancelled</option>
+        </select>
+      </div>
+
+      <div class="sala">
+        <div class="video">
+          <div class="player" id="player"></div>
+          <div class="bajo-video">
+            <span id="bajoVideoTexto">Hora de Bogotá (GMT-5). Si el video se detiene, usa Reconectar.</span>
+            <div style="display:flex; gap:8px;">
+              <button class="btn sec chico" id="btnReconectar" hidden>Reconectar</button>
+              <button class="btn sec chico" id="btnPantalla" hidden>Pantalla completa</button>
+            </div>
+          </div>
+        </div>
+        <aside class="chat" id="chat">
+          <div class="tabs">
+            <button class="activa" data-tab="chat">Chat</button>
+            <button data-tab="preguntas">Preguntas para Sergio</button>
+          </div>
+          <div class="chat-cuerpo" id="chatCuerpo">El chat se abre con la clase.</div>
+          <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
+        </aside>
+      </div>
+
+      <div class="aviso" id="aviso" hidden></div>
+
+      <div class="info" id="info">
+        <div class="caja"><b>Antes de entrar</b><ul><li>Computador con Chrome o Safari y audio activo.</li><li>Tu cuenta de Google abierta para practicar al tiempo.</li><li>Entra 15 minutos antes: la sala abre con anticipación.</li></ul></div>
+        <div class="caja"><b>Cómo funciona la clase</b><ul><li>Dura alrededor de dos horas, con pausas cortas.</li><li>Las preguntas se responden por bloques desde la pestaña "Preguntas para Sergio".</li><li>Queda grabada: la repetición llega a tu área de Hotmart.</li></ul></div>
+        <div class="caja"><b>Soporte</b>Si algo no te abre, escríbenos por <a href="https://wa.me/message/GUQZZ7GFPBJOM1" target="_blank" rel="noopener" style="color:var(--cyan)">WhatsApp</a> y te ayudamos en el momento.</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+    const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+    const LANDING = 'bootcamp.html';
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const fmtFecha = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long' });
+    const fmtHora = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit', hour12: true });
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+    const hora = (d) => fmtHora.format(d).replace(/\.\s?/g, '');
+    const ETIQUETA = { scheduled: 'Programada', lobby: 'Sala abierta', live: 'En vivo', ended_pending_upload: 'Grabación en preparación', evergreen_ready: 'Repetición disponible', rescheduled: 'Fecha actualizada', cancelled: 'Cancelada' };
+
+    const numero = Number(new URLSearchParams(location.search).get('n')) || 1;
+    let session = null, clase = null, config = null, esAdmin = false, simulado = '';
+    let reloj = null, refresco = null;
+
+    function estadoActual() { return simulado || clase.estado; }
+
+    function textoCuenta(ms) {
+      const d = Math.max(0, ms);
+      const dias = Math.floor(d / 864e5), h = Math.floor(d % 864e5 / 36e5), m = Math.floor(d % 36e5 / 6e4), s = Math.floor(d % 6e4 / 1e3);
+      return (dias ? dias + 'd ' : '') + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function mensajePlayer(titulo, texto, extra = '') {
+      $('player').innerHTML = `<div class="msg"><b>${esc(titulo)}</b><span>${esc(texto)}</span>${extra}</div>`;
+    }
+
+    // El reproductor pide un ticket firmado al servidor (fase 2). Sin ticket no hay video:
+    // el UID del directo nunca viaja al navegador.
+    async function montarReproductor() {
+      $('btnReconectar').hidden = true;
+      mensajePlayer('Conectando con la señal...', 'Un momento.');
+      try {
+        const r = await fetch(`/api/bootcamp-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+        const cuerpo = await r.json().catch(() => ({}));
+        if (!r.ok || !cuerpo.iframe) throw new Error(cuerpo.error || 'El reproductor no está disponible todavía.');
+        $('player').innerHTML = `<iframe src="${esc(cuerpo.iframe)}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        $('btnPantalla').hidden = false;
+      } catch (e) {
+        mensajePlayer('Sin señal por ahora', e.message);
+      }
+      $('btnReconectar').hidden = false;
+    }
+
+    function pintar() {
+      const estado = estadoActual();
+      const inicio = new Date(clase.inicio_utc);
+      $('etqClase').textContent = `Clase ${clase.numero} de 3`;
+      $('titulo').textContent = clase.titulo;
+      $('cuando').textContent = `${cap(fmtFecha.format(inicio))} · ${hora(inicio)} Bogotá · ${clase.duracion_min} min aprox.`;
+      $('chipEstado').textContent = ETIQUETA[estado] || estado;
+      $('chipLive').hidden = estado !== 'live';
+      $('btnPantalla').hidden = true; $('btnReconectar').hidden = true;
+      const aviso = $('aviso'); aviso.hidden = true; aviso.className = 'aviso';
+      clearInterval(reloj);
+      const chatCuerpo = $('chatCuerpo');
+      $('chatInput').disabled = true; $('chatEnviar').disabled = true;
+
+      if (estado === 'scheduled' || estado === 'rescheduled') {
+        const tic = () => { mensajePlayer(estado === 'rescheduled' ? 'Nueva fecha confirmada' : 'La clase empieza en', '', `<div class="cuenta" id="cuenta">${textoCuenta(inicio - Date.now())}</div><span>${esc(cap(fmtFecha.format(inicio)))} a las ${esc(hora(inicio))}, hora de Bogotá</span>`); };
+        tic(); reloj = setInterval(() => { const c = $('cuenta'); if (c) c.textContent = textoCuenta(inicio - Date.now()); }, 1000);
+        chatCuerpo.textContent = 'El chat se abre cuando empiece la clase.';
+        if (clase.aviso) { aviso.textContent = clase.aviso; aviso.hidden = false; }
+      } else if (estado === 'lobby') {
+        mensajePlayer('La sala está abierta', `La señal aparece aquí a las ${hora(inicio)}. Puedes dejar el video listo y revisar las instrucciones de abajo.`);
+        chatCuerpo.textContent = 'Ya puedes saludar. Las preguntas se responden durante la clase.';
+        montarReproductor();
+      } else if (estado === 'live') {
+        montarReproductor();
+        chatCuerpo.textContent = 'Chat en preparación (se activa en la fase 4).';
+      } else if (estado === 'ended_pending_upload') {
+        mensajePlayer('Clase terminada', 'Estamos preparando la grabación. En cuanto esté en tu área de Hotmart, esta tarjeta cambia a "Ver repetición".');
+        chatCuerpo.textContent = 'El chat de esta clase cerró.';
+      } else if (estado === 'evergreen_ready') {
+        const destino = clase.hotmart_lesson_url || config?.hotmart_curso_url || '';
+        mensajePlayer('Repetición disponible', 'La grabación vive en tu área de miembros de Hotmart. Si te pide iniciar sesión, usa el mismo correo de tu compra.', destino ? `<a class="btn" href="${esc(destino)}" target="_blank" rel="noopener">Ver la grabación en Hotmart</a>` : '<span style="color:var(--muted)">El enlace de la lección se configura en el panel.</span>');
+        chatCuerpo.textContent = 'El chat de esta clase cerró.';
+      } else if (estado === 'cancelled') {
+        mensajePlayer('Clase cancelada', clase.aviso || 'Te escribimos con la nueva fecha.');
+        aviso.textContent = clase.aviso || 'Esta clase fue cancelada. Te avisamos por correo con la nueva fecha.'; aviso.className = 'aviso alerta'; aviso.hidden = false;
+        chatCuerpo.textContent = 'Sin chat.';
+      }
+      if (config?.anuncio && estado !== 'cancelled') { aviso.textContent = config.anuncio; aviso.hidden = false; }
+    }
+
+    async function recargarClase() {
+      const { data } = await sb.from('bootcamp_clases').select('numero, titulo, inicio_utc, duracion_min, estado, hotmart_lesson_url, aviso').eq('product_id', PRODUCT_ID).eq('numero', numero).maybeSingle();
+      if (data && data.estado !== clase?.estado) { clase = data; pintar(); } else if (data) { clase = data; }
+    }
+
+    async function init() {
+      ({ data: { session } } = await sb.auth.getSession());
+      if (!session) { location.replace('index.html'); return; }
+      const [perfil, compra, cfg, fila] = await Promise.all([
+        sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
+        sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
+        sb.from('bootcamp_config').select('admin_only, anuncio, hotmart_curso_url').eq('product_id', PRODUCT_ID).maybeSingle(),
+        sb.from('bootcamp_clases').select('numero, titulo, inicio_utc, duracion_min, estado, hotmart_lesson_url, aviso').eq('product_id', PRODUCT_ID).eq('numero', numero).maybeSingle(),
+      ]);
+      esAdmin = !!perfil.data?.es_admin; config = cfg.data; clase = fila.data;
+      if (!esAdmin && (!compra.data || !config || config.admin_only)) { location.replace(LANDING); return; }
+      if (!clase) { location.replace('recurso-bootcamp.html'); return; }
+      try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
+      if (esAdmin) {
+        $('chipAdmin').hidden = false; $('sim').hidden = false;
+        const q = new URLSearchParams(location.search).get('estado');
+        if (q && ETIQUETA[q]) { simulado = q; $('simEstado').value = q; }
+        $('simEstado').addEventListener('change', (e) => { simulado = e.target.value; pintar(); });
+      }
+      document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('activa', x === b));
+        $('chatCuerpo').textContent = b.dataset.tab === 'preguntas' ? 'Aquí dejas tus preguntas; Sergio las responde por bloques durante la clase.' : $('chatCuerpo').textContent;
+      }));
+      $('btnReconectar').addEventListener('click', montarReproductor);
+      $('btnPantalla').addEventListener('click', () => { const f = document.querySelector('#player iframe'); if (f?.requestFullscreen) f.requestFullscreen(); });
+      document.title = `Clase ${clase.numero}: ${clase.titulo} · IA MASIVA`;
+      pintar();
+      document.body.removeAttribute('data-cargando');
+      if (localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
+      // Estado real: una consulta ligera cada 90 s solo cuando la clase está cerca o en curso.
+      refresco = setInterval(() => {
+        const cerca = Math.abs(new Date(clase.inicio_utc) - Date.now()) < 3 * 3600e3 || ['lobby', 'live'].includes(clase.estado);
+        if (cerca && !simulado) recargarClase();
+      }, 90000);
+    }
+    init().catch(() => location.replace(LANDING));
+  </script>
+</body>
+</html>

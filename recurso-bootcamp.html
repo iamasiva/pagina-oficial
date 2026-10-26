@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>Bootcamp Gemini de 0 a 100 · IA MASIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    /* Home privado del bootcamp: misma familia visual del catálogo (app.html) */
+    :root {
+      --black: #050505; --blue-dark: #050F3A; --blue-deep: #0B1E6D; --blue-mid: #1E3A8A; --blue-elec: #2F6BFF;
+      --white: #FFFFFF; --gray: #D1D5DB; --muted: #9aa3b8; --cyan: #00E5FF; --green: #00FF9C; --red: #ff3b5c;
+      --card: #0d1230; --line: rgba(255,255,255,0.1);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --display: Poppins, Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: var(--sans); background: var(--black); color: var(--white); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    body[data-cargando] main, body[data-cargando] .nav { visibility: hidden; }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, p { margin: 0; }
+    .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+    .nav { position: sticky; top: 0; z-index: 20; background: rgba(5,5,5,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .nav-logo { font-weight: 900; letter-spacing: 0.12em; font-size: 1.05rem; }
+    .nav-der { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--gray); }
+    .chip { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--gray); }
+    .chip.admin { border-color: rgba(0,229,255,0.5); color: var(--cyan); }
+    .volver { color: var(--gray); } .volver:hover { color: var(--white); }
+    .hero { padding: 56px 0 28px; background: radial-gradient(900px 420px at 20% 0%, rgba(47,107,255,0.28), transparent 70%); }
+    .etq { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
+    .hero h1 { font-family: var(--display); font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; line-height: 1.05; margin-top: 12px; }
+    .hero h1 span { color: var(--blue-elec); }
+    .hero p { color: var(--gray); margin-top: 12px; max-width: 640px; font-size: 1.05rem; }
+    .estado-evento { margin-top: 18px; display: inline-flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 0.95rem; }
+    .estado-evento b { color: var(--white); }
+    .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(0,255,156,0.18); }
+    .punto.vivo { background: var(--red); box-shadow: 0 0 0 4px rgba(255,59,92,0.2); animation: late 1.2s infinite; }
+    @keyframes late { 50% { box-shadow: 0 0 0 8px rgba(255,59,92,0.05); } }
+    .aviso-admin { margin-top: 16px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.35); border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; color: var(--gray); }
+    .aviso-admin b { color: var(--cyan); }
+    .anuncio { margin-top: 16px; background: rgba(47,107,255,0.14); border: 1px solid rgba(47,107,255,0.4); border-radius: 12px; padding: 12px 14px; font-size: 0.95rem; }
+    section { padding: 28px 0; }
+    .sec-titulo { font-family: var(--display); font-size: 1.35rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: baseline; gap: 12px; }
+    .sec-titulo small { font-family: var(--sans); font-weight: 400; color: var(--muted); font-size: 0.9rem; }
+    .clases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .clase { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; transition: transform .15s, border-color .15s; }
+    .clase:hover { transform: translateY(-2px); border-color: rgba(47,107,255,0.6); }
+    .clase .num { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue-elec); font-weight: 700; }
+    .clase h3 { font-family: var(--display); font-size: 1.15rem; font-weight: 700; line-height: 1.25; }
+    .clase .fecha { color: var(--gray); font-size: 0.92rem; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; padding: 5px 10px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid var(--line); width: fit-content; }
+    .pill.live { background: rgba(255,59,92,0.15); border-color: rgba(255,59,92,0.5); color: #ffb3c0; }
+    .pill.lobby { background: rgba(0,255,156,0.12); border-color: rgba(0,255,156,0.4); color: #b8ffe0; }
+    .pill.evergreen_ready { background: rgba(0,229,255,0.1); border-color: rgba(0,229,255,0.4); color: #b8f6ff; }
+    .pill.cancelled { color: #ffb3c0; }
+    .btn { margin-top: auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue-elec); color: #fff; border: 0; border-radius: 10px; padding: 12px 16px; font: inherit; font-weight: 700; cursor: pointer; }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.sec { background: transparent; border: 1px solid var(--line); color: var(--gray); }
+    .btn[disabled] { opacity: 0.55; cursor: default; }
+    .herr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .herr .item { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+    .herr .item h3 { font-size: 1rem; font-weight: 700; }
+    .herr .item p { color: var(--gray); font-size: 0.9rem; }
+    .lista { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .lista .item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.95rem; }
+    .lista .item small { color: var(--muted); white-space: nowrap; }
+    .soporte { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; color: var(--gray); font-size: 0.95rem; }
+    footer { padding: 28px 0 40px; color: var(--muted); font-size: 0.85rem; }
+    @media (max-width: 900px) { .clases, .herr, .lista { grid-template-columns: 1fr; } .hero { padding-top: 36px; } .nav-der { gap: 6px; font-size: 0.85rem; white-space: nowrap; } .chip.admin { display: none; } }
+  </style>
+</head>
+<body data-cargando="1">
+  <div class="nav">
+    <div class="wrap">
+      <a class="nav-logo" href="app.html">IA MASIVA</a>
+      <div class="nav-der">
+        <span class="chip admin" id="chipAdmin" hidden>Vista previa admin</span>
+        <a class="volver" href="app.html">← Volver al catálogo</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <header class="hero">
+      <div class="wrap">
+        <span class="etq">Bootcamp en vivo · 3 clases</span>
+        <h1>Gemini <span>de 0 a 100</span></h1>
+        <p>Tres clases en vivo, de unas dos horas, a las 7:00 pm de Bogotá. Entras desde aquí el día de cada clase; las grabaciones quedan en tu área de Hotmart.</p>
+        <div class="estado-evento" id="estadoEvento"><span class="punto"></span><span>Cargando el calendario...</span></div>
+        <div class="anuncio" id="anuncio" hidden></div>
+        <div class="aviso-admin" id="avisoAdmin" hidden><b>Modo solo equipo.</b> El bootcamp está en pruebas: ningún comprador puede entrar todavía. Se abre cuando <code>admin_only</code> pase a falso en la configuración.</div>
+      </div>
+    </header>
+
+    <section>
+      <div class="wrap">
+        <h2 class="sec-titulo">Tus clases <small>Hora de Bogotá (GMT-5)</small></h2>
+        <div class="clases" id="clases"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="sec-titulo">Herramientas del bootcamp <small>Tuyas para siempre, con sus actualizaciones</small></h2>
+        <div class="herr" id="herramientas"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="sec-titulo">Recursos de clase</h2>
+        <div class="lista" id="recursos"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="soporte">
+          <span>¿Algo no te abre o tienes dudas antes de una clase? Escríbenos y te ayudamos en el momento.</span>
+          <a class="btn sec" href="https://wa.me/message/GUQZZ7GFPBJOM1" target="_blank" rel="noopener">Soporte por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">IA MASIVA · Bootcamp Gemini de 0 a 100</div></footer>
+
+  <script>
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+    const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+    const LANDING = 'bootcamp.html';
+    const HERRAMIENTAS = [
+      { id: '656f61d7-37b2-4e9c-8cf3-67065484493c', nombre: '557 Configuraciones para NotebookLM y Gemini', pagina: 'recurso-557.html', texto: 'El especialista listo para cada uno de tus cuadernos.' },
+      { id: '0f0d6926-5328-4e3e-89a4-92b36ef13996', nombre: '400 Skills para Gemini', pagina: 'recurso-400.html', texto: 'Tu biblioteca de skills, organizada y a un clic.' },
+      { id: '2c296299-d9a4-4409-bc99-67b4999e47f8', nombre: '200 Diseños para Presentaciones en NotebookLM', pagina: 'recurso-200.html', texto: 'Presentaciones con diseño en minutos.' },
+    ];
+    // Recursos de clase: cuando existan en la página se pone su url (/r/slug o visor).
+    const RECURSOS_CLASE = [
+      { nombre: 'Biblioteca de 42 formatos de respuesta', url: null },
+      { nombre: '61 instrucciones para trabajar con imágenes', url: null },
+      { nombre: 'Tu equipo de carruseles con IA', url: null },
+      { nombre: 'El mapa completo de las IA de Google (PDF)', url: null },
+    ];
+    const ESTADOS = {
+      scheduled:            { etq: 'Programada',               cta: 'Ver detalles' },
+      lobby:                { etq: 'Sala abierta',             cta: 'Entrar a sala' },
+      live:                 { etq: 'En vivo',                  cta: 'Entrar en vivo' },
+      ended_pending_upload: { etq: 'Grabación en preparación', cta: 'Ver detalles' },
+      evergreen_ready:      { etq: 'Repetición disponible',    cta: 'Ver repetición' },
+      rescheduled:          { etq: 'Fecha actualizada',        cta: 'Ver detalles' },
+      cancelled:            { etq: 'Cancelada',                cta: 'Ver aviso' },
+    };
+    const fmtFecha = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long' });
+    const fmtHora = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit', hour12: true });
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+    const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const cuando = (iso) => { const d = new Date(iso); return `${cap(fmtFecha.format(d))} · ${fmtHora.format(d).replace(/\.\s?/g, '')} Bogotá`; };
+
+    function pintarClases(clases) {
+      const cont = document.getElementById('clases');
+      if (!clases.length) { cont.innerHTML = '<p style="color:var(--muted)">Las fechas de las clases se publican pronto.</p>'; return; }
+      cont.innerHTML = clases.map(c => {
+        const e = ESTADOS[c.estado] || ESTADOS.scheduled;
+        const destino = c.estado === 'evergreen_ready' && c.hotmart_lesson_url ? c.hotmart_lesson_url : `bootcamp-clase.html?n=${c.numero}`;
+        const externo = destino.startsWith('http');
+        return `<article class="clase">
+          <span class="num">Clase ${c.numero}</span>
+          <h3>${esc(c.titulo)}</h3>
+          <span class="fecha">${esc(cuando(c.inicio_utc))}</span>
+          <span class="pill ${c.estado}">${c.estado === 'live' ? '<span class="punto vivo"></span>' : ''}${e.etq}</span>
+          ${c.aviso ? `<p class="fecha">${esc(c.aviso)}</p>` : ''}
+          <a class="btn" href="${esc(destino)}"${externo ? ' target="_blank" rel="noopener"' : ''}>${e.cta}</a>
+        </article>`;
+      }).join('');
+    }
+
+    function pintarEstadoEvento(clases) {
+      const el = document.getElementById('estadoEvento');
+      const viva = clases.find(c => c.estado === 'live');
+      const sala = clases.find(c => c.estado === 'lobby');
+      const proxima = clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado) && new Date(c.inicio_utc) > new Date());
+      if (viva) { el.innerHTML = `<span class="punto vivo"></span><span><b>Clase ${viva.numero} en vivo ahora.</b> Entra desde su tarjeta.</span>`; return; }
+      if (sala) { el.innerHTML = `<span class="punto"></span><span><b>La sala de la clase ${sala.numero} está abierta.</b> Empieza a las ${fmtHora.format(new Date(sala.inicio_utc)).replace(/\.\s?/g, '')}.</span>`; return; }
+      if (proxima) { el.innerHTML = `<span class="punto"></span><span>Próxima clase: <b>${esc(cuando(proxima.inicio_utc))}</b></span>`; return; }
+      if (clases.length && clases.every(c => c.estado === 'evergreen_ready')) { el.innerHTML = `<span class="punto"></span><span><b>Bootcamp completo.</b> Las tres grabaciones están en tu área de Hotmart.</span>`; return; }
+      el.innerHTML = `<span class="punto"></span><span>Las fechas se publican pronto.</span>`;
+    }
+
+    function pintarHerramientas(propias, esAdmin) {
+      document.getElementById('herramientas').innerHTML = HERRAMIENTAS.map(h => {
+        const tiene = esAdmin || propias.has(h.id);
+        return `<div class="item"><h3>${esc(h.nombre)}</h3><p>${esc(h.texto)}</p>
+          ${tiene ? `<a class="btn" href="${h.pagina}">Abrir</a>` : `<button class="btn sec" disabled>Se activa con tu compra</button>`}</div>`;
+      }).join('');
+      document.getElementById('recursos').innerHTML = RECURSOS_CLASE.map(r =>
+        r.url ? `<a class="item" href="${esc(r.url)}">${esc(r.nombre)}<small>Abrir →</small></a>`
+              : `<div class="item">${esc(r.nombre)}<small>Se entrega en la clase</small></div>`).join('');
+    }
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.replace('index.html'); return; }
+      const [perfil, compra, cfg, clases, compras] = await Promise.all([
+        sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
+        sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
+        sb.from('bootcamp_config').select('admin_only, anuncio').eq('product_id', PRODUCT_ID).maybeSingle(),
+        sb.from('bootcamp_clases').select('numero, titulo, inicio_utc, duracion_min, estado, hotmart_lesson_url, aviso').eq('product_id', PRODUCT_ID).order('numero'),
+        sb.from('purchases').select('product_id').eq('estado', 'APROBADA').in('product_id', HERRAMIENTAS.map(h => h.id)),
+      ]);
+      const esAdmin = !!perfil.data?.es_admin;
+      const tiene = !!compra.data;
+      const config = cfg.data;
+      // Puerta: comprador con el bootcamp abierto, o admin. Todo lo demás vuelve a la landing.
+      if (!esAdmin && (!tiene || !config || config.admin_only)) { location.replace(LANDING); return; }
+      try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
+      if (esAdmin) {
+        document.getElementById('chipAdmin').hidden = false;
+        if (config?.admin_only) document.getElementById('avisoAdmin').hidden = false;
+      }
+      if (config?.anuncio) { const a = document.getElementById('anuncio'); a.textContent = config.anuncio; a.hidden = false; }
+      const lista = clases.data ?? [];
+      pintarEstadoEvento(lista);
+      pintarClases(lista);
+      pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin);
+      document.body.removeAttribute('data-cargando');
+      if (localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
+    }
+    init().catch(() => location.replace(LANDING));
+  </script>
+</body>
+</html>
