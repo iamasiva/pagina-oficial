@@ -211,6 +211,9 @@
     .caja-dest h3 { font-size: 18px; font-weight: 600; color: var(--azul); margin-top: 4px; }
     .caja-dest p { margin-top: 10px; color: var(--muted); font-size: 16px; }
     .caja-dest.quien { align-items: stretch; }
+    .caja-dest.esquina { position: relative; }
+    .caja-dest.esquina .ico { position: absolute; top: 26px; right: 26px; }
+    .caja-dest.esquina .etiqueta { padding-right: 60px; }
     .caja-dest .foto { width: 150px; flex: none; height: auto; align-self: flex-start; border-radius: 18px; object-fit: cover; aspect-ratio: 4 / 5; background: var(--halo); }
 
     /* Conclusión de las clases: habilidades + certificado */
@@ -583,7 +586,7 @@
       </article>
 
       <div class="dosCajas cierre-clases">
-        <div class="caja-dest">
+        <div class="caja-dest esquina">
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.9L19 9.8l-5.1 1.9L12 16.6l-1.9-4.9L5 9.8l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg></span>
           <div>
             <span class="etiqueta">Al terminar el bootcamp</span>
