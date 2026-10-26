@@ -6,6 +6,13 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Bootcamp Gemini de 0 a 100 · IA MASIVA</title>
   <meta name="description" content="Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. De una idea a un proyecto real." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="IA MASIVA" />
+  <meta property="og:title" content="Bootcamp Gemini de 0 a 100" />
+  <meta property="og:description" content="Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. De una idea a un proyecto real." />
+  <meta property="og:url" content="https://iamasiva.co/bootcamp.html" />
+  <meta property="og:image" content="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-portada-catalogo-1793023500.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -623,18 +630,25 @@
       pintarFechas();
       document.querySelectorAll('[data-comprar]').forEach(b => b.addEventListener('click', comprar));
 
-      // Puerta: por ahora la página solo existe para el equipo (perfil es_admin).
-      try {
-        const { data: { session } } = await sb.auth.getSession();
-        if (!session) return fuera();
-        const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
-        if (!perfil?.es_admin) return fuera();
-        try { localStorage.setItem('im_es_admin', '1'); } catch (_) {}
-      } catch (_) { return fuera(); }
-      document.documentElement.removeAttribute('data-gate');
-
+      // Puerta ligada al producto: mientras esté INACTIVO (la política de
+      // products no lo muestra a nadie), la landing solo existe para el equipo;
+      // al activarlo para la venta queda pública sin tocar código.
       const { data } = await sb.from('products').select('id, activo, hotmart_url, precio_usd_centavos').eq('id', PRODUCT_ID).maybeSingle();
       producto = data;
+      if (!producto?.activo) {
+        try {
+          const { data: { session } } = await sb.auth.getSession();
+          if (!session) return fuera();
+          const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
+          if (!perfil?.es_admin) return fuera();
+          try { localStorage.setItem('im_es_admin', '1'); } catch (_) {}
+        } catch (_) { return fuera(); }
+      } else {
+        document.querySelectorAll('.admin-chip').forEach(el => el.remove());
+        // Si el producto ya se vende, a los admins con sesión no se les cuenta la visita
+        try { const { data: { session } } = await sb.auth.getSession(); if (session) { const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(); if (perfil?.es_admin) localStorage.setItem('im_es_admin', '1'); } } catch (_) {}
+      }
+      document.documentElement.removeAttribute('data-gate');
       registrarEvento('visita_landing');
     }
 

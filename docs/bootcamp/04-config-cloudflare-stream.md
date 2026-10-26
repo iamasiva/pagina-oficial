@@ -43,3 +43,12 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/
 - Ajuste hecho en el camino: `CF_STREAM_CUSTOMER_CODE` puede llevar el dominio completo; el servidor lo normaliza.
 - Pendiente de medir en el ensayo largo (fase 6): retraso emisión → reproductor, reconexión al cortar OBS, celular y minutos consumidos en Stream analytics.
 - Medido el 26 oct: retraso emisión → celular de unos 55 a 60 s con OBS en configuración por defecto. Para bajarlo en la fase 6: intervalo de fotogramas clave de 2 s en el emisor (OBS: Output → Keyframe Interval = 2; StreamYard lo trae así) y probar *Low-Latency HLS* (beta) en un Live Input de ensayo. Con HLS normal lo esperable es 15 a 30 s.
+
+## Fase 6: StreamYard como emisor (pasos)
+
+1. Plan: en https://streamyard.com/pricing elegir el plan más bajo que tenga a la vez **Custom RTMP destination**, **1080p** y **descarga de grabaciones** (comparar la tabla; no asumir precios). Contratar solo por el mes del bootcamp.
+2. En Cloudflare, Live inputs → `bootcamp-clase-1` → activar **Low-Latency HLS Support (Beta)**; repetir en la 2 y la 3.
+3. En StreamYard: Destinations → Add a destination → **Custom RTMP** → nombre `Cloudflare clase 1`, RTMP URL = la RTMPS URL del live input, Stream key = su key. Repetir para las clases 2 y 3 (un destino por clase).
+4. Crear un broadcast de prueba con el destino de la clase 1, resolución 1080p, y preparar las escenas: presentador, presentador + PDF, Gemini a pantalla completa, Gemini + presentador en miniatura, pausa. Comprobar que al cambiar de escena la pantalla compartida siga disponible.
+5. Go live. El agente pone la clase 1 en vivo desde la consola y la abre en el Chrome de Sergio: medir el retraso (decir una palabra y cronometrar hasta verla), probar celular, cortar y retomar la emisión (la página reconecta), y al terminar descargar la grabación desde la biblioteca de StreamYard para verificar que sea completa.
+6. Registrar: retraso medido, calidad, minutos consumidos en Stream analytics.
