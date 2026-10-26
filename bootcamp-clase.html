@@ -181,6 +181,7 @@
 
     const numero = Number(new URLSearchParams(location.search).get('n')) || 1;
     let session = null, clase = null, config = null, esAdmin = false, simulado = '';
+    async function tokenActual() { try { const { data: { session: s } } = await sb.auth.getSession(); if (s) session = s; } catch (_) {} return session?.access_token || ''; }
     let reloj = null, refresco = null;
 
     function estadoActual() { return simulado || clase.estado; }
@@ -207,7 +208,7 @@
       $('btnReconectar').hidden = true;
       mensajePlayer('Conectando con la señal...', 'Un momento.');
       try {
-        const r = await fetch(`/api/bootcamp-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+        const r = await fetch(`/api/bootcamp-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${await tokenActual()}` } });
         const cuerpo = await r.json().catch(() => ({}));
         if (!r.ok || !cuerpo.iframe) throw new Error(cuerpo.error || 'El reproductor no está disponible todavía.');
         const senal = cuerpo.manifest ? await haySenal(cuerpo.manifest) : true;
@@ -220,7 +221,8 @@
           $('btnPantalla').hidden = false;
         }
       } catch (e) {
-        mensajePlayer('Sin señal por ahora', e.message);
+        mensajePlayer('Sin señal por ahora', e.message + ' Reintentamos en unos segundos.');
+        esperaSenal = setTimeout(montarReproductor, 20000);
       }
       $('btnReconectar').hidden = false;
     }
@@ -383,7 +385,7 @@
       clearTimeout(chat.timer);
       $('chatConexion').textContent = 'Conectando...';
       try {
-        const r = await fetch(`/api/bootcamp-chat-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+        const r = await fetch(`/api/bootcamp-chat-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${await tokenActual()}` } });
         const b = await r.json().catch(() => ({}));
         if (!r.ok || !b.ws) throw new Error(b.error || 'Chat no disponible');
         chat.rol = b.rol; chat.alias = b.alias;
