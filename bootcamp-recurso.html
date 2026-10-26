@@ -118,9 +118,11 @@
           const doc = marco.contentDocument; if (!doc) return;
           doc.addEventListener('click', (e) => {
             const a = e.target.closest?.('a[href^="#"]'); if (!a) return;
-            e.preventDefault(); const id = a.getAttribute('href').slice(1); if (!id) return;
+            const id = a.getAttribute('href').slice(1); if (!id) return;
+            // Si no hay un elemento con ese id, es navegación interna del recurso (rutas por hash): se deja pasar
             const destino = doc.getElementById(id) || doc.querySelector(`[name="${CSS.escape(id)}"]`);
-            destino?.scrollIntoView({ behavior: 'smooth' });
+            if (!destino) return;
+            e.preventDefault(); destino.scrollIntoView({ behavior: 'smooth' });
           }, true);
         });
         $('cargando').classList.add('oculto'); marco.classList.remove('oculto');
