@@ -67,16 +67,6 @@
     };
     const $ = (id) => document.getElementById(id);
 
-    // El recurso se muestra como PÁGINA COMPLETA, no dentro de un iframe: un solo
-    // scroll, avisos y diálogos en su sitio y las rutas internas (#...) en la URL
-    // real. Solo se añade un botón fijo para volver al bootcamp.
-    function mostrarCompleto(html) {
-      const volver = '<a class="im-volver" href="recurso-bootcamp.html"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>Volver al bootcamp</a>'
-        + '<style>.im-volver{position:fixed;left:16px;bottom:16px;z-index:2147483000;display:inline-flex;align-items:center;gap:8px;background:#192333;color:#fff;text-decoration:none;font:600 14px/1 "Google Sans Flex","Google Sans","Segoe UI",Roboto,system-ui,sans-serif;padding:11px 16px;border-radius:999px;box-shadow:0 12px 30px rgba(25,35,51,.28)}.im-volver:hover{background:#246bfd;color:#fff}@media print{.im-volver{display:none}}</style>';
-      const doc = /<body[^>]*>/i.test(html) ? html.replace(/<body[^>]*>/i, (m) => m + volver) : volver + html;
-      document.open(); document.write(doc); document.close();
-    }
-
     async function init() {
       const slug = String(new URLSearchParams(location.search).get('r') || '').trim();
       const recurso = RECURSOS[slug];
@@ -103,16 +93,10 @@
         $('pronto').classList.remove('oculto');
         return;
       }
-      try {
-        const res = await fetch(guia.contenido_url);
-        if (!res.ok) throw new Error('carga');
-        const html = await res.text();
-        // La apertura se registra ANTES de reemplazar el documento (si no, la petición se cancela)
-        if (localStorage.getItem('im_es_admin') !== '1') { try { await sb.from('aperturas').insert({ user_id: session.user.id, guide_id: guia.id, product_id: PRODUCT_ID }); } catch (_) {} }
-        mostrarCompleto(html);
-      } catch (_) {
-        $('cargando').textContent = 'No se pudo cargar el recurso. Intenta de nuevo.';
-      }
+      // El recurso se abre en el visor de IA MASIVA (misma barra, Favoritos y
+      // Comentarios que los recursos gratuitos); "Cerrar" devuelve al bootcamp.
+      if (localStorage.getItem('im_es_admin') !== '1') { try { await sb.from('aperturas').insert({ user_id: session.user.id, guide_id: guia.id, product_id: PRODUCT_ID }); } catch (_) {} }
+      location.replace(`app.html?guia=${encodeURIComponent(guia.id)}&volver=bootcamp`);
     }
     init().catch(() => location.replace(LANDING));
   })();

@@ -605,7 +605,7 @@
       </div>
 
       <div class="app-row">
-        <h2 class="app-row-title">Guías de pago</h2>
+        <h2 class="app-row-title">Recursos de pago</h2>
         <div class="scroll-wrapper">
           <button class="scroll-arrow left"  onclick="scrollRow('rowPremium',-1)">&#8592;</button>
           <div class="app-track" id="rowPremium"></div>
@@ -680,7 +680,7 @@
 
   <div class="guide-overlay" id="guideOverlay">
     <div class="guide-topbar">
-      <span class="guide-topbar-brand" onclick="cerrarCapa(closeGuideViewer);irInicio();">IA MASIVA</span>
+      <span class="guide-topbar-brand" onclick="volverA=null;cerrarCapa(closeGuideViewer);irInicio();">IA MASIVA</span>
       <span class="guide-topbar-title" id="guideViewerTitle"></span>
       <div class="guide-topbar-acciones">
         <button class="guide-close guide-fav" id="guideFavBtn">♡ <span class="guide-fav-txt">Favoritos</span></button>
@@ -928,6 +928,15 @@
     const tipoDeCategoria = (nombre) => CATEGORIAS.find(c => c.nombre === nombre)?.tipo ?? 'area';
 
     let allGuides = [], userPurchases = [], allProducts = [], isAdmin = false;
+    // Recursos del Bootcamp Gemini de 0 a 100: guías premium despublicadas con la
+    // categoría "Recurso del bootcamp". No van en el catálogo (viven en el producto);
+    // sí en Favoritos y en el visor. Los desbloquea la compra del bootcamp.
+    const PRODUCTO_BOOTCAMP = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+    const esRecursoBootcamp = (g) => (g.categorias || []).includes('Recurso del bootcamp');
+    let bootcampGuides = [];
+    // Si el visor se abrió desde el bootcamp (app.html?guia=<id>&volver=bootcamp),
+    // "Cerrar" devuelve a su home en vez de al catálogo
+    let volverA = null;
     let tendenciasConteo = new Map(), usuarioActualId = null;
 
     // ── Canal de origen (UTM): se captura al llegar y persigue al visitante 30 días ──
@@ -991,7 +1000,7 @@
       try {
         const c = JSON.parse(localStorage.getItem(CACHE_CONTENIDO) || 'null');
         if (!c || !c.guides?.length) return;
-        allGuides = c.guides; heroSlidesRaw = c.slides || []; allProducts = c.products || [];
+        allGuides = c.guides.filter(g => !esRecursoBootcamp(g)); heroSlidesRaw = c.slides || []; allProducts = c.products || [];
         if (c.categorias?.length) { CATEGORIAS = c.categorias; pintarCategorias(); }
         renderAll();
         ocultarSplash();
@@ -1012,7 +1021,7 @@
       sb.from('categorias').select('nombre, tipo').order('nombre'),
     ]).then(([g, s, p, t, cat]) => {
       if (g.error) return false;
-      allGuides = g.data ?? []; heroSlidesRaw = s.data ?? []; allProducts = p.data ?? [];
+      allGuides = (g.data ?? []).filter(x => !esRecursoBootcamp(x)); heroSlidesRaw = s.data ?? []; allProducts = p.data ?? [];
       // Puntaje de aperturas reales con decaimiento (vida media 3 días, ventana de
       // 30 días); si la vista aún no existe, Tendencias cae al orden por fecha sin romper nada.
       tendenciasConteo = new Map((t.error ? [] : t.data ?? []).map(f => [f.guide_id, f.aperturas]));
@@ -1099,7 +1108,7 @@
           <input type="checkbox" ${pos >= 0 ? 'checked' : ''} onchange="toggleFijada('${g.id}')" />
           <span>${g.titulo}</span>
         </label>`;
-      }).join('') : '<p class="app-empty" style="padding:8px 0;">No hay guías de pago aún.</p>';
+      }).join('') : '<p class="app-empty" style="padding:8px 0;">No hay recursos de pago aún.</p>';
 
       const porId = new Map(allGuides.map(g => [g.id, g]));
       document.getElementById('listaOrden').innerHTML = ordenGratis.map((id, i) => `
@@ -1270,7 +1279,7 @@
       let filtered = [];
       if (type === 'gratis')  filtered = allGuides.filter(g => !g.es_premium);
       if (type === 'premium') filtered = allGuides.filter(g => g.es_premium);
-      if (type === 'favoritos') filtered = allGuides.filter(g => favoritosSet.has(g.id));
+      if (type === 'favoritos') filtered = [...allGuides, ...bootcampGuides].filter(g => favoritosSet.has(g.id));
       if (type === 'compras')   filtered = allGuides.filter(g => userPurchases.includes(g.id) && !esGuiaDePack(g.id));
       if (type === 'cat')     filtered = allGuides.filter(g => (g.categorias||[]).includes(cat));
       // En categoría, los recursos de pago siempre encabezan la lista
@@ -1279,7 +1288,7 @@
       if (type === 'catalogo') filtered = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
 
       document.getElementById('filteredTitle').textContent =
-        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Guías de pago'
+        type === 'gratis' ? 'Guías gratuitas' : type === 'premium' ? 'Recursos de pago'
         : type === 'favoritos' ? 'Tus favoritos' : type === 'compras' ? 'Tus compras'
         : type === 'catalogo' ? 'Todo el catálogo' : cat;
 
@@ -1437,6 +1446,11 @@
     // ── CARD BUILDER ──────────────────────────────────────────
     // La guía de un pack no se muestra en "Tus compras": el pack es un
     // contenedor y ahí van sus piezas, cada una abriendo su recurso
+    function marcarRecursosBootcamp(filasCompras) {
+      const tiene = isAdmin || filasCompras.some(p => p.product_id === PRODUCTO_BOOTCAMP);
+      if (!tiene) return;
+      for (const g of bootcampGuides) if (!userPurchases.includes(g.id)) userPurchases.push(g.id);
+    }
     function esGuiaDePack(guideId) {
       const prod = allProducts.find(p => p.guide_id === guideId);
       return !!(prod && packsMap[prod.id]);
@@ -1677,6 +1691,7 @@
           || document.getElementById('fichaOverlay').classList.contains('active');
     }
     function marcarCapa() {
+      if (volverA) return;
       if (!history.state?.capa) history.pushState({ capa: true }, '');
     }
     // Cerrar con la X: la capa se cierra DE INMEDIATO (si se espera al
@@ -1755,7 +1770,10 @@
           const id = a.getAttribute('href').slice(1);
           if (!id) return;
           const destino = doc.getElementById(id) || doc.querySelector(`[name="${CSS.escape(id)}"]`);
-          destino?.scrollIntoView({ behavior: 'smooth' });
+          if (destino) { destino.scrollIntoView({ behavior: 'smooth' }); return; }
+          // Sin destino: ruta interna del recurso (#categoria/01). Asignar el hash
+          // dentro del iframe sí es navegación de fragmento, no carga otra página.
+          try { doc.defaultView.location.hash = id; } catch (_) {}
         }, true);
       });
       document.getElementById('guideOverlay').appendChild(f);
@@ -1910,7 +1928,7 @@
       // Productos-app comprados: se navega a su página propia, no al visor
       const productoApp = allProducts.find(p => p.guide_id === id && PAGINAS_PRODUCTO[p.id]);
       if (productoApp) { window.location.href = PAGINAS_PRODUCTO[productoApp.id]; return; }
-      const g = allGuides.find(g => g.id === id);
+      const g = allGuides.find(g => g.id === id) || bootcampGuides.find(g => g.id === id);
       if (!g?.contenido_url) return;
       // Guía gratuita: primero la ficha (portada + descripción + Ver Recurso).
       // Desde la lista del catálogo eso ya se vio: directo al visor.
@@ -2023,7 +2041,7 @@
     });
 
     async function abrirVisorGuia(id) {
-      const g = allGuides.find(g => g.id === id);
+      const g = allGuides.find(g => g.id === id) || bootcampGuides.find(g => g.id === id);
       if (!g?.contenido_url) return false;
       try {
         const res  = await fetch(g.contenido_url);
@@ -2053,6 +2071,7 @@
     }
 
     function closeGuideViewer() {
+      if (volverA) { const destino = volverA; volverA = null; location.replace(destino); return; }
       document.getElementById('guideOverlay').classList.remove('active');
       document.getElementById('comentPanel').classList.remove('abierto');
       desmontarGuia();
@@ -2309,7 +2328,7 @@
 
       document.getElementById('rowNuevo').innerHTML     = byNew.length    ? byNew.map((g,i)=>makeCard(g,i+1)).join('')    : '<p class="app-empty">Pronto habrá contenido nuevo.</p>';
       requestAnimationFrame(activarDeslizamientos);
-      document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente guías de pago.</p>';
+      document.getElementById('rowPremium').innerHTML   = premium.length  ? premium.map((g,i)=>makeCard(g,i+1)).join('')  : '<p class="app-empty">Próximamente recursos de pago.</p>';
       // Tendencias reales: puntaje de aperturas con decaimiento; a igual puntaje, la más nueva primero
       const porTendencia = [...allGuides].sort((a,b) => (tendenciasConteo.get(b.id)||0)-(tendenciasConteo.get(a.id)||0) || new Date(b.created_at)-new Date(a.created_at));
       document.getElementById('rowTendencias').innerHTML= porTendencia.slice(0,10).length ? porTendencia.slice(0,10).map((g,i)=>makeCard(g,i+1,true)).join('') : '<p class="app-empty">Pronto verás las tendencias aquí.</p>';
@@ -2728,7 +2747,7 @@
         sb.from('hero_slides').select('*').order('orden',{ascending:true}),
         sb.from('products').select('*').eq('activo',true)
       ]);
-      allGuides=guides||[];
+      allGuides=(guides||[]).filter(g => !esRecursoBootcamp(g));
       heroSlidesRaw=slides||[];
       allProducts=products||[];
       renderAll();
@@ -2742,14 +2761,18 @@
       document.getElementById('appNavName').textContent=nombre;
 
       // Admin y compras en paralelo (antes eran dos viajes en serie)
-      const [{ data: profile }, { data: purchases }, { data: favs }, { data: vistas }] = await Promise.all([
+      const [{ data: profile }, { data: purchases }, { data: favs }, { data: vistas }, { data: recursosBc }] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id',session.user.id).single(),
-        sb.from('purchases').select('guide_id').eq('user_id',session.user.id).eq('estado','APROBADA'),
+        sb.from('purchases').select('guide_id, product_id').eq('user_id',session.user.id).eq('estado','APROBADA'),
         sb.from('user_guia_favoritos').select('guide_id'),
+        sb.from('aperturas').select('guide_id').not('guide_id', 'is', null),
+        sb.from('guides').select('*').contains('categorias', ['Recurso del bootcamp']),
+      ]);
+      bootcampGuides = recursosBc || [];
+      void [
         // Vistas del usuario (RLS filtra a las propias); si la política aún no
         // existe devuelve error y el badge simplemente no aparece
-        sb.from('aperturas').select('guide_id').not('guide_id', 'is', null),
-      ]);
+      ];
       favoritosSet = new Set((favs || []).map(f => f.guide_id));
       vistasSet = new Set((vistas || []).map(v => v.guide_id));
       isAdmin=!!profile?.es_admin;
@@ -2764,14 +2787,16 @@
         document.getElementById('heroEditBtn').classList.remove('hidden');
       }
       userPurchases=(purchases||[]).map(p=>p.guide_id).filter(Boolean);
+      marcarRecursosBootcamp(purchases || []);
 
       // Compras hechas como invitado con este correo: se enganchan solas
       fetch('/api/reclamar', { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } })
         .then(r => r.ok ? r.json() : null)
         .then(async (j) => {
           if (!j?.reclamadas) return;
-          const { data: pr } = await sb.from('purchases').select('guide_id').eq('user_id', session.user.id).eq('estado', 'APROBADA');
+          const { data: pr } = await sb.from('purchases').select('guide_id, product_id').eq('user_id', session.user.id).eq('estado', 'APROBADA');
           userPurchases = (pr || []).map(p => p.guide_id).filter(Boolean);
+          marcarRecursosBootcamp(pr || []);
           renderAll();
           renderizarPaquetes();
         })
@@ -2790,6 +2815,13 @@
       // Llegada desde la landing de un pack ya adquirido: se aterriza en
       // "Tus compras", donde están sus piezas listas para abrir
       try { if (new URLSearchParams(location.search).get('ver') === 'compras') abrirPanelUsuario('compras'); } catch (_) {}
+      // Llegada desde el bootcamp (bootcamp-recurso.html): se abre el recurso en el
+      // visor; "Cerrar" devuelve al home del bootcamp
+      try {
+        const q = new URLSearchParams(location.search);
+        const guiaParam = q.get('guia');
+        if (guiaParam) { volverA = q.get('volver') === 'bootcamp' ? 'recurso-bootcamp.html' : null; await openGuide(guiaParam, false, true); }
+      } catch (_) {}
     }
   </script>
 <script>

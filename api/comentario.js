@@ -22,8 +22,8 @@ export default async function handler(req, res) {
 
     const db = adminClient();
 
-    // La guía debe existir y estar publicada
-    const { data: guia } = await db.from('guides').select('id').eq('id', guideId).eq('publicada', true).maybeSingle();
+    // La guía debe existir y estar publicada (o ser premium: los recursos del bootcamp viven despublicados)
+    const { data: guia } = await db.from('guides').select('id').eq('id', guideId).or('publicada.eq.true,es_premium.eq.true').maybeSingle();
     if (!guia) return res.status(404).json({ error: 'Guía no encontrada' });
 
     // Freno anti-spam: máximo 10 comentarios por usuario por día
