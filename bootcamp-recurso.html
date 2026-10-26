@@ -73,10 +73,11 @@
       if (!recurso) { location.replace('recurso-bootcamp.html'); return; }
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { location.replace('index.html'); return; }
-      const [perfil, compra, cfg] = await Promise.all([
+      const [perfil, compra, cfg, clase1] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
         sb.from('bootcamp_config').select('admin_only').eq('product_id', PRODUCT_ID).maybeSingle(),
+        sb.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCT_ID).eq('numero', 1).maybeSingle(),
       ]);
       const esAdmin = !!perfil.data?.es_admin;
       if (!esAdmin && (!compra.data || !cfg.data || cfg.data.admin_only)) { location.replace(LANDING); return; }
@@ -84,6 +85,19 @@
       if (esAdmin) $('chipAdmin').hidden = false;
       $('titulo').textContent = recurso.nombre; document.title = `${recurso.nombre} · Bootcamp · IA MASIVA`;
       document.body.removeAttribute('data-cargando');
+      // Para los compradores, los recursos se habilitan el primer día del bootcamp (medianoche de Bogotá)
+      if (!esAdmin && clase1.data?.inicio_utc) {
+        const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.data.inicio_utc));
+        const apertura = new Date(dia + 'T05:00:00Z');
+        if (Date.now() < apertura.getTime()) {
+          const f = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long' }).format(apertura);
+          $('cargando').classList.add('oculto');
+          $('prontoImg').src = recurso.portada; $('prontoTitulo').textContent = recurso.nombre;
+          $('prontoTexto').textContent = `Los recursos del bootcamp se habilitan el primer día, el ${f}. Lo vas a encontrar aquí mismo, en esta dirección.`;
+          $('pronto').classList.remove('oculto');
+          return;
+        }
+      }
 
       const { data: guia } = await sb.from('guides').select('id, titulo, contenido_url').eq('slug', slug).maybeSingle();
       if (!guia?.contenido_url) {

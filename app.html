@@ -117,6 +117,21 @@
     .app-hero::after { content: ''; position: absolute; inset: 0; z-index: 0; background-image: linear-gradient(rgba(47,107,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,107,255,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 70% 50%, transparent 30%, black 80%); }
     .app-hero-content { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; }
     .app-hero-empty { position: relative; z-index: 2; width: 100%; text-align: center; color: #9aacbf; font-size: 1rem; margin-bottom: 20px; }
+    /* Hero del bootcamp: centrado, con contador y CTA según compra (reemplaza al carrusel mientras dura el evento) */
+    .app-hero.bc { align-items: center; }
+    .app-hero.bc .app-hero-bg, .app-hero.bc .app-hero-content, .app-hero.bc .app-hero-empty { display: none !important; }
+    .hero-bc { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 54px 16px 30px; }
+    .hero-bc-etq { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: #00E5FF; font-weight: 700; }
+    .hero-bc h2 { font-size: clamp(2.4rem, 6.5vw, 4.6rem); font-weight: 900; line-height: 0.98; letter-spacing: -0.02em; margin: 0; }
+    .hero-bc h2 span { color: #5B8CFF; }
+    .hero-bc p { color: #D1D5DB; font-size: 1.08rem; max-width: 600px; margin: 0; line-height: 1.5; }
+    .hero-bc-lbl { margin-top: 8px; font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: #D1D5DB; font-weight: 700; }
+    .hero-bc-tiles { display: flex; gap: 10px; }
+    .hero-bc-tile { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 12px 10px; min-width: 78px; }
+    .hero-bc-tile b { display: block; font-size: 2rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+    .hero-bc-tile small { display: block; margin-top: 6px; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: #9aa3b8; }
+    .hero-bc .app-btn-play { margin-top: 10px; text-decoration: none; }
+    @media (max-width: 720px) { .hero-bc { padding: 36px 12px 22px; gap: 10px; } .hero-bc-tile { min-width: 64px; padding: 10px 8px; } .hero-bc-tile b { font-size: 1.5rem; } .hero-bc .app-btn-play { width: 100%; justify-content: center; } }
     .app-hero-actions { display: flex; justify-content: center; width: 100%; }
     .app-btn-play { background: var(--blue-elec); color: var(--white); border: none; padding: 20px 56px; border-radius: 8px; font-size: 1.15rem; font-weight: 800; letter-spacing: 0.02em; display: flex; align-items: center; gap: 10px; transition: background 0.2s, transform 0.15s; box-shadow: 0 10px 30px rgba(47,107,255,0.4); }
     
@@ -563,6 +578,19 @@
   <div class="app-hero" id="appHero">
     <button class="hero-edit-btn hidden" id="heroEditBtn" title="Editar imágenes del hero">&#9998;</button>
     <p class="app-hero-empty hidden" id="heroEmptyMsg">Muy pronto vas a ver aquí nuestros productos destacados.</p>
+    <div class="hero-bc hidden" id="heroBootcamp">
+      <span class="hero-bc-etq" id="heroBcEtq">Bootcamp en vivo · 3 clases · 3, 4 y 5 de noviembre</span>
+      <h2>Gemini <span>de 0 a 100</span></h2>
+      <p>De ideas a proyectos reales. Tres noches en vivo para pasar de preguntarle cosas a Gemini a dirigirlo.</p>
+      <span class="hero-bc-lbl" id="heroBcLbl"></span>
+      <div class="hero-bc-tiles" id="heroBcTiles">
+        <div class="hero-bc-tile"><b id="hbD">00</b><small>días</small></div>
+        <div class="hero-bc-tile"><b id="hbH">00</b><small>horas</small></div>
+        <div class="hero-bc-tile"><b id="hbM">00</b><small>min</small></div>
+        <div class="hero-bc-tile"><b id="hbS">00</b><small>seg</small></div>
+      </div>
+      <a class="app-btn-play" id="heroBcCta" href="bootcamp.html">Más información</a>
+    </div>
     <div class="app-hero-content">
       <div class="app-hero-actions">
         <button class="app-btn-play" id="heroBtn">Comprar ahora</button>
@@ -934,6 +962,9 @@
     const PRODUCTO_BOOTCAMP = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
     const esRecursoBootcamp = (g) => (g.categorias || []).includes('Recurso del bootcamp');
     let bootcampGuides = [];
+    const GUIA_BOOTCAMP = '94122704-34a4-4e9b-be9c-0d7946b9a1f9';
+    const CIERRE_OFERTA_BOOTCAMP = '2026-11-03T18:00:00-05:00';
+    let clasesBootcamp = [], tieneBootcamp = false, heroBcTimer = null;
     // Si el visor se abrió desde el bootcamp (app.html?guia=<id>&volver=bootcamp),
     // "Cerrar" devuelve a su home en vez de al catálogo
     let volverA = null;
@@ -1447,7 +1478,8 @@
     // La guía de un pack no se muestra en "Tus compras": el pack es un
     // contenedor y ahí van sus piezas, cada una abriendo su recurso
     function marcarRecursosBootcamp(filasCompras) {
-      const tiene = isAdmin || filasCompras.some(p => p.product_id === PRODUCTO_BOOTCAMP);
+      tieneBootcamp = filasCompras.some(p => p.product_id === PRODUCTO_BOOTCAMP);
+      const tiene = isAdmin || tieneBootcamp;
       if (!tiene) return;
       for (const g of bootcampGuides) if (!userPurchases.includes(g.id)) userPurchases.push(g.id);
     }
@@ -2134,6 +2166,40 @@
     }
     window.goToHeroSlide = goToHeroSlide;
 
+    // Hero del bootcamp: mientras el producto esté activo y el evento no haya
+    // terminado, el hero es este bloque centrado. Contador y botón según compra.
+    function pintarHeroBootcamp() {
+      const hero = document.getElementById('appHero'), caja = document.getElementById('heroBootcamp');
+      if (!hero || !caja) return;
+      clearInterval(heroBcTimer);
+      const activo = allProducts.some(p => p.id === PRODUCTO_BOOTCAMP) || (isAdmin && allGuides.some(g => g.id === GUIA_BOOTCAMP));
+      const clases = clasesBootcamp.slice().sort((a, b) => a.numero - b.numero);
+      const ultima = clases[clases.length - 1];
+      const terminado = !!ultima && (['ended_pending_upload', 'evergreen_ready'].includes(ultima.estado) || (Date.now() > new Date(ultima.inicio_utc).getTime() + 6 * 3600e3 && !['live', 'lobby'].includes(ultima.estado)));
+      if (!activo || !clases.length || terminado) { caja.classList.add('hidden'); hero.classList.remove('bc'); return; }
+      hero.classList.add('bc'); caja.classList.remove('hidden');
+      const ahora = Date.now();
+      const viva = clases.find(c => c.estado === 'live'), sala = clases.find(c => c.estado === 'lobby');
+      const proxima = clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado) && new Date(c.inicio_utc) > ahora) || clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado)) || clases[0];
+      const lbl = document.getElementById('heroBcLbl'), tiles = document.getElementById('heroBcTiles'), cta = document.getElementById('heroBcCta');
+      const dd = (n) => String(Math.max(0, n)).padStart(2, '0');
+      const cuenta = (hasta) => { const d = Math.max(0, hasta - Date.now()); document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3)); };
+      const accesoEquipo = isAdmin;
+      if (tieneBootcamp || accesoEquipo) {
+        if (viva) { lbl.textContent = `Clase ${viva.numero} en vivo ahora`; tiles.classList.add('hidden'); cta.textContent = `Entrar a la clase ${viva.numero}`; cta.href = `bootcamp-clase.html?n=${viva.numero}`; return; }
+        if (sala) { lbl.textContent = `La sala de la clase ${sala.numero} está abierta`; tiles.classList.add('hidden'); cta.textContent = `Entrar a la clase ${sala.numero}`; cta.href = `bootcamp-clase.html?n=${sala.numero}`; return; }
+        tiles.classList.remove('hidden'); lbl.textContent = `La clase ${proxima.numero} empieza en`;
+        cta.textContent = `Ver clase ${proxima.numero}`; cta.href = `bootcamp-clase.html?n=${proxima.numero}`;
+        const hasta = new Date(proxima.inicio_utc).getTime(); cuenta(hasta); heroBcTimer = setInterval(() => cuenta(hasta), 1000);
+        return;
+      }
+      tiles.classList.remove('hidden'); cta.textContent = 'Más información'; cta.href = 'bootcamp.html';
+      const cierre = new Date(CIERRE_OFERTA_BOOTCAMP).getTime();
+      const hasta = cierre > ahora ? cierre : new Date(proxima.inicio_utc).getTime();
+      lbl.textContent = cierre > ahora ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
+      cuenta(hasta); heroBcTimer = setInterval(() => cuenta(hasta), 1000);
+    }
+
     let heroFirma = null;
     function buildHeroCarousel() {
       const nuevas = heroSlidesRaw
@@ -2761,14 +2827,16 @@
       document.getElementById('appNavName').textContent=nombre;
 
       // Admin y compras en paralelo (antes eran dos viajes en serie)
-      const [{ data: profile }, { data: purchases }, { data: favs }, { data: vistas }, { data: recursosBc }] = await Promise.all([
+      const [{ data: profile }, { data: purchases }, { data: favs }, { data: vistas }, { data: recursosBc }, { data: clasesBc }] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id',session.user.id).single(),
         sb.from('purchases').select('guide_id, product_id').eq('user_id',session.user.id).eq('estado','APROBADA'),
         sb.from('user_guia_favoritos').select('guide_id'),
         sb.from('aperturas').select('guide_id').not('guide_id', 'is', null),
         sb.from('guides').select('*').contains('categorias', ['Recurso del bootcamp']),
+        sb.from('bootcamp_clases').select('numero, inicio_utc, estado').eq('product_id', PRODUCTO_BOOTCAMP).order('numero'),
       ]);
       bootcampGuides = recursosBc || [];
+      clasesBootcamp = clasesBc || [];
       void [
         // Vistas del usuario (RLS filtra a las propias); si la política aún no
         // existe devuelve error y el badge simplemente no aparece
@@ -2799,6 +2867,7 @@
           marcarRecursosBootcamp(pr || []);
           renderAll();
           renderizarPaquetes();
+          pintarHeroBootcamp();
         })
         .catch(() => {});
 
@@ -2812,6 +2881,7 @@
       // piezas necesita un repintado
       renderAll();
       renderizarPaquetes();
+      pintarHeroBootcamp();
       // Llegada desde la landing de un pack ya adquirido: se aterriza en
       // "Tus compras", donde están sus piezas listas para abrir
       try { if (new URLSearchParams(location.search).get('ver') === 'compras') abrirPanelUsuario('compras'); } catch (_) {}

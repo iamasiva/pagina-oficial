@@ -218,7 +218,14 @@
       }).join('');
     }
 
-    function pintarHerramientas(propias, esAdmin, disponibles) {
+    // Los recursos de clase se habilitan el primer día del bootcamp (medianoche de
+    // Bogotá del día de la clase 1). Los admins los ven siempre, para revisarlos.
+    function aperturaRecursos(clases) {
+      const c1 = clases.find(c => c.numero === 1) || clases[0]; if (!c1) return 0;
+      const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(c1.inicio_utc));
+      return new Date(dia + 'T05:00:00Z').getTime();
+    }
+    function pintarHerramientas(propias, esAdmin, disponibles, apertura) {
       $('herramientas').innerHTML = HERRAMIENTAS.map(h => {
         const tiene = esAdmin || propias.has(h.id);
         return `<a class="card" href="${tiene ? h.pagina : '#'}"${tiene ? '' : ' onclick="return false"'}>
@@ -226,7 +233,13 @@
           <div class="card-pie"><b>${esc(h.nombre)}</b><span>${tiene ? 'Abrir herramienta' : 'Se activa con tu compra'}</span></div>
         </a>`;
       }).join('');
-      $('recursos').innerHTML = RECURSOS.map(r => { const listo = disponibles.has(r.slug); return tarjeta({ portada: r.portada, alt: r.nombre, href: `bootcamp-recurso.html?r=${r.slug}`, badge: listo ? ['Incluido', ''] : ['Pronto', 'gris'], pieB: r.nombre, pieS: listo ? 'Abrir recurso' : `Se entrega en la clase ${r.clase}` }); }).join('');
+      const bloqueados = !esAdmin && apertura && Date.now() < apertura;
+      const fechaApertura = apertura ? cap(fmtFecha.format(new Date(apertura))) : '';
+      $('recursos').innerHTML = RECURSOS.map(r => {
+        const listo = disponibles.has(r.slug);
+        if (bloqueados) return tarjeta({ portada: r.portada, alt: r.nombre, href: '#', inerte: true, badge: [fechaApertura ? 'Desde el ' + fechaApertura.replace(/^[^,]+,\s*/, '') : 'Pronto', 'gris'], pieB: r.nombre, pieS: 'Se habilita el primer día del bootcamp' });
+        return tarjeta({ portada: r.portada, alt: r.nombre, href: `bootcamp-recurso.html?r=${r.slug}`, badge: listo ? ['Incluido', ''] : ['Pronto', 'gris'], pieB: r.nombre, pieS: listo ? 'Abrir recurso' : `Se entrega en la clase ${r.clase}` });
+      }).join('');
     }
 
     let reloj = null;
@@ -284,7 +297,7 @@
       const lista = (clases.data && clases.data.length) ? clases.data : CLASES_FALLBACK;
       pintarCuenta(lista);
       pintarClases(lista);
-      pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)));
+      pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)), aperturaRecursos(lista));
       document.body.removeAttribute('data-cargando');
       if (localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
     }

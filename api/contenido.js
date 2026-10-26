@@ -37,8 +37,19 @@ export default async function handler(req, res) {
       if (!compra) return res.status(403).json({ error: esRecursoBootcamp(guide) ? 'Este recurso es del Bootcamp Gemini de 0 a 100' : 'No has comprado este recurso' });
     }
 
-    // Recurso del bootcamp: URL pública tal cual (mismo bucket que las guías gratuitas)
-    if (esRecursoBootcamp(guide)) return res.status(200).json({ url: guide.contenido_url });
+    // Recurso del bootcamp: se habilita el primer día del evento (medianoche de Bogotá
+    // del día de la clase 1) para los compradores; los admins siempre. URL pública tal
+    // cual (mismo bucket que las guías gratuitas).
+    if (esRecursoBootcamp(guide)) {
+      if (!perfil?.es_admin) {
+        const { data: clase1 } = await db.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCTO_BOOTCAMP).eq('numero', 1).maybeSingle();
+        if (clase1?.inicio_utc) {
+          const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.inicio_utc));
+          if (Date.now() < new Date(dia + 'T05:00:00Z').getTime()) return res.status(403).json({ error: 'Los recursos del bootcamp se habilitan el primer día del evento' });
+        }
+      }
+      return res.status(200).json({ url: guide.contenido_url });
+    }
 
     // Para guías premium, contenido_url guarda la RUTA dentro del bucket privado
     // "contenido-premium" (no una URL pública).
