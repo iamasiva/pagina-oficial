@@ -52,3 +52,18 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/
 4. Crear un broadcast de prueba con el destino de la clase 1, resolución 1080p, y preparar las escenas: presentador, presentador + PDF, Gemini a pantalla completa, Gemini + presentador en miniatura, pausa. Comprobar que al cambiar de escena la pantalla compartida siga disponible.
 5. Go live. El agente pone la clase 1 en vivo desde la consola y la abre en el Chrome de Sergio: medir el retraso (decir una palabra y cronometrar hasta verla), probar celular, cortar y retomar la emisión (la página reconecta), y al terminar descargar la grabación desde la biblioteca de StreamYard para verificar que sea completa.
 6. Registrar: retraso medido, calidad, minutos consumidos en Stream analytics.
+
+## GATE 6: ensayo con StreamYard (26 oct 2026, 17:50 a 18:20)
+
+- Plan contratado: StreamYard Core mensual (RTMP personalizado, 1080p, grabación en la nube y descarga). Tres destinos Custom RTMP (`Cloudflare clase 1/2/3`) con la URL RTMPS y la key de cada live input. Low-Latency HLS activado en los tres live inputs. StreamYard emite con fotogramas clave cada 2 s (segmentos de 2 s en el manifiesto).
+- Latencia medida con un reloj (time.is) compartido en pantalla:
+  - Reproductor iframe de Cloudflare: 11 a 12 s (no usa LL-HLS aunque esté activado en el live input).
+  - Manifiesto `?protocol=llhls` (PART-TARGET 0.5, PART-HOLD-BACK 1.5) con hls.js en modo baja latencia: 2 a 4 s en Chrome de escritorio, con derivas puntuales hasta 7 s; iPhone (HLS nativo de Safari): 6 a 7 s.
+  - Decisión: `bootcamp-clase.html` usa hls.js LL-HLS (Safari sin MSE: HLS nativo) sobre el manifiesto firmado; botón "Modo estable" que cambia al iframe de Cloudflare; caída automática al iframe tras 3 fallos seguidos con señal presente. Cloudflare marca la bandera `protocol=llhls` como beta: por eso existe el modo estable.
+- Dos errores encontrados y corregidos en el ensayo:
+  1. Al terminar la emisión, el reproductor se quedaba congelado en el último cuadro: ahora detecta el fin (ENDLIST o `ended`), muestra "La señal se cortó" y vuelve a "Esperando la señal"; al reanudar la emisión retoma solo (comprobado: retomó unos 30 s después de dar Transmitir en vivo).
+  2. Los tickets de video y chat se pedían con el token de sesión capturado al cargar; el token de Supabase dura 1 h y la clase 2 h, así que a la hora "Reconectar" devolvía "Inicia sesión para ver la clase". Ahora cada petición usa el token vigente y, si el ticket falla, reintenta solo cada 20 s.
+- iPhone: la primera vez el botón grande de reproducir no arrancó (sesión del 26 oct, antes del arreglo); ahora, si el toque falla, pasa solo al iframe de Cloudflare. En la segunda prueba el botón funcionó y el retraso fue de 6 s.
+- Chat: mensajes en sala desde escritorio y celular, "2 en sala".
+- Lección de StreamYard: crear SIEMPRE la transmisión con "Estudio reutilizable"; sin él, al dar "Finalizar" no se puede volver a emitir y toca crear otra transmisión (nuevo enlace). Con el estudio reutilizable, un corte se resuelve dando Transmitir en vivo otra vez.
+- Pendiente: descargar y revisar la grabación en Biblioteca; consumo de minutos en Stream analytics; volver la clase 1 a `scheduled` y el chat a `off` tras el ensayo.
