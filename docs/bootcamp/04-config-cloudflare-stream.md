@@ -33,3 +33,12 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/
 
 - Entrega: USD 1 por cada 1.000 minutos vistos. Almacenamiento: USD 5 por cada 1.000 minutos guardados al mes (las copias temporales del directo se borran tras respaldar en StreamYard).
 - Para 200 alumnos viendo 6 horas: unos 72.000 minutos = USD 72 de entrega. Presupuestar alertas de consumo en Cloudflare.
+
+## GATE 2: cumplido el 26 oct 2026
+
+- Cuenta Cloudflare con Images & Stream (pago por uso) y 1.000 minutos de almacenamiento; tres Live Inputs `bootcamp-clase-1/2/3` con *Require signed URLs* y grabación automática (borrado automático a los 30 días); llave de firma creada por API; seis variables en Vercel.
+- Señal de prueba: OBS (cámara de Sergio) → RTMPS → Cloudflare → `bootcamp-clase.html?n=1` en iamasiva.co con la sesión de admin. La imagen se vio en el reproductor sin pasar por Vercel ni Supabase.
+- Seguridad: manifiesto firmado 200 (m3u8 válido); el mismo manifiesto sin firma 401; `api/bootcamp-ticket` responde 401 sin sesión y 403 a un usuario con sesión pero sin compra (probado con usuario desechable, borrado después). Token de 4 horas, `sub` = UID del Live Input.
+- Antes de que empiece la emisión, Cloudflare responde 204 al manifiesto: la página muestra "Esperando la señal" y reintenta cada 15 s hasta que haya transmisión.
+- Ajuste hecho en el camino: `CF_STREAM_CUSTOMER_CODE` puede llevar el dominio completo; el servidor lo normaliza.
+- Pendiente de medir en el ensayo largo (fase 6): retraso emisión → reproductor, reconexión al cortar OBS, celular y minutos consumidos en Stream analytics.
