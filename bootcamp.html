@@ -82,6 +82,8 @@
     .h1 { margin-top: 22px; font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(58px, 9.2vw, 124px); }
     .h1 span { display: block; }
     .h1 .azul { color: var(--azul); }
+    .h1 .h1-gemini { display: flex; align-items: center; gap: 0.1em; }
+    .h1-estrella { width: 0.72em; height: 0.72em; flex: none; margin-top: 0.03em; filter: drop-shadow(0 8px 22px rgba(36, 107, 253, 0.35)); }
     .hero-linea { margin-top: 18px; font-size: clamp(20px, 2.4vw, 28px); font-weight: 500; color: var(--ink); }
     .hero-texto { margin-top: 14px; font-size: 18px; color: var(--muted); max-width: 560px; }
     .agenda { margin-top: 24px; display: grid; grid-template-columns: auto 1fr; gap: 10px 22px; align-items: center; width: fit-content; background: #fff; border: 1px solid var(--linea); border-radius: 18px; padding: 16px 22px; box-shadow: var(--sombra); }
@@ -93,8 +95,21 @@
     .hero-cta { margin-top: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
     .hero-sub { font-size: 16px; color: var(--ink); }
     .hero-sub b { font-weight: 600; color: var(--azul); }
-    .hero-estrella { position: relative; display: flex; justify-content: center; }
-    .hero-estrella img { width: min(100%, 460px); height: auto; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); }
+    .hero-cuenta { position: relative; background: #fff; border: 1px solid var(--linea); border-radius: 28px; box-shadow: var(--sombra2); padding: 28px; overflow: hidden; }
+    .hero-cuenta::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(232, 243, 255, 0.95), rgba(255, 255, 255, 0) 55%); pointer-events: none; }
+    .hero-cuenta > * { position: relative; }
+    .cuenta-eti { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--azul); }
+    .cuenta-eti svg { width: 16px; height: 16px; stroke: var(--azul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .cuenta-tiles { margin-top: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .tile { background: var(--halo); border-radius: 18px; padding: 16px 6px 12px; text-align: center; }
+    .tile b { display: block; font-size: clamp(34px, 3.6vw, 50px); font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--azul); font-variant-numeric: tabular-nums; }
+    .tile small { display: block; margin-top: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .hero-cuenta.cerrada .tile b { color: var(--muted); }
+    .cuenta-fecha { margin-top: 16px; font-size: 15px; color: var(--muted); }
+    .cuenta-fecha b { color: var(--ink); font-weight: 600; }
+    .cuenta-pie { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .hero-cuenta .cierre-pill { margin-top: 0; }
+    .cuenta-chip { display: inline-flex; align-items: center; background: var(--halo); color: var(--azul); border-radius: 999px; padding: 6px 13px; font-size: 13px; font-weight: 600; }
 
     /* Oferta */
     .oferta { padding-top: 24px; }
@@ -263,8 +278,8 @@
       section { padding: 56px 0; }
       .hero { padding: 36px 0 24px; }
       .hero .wrap { grid-template-columns: 1fr; gap: 8px; }
-      .hero-estrella { order: -1; margin-bottom: -10px; }
-      .hero-estrella img { width: min(52vw, 230px); }
+      .hero-cuenta { order: -1; padding: 18px 18px 16px; border-radius: 22px; margin-bottom: 14px; }
+      .cuenta-tiles { gap: 8px; } .tile { padding: 12px 4px 10px; border-radius: 14px; } .tile b { font-size: 30px; } .tile small { font-size: 10px; letter-spacing: 0.12em; }
       .oferta-caja { padding: 28px 22px; border-radius: 26px; }
       .oferta-cabeza { flex-direction: column-reverse; align-items: flex-start; }
       .sello { width: 92px; height: 92px; font-size: 28px; }
@@ -319,7 +334,7 @@
           <span class="etiqueta">Bootcamp en vivo · 3 clases</span>
           <span class="pastilla-bf"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="url(#gEstrella)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg>Black Friday</span>
         </div>
-        <h1 class="h1"><span>Gemini</span><span class="azul">de 0 a 100</span></h1>
+        <h1 class="h1"><span class="h1-gemini">Gemini<svg class="h1-estrella" viewBox="0 0 24 24" aria-hidden="true"><path fill="url(#gEstrella)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg></span><span class="azul">de 0 a 100</span></h1>
         <p class="hero-linea">De ideas a proyectos reales</p>
         <p class="hero-texto">Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. Sin saber programar y sin haber usado Gemini antes.</p>
         <div class="agenda" id="agenda">
@@ -338,8 +353,19 @@
           <div class="urgencia"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Es la <b>única versión en vivo</b> que se va a dictar. Después queda disponible pregrabado por <b data-pregrabado></b>.</span></div>
         </div>
       </div>
-      <div class="hero-estrella">
-        <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" width="720" height="795" fetchpriority="high" />
+      <div class="hero-cuenta" id="heroCuenta">
+        <span class="cuenta-eti" id="cuentaEti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>La oferta de Black Friday termina en</span>
+        <div class="cuenta-tiles">
+          <div class="tile"><b id="cdDias">00</b><small>días</small></div>
+          <div class="tile"><b id="cdHoras">00</b><small>horas</small></div>
+          <div class="tile"><b id="cdMin">00</b><small>min</small></div>
+          <div class="tile"><b id="cdSeg">00</b><small>seg</small></div>
+        </div>
+        <p class="cuenta-fecha"><b id="heroCierre">Martes 3 de noviembre, 6:00 pm</b>, hora de Bogotá. Una hora antes de la clase 1.</p>
+        <div class="cuenta-pie">
+          <span class="cierre-pill"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/></svg>O antes, si se llena la sala</span>
+          <span class="cuenta-chip">Única versión en vivo</span>
+        </div>
       </div>
     </div>
   </section>
@@ -695,23 +721,31 @@
           el.innerHTML = `${svg}${cap(f[i].dia)} ${f[i].d} de ${f[i].mes} · 7:00 pm Bogotá`;
         });
       }
-      if (FECHAS.cierreTexto) { $('cierreFecha').textContent = FECHAS.cierreTexto; $('cierreSub').textContent = 'Hora de Bogotá.'; }
+      let textoCierre = null;
+      if (FECHAS.cierreTexto) { textoCierre = FECHAS.cierreTexto; $('cierreSub').textContent = 'Hora de Bogotá.'; }
       else if (FECHAS.cierre) {
         try {
           const partesC = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', hour12: true }).formatToParts(new Date(FECHAS.cierre));
           const g = (t) => (partesC.find(x => x.type === t) || {}).value || '';
           const ampm = g('dayPeriod').replace(/[.\s]/g, '').toLowerCase();
-          $('cierreFecha').textContent = `${cap(g('weekday'))} ${g('day')} de ${g('month')}, ${g('hour')}:${g('minute')} ${ampm}`;
+          textoCierre = `${cap(g('weekday'))} ${g('day')} de ${g('month')}, ${g('hour')}:${g('minute')} ${ampm}`;
         } catch (_) {}
       }
+      if (textoCierre) ['cierreFecha', 'heroCierre'].forEach(id => { $(id).textContent = textoCierre; });
       if (FECHAS.cierre) {
         const fin = new Date(FECHAS.cierre).getTime();
         const caja = $('cuentaRegresiva');
         const tic = () => {
           const d = Math.max(0, fin - Date.now());
           const dias = Math.floor(d / 864e5), h = Math.floor(d % 864e5 / 36e5), m = Math.floor(d % 36e5 / 6e4), s = Math.floor(d % 6e4 / 1e3);
-          $('cuentaTexto').textContent = (dias ? dias + 'd ' : '') + String(h).padStart(2, '0') + 'h ' + String(m).padStart(2, '0') + 'm ' + String(s).padStart(2, '0') + 's';
-          if (d <= 0) { caja.style.display = 'none'; clearInterval(reloj); }
+          const dd = (n) => String(n).padStart(2, '0');
+          $('cuentaTexto').textContent = (dias ? dias + 'd ' : '') + dd(h) + 'h ' + dd(m) + 'm ' + dd(s) + 's';
+          $('cdDias').textContent = dd(dias); $('cdHoras').textContent = dd(h); $('cdMin').textContent = dd(m); $('cdSeg').textContent = dd(s);
+          if (d <= 0) {
+            caja.style.display = 'none'; clearInterval(reloj);
+            $('heroCuenta').classList.add('cerrada');
+            $('cuentaEti').lastChild.textContent = 'La oferta de Black Friday terminó';
+          }
         };
         caja.style.display = 'flex';
         tic();
