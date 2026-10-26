@@ -55,8 +55,10 @@ export default async function handler(req, res) {
     if (!config?.video_enabled) return res.status(409).json({ error: 'El video no está habilitado todavía' });
     if (!esAdmin && !['lobby', 'live'].includes(clase.estado)) return res.status(409).json({ error: 'La clase no está en vivo' });
 
-    const uid = process.env[`CF_STREAM_LIVE_INPUT_${numero}`];
-    const customer = process.env.CF_STREAM_CUSTOMER_CODE;
+    const uid = String(process.env[`CF_STREAM_LIVE_INPUT_${numero}`] ?? '').trim();
+    // Acepta "customer-xxxx", "customer-xxxx.cloudflarestream.com" o la URL completa
+    const customer = String(process.env.CF_STREAM_CUSTOMER_CODE ?? '').trim()
+      .replace(/^https?:\/\//, '').replace(/\.cloudflarestream\.com.*$/i, '').replace(/\/.*$/, '');
     if (!uid || !customer) return res.status(503).json({ error: 'La señal de esta clase no está configurada' });
 
     const token = firmarToken(uid);
