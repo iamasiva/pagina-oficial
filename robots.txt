@@ -14,6 +14,7 @@ Disallow: /panel.html
 Disallow: /bonos.html
 Disallow: /bootcamp.html
 Disallow: /bootcamp-clase.html
+Disallow: /bootcamp-admin.html
 Disallow: /pago.html
 Disallow: /confirmacion.html
 Disallow: /recurso-

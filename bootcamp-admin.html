@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <title>Consola del bootcamp · IA MASIVA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root { --black: #050505; --card: #0b1440; --line: rgba(255,255,255,0.1); --white: #fff; --gray: #D1D5DB; --muted: #9aa3b8; --blue: #2F6BFF; --cyan: #00E5FF; --green: #00FF9C; --red: #ff3b5c; --amber: #f5b942; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--black); color: var(--white); line-height: 1.5; }
+    body[data-cargando] main { visibility: hidden; }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, p { margin: 0; }
+    .wrap { width: min(1100px, 100% - 32px); margin: 0 auto; }
+    .nav { border-bottom: 1px solid var(--line); }
+    .nav .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .nav-logo { font-weight: 900; letter-spacing: 0.12em; }
+    .nav a.l { color: var(--gray); font-size: 0.9rem; margin-left: 14px; }
+    main { padding: 28px 0 60px; }
+    h1 { font-size: 1.5rem; font-weight: 800; }
+    .sub { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+    .bloque { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-top: 18px; }
+    .bloque h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    label { display: flex; flex-direction: column; gap: 5px; font-size: 0.8rem; color: var(--muted); }
+    label.fila { flex-direction: row; align-items: center; gap: 10px; color: var(--white); font-size: 0.95rem; }
+    input, select, textarea { background: #090c22; border: 1px solid var(--line); border-radius: 8px; color: var(--white); padding: 9px 10px; font: inherit; font-size: 0.92rem; width: 100%; }
+    input[type="checkbox"] { width: 18px; height: 18px; }
+    textarea { min-height: 64px; resize: vertical; }
+    .btn { background: var(--blue); color: #fff; border: 0; border-radius: 9px; padding: 9px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+    .btn.sec { background: transparent; border: 1px solid var(--line); color: var(--gray); }
+    .btn.chico { padding: 6px 10px; font-size: 0.82rem; }
+    .btn[disabled] { opacity: .5; cursor: default; }
+    .estado { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); }
+    .estado.live { color: #ffb3c0; border-color: var(--red); } .estado.lobby { color: #b8ffe0; border-color: var(--green); } .estado.evergreen_ready { color: #b8f6ff; border-color: var(--cyan); }
+    .clase { border-top: 1px solid var(--line); padding: 16px 0; }
+    .clase:first-of-type { border-top: 0; padding-top: 4px; }
+    .clase .cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .clase .cab b { font-size: 1rem; }
+    .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .nota { color: var(--muted); font-size: 0.85rem; }
+    .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #fff; color: #050505; padding: 12px 16px; border-radius: 12px; font-weight: 600; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    .toast.ver { opacity: 1; }
+    .pill-prod { display: inline-flex; gap: 8px; align-items: center; font-size: 0.85rem; color: var(--gray); }
+    .pill-prod i { font-style: normal; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); }
+  </style>
+</head>
+<body data-cargando="1">
+  <div class="nav"><div class="wrap"><a class="nav-logo" href="admin.html">IA MASIVA · Admin</a><span><a class="l" href="recurso-bootcamp.html">Ver el home</a><a class="l" href="bootcamp.html">Ver la landing</a><a class="l" href="app.html">Catálogo</a></span></div></div>
+  <main>
+    <div class="wrap">
+      <h1>Consola del bootcamp</h1>
+      <p class="sub">Cambia estados y banderas sin tocar la base. Cada cambio se guarda al instante y los alumnos lo ven en menos de 90 segundos.</p>
+
+      <section class="bloque">
+        <h2>Producto <span class="pill-prod" id="prodInfo"></span></h2>
+        <p class="nota">Activo y con link de Hotmart = se puede comprar. Eso se cambia desde la fila de products (o desde el panel de productos), no desde aquí.</p>
+      </section>
+
+      <section class="bloque">
+        <h2>Banderas del evento <button class="btn chico" id="guardarCfg">Guardar banderas</button></h2>
+        <div class="grid">
+          <label class="fila"><input type="checkbox" id="cfgAdminOnly" /> Solo equipo (ningún comprador entra)</label>
+          <label class="fila"><input type="checkbox" id="cfgVideo" /> Video habilitado (el servidor emite tickets)</label>
+          <label>Modo del chat<select id="cfgChat"><option value="off">off</option><option value="normal">normal</option><option value="slow_mode">slow_mode</option><option value="questions_only">questions_only</option><option value="read_only">read_only</option></select></label>
+          <label>Índice del curso en Hotmart Club (fallback de las repeticiones)<input id="cfgHotmart" type="url" placeholder="https://hotmart.com/..." /></label>
+        </div>
+        <label style="margin-top:12px">Anuncio para los alumnos (vacío = sin anuncio)<textarea id="cfgAnuncio" placeholder="Ej: La clase de hoy empieza 10 minutos tarde."></textarea></label>
+      </section>
+
+      <section class="bloque">
+        <h2>Clases</h2>
+        <div id="clases"></div>
+      </section>
+    </div>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+    const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const ESTADOS = ['scheduled', 'lobby', 'live', 'ended_pending_upload', 'evergreen_ready', 'rescheduled', 'cancelled'];
+    const ETIQUETA = { scheduled: 'Programada', lobby: 'Sala abierta', live: 'En vivo', ended_pending_upload: 'Grabación en preparación', evergreen_ready: 'Repetición disponible', rescheduled: 'Fecha actualizada', cancelled: 'Cancelada' };
+    // Bogotá no cambia de hora: UTC-5 fijo
+    const aLocal = (iso) => new Date(new Date(iso).getTime() - 5 * 3600e3).toISOString().slice(0, 16);
+    const aUtc = (local) => new Date(local + ':00-05:00').toISOString();
+    let toastTimer = null;
+    function aviso(t, mal) { const el = $('toast'); el.textContent = t; el.style.background = mal ? '#ff3b5c' : '#fff'; el.style.color = mal ? '#fff' : '#050505'; el.classList.add('ver'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('ver'), 2600); }
+
+    function pintarClases(clases) {
+      $('clases').innerHTML = clases.map(c => `<div class="clase" data-n="${c.numero}">
+        <div class="cab"><b>Clase ${c.numero} · ${esc(c.titulo)}</b><span class="estado ${c.estado}">${ETIQUETA[c.estado] || c.estado}</span></div>
+        <div class="grid">
+          <label>Título<input data-campo="titulo" value="${esc(c.titulo)}" /></label>
+          <label>Inicio (hora de Bogotá)<input data-campo="inicio" type="datetime-local" value="${aLocal(c.inicio_utc)}" /></label>
+          <label>Duración (min)<input data-campo="duracion_min" type="number" min="15" max="600" value="${c.duracion_min}" /></label>
+          <label>Estado<select data-campo="estado">${ESTADOS.map(e => `<option value="${e}"${e === c.estado ? ' selected' : ''}>${e}</option>`).join('')}</select></label>
+          <label>Lección en Hotmart Club (repetición)<input data-campo="hotmart_lesson_url" type="url" value="${esc(c.hotmart_lesson_url ?? '')}" placeholder="https://hotmart.com/..." /></label>
+          <label>Aviso en la tarjeta (opcional)<input data-campo="aviso" value="${esc(c.aviso ?? '')}" /></label>
+        </div>
+        <div class="acciones">
+          <button class="btn chico" data-guardar>Guardar clase</button>
+          <span class="nota" style="align-self:center">Atajos:</span>
+          <button class="btn sec chico" data-rapido="lobby">Abrir sala</button>
+          <button class="btn sec chico" data-rapido="live">En vivo</button>
+          <button class="btn sec chico" data-rapido="ended_pending_upload">Terminar</button>
+          <button class="btn sec chico" data-rapido="evergreen_ready">Repetición lista</button>
+          <button class="btn sec chico" data-rapido="scheduled">Volver a programada</button>
+        </div>
+      </div>`).join('');
+      document.querySelectorAll('[data-guardar]').forEach(b => b.addEventListener('click', () => guardarClase(b.closest('.clase'))));
+      document.querySelectorAll('[data-rapido]').forEach(b => b.addEventListener('click', () => { const caja = b.closest('.clase'); caja.querySelector('[data-campo="estado"]').value = b.dataset.rapido; guardarClase(caja); }));
+    }
+
+    async function guardarClase(caja) {
+      const v = (campo) => caja.querySelector(`[data-campo="${campo}"]`).value;
+      const cambios = { titulo: v('titulo').trim(), inicio_utc: aUtc(v('inicio')), duracion_min: Number(v('duracion_min')) || 120, estado: v('estado'), hotmart_lesson_url: v('hotmart_lesson_url').trim() || null, aviso: v('aviso').trim() || null, actualizado_en: new Date().toISOString() };
+      if (cambios.estado === 'evergreen_ready' && !cambios.hotmart_lesson_url && !$('cfgHotmart').value.trim()) { aviso('Pon el link de la lección en Hotmart (o el índice del curso) antes de marcar la repetición', true); return; }
+      const { error } = await sb.from('bootcamp_clases').update(cambios).eq('product_id', PRODUCT_ID).eq('numero', Number(caja.dataset.n));
+      if (error) { aviso('No se guardó: ' + error.message, true); return; }
+      aviso(`Clase ${caja.dataset.n} guardada: ${ETIQUETA[cambios.estado]}`);
+      await cargarClases();
+    }
+
+    async function guardarConfig() {
+      const cambios = { admin_only: $('cfgAdminOnly').checked, video_enabled: $('cfgVideo').checked, chat_mode: $('cfgChat').value, anuncio: $('cfgAnuncio').value.trim() || null, hotmart_curso_url: $('cfgHotmart').value.trim() || null, actualizado_en: new Date().toISOString() };
+      const { error } = await sb.from('bootcamp_config').update(cambios).eq('product_id', PRODUCT_ID);
+      if (error) { aviso('No se guardó: ' + error.message, true); return; }
+      aviso(cambios.admin_only ? 'Banderas guardadas (sigue en modo solo equipo)' : 'Banderas guardadas: el bootcamp está ABIERTO a compradores');
+    }
+
+    async function cargarClases() {
+      const { data, error } = await sb.from('bootcamp_clases').select('*').eq('product_id', PRODUCT_ID).order('numero');
+      if (error) { $('clases').innerHTML = `<p class="nota">No se pudo leer bootcamp_clases: ${esc(error.message)}. ¿Corriste sql/bootcamp-clases.sql?</p>`; return; }
+      pintarClases(data ?? []);
+    }
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.replace('index.html'); return; }
+      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
+      if (!perfil?.es_admin) { location.replace('app.html'); return; }
+      const [{ data: prod }, { data: cfg }] = await Promise.all([
+        sb.from('products').select('activo, hotmart_url, hotmart_id, precio_usd_centavos').eq('id', PRODUCT_ID).maybeSingle(),
+        sb.from('bootcamp_config').select('*').eq('product_id', PRODUCT_ID).maybeSingle(),
+      ]);
+      $('prodInfo').innerHTML = prod
+        ? `<i>${prod.activo ? 'ACTIVO' : 'INACTIVO'}</i><i>${prod.hotmart_url ? 'Hotmart enlazado' : 'sin link de Hotmart'}</i><i>$${(prod.precio_usd_centavos / 100)}</i>`
+        : '<i>no se pudo leer el producto (inactivo: solo lo ve el servidor)</i>';
+      if (cfg) {
+        $('cfgAdminOnly').checked = !!cfg.admin_only; $('cfgVideo').checked = !!cfg.video_enabled; $('cfgChat').value = cfg.chat_mode || 'off';
+        $('cfgAnuncio').value = cfg.anuncio || ''; $('cfgHotmart').value = cfg.hotmart_curso_url || '';
+      } else {
+        $('guardarCfg').disabled = true; $('guardarCfg').textContent = 'Falta bootcamp_config (corre sql/bootcamp-clases.sql)';
+      }
+      $('guardarCfg').addEventListener('click', guardarConfig);
+      await cargarClases();
+      document.body.removeAttribute('data-cargando');
+    }
+    init().catch(e => { document.body.removeAttribute('data-cargando'); aviso('Error: ' + e.message, true); });
+  </script>
+</body>
+</html>
