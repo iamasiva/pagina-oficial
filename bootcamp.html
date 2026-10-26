@@ -95,7 +95,7 @@
     .hero-cta { margin-top: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
     .hero-sub { font-size: 16px; color: var(--ink); }
     .hero-sub b { font-weight: 600; color: var(--azul); }
-    .hero-cuenta { position: relative; background: #fff; border: 1px solid var(--linea); border-radius: 28px; box-shadow: var(--sombra2); padding: 28px; overflow: hidden; }
+    .hero-cuenta { position: relative; align-self: start; margin-top: calc(58px + 0.95 * clamp(58px, 9.2vw, 124px)); background: #fff; border: 1px solid var(--linea); border-radius: 28px; box-shadow: var(--sombra2); padding: 28px; overflow: hidden; }
     .hero-cuenta::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(232, 243, 255, 0.95), rgba(255, 255, 255, 0) 55%); pointer-events: none; }
     .hero-cuenta > * { position: relative; }
     .cuenta-eti { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--azul); }
@@ -105,11 +105,6 @@
     .tile b { display: block; font-size: clamp(34px, 3.6vw, 50px); font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--azul); font-variant-numeric: tabular-nums; }
     .tile small { display: block; margin-top: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
     .hero-cuenta.cerrada .tile b { color: var(--muted); }
-    .cuenta-fecha { margin-top: 16px; font-size: 15px; color: var(--muted); }
-    .cuenta-fecha b { color: var(--ink); font-weight: 600; }
-    .cuenta-pie { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .hero-cuenta .cierre-pill { margin-top: 0; }
-    .cuenta-chip { display: inline-flex; align-items: center; background: var(--halo); color: var(--azul); border-radius: 999px; padding: 6px 13px; font-size: 13px; font-weight: 600; }
 
     /* Oferta */
     .oferta { padding-top: 24px; }
@@ -278,7 +273,7 @@
       section { padding: 56px 0; }
       .hero { padding: 36px 0 24px; }
       .hero .wrap { grid-template-columns: 1fr; gap: 8px; }
-      .hero-cuenta { order: -1; padding: 18px 18px 16px; border-radius: 22px; margin-bottom: 14px; }
+      .hero-cuenta { order: -1; margin-top: 0; padding: 18px 18px 16px; border-radius: 22px; margin-bottom: 14px; }
       .cuenta-tiles { gap: 8px; } .tile { padding: 12px 4px 10px; border-radius: 14px; } .tile b { font-size: 30px; } .tile small { font-size: 10px; letter-spacing: 0.12em; }
       .oferta-caja { padding: 28px 22px; border-radius: 26px; }
       .oferta-cabeza { flex-direction: column-reverse; align-items: flex-start; }
@@ -336,7 +331,7 @@
         </div>
         <h1 class="h1"><span class="h1-gemini">Gemini<svg class="h1-estrella" viewBox="0 0 24 24" aria-hidden="true"><path fill="url(#gEstrella)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg></span><span class="azul">de 0 a 100</span></h1>
         <p class="hero-linea">De ideas a proyectos reales</p>
-        <p class="hero-texto">Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo. Sin saber programar y sin haber usado Gemini antes.</p>
+        <p class="hero-texto">Tres clases en vivo para pasar de preguntarle cosas a Gemini a dirigirlo.</p>
         <div class="agenda" id="agenda">
           <span class="agenda-clase">Clase 1</span><span class="agenda-fecha" data-fecha="0"><i class="ph">fecha</i></span>
           <span class="agenda-clase">Clase 2</span><span class="agenda-fecha" data-fecha="1"><i class="ph">fecha</i></span>
@@ -360,11 +355,6 @@
           <div class="tile"><b id="cdHoras">00</b><small>horas</small></div>
           <div class="tile"><b id="cdMin">00</b><small>min</small></div>
           <div class="tile"><b id="cdSeg">00</b><small>seg</small></div>
-        </div>
-        <p class="cuenta-fecha"><b id="heroCierre">Martes 3 de noviembre, 6:00 pm</b>, hora de Bogotá. Una hora antes de la clase 1.</p>
-        <div class="cuenta-pie">
-          <span class="cierre-pill"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/></svg>O antes, si se llena la sala</span>
-          <span class="cuenta-chip">Única versión en vivo</span>
         </div>
       </div>
     </div>
@@ -731,7 +721,7 @@
           textoCierre = `${cap(g('weekday'))} ${g('day')} de ${g('month')}, ${g('hour')}:${g('minute')} ${ampm}`;
         } catch (_) {}
       }
-      if (textoCierre) ['cierreFecha', 'heroCierre'].forEach(id => { $(id).textContent = textoCierre; });
+      if (textoCierre) $('cierreFecha').textContent = textoCierre;
       if (FECHAS.cierre) {
         const fin = new Date(FECHAS.cierre).getTime();
         const caja = $('cuentaRegresiva');
