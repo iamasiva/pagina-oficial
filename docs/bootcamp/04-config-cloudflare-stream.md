@@ -42,3 +42,4 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/
 - Antes de que empiece la emisión, Cloudflare responde 204 al manifiesto: la página muestra "Esperando la señal" y reintenta cada 15 s hasta que haya transmisión.
 - Ajuste hecho en el camino: `CF_STREAM_CUSTOMER_CODE` puede llevar el dominio completo; el servidor lo normaliza.
 - Pendiente de medir en el ensayo largo (fase 6): retraso emisión → reproductor, reconexión al cortar OBS, celular y minutos consumidos en Stream analytics.
+- Medido el 26 oct: retraso emisión → celular de unos 55 a 60 s con OBS en configuración por defecto. Para bajarlo en la fase 6: intervalo de fotogramas clave de 2 s en el emisor (OBS: Output → Keyframe Interval = 2; StreamYard lo trae así) y probar *Low-Latency HLS* (beta) en un Live Input de ensayo. Con HLS normal lo esperable es 15 a 30 s.
