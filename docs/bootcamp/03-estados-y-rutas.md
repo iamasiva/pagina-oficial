@@ -7,7 +7,7 @@
 | `bootcamp.html` | Hoy solo admin (puerta `profiles.es_admin`); al lanzar, pública | Landing de venta. Botón → `pago.html?p=6c01d354…` cuando el producto esté activo con `hotmart_url` |
 | `recurso-bootcamp.html` | Comprador con compra APROBADA del bootcamp, o admin | Home privado: estado del evento, 3 tarjetas de clase, herramientas (557/400/200) y recursos de clase, soporte |
 | `bootcamp-clase.html?n=1..3` | Igual que el home | Página de clase: estado, cuenta regresiva, reproductor (ticket del servidor), chat (fase 4), repetición en Hotmart |
-| `bootcamp-recurso.html?r=<slug>` | Igual que el home | Recurso de clase con dirección definitiva: `42-formatos-de-respuesta`, `61-instrucciones-para-imagenes`, `tu-equipo-de-carruseles-con-ia`, `mapa-de-las-ia-de-google`. Muestra la guía (tabla `guides`, mismo slug, despublicada) en el visor con los parches del visor público; si aún no existe, "se entrega en la clase N" |
+| `bootcamp-recurso.html?r=<slug>` | Igual que el home | Recurso de clase con dirección definitiva: `42-formatos-de-respuesta`, `61-instrucciones-para-imagenes`, `25-agentes-de-ia`, `mapa-de-las-ia-de-google`. Muestra la guía (tabla `guides`, mismo slug, despublicada) en el visor con los parches del visor público; si aún no existe, "se entrega en la clase N" |
 | `bootcamp-admin.html` | Admin | Consola: banderas del evento y estados de cada clase |
 | `app.html` (catálogo) | Todos | La tarjeta del bootcamp es la guía premium enlazada por `products.guide_id` (despublicada hasta lanzar). Clic: comprado → `recurso-bootcamp.html`; sin compra → `bootcamp.html` (mapa `LANDING_PRODUCTO`) |
 | `pago.html` / `confirmacion.html` | Compradores | Mapa `PAGINAS` → `recurso-bootcamp.html` tras pagar |
