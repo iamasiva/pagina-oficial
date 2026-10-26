@@ -25,7 +25,6 @@
     .cabeza { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px; margin-bottom: 14px; }
     .etq { font-size: 0.74rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
     h1 { font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800; margin-top: 4px; }
-    .marco { width: 100%; border: 0; border-radius: 14px; background: #fff; min-height: 70vh; display: block; }
     .oculto { display: none !important; }
     .estado { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; }
     .estado img { width: 100%; border-radius: 12px; display: block; }
@@ -46,11 +45,13 @@
         <img id="prontoImg" alt="" />
         <div><h2 id="prontoTitulo"></h2><p id="prontoTexto"></p><a class="btn" href="recurso-bootcamp.html">Volver al bootcamp</a></div>
       </div>
-      <iframe id="marco" class="marco oculto" title="Recurso" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>
     </div>
   </main>
 
   <script>
+  // Todo dentro de una función: al reemplazar el documento con document.write el
+  // ámbito global sigue vivo y las const de aquí chocarían con las del recurso.
+  (async () => {
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
     const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
     const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
@@ -61,27 +62,20 @@
     const RECURSOS = {
       '42-formatos-de-respuesta':        { nombre: '42 formatos de respuesta',        clase: 1, portada: PORTADAS + 'bootcamp-portada-42-formatos-1793023500.jpg' },
       '61-instrucciones-para-imagenes':  { nombre: '61 instrucciones para imágenes',  clase: 1, portada: PORTADAS + 'bootcamp-portada-61-instrucciones-1793023500.jpg' },
-      '25-agentes-de-ia':                { nombre: '25 agentes de IA listos para usar', clase: 3, portada: PORTADAS + 'bootcamp-portada-carruseles-1793023500.jpg' },
+      '25-agentes-de-ia':                { nombre: '25 agentes de IA con Gemini', clase: 3, portada: PORTADAS + 'bootcamp-portada-25-agentes-1793050000.jpg' },
       'mapa-de-las-ia-de-google':        { nombre: 'El mapa de las IA de Google',     clase: 1, portada: PORTADAS + 'bootcamp-portada-mapa-ia-google-1793023500.jpg' },
     };
     const $ = (id) => document.getElementById(id);
 
-    // Mismos parches del visor público: portapapeles dentro del sandbox, red
-    // responsive y reportero de altura para que la página scrollee natural
-    function conParches(html) {
-      const shim = '<scr' + 'ipt>(function(){function c(t){return new Promise(function(res,rej){try{var a=document.createElement("textarea");a.value=t==null?"":String(t);a.setAttribute("readonly","");a.style.position="fixed";a.style.top="-1000px";a.style.opacity="0";(document.body||document.documentElement).appendChild(a);a.focus();a.select();a.setSelectionRange(0,a.value.length);var ok=document.execCommand("copy");a.remove();ok?res():rej(new Error("copy-failed"));}catch(e){rej(e);}});}var s={writeText:c,readText:function(){return Promise.reject(new Error("no-read"));}};try{Object.defineProperty(navigator,"clipboard",{value:s,configurable:true});}catch(e){try{navigator.clipboard=s;}catch(_){}}})();</scr' + 'ipt>';
-      const alto = '<scr' + 'ipt>(function(){var t;function h(){var b=document.body;parent.postMessage({im_alto:b?b.scrollHeight:document.documentElement.scrollHeight},"*");}function p(){clearTimeout(t);t=setTimeout(h,120);}new MutationObserver(p).observe(document.documentElement,{subtree:true,childList:true,attributes:true});addEventListener("load",h);setInterval(h,1500);h();})();</scr' + 'ipt>';
-      const css = '<sty' + 'le>img{max-width:100%;height:auto;}video,canvas,svg,iframe{max-width:100%;}pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;}*{overflow-wrap:break-word;}table{display:block;max-width:100%;overflow-x:auto;}</sty' + 'le>';
-      const fix = shim + alto + css;
-      if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + fix);
-      if (/<html[^>]*>/i.test(html)) return html.replace(/<html[^>]*>/i, (m) => m + fix);
-      if (/<!doctype[^>]*>/i.test(html)) return html.replace(/<!doctype[^>]*>/i, (m) => m + fix);
-      return fix + html;
+    // El recurso se muestra como PÁGINA COMPLETA, no dentro de un iframe: un solo
+    // scroll, avisos y diálogos en su sitio y las rutas internas (#...) en la URL
+    // real. Solo se añade un botón fijo para volver al bootcamp.
+    function mostrarCompleto(html) {
+      const volver = '<a class="im-volver" href="recurso-bootcamp.html"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>Volver al bootcamp</a>'
+        + '<style>.im-volver{position:fixed;left:16px;bottom:16px;z-index:2147483000;display:inline-flex;align-items:center;gap:8px;background:#192333;color:#fff;text-decoration:none;font:600 14px/1 "Google Sans Flex","Google Sans","Segoe UI",Roboto,system-ui,sans-serif;padding:11px 16px;border-radius:999px;box-shadow:0 12px 30px rgba(25,35,51,.28)}.im-volver:hover{background:#246bfd;color:#fff}@media print{.im-volver{display:none}}</style>';
+      const doc = /<body[^>]*>/i.test(html) ? html.replace(/<body[^>]*>/i, (m) => m + volver) : volver + html;
+      document.open(); document.write(doc); document.close();
     }
-    window.addEventListener('message', (e) => {
-      const alto = e.data?.im_alto;
-      if (typeof alto === 'number' && alto > 0) $('marco').style.height = Math.ceil(alto) + 'px';
-    });
 
     async function init() {
       const slug = String(new URLSearchParams(location.search).get('r') || '').trim();
@@ -111,27 +105,17 @@
       }
       try {
         const res = await fetch(guia.contenido_url);
+        if (!res.ok) throw new Error('carga');
         const html = await res.text();
-        const marco = $('marco');
-        marco.srcdoc = conParches(html);
-        marco.addEventListener('load', () => {
-          const doc = marco.contentDocument; if (!doc) return;
-          doc.addEventListener('click', (e) => {
-            const a = e.target.closest?.('a[href^="#"]'); if (!a) return;
-            const id = a.getAttribute('href').slice(1); if (!id) return;
-            // Si no hay un elemento con ese id, es navegación interna del recurso (rutas por hash): se deja pasar
-            const destino = doc.getElementById(id) || doc.querySelector(`[name="${CSS.escape(id)}"]`);
-            if (!destino) return;
-            e.preventDefault(); destino.scrollIntoView({ behavior: 'smooth' });
-          }, true);
-        });
-        $('cargando').classList.add('oculto'); marco.classList.remove('oculto');
-        if (localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, guide_id: guia.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
+        // La apertura se registra ANTES de reemplazar el documento (si no, la petición se cancela)
+        if (localStorage.getItem('im_es_admin') !== '1') { try { await sb.from('aperturas').insert({ user_id: session.user.id, guide_id: guia.id, product_id: PRODUCT_ID }); } catch (_) {} }
+        mostrarCompleto(html);
       } catch (_) {
         $('cargando').textContent = 'No se pudo cargar el recurso. Intenta de nuevo.';
       }
     }
     init().catch(() => location.replace(LANDING));
+  })();
   </script>
 </body>
 </html>
