@@ -132,6 +132,9 @@
     .total .ahorro { display: inline-block; margin-top: 8px; background: #fff; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink); }
     .oferta-pie { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
     .oferta-pie .btn { align-self: stretch; }
+    .oferta-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; margin-top: 4px; }
+    .oferta-cols .cierre-nota { font-size: 16px; color: var(--ink); }
+    .oferta-col2 { display: flex; flex-direction: column; gap: 10px; }
     .garantia-dest { display: flex; align-items: center; gap: 12px; background: #fff; border: 2px solid var(--azul); border-radius: 16px; padding: 14px 18px; font-size: 17px; color: var(--ink); }
     .garantia-dest b { color: var(--azul); font-weight: 700; }
     .garantia-dest svg { width: 26px; height: 26px; stroke: var(--azul); fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -172,15 +175,24 @@
     .res-card .cuerpo { padding: 18px 20px 22px; }
     .res-card h3 { margin-top: 6px; font-size: 20px; font-weight: 600; line-height: 1.2; }
     .res-card p { margin-top: 8px; font-size: 15px; color: var(--muted); }
+    /* Características: mockup + lista con chulos */
+    .carac { margin-top: 32px; display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 32px; align-items: center; }
+    .carac-mock img { width: min(100%, 380px); height: auto; display: block; margin: 0 auto; mix-blend-mode: multiply; }
+    .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+    .checks li { display: flex; gap: 12px; align-items: flex-start; }
+    .checks li svg { width: 24px; height: 24px; flex: none; stroke: var(--azul); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
+    .checks b { display: block; font-size: 17px; font-weight: 600; }
+    .checks span { font-size: 15px; color: var(--muted); }
     /* Cómo funciona */
     .como { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .como .tarjeta { display: flex; flex-direction: column; gap: 12px; padding: 24px; font-size: 16px; color: var(--muted); }
     .como .tarjeta b { color: var(--ink); font-weight: 600; display: block; margin-bottom: 4px; }
 
     /* Garantía + Quién enseña */
-    .dosCajas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+    .dosCajas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
     .caja-dest { background: #fff; border-radius: var(--radio); box-shadow: var(--sombra); padding: 30px; display: flex; gap: 18px; align-items: flex-start; }
-    .caja-dest h3 { font-size: 22px; font-weight: 600; }
+    .caja-dest .etiqueta { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; text-transform: none; color: var(--ink); }
+    .caja-dest h3 { font-size: 18px; font-weight: 600; color: var(--azul); margin-top: 4px; }
     .caja-dest p { margin-top: 10px; color: var(--muted); font-size: 16px; }
     .caja-dest.quien { align-items: stretch; }
     .caja-dest .foto { width: 150px; flex: none; height: auto; align-self: flex-start; border-radius: 18px; object-fit: cover; aspect-ratio: 4 / 5; background: var(--halo); }
@@ -235,7 +247,8 @@
       .incluidos { grid-template-columns: 1fr; }
       .vida-lista { grid-template-columns: 1fr; }
       .total { grid-template-columns: 1fr; }
-      .preguntas, .dos, .grid2, .grid3, .como, .dosCajas, .resumen { grid-template-columns: 1fr; }
+      .preguntas, .dos, .grid2, .grid3, .como, .dosCajas, .resumen, .carac, .oferta-cols { grid-template-columns: 1fr; }
+      .carac-mock img { width: min(70%, 260px); }
       .caja-dest.quien { flex-direction: column; } .caja-dest .foto { width: 140px; }
       .hilo { grid-template-columns: 1fr; gap: 26px; }
       .hilo::before { display: none; }
@@ -311,17 +324,22 @@
       <span class="etiqueta">Cómo funciona</span>
       <h2 class="titulo">Tres noches de IA MASIVA donde <b>aprenderás</b></h2>
       <div class="resumen">
-        <article class="res-card"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-1.jpg" alt="" loading="lazy" width="820" height="509" /><div class="cuerpo"><span class="etiqueta">Clase 1</span><h3>Gemini primeros pasos</h3><p>Personalizas Gemini para tu trabajo, armas tus cuadernos con configuraciones y fuentes, pides el formato exacto que necesitas y creas imágenes con dirección visual, no al azar.</p></div></article>
-        <article class="res-card"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-2.jpg" alt="" loading="lazy" width="820" height="509" /><div class="cuerpo"><span class="etiqueta">Clase 2</span><h3>Proyectos grandes con Gemini</h3><p>Formularios y paneles conectados a Google Sheets, cuadernos de estudio, un proceso de trabajo con etapas y entregables, investigación desde tus fuentes y presentaciones con tu propio diseño.</p></div></article>
-        <article class="res-card"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-3.jpg" alt="" loading="lazy" width="820" height="509" /><div class="cuerpo"><span class="etiqueta">Clase 3</span><h3>Gemini para automatización y trabajo agéntico</h3><p>Un agente que trabaja con el conocimiento de tu negocio, skills y plugins que automatizan procesos completos, tareas recurrentes en Gemini Tasks y tu página web publicada en internet.</p></div></article>
+        <article class="res-card"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-1.jpg" alt="" loading="lazy" width="820" height="509" /><div class="cuerpo"><h3>Gemini primeros pasos</h3><p>Personalizas Gemini para tu trabajo, armas tus cuadernos con configuraciones y fuentes, pides el formato exacto que necesitas y creas imágenes con dirección visual, no al azar.</p></div></article>
+        <article class="res-card"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-2.jpg" alt="" loading="lazy" width="820" height="509" /><div class="cuerpo"><h3>Proyectos grandes con Gemini</h3><p>Formularios y paneles conectados a Google Sheets, cuadernos de estudio, un proceso de trabajo con etapas y entregables, investigación desde tus fuentes y presentaciones con tu propio diseño.</p></div></article>
+        <article class="res-card"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-clase-3.jpg" alt="" loading="lazy" width="820" height="509" /><div class="cuerpo"><h3>Gemini para automatización y trabajo agéntico</h3><p>Un agente que trabaja con el conocimiento de tu negocio, skills y plugins que automatizan procesos completos, tareas recurrentes en Gemini Tasks y tu página web publicada en internet.</p></div></article>
       </div>
-      <div class="como">
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span><div><b>En vivo, en tu cuenta de IA MASIVA</b>No instalas nada: compras, entras con tu correo y la clase se ve ahí mismo, con el chat al lado.</div></div>
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><b id="diasComo">Martes, miércoles y jueves, 7:00 pm</b>Hora de Bogotá. Cada clase dura alrededor de dos horas.</div></div>
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><div><b>Todo queda grabado</b>Si una noche no puedes, la ves al día siguiente en tu área de miembros.</div></div>
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 20l1.5-4A8 8 0 1 1 8 18.5z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg></span><div><b>Soporte por WhatsApp</b>Durante el bootcamp, para que no te quedes atascado.</div></div>
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 12h10M10 6l6 6-6 6"/><path d="M20 5v14"/></svg></span><div><b>Para quien ya usa Gemini</b>Si hoy le preguntas cosas y recibes respuestas genéricas, aquí dejas de usarlo como un buscador y empiezas a dirigirlo.</div></div>
-        <div class="tarjeta"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5L7 21l5-2.5L17 21l-1.5-7.5"/></svg></span><div><b>Certificado al finalizar</b>Obtienes un certificado de participación que valida todo lo que aprendiste.</div></div>
+      <div class="carac">
+        <div class="carac-mock"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-mockup-1793044000.jpg" alt="Bootcamp Gemini de 0 a 100" width="900" height="1599" loading="lazy" /></div>
+        <ul class="checks">
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>En vivo, en tu cuenta de IA MASIVA</b><span>No instalas nada: compras, entras con tu correo y la clase se ve ahí mismo, con el chat al lado.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b id="diasComo">Martes, miércoles y jueves, 7:00 pm</b><span>Hora de Bogotá. Cada clase dura alrededor de dos horas.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>Todo queda grabado</b><span>Si una noche no puedes, la ves al día siguiente en tu área de miembros.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>Soporte por WhatsApp</b><span>Durante el bootcamp, para que no te quedes atascado.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>Para quien ya usa Gemini</b><span>Si hoy le preguntas cosas y recibes respuestas genéricas, aquí dejas de usarlo como un buscador y empiezas a dirigirlo.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>Recursos exclusivos para trabajar mejor en Gemini</b><span>Formatos de respuesta, instrucciones para imágenes, el equipo de carruseles y el mapa de las IA de Google.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>Pack Gemini 3x gratis</b><span>3 herramientas complementarias para potenciar tus trabajos con Gemini.</span></div></li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><div><b>Certificado al finalizar</b><span>Obtienes un certificado de participación que valida todo lo que aprendiste.</span></div></li>
+        </ul>
       </div>
     </div>
   </section>
@@ -392,17 +410,15 @@
           <button class="btn" type="button" data-comprar>Llévalo hoy por <span data-hoy>$97</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           <p class="nota">Pago único en Hotmart, en tu moneda: tarjeta, PSE, Nequi, efectivo o el método de tu país.</p>
           <div class="garantia-dest"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span><b>Garantía:</b> si la primera clase no te gusta, pides el reembolso y te devolvemos el 100% de tu dinero.</span></div>
-          <p class="nota" id="notaCierre">La oferta de Black Friday termina el martes 3 de noviembre a las 6:00 pm, hora de Bogotá, una hora antes de empezar el bootcamp. O antes, si se llena la sala.</p>
+          <div class="oferta-cols">
+            <p class="nota cierre-nota" id="notaCierre">La oferta de Black Friday termina el martes 3 de noviembre a las 6:00 pm, hora de Bogotá, una hora antes de empezar el bootcamp. O antes, si se llena la sala.</p>
+            <div class="oferta-col2">
           <p id="cuentaRegresiva"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#246bfd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Termina en <b id="cuentaTexto"></b></span></p>
           <div class="urgencia"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5"/></svg><span>Esta es la <b>única vez</b> que el bootcamp se dicta en vivo, con Sergio respondiendo tus preguntas. Después solo queda la versión pregrabada, por <b data-pregrabado></b> y sin las herramientas de regalo.</span></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- 8 y 9. Garantía y quién enseña -->
-  <section class="fondo-casi">
-    <div class="wrap">
       <div class="dosCajas">
         <div class="caja-dest">
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
@@ -425,7 +441,7 @@
   </section>
 
   <!-- 3. ¿Es para ti? -->
-  <section>
+  <section class="fondo-casi">
     <div class="wrap">
       <span class="etiqueta">Evalúa si es para ti</span>
       <h2 class="titulo">Evalúa rápidamente si este bootcamp <b>es para ti</b></h2>
@@ -440,7 +456,7 @@
   </section>
 
   <!-- 6. Las tres clases -->
-  <section class="fondo-casi">
+  <section>
     <div class="wrap">
       <span class="etiqueta">Las tres clases</span>
       <h2 class="titulo">Lo que aprendes y con lo que <b>sales</b> cada noche</h2>
@@ -519,7 +535,7 @@
   </section>
 
   <!-- 10. Preguntas frecuentes -->
-  <section>
+  <section class="fondo-casi">
     <div class="wrap">
       <span class="etiqueta">Preguntas frecuentes</span>
       <h2 class="titulo">Lo que nos <b>preguntan</b></h2>
@@ -542,7 +558,7 @@
     <div class="wrap">
       <span class="etiqueta">Tú decides</span>
       <h2 class="titulo">Puedes seguir preguntándole cosas a Gemini y recibiendo respuestas que sirven a medias.</h2>
-      <p class="texto">O puedes aprender a dirigirlo en tres noches, con un proyecto práctico, y salir con un proyecto hecho, una forma de trabajar y un agente trabajando por ti.</p>
+      <p class="texto">O puedes aprender a dirigirlo en tres noches, aprendiendo a crear proyectos reales y con una forma de trabajar que incluye agentes de IA trabajando para ti.</p>
       <p class="remate">La diferencia no es la herramienta. <b>Es quién dirige a quién.</b></p>
       <div class="cuenta">
         <div class="cuenta-fila"><span>Bootcamp Gemini de 0 a 100</span><b data-bootcamp></b></div>
