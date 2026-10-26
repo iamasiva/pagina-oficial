@@ -249,8 +249,18 @@
       $('btnEstable').hidden = false;
       const intentarPlay = () => v.play().catch(() => {
         // Sin gesto previo el navegador no deja arrancar con audio: botón grande para tocar
-        if (!$('player').querySelector('.btn-play')) { const b = document.createElement('button'); b.className = 'btn-play'; b.type = 'button'; b.setAttribute('aria-label', 'Reproducir'); b.textContent = '▶'; b.addEventListener('click', () => { b.remove(); v.play().catch(() => {}); }); $('player').append(b); }
+        if (!$('player').querySelector('.btn-play')) { const b = document.createElement('button'); b.className = 'btn-play'; b.type = 'button'; b.setAttribute('aria-label', 'Reproducir'); b.textContent = '▶'; b.addEventListener('click', () => { b.remove(); v.play().catch(() => montarIframe(cuerpo)); }); $('player').append(b); }
       });
+      // La emisión se cortó (la lista de reproducción terminó o el video llegó al final):
+      // no cuenta como fallo del reproductor; se vuelve a esperar la señal y retoma sola
+      let cortado = false;
+      const corte = () => {
+        if (cortado) return; cortado = true;
+        soltarVideo();
+        mensajePlayer('La señal se cortó', 'Reconectando en unos segundos...');
+        setTimeout(montarReproductor, 3000);
+      };
+      v.addEventListener('ended', corte);
       const fallo = () => {
         fallosLL += 1;
         soltarVideo();
@@ -275,6 +285,7 @@
         fallo();
       });
       h.on(Hls.Events.MANIFEST_PARSED, () => intentarPlay());
+      h.on(Hls.Events.LEVEL_LOADED, (_, d) => { if (d?.details && d.details.live === false) corte(); });
       v.addEventListener('playing', () => { fallosLL = 0; }, { once: true });
       h.loadSource(llhls);
       h.attachMedia(v);
