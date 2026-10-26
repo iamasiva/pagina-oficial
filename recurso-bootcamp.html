@@ -78,13 +78,6 @@
     .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(47,107,255,0.18); }
     .cover { position: relative; aspect-ratio: 2 / 3; overflow: hidden; background: #0b1440; }
     .cover img.full { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .cover.bc { background: radial-gradient(120% 70% at 85% 15%, var(--halo2), #fff 62%); color: var(--ink); font-family: var(--bc); display: flex; flex-direction: column; justify-content: space-between; }
-    .cover.bc .texto { padding: 24px 20px 0; }
-    .cover.bc .etq { font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--azul); }
-    .cover.bc h3 { margin-top: 8px; font-size: 26px; font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
-    .cover.bc .ilu { width: 100%; height: 52%; object-fit: cover; object-position: center top; display: block; }
-    .cover.bc .pie-marca { position: absolute; left: 20px; bottom: 14px; font-size: 10px; font-weight: 600; letter-spacing: 0.16em; color: var(--ink); display: flex; align-items: center; gap: 6px; }
-    .cover.bc .pie-marca svg { width: 12px; height: 12px; }
     .badge { position: absolute; top: 12px; right: 12px; z-index: 2; background: #141414; color: #e9c46a; border: 1px solid #e9c46a; border-radius: 999px; padding: 5px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
     .badge.gris { color: #cbd5e1; border-color: #64748b; }
     .badge.lobby { color: #b8ffe0; border-color: #00ff9c; background: #06301d; }
@@ -177,7 +170,7 @@
     const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
     const LANDING = 'bootcamp.html';
     const PORTADAS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/';
-    const ILU = { 1: PORTADAS + 'bootcamp-clase-1.jpg', 2: PORTADAS + 'bootcamp-clase-2.jpg', 3: PORTADAS + 'bootcamp-clase-3.jpg' };
+    const PORTADA_CLASE = { 1: PORTADAS + 'bootcamp-portada-clase-1-1793023500.jpg', 2: PORTADAS + 'bootcamp-portada-clase-2-1793023500.jpg', 3: PORTADAS + 'bootcamp-portada-clase-3-1793023500.jpg' };
     const HERRAMIENTAS = [
       { id: '656f61d7-37b2-4e9c-8cf3-67065484493c', nombre: '557 Configuraciones para NotebookLM y Gemini', pagina: 'recurso-557.html', portada: PORTADAS + '1785970362328_3okgfstlhpa.png' },
       { id: '0f0d6926-5328-4e3e-89a4-92b36ef13996', nombre: '400 Skills para Gemini', pagina: 'recurso-400.html', portada: PORTADAS + 'portada-400-skills.jpg' },
@@ -185,10 +178,10 @@
     ];
     // Recursos de clase: cuando existan en la página se pone su url (/r/slug).
     const RECURSOS = [
-      { etq: 'Recurso', nombre: '42 formatos de respuesta', ilu: PORTADAS + 'bootcamp-42-formatos.jpg', url: null },
-      { etq: 'Recurso', nombre: '61 instrucciones para imágenes', ilu: PORTADAS + 'bootcamp-61-instrucciones.jpg', url: null },
-      { etq: 'Recurso', nombre: 'Tu equipo de carruseles con IA', ilu: PORTADAS + 'bootcamp-clase-3.jpg', url: null },
-      { etq: 'Recurso', nombre: 'El mapa de las IA de Google', ilu: PORTADAS + 'bootcamp-estrella.jpg', url: null },
+      { nombre: '42 formatos de respuesta', portada: PORTADAS + 'bootcamp-portada-42-formatos-1793023500.jpg', url: null },
+      { nombre: '61 instrucciones para imágenes', portada: PORTADAS + 'bootcamp-portada-61-instrucciones-1793023500.jpg', url: null },
+      { nombre: 'Tu equipo de carruseles con IA', portada: PORTADAS + 'bootcamp-portada-carruseles-1793023500.jpg', url: null },
+      { nombre: 'El mapa de las IA de Google', portada: PORTADAS + 'bootcamp-portada-mapa-ia-google-1793023500.jpg', url: null },
     ];
     // Si la tabla de clases aún no existe, el home muestra el calendario acordado.
     const CLASES_FALLBACK = [
@@ -206,16 +199,11 @@
     const hora = (d) => fmtHora.format(d).replace(/\.\s?/g, '');
     const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const $ = (id) => document.getElementById(id);
-    const ESTRELLA = '<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gE" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset=".45" stop-color="#3b82f6"/><stop offset=".8" stop-color="#22d3b5"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><path fill="url(#gE)" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg>';
 
-    function tarjetaBc({ etq, titulo, ilu, href, badge, pieB, pieS, externo }) {
+    function tarjeta({ portada, alt, href, badge, pieB, pieS, externo, inerte }) {
       const [bTxt, bCls] = badge;
-      return `<a class="card" href="${esc(href)}"${externo ? ' target="_blank" rel="noopener"' : ''}>
-        <div class="cover bc"><span class="badge ${bCls}">${esc(bTxt)}</span>
-          <div class="texto"><span class="etq">${esc(etq)}</span><h3>${esc(titulo)}</h3></div>
-          <img class="ilu" src="${esc(ilu)}" alt="" loading="lazy" />
-          <span class="pie-marca">${ESTRELLA}IA MASIVA</span>
-        </div>
+      return `<a class="card" href="${esc(href)}"${externo ? ' target="_blank" rel="noopener"' : ''}${inerte ? ' onclick="return false"' : ''}>
+        <div class="cover"><span class="badge ${bCls}">${esc(bTxt)}</span><img class="full" src="${esc(portada)}" alt="${esc(alt)}" loading="lazy" /></div>
         <div class="card-pie"><b>${esc(pieB)}</b><span>${esc(pieS)}</span></div>
       </a>`;
     }
@@ -224,7 +212,7 @@
       $('clases').innerHTML = clases.map(c => {
         const d = new Date(c.inicio_utc);
         const destino = c.estado === 'evergreen_ready' && c.hotmart_lesson_url ? c.hotmart_lesson_url : `bootcamp-clase.html?n=${c.numero}`;
-        return tarjetaBc({ etq: `Clase ${c.numero}`, titulo: c.titulo, ilu: ILU[c.numero] || ILU[1], href: destino, badge: ESTADOS[c.estado] || ESTADOS.scheduled, pieB: `Clase ${c.numero}`, pieS: `${cap(fmtFecha.format(d))} · ${hora(d)}`, externo: destino.startsWith('http') });
+        return tarjeta({ portada: PORTADA_CLASE[c.numero] || PORTADA_CLASE[1], alt: `Clase ${c.numero}: ${c.titulo}`, href: destino, badge: ESTADOS[c.estado] || ESTADOS.scheduled, pieB: `Clase ${c.numero} · ${c.titulo}`, pieS: `${cap(fmtFecha.format(d))} · ${hora(d)}`, externo: destino.startsWith('http') });
       }).join('');
     }
 
@@ -236,8 +224,7 @@
           <div class="card-pie"><b>${esc(h.nombre)}</b><span>${tiene ? 'Abrir herramienta' : 'Se activa con tu compra'}</span></div>
         </a>`;
       }).join('');
-      $('recursos').innerHTML = RECURSOS.map(r => tarjetaBc({ etq: r.etq, titulo: r.nombre, ilu: r.ilu, href: r.url || '#', badge: r.url ? ['Incluido', ''] : ['Pronto', 'gris'], pieB: r.nombre, pieS: r.url ? 'Abrir recurso' : 'Se entrega en la clase', externo: !!r.url && r.url.startsWith('http') })).join('');
-      $('recursos').querySelectorAll('a[href="#"]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+      $('recursos').innerHTML = RECURSOS.map(r => tarjeta({ portada: r.portada, alt: r.nombre, href: r.url || '#', badge: r.url ? ['Incluido', ''] : ['Pronto', 'gris'], pieB: r.nombre, pieS: r.url ? 'Abrir recurso' : 'Se entrega en la clase', externo: !!r.url && r.url.startsWith('http'), inerte: !r.url })).join('');
     }
 
     let reloj = null;
