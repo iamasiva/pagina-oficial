@@ -37,6 +37,19 @@ export async function componentesDelPack(db, bundleId) {
   return (data ?? []).map((r) => r.componente_id);
 }
 
+// Bonos de un producto (tabla producto_bonos): al comprarlo se regalan estos
+// productos. No es un pack: no cambia precios ni "completar pack".
+// [] si el producto no regala nada o la tabla aún no existe.
+export async function bonosDelProducto(db, productId) {
+  const { data, error } = await db
+    .from('producto_bonos')
+    .select('bono_id, orden')
+    .eq('product_id', productId)
+    .order('orden', { ascending: true });
+  if (error) return [];
+  return (data ?? []).map((r) => r.bono_id);
+}
+
 // Todos los packs con sus componentes, como { bundleId: [comp1, comp2, ...] }.
 // Una sola consulta: sirve para saber qué productos son packs y qué traen.
 export async function mapaDePacks(db) {

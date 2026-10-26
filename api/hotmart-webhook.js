@@ -13,6 +13,9 @@
 //   Un pack desbloquea sus piezas (gateway 'bundle'), igual que con Wompi;
 //   las que ya tenía no se duplican (así funciona completar el pack por la
 //   diferencia: pago.html manda a la oferta del pack con ese precio fijo).
+//   Un producto con bonos (tabla producto_bonos, p. ej. el bootcamp regala las
+//   tres herramientas) crea una compra APROBADA por cada bono (gateway 'bono',
+//   monto 0) sin tocar precios; las que ya tenía no se duplican.
 // - PURCHASE_REFUNDED / PURCHASE_CHARGEBACK / PURCHASE_CANCELED: quita el
 //   acceso a la compra y a las piezas del pack (estado ANULADA: la tabla solo
 //   admite PENDIENTE, APROBADA, DECLINADA, ANULADA y ERROR, y el acceso lo da
@@ -20,7 +23,7 @@
 // - Todo evento queda en hotmart_eventos (si la tabla existe) para depurar.
 // Idempotente: Hotmart reintenta, y una transacción ya aprobada no se toca.
 import crypto from 'node:crypto';
-import { adminClient, componentesDelPack } from './_lib.js';
+import { adminClient, componentesDelPack, bonosDelProducto } from './_lib.js';
 import { enviarEventoMeta } from './_meta.js';
 
 const EVENTOS_ACCESO = new Set(['PURCHASE_APPROVED', 'PURCHASE_COMPLETE']);
@@ -246,13 +249,33 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
     });
     if (!e) piezas++;
   }
-  return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${aviso}`;
+
+  // 7) Bonos del producto: una compra APROBADA por cada regalo (monto 0,
+  // gateway 'bono', misma transacción para que el reembolso los retire)
+  const bonos = await bonosDelProducto(db, producto.id);
+  let regalos = 0;
+  for (const [i, bono] of bonos.entries()) {
+    if (userId) {
+      const { data: ya } = await db.from('purchases').select('id')
+        .eq('user_id', userId).eq('product_id', bono).eq('estado', 'APROBADA').limit(1).maybeSingle();
+      if (ya) continue;
+    }
+    const { data: prod } = await db.from('products').select('guide_id').eq('id', bono).maybeSingle();
+    const { error: e } = await db.from('purchases').insert({
+      user_id: userId, email_comprador: correo, product_id: bono, guide_id: prod?.guide_id ?? null,
+      estado: 'APROBADA', gateway: 'bono', referencia: `${referencia}__b${i + 1}`,
+      monto_centavos: 0, moneda: 'USD', monto_usd_centavos: 0, purchased_at: ahora,
+      gateway_transaction_id: transaccion, consintio_acceso: fila?.consintio_acceso ?? null,
+    });
+    if (!e) regalos++;
+  }
+  return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${bonos.length ? `, ${regalos} bono(s) nuevo(s) de ${bonos.length}` : ''}${aviso}`;
 }
 
 async function revocar({ db, compra, transaccion }) {
-  // La compra y las piezas del pack comparten la transacción de Hotmart
+  // La compra, las piezas del pack y los bonos comparten la transacción de Hotmart
   const { data: filas } = await db.from('purchases').select('id, estado, gateway')
-    .eq('gateway_transaction_id', transaccion).in('gateway', ['hotmart', 'bundle']);
+    .eq('gateway_transaction_id', transaccion).in('gateway', ['hotmart', 'bundle', 'bono']);
   const ids = (filas ?? []).filter(f => f.estado === 'APROBADA').map(f => f.id);
   if (ids.length) {
     const { error } = await db.from('purchases').update({ estado: 'ANULADA' }).in('id', ids);
