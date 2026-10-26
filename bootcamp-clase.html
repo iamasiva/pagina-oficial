@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
   <style>
     :root {
       --black: #050505; --blue-deep: #0B1E6D; --blue-elec: #2F6BFF; --white: #FFFFFF; --gray: #D1D5DB; --muted: #9aa3b8;
@@ -41,7 +42,8 @@
     .sala { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr); gap: 16px; align-items: start; }
     .video { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
     .player { position: relative; aspect-ratio: 16 / 9; background: #000; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--gray); }
-    .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .player iframe, .player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+    .player .btn-play { position: absolute; inset: 0; margin: auto; width: 88px; height: 88px; border-radius: 50%; border: 0; background: rgba(47,107,255,0.92); color: #fff; font-size: 34px; cursor: pointer; box-shadow: 0 12px 30px rgba(0,0,0,0.4); z-index: 2; }
     .player .msg { max-width: 520px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
     .player .msg b { color: var(--white); font-size: 1.1rem; }
     .cuenta { font-family: var(--display); font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800; color: var(--white); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
@@ -128,6 +130,7 @@
             <span id="bajoVideoTexto">Hora de Bogotá (GMT-5). Si el video se detiene, usa Reconectar.</span>
             <div style="display:flex; gap:8px;">
               <button class="btn sec chico" id="btnReconectar" hidden>Reconectar</button>
+              <button class="btn sec chico" id="btnEstable" hidden title="Cambia al reproductor estándar de Cloudflare (más retraso, más tolerante)">Modo estable</button>
               <button class="btn sec chico" id="btnPantalla" hidden>Pantalla completa</button>
             </div>
           </div>
@@ -213,13 +216,68 @@
           mensajePlayer('Esperando la señal', 'La clase aparece aquí sola en cuanto empiece la transmisión. No hace falta recargar.');
           esperaSenal = setTimeout(montarReproductor, 15000);
         } else {
-          $('player').innerHTML = `<iframe src="${esc(cuerpo.iframe)}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+          montarVideo(cuerpo);
           $('btnPantalla').hidden = false;
         }
       } catch (e) {
         mensajePlayer('Sin señal por ahora', e.message);
       }
       $('btnReconectar').hidden = false;
+    }
+
+    // Reproductor de BAJA LATENCIA (LL-HLS, unos 3 s) con hls.js sobre el manifiesto
+    // firmado; en Safari sin MSE va el HLS nativo. Si falla seguido con señal
+    // presente, cae solo al reproductor estándar de Cloudflare (10 a 12 s).
+    let hlsActual = null, modoEstable = false, fallosLL = 0, ultimoTicket = null;
+    const LL_LIMITE = 3;
+    function soltarVideo() { if (hlsActual) { try { hlsActual.destroy(); } catch (_) {} hlsActual = null; } }
+    function montarIframe(cuerpo) {
+      soltarVideo();
+      $('player').innerHTML = `<iframe src="${esc(cuerpo.iframe)}" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      $('btnEstable').hidden = true;
+    }
+    function montarVideo(cuerpo) {
+      ultimoTicket = cuerpo;
+      soltarVideo();
+      const manifest = cuerpo.manifest;
+      const llhls = manifest + (manifest.includes('?') ? '&' : '?') + 'protocol=llhls';
+      const v = document.createElement('video');
+      v.playsInline = true; v.controls = true; v.autoplay = true; v.setAttribute('playsinline', '');
+      const nativo = !(window.Hls && Hls.isSupported()) && v.canPlayType('application/vnd.apple.mpegurl');
+      if (modoEstable || (!nativo && !(window.Hls && Hls.isSupported()))) { montarIframe(cuerpo); return; }
+      $('player').innerHTML = ''; $('player').append(v);
+      $('btnEstable').hidden = false;
+      const intentarPlay = () => v.play().catch(() => {
+        // Sin gesto previo el navegador no deja arrancar con audio: botón grande para tocar
+        if (!$('player').querySelector('.btn-play')) { const b = document.createElement('button'); b.className = 'btn-play'; b.type = 'button'; b.setAttribute('aria-label', 'Reproducir'); b.textContent = '▶'; b.addEventListener('click', () => { b.remove(); v.play().catch(() => {}); }); $('player').append(b); }
+      });
+      const fallo = () => {
+        fallosLL += 1;
+        soltarVideo();
+        if (fallosLL >= LL_LIMITE) { modoEstable = true; $('bajoVideoTexto').textContent = 'Cambiamos al reproductor estándar para que la clase no se corte.'; montarIframe(cuerpo); return; }
+        // Puede ser un corte de la emisión: se vuelve a comprobar la señal
+        setTimeout(montarReproductor, 3000);
+      };
+      if (nativo) {
+        v.src = llhls;
+        v.addEventListener('error', fallo, { once: true });
+        v.addEventListener('playing', () => { fallosLL = 0; }, { once: true });
+        intentarPlay();
+        return;
+      }
+      const h = new Hls({ lowLatencyMode: true, liveSyncDuration: 2, liveMaxLatencyDuration: 8, maxLiveSyncPlaybackRate: 1.2, backBufferLength: 30 });
+      hlsActual = h;
+      let recuperaciones = 0;
+      h.on(Hls.Events.ERROR, (_, d) => {
+        if (!d.fatal) return;
+        if (d.type === Hls.ErrorTypes.MEDIA_ERROR && recuperaciones < 2) { recuperaciones += 1; try { h.recoverMediaError(); } catch (_) { fallo(); } return; }
+        if (d.type === Hls.ErrorTypes.NETWORK_ERROR && recuperaciones < 2 && !/manifest/i.test(d.details || '')) { recuperaciones += 1; try { h.startLoad(); } catch (_) { fallo(); } return; }
+        fallo();
+      });
+      h.on(Hls.Events.MANIFEST_PARSED, () => intentarPlay());
+      v.addEventListener('playing', () => { fallosLL = 0; }, { once: true });
+      h.loadSource(llhls);
+      h.attachMedia(v);
     }
 
     function pintar() {
@@ -230,7 +288,7 @@
       $('cuando').textContent = `${cap(fmtFecha.format(inicio))} · ${hora(inicio)} Bogotá · ${clase.duracion_min} min aprox.`;
       $('chipEstado').textContent = ETIQUETA[estado] || estado;
       $('chipLive').hidden = estado !== 'live';
-      $('btnPantalla').hidden = true; $('btnReconectar').hidden = true;
+      $('btnPantalla').hidden = true; $('btnReconectar').hidden = true; $('btnEstable').hidden = true; soltarVideo();
       const aviso = $('aviso'); aviso.hidden = true; aviso.className = 'aviso';
       clearInterval(reloj); clearTimeout(esperaSenal);
       const chatCuerpo = $('chatCuerpo');
@@ -381,8 +439,9 @@
       $('modAnuncioBtn').addEventListener('click', () => mandar({ t: 'anuncio', texto: $('modAnuncio').value.trim() }));
       $('modLimpiar').addEventListener('click', () => { if (confirm('¿Borrar todos los mensajes del chat (las preguntas se conservan)?')) mandar({ t: 'limpiar' }); });
       $('modReiniciar').addEventListener('click', () => { if (confirm('¿Reiniciar la sala completa? Borra mensajes, preguntas, anuncio y silencios, y vuelve al modo normal.')) mandar({ t: 'reiniciar' }); });
-      $('btnReconectar').addEventListener('click', montarReproductor);
-      $('btnPantalla').addEventListener('click', () => { const f = document.querySelector('#player iframe'); if (f?.requestFullscreen) f.requestFullscreen(); });
+      $('btnReconectar').addEventListener('click', () => { fallosLL = 0; montarReproductor(); });
+      $('btnEstable').addEventListener('click', () => { modoEstable = true; $('bajoVideoTexto').textContent = 'Reproductor estándar activo (algo más de retraso). Recarga la página para volver al de baja latencia.'; if (ultimoTicket) montarIframe(ultimoTicket); else montarReproductor(); });
+      $('btnPantalla').addEventListener('click', () => { const f = document.querySelector('#player video, #player iframe'); if (!f) return; if (f.requestFullscreen) f.requestFullscreen(); else if (f.webkitEnterFullscreen) f.webkitEnterFullscreen(); });
       document.title = `Clase ${clase.numero}: ${clase.titulo} · IA MASIVA`;
       pintar();
       document.body.removeAttribute('data-cargando');
