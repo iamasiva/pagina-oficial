@@ -16,6 +16,7 @@
 //   Un producto con bonos (tabla producto_bonos, p. ej. el bootcamp regala las
 //   tres herramientas) crea una compra APROBADA por cada bono (gateway 'bono',
 //   monto 0) sin tocar precios; las que ya tenía no se duplican.
+//   El bootcamp además dispara el correo de bienvenida (api/_correo-bootcamp.js).
 // - PURCHASE_REFUNDED / PURCHASE_CHARGEBACK / PURCHASE_CANCELED: quita el
 //   acceso a la compra y a las piezas del pack (estado ANULADA: la tabla solo
 //   admite PENDIENTE, APROBADA, DECLINADA, ANULADA y ERROR, y el acceso lo da
@@ -25,6 +26,7 @@
 import crypto from 'node:crypto';
 import { adminClient, componentesDelPack, bonosDelProducto } from './_lib.js';
 import { enviarEventoMeta } from './_meta.js';
+import { enviarBienvenidaBootcamp, PRODUCTO_BOOTCAMP } from './_correo-bootcamp.js';
 
 const EVENTOS_ACCESO = new Set(['PURCHASE_APPROVED', 'PURCHASE_COMPLETE']);
 const EVENTOS_REVOCAN = new Set(['PURCHASE_REFUNDED', 'PURCHASE_CHARGEBACK', 'PURCHASE_CANCELED']);
@@ -269,7 +271,14 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
     });
     if (!e) regalos++;
   }
-  return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${bonos.length ? `, ${regalos} bono(s) nuevo(s) de ${bonos.length}` : ''}${aviso}`;
+
+  // 8) Correo de bienvenida (solo el bootcamp): acceso, calendario, herramientas
+  // y cómo entrar a la clase. Nunca rompe el webhook; su resultado va a la bitácora.
+  let correoInfo = '';
+  if (producto.id === PRODUCTO_BOOTCAMP) {
+    correoInfo = ', ' + await enviarBienvenidaBootcamp({ correo, nombre: d.buyer?.name, invitado: !userId });
+  }
+  return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${bonos.length ? `, ${regalos} bono(s) nuevo(s) de ${bonos.length}` : ''}${aviso}${correoInfo}`;
 }
 
 async function revocar({ db, compra, transaccion }) {
