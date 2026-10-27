@@ -97,7 +97,7 @@ export async function enviarBienvenidaBootcamp({ correo, nombre, invitado }) {
       method: 'POST',
       headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
       body: JSON.stringify({
-        sender: { name: 'Sergio de IA MASIVA', email: 'comunidad@iamasiva.co' },
+        sender: { name: 'IA MASIVA', email: 'comunidad@iamasiva.co' },
         replyTo: { email: 'contacto@iamasiva.co' },
         to: [{ email: correo, ...(primerNombre(nombre) ? { name: String(nombre).trim() } : {}) }],
         subject: 'Tu acceso al Bootcamp Gemini de 0 a 100 (3, 4 y 5 de noviembre)',
