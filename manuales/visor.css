@@ -1,0 +1,110 @@
+/* Visor del Manual de uso de IA MASIVA. Usa las variables de color de cada herramienta
+   (--surface, --surface-2, --ink, --muted, --line, --accent, --accent-soft), así que
+   respeta el tema claro u oscuro de la herramienta sin configuración extra. */
+
+/* ── Índice dentro de la barra lateral oscura (modo lateral) ───────────────── */
+body.im-manual-abierto .sidebar-scroll > :not(.im-man-idx) { display: none !important; }
+.im-man-idx { display: none; padding: 6px 4px 14px; color: #fff; }
+body.im-manual-abierto .im-man-idx, .im-man-lateral .im-man-idx { display: block; }
+.im-man-volver {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  border: 1px solid rgba(255,255,255,.28); background: rgba(255,255,255,.08); color: #fff;
+  padding: 9px 10px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 750;
+  cursor: pointer; text-align: left;
+}
+.im-man-volver:hover { background: rgba(255,255,255,.16); }
+.im-man-idx-titulo { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.6); font-weight: 850; margin: 16px 8px 8px; }
+.im-man-buscar-caja {
+  display: flex; align-items: center; gap: 7px; margin: 0 0 8px;
+  border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); border-radius: 8px; padding: 0 10px; color: rgba(255,255,255,.6);
+}
+.im-man-buscar { flex: 1; min-width: 0; border: 0; background: transparent; color: #fff; padding: 8px 0; font: inherit; font-size: 12.5px; outline: none; }
+.im-man-buscar::placeholder { color: rgba(255,255,255,.5); }
+.im-man-caps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.im-man-cap-btn {
+  display: flex; gap: 8px; align-items: flex-start; width: 100%;
+  border: 0; background: transparent; color: rgba(255,255,255,.88); text-align: left;
+  padding: 8px; border-radius: 7px; font: inherit; font-size: 13px; font-weight: 700; line-height: 1.3; cursor: pointer;
+}
+.im-man-cap-btn:hover { background: rgba(255,255,255,.10); }
+.im-man-cap-item.activo > .im-man-cap-btn { background: rgba(255,255,255,.18); color: #fff; }
+.im-man-cap-btn .n { flex: none; width: 20px; height: 20px; border-radius: 6px; background: rgba(255,255,255,.14); font-size: 11px; font-weight: 850; display: inline-flex; align-items: center; justify-content: center; }
+.im-man-cap-btn .n.sin { background: transparent; color: rgba(255,255,255,.5); }
+.im-man-secs { list-style: none; margin: 2px 0 8px; padding: 0 0 0 20px; display: none; flex-direction: column; gap: 1px; }
+.im-man-cap-item.activo > .im-man-secs, .im-man-idx.buscando .im-man-secs { display: flex; }
+.im-man-sec-btn {
+  width: 100%; border: 0; border-left: 2px solid rgba(255,255,255,.18); background: transparent; color: rgba(255,255,255,.68);
+  text-align: left; padding: 6px 8px 6px 10px; border-radius: 0 6px 6px 0; font: inherit; font-size: 12px; line-height: 1.3; cursor: pointer;
+}
+.im-man-sec-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
+.im-man-sec-btn.activo { color: #fff; border-left-color: #fff; }
+.im-man-sin { color: rgba(255,255,255,.6); font-size: 12px; padding: 8px; margin: 0; }
+
+/* ── Capítulo ──────────────────────────────────────────────────────────────── */
+.im-man-vista { max-width: 840px; }
+.im-man-migas { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.im-man-cuerpo {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 28px 32px 30px; color: var(--ink); font-size: 15.5px; line-height: 1.65;
+}
+.im-man-cuerpo > h2 { font-size: 30px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -.01em; }
+.im-man-cuerpo h3 { font-size: 20px; line-height: 1.25; margin: 30px 0 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.im-man-cuerpo h4 { font-size: 13px; margin: 20px 0 6px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.im-man-cuerpo p { margin: 0 0 12px; }
+.im-man-cuerpo ul { margin: 0 0 14px; padding-left: 22px; }
+.im-man-cuerpo ul li { margin: 4px 0; }
+.im-man-cuerpo ol { list-style: none; margin: 0 0 16px; padding: 0; counter-reset: paso; }
+.im-man-cuerpo ol > li { counter-increment: paso; position: relative; padding-left: 36px; margin: 8px 0; }
+.im-man-cuerpo ol > li::before {
+  content: counter(paso); position: absolute; left: 0; top: 1px; width: 24px; height: 24px; border-radius: 7px;
+  background: var(--accent); color: #fff; font-size: 12.5px; font-weight: 850; display: flex; align-items: center; justify-content: center;
+}
+.im-man-cuerpo li > ul, .im-man-cuerpo li > ol { margin-top: 6px; margin-bottom: 4px; }
+.im-man-cuerpo code { font-family: var(--mono, ui-monospace, Menlo, monospace); font-size: .9em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+.im-man-cuerpo pre { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; overflow: auto; font-size: 13px; line-height: 1.5; margin: 0 0 14px; }
+.im-man-cuerpo pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+.im-man-cuerpo blockquote { margin: 0 0 14px; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; }
+.im-man-cuerpo blockquote p:last-child { margin: 0; }
+.im-man-cuerpo table { width: 100%; border-collapse: collapse; margin: 0 0 16px; font-size: 14px; }
+.im-man-cuerpo th, .im-man-cuerpo td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.im-man-cuerpo th { background: var(--surface-2); }
+.im-man-cuerpo a { color: var(--accent); }
+.im-man-cuerpo hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+.im-man-cap { margin: 16px 0 20px; }
+.im-man-cap img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; display: block; }
+.im-man-cap figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.im-man-video { position: relative; padding-top: 56.25%; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); margin: 4px 0 20px; background: #000; }
+.im-man-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.im-man-cap.pendiente { border: 2px dashed var(--line); border-radius: 10px; padding: 14px; color: var(--muted); font-size: 13.5px; }
+.im-man-pie { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.im-man-pie button {
+  flex: 1 1 200px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 10px; padding: 12px 14px; font: inherit; font-size: 14px; font-weight: 750; cursor: pointer; text-align: left;
+}
+.im-man-pie button.sig { text-align: right; }
+.im-man-pie button:hover { border-color: var(--accent); color: var(--accent); }
+.im-man-pie button span { display: block; font-size: 11px; color: var(--muted); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 3px; }
+.im-man-error, .im-man-cargando { color: var(--muted); }
+.im-man-error { padding: 20px; border: 1px solid var(--line); border-radius: 12px; }
+
+/* ── Modo página (200): índice propio a la izquierda ───────────────────────── */
+.im-man-pagina { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 28px; align-items: start; }
+.im-man-lateral { position: sticky; top: 92px; background: var(--navy, #1b1b2a); border-radius: 14px; padding: 12px 10px; max-height: calc(100vh - 112px); overflow: auto; }
+.im-man-idx-toggle { display: none; }
+
+@media (max-width: 860px) {
+  .im-man-pagina { grid-template-columns: 1fr; gap: 14px; }
+  .im-man-lateral { position: static; max-height: none; display: none; }
+  .im-man-lateral.abierto { display: block; }
+  .im-man-idx-toggle {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px;
+    padding: 10px 14px; font: inherit; font-size: 14px; font-weight: 750; cursor: pointer;
+  }
+  .im-man-idx-toggle::before { content: '☰'; }
+}
+@media (max-width: 680px) {
+  .im-man-cuerpo { padding: 20px 16px; font-size: 15px; }
+  .im-man-cuerpo > h2 { font-size: 24px; }
+  .im-man-cuerpo h3 { font-size: 18px; }
+}

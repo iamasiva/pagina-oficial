@@ -516,6 +516,8 @@
     #imArbolPre { flex: 1; overflow: auto; margin: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--ink); white-space: pre; }
     #imArbolCopiar { min-height: 44px; border: none; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 700; }
   </style>
+  <link rel="stylesheet" href="manuales/visor.css">
+  <script src="manuales/visor.js"></script>
 </head>
 <body>
 
@@ -1135,180 +1137,8 @@
       </section>
 
 
-      <section id="guide" class="section">
-        <div class="hero">
-          <div class="intro">
-            <p class="eyebrow">Guía de uso</p>
-            <h2>Cómo pegar estas configuraciones en las principales herramientas.</h2>
-            <p>Copia la configuración desde la biblioteca y pégala en la herramienta que uses: cuadernos de NotebookLM, cuadernos de Gemini, o Proyectos de Claude o ChatGPT.</p>
-          </div>
-        </div>
-
-        <div style="position:relative;padding-top:56.25%;border-radius:14px;overflow:hidden;margin:18px 0 26px;box-shadow:0 18px 44px rgba(0,0,0,0.25);">
-          <iframe src="https://www.youtube-nocookie.com/embed/-Oq3ZJrjA3Y?rel=0" title="Cómo funciona" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-        </div>
-
-        <div class="guide-paths">
-          <article class="guide-path">
-            <div class="guide-path-head" data-toggle-guide>
-              <svg class="guide-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"></path></svg>
-              <div>
-                <h3>1. Cuadernos en NotebookLM</h3>
-                <p>Usa la configuración como instrucción personalizada de un cuaderno de NotebookLM para que mantenga ese rol experto en toda la conversación.</p>
-              </div>
-            </div>
-            <div class="guide-path-body">
-            <div class="guide-steps">
-              <div class="guide-step"><b>1. Copia</b><span>Elige una configuración en esta herramienta y cópiala.</span></div>
-              <div class="guide-step"><b>2. Configura</b><span>Abre tu cuaderno en NotebookLM y entra a su configuración o personalización.</span></div>
-              <div class="guide-step"><b>3. Pega y guarda</b><span>Pega el texto copiado en el campo de instrucciones del cuaderno y guarda.</span></div>
-              <div class="guide-step"><b>4. Conversa</b><span>Empieza a chatear con el cuaderno ya configurado con ese rol experto.</span></div>
-            </div>
-            <div class="screenshot-grid">
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-01.jpg" alt="Paso 1: En tu cuaderno de NotebookLM, haz clic en el ícono de configuración junto al chat." loading="lazy">
-                <figcaption><b>Paso 1</b><span>En tu cuaderno de NotebookLM, haz clic en el ícono de configuración junto al chat.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-02.jpg" alt="Paso 2: En &quot;Configura el chat&quot;, selecciona la opción &quot;Personalizado&quot;." loading="lazy">
-                <figcaption><b>Paso 2</b><span>En "Configura el chat", selecciona la opción "Personalizado".</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-03.jpg" alt="Paso 3: Pega la configuración copiada en el campo de texto y haz clic en &quot;Guardar&quot;." loading="lazy">
-                <figcaption><b>Paso 3</b><span>Pega la configuración copiada en el campo de texto y haz clic en "Guardar".</span></figcaption>
-              </figure>
-            </div>
-            </div>
-          </article>
-
-          <article class="guide-path">
-            <div class="guide-path-head" data-toggle-guide>
-              <svg class="guide-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"></path></svg>
-              <div>
-                <h3>2. Cuadernos en Gemini</h3>
-                <p>Ideal cuando quieres que un cuaderno tenga un rol concreto, por ejemplo asesor de negocios, tutor académico o experto en marketing.</p>
-              </div>
-            </div>
-            <div class="guide-path-body">
-            <div class="guide-steps">
-              <div class="guide-step"><b>1. Copia</b><span>Elige una configuración en esta herramienta y cópiala.</span></div>
-              <div class="guide-step"><b>2. Configura</b><span>Abre la configuración del cuaderno y pega el texto en instrucciones.</span></div>
-              <div class="guide-step"><b>3. Conversa</b><span>Guarda y empieza una nueva conversación dentro de ese cuaderno.</span></div>
-            </div>
-            <div class="screenshot-grid">
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-04.jpg" alt="Paso 1: En Gemini, crea un nuevo cuaderno desde la barra lateral." loading="lazy">
-                <figcaption><b>Paso 1</b><span>En Gemini, crea un nuevo cuaderno desde la barra lateral.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-05.jpg" alt="Paso 2: Asigna un nombre al cuaderno según el experto que vas a usar." loading="lazy">
-                <figcaption><b>Paso 2</b><span>Asigna un nombre al cuaderno según el experto que vas a usar.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-06.jpg" alt="Paso 3: Abre el menú de tres puntos del cuaderno." loading="lazy">
-                <figcaption><b>Paso 3</b><span>Abre el menú de tres puntos del cuaderno.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-07.jpg" alt="Paso 4: Entra a Configuración del cuaderno." loading="lazy">
-                <figcaption><b>Paso 4</b><span>Entra a Configuración del cuaderno.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-08.jpg" alt="Paso 5: Ubica el campo de instrucciones del cuaderno." loading="lazy">
-                <figcaption><b>Paso 5</b><span>Ubica el campo de instrucciones del cuaderno.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-09.jpg" alt="Paso 6: Pega la configuración copiada desde esta herramienta y guarda." loading="lazy">
-                <figcaption><b>Paso 6</b><span>Pega la configuración copiada desde esta herramienta y guarda.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-10.jpg" alt="Paso 7: Empieza una nueva conversación dentro del cuaderno configurado." loading="lazy">
-                <figcaption><b>Paso 7</b><span>Empieza una nueva conversación dentro del cuaderno configurado.</span></figcaption>
-              </figure>
-            </div>
-            </div>
-          </article>
-
-          <article class="guide-path">
-            <div class="guide-path-head" data-toggle-guide>
-              <svg class="guide-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"></path></svg>
-              <div>
-                <h3>3. Proyectos de Claude</h3>
-                <p>Usa la configuración como instrucción del proyecto para que Claude mantenga ese rol experto en todas las conversaciones dentro del proyecto.</p>
-              </div>
-            </div>
-            <div class="guide-path-body">
-            <div class="guide-steps">
-              <div class="guide-step"><b>1. Copia</b><span>Elige una configuración en esta herramienta y cópiala.</span></div>
-              <div class="guide-step"><b>2. Crea el proyecto</b><span>En Claude, crea o abre un Proyecto y entra a sus instrucciones.</span></div>
-              <div class="guide-step"><b>3. Pega y guarda</b><span>Pega el texto copiado en las instrucciones del proyecto y guarda.</span></div>
-              <div class="guide-step"><b>4. Conversa</b><span>Empieza una conversación dentro del proyecto ya configurado.</span></div>
-            </div>
-            <div class="screenshot-grid">
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-11.jpg" alt="Paso 1: En Claude, entra a &quot;proyectos&quot; en la barra lateral." loading="lazy">
-                <figcaption><b>Paso 1</b><span>En Claude, entra a "proyectos" en la barra lateral.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-12.jpg" alt="Paso 2: Haz clic en &quot;Nuevo proyecto&quot;." loading="lazy">
-                <figcaption><b>Paso 2</b><span>Haz clic en "Nuevo proyecto".</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-13.jpg" alt="Paso 3: Ponle un nombre al proyecto y describe brevemente qué quieres lograr." loading="lazy">
-                <figcaption><b>Paso 3</b><span>Ponle un nombre al proyecto y describe brevemente qué quieres lograr.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-14.jpg" alt="Paso 4: Dentro del proyecto, haz clic en el + junto a &quot;Instrucciones&quot;." loading="lazy">
-                <figcaption><b>Paso 4</b><span>Dentro del proyecto, haz clic en el + junto a "Instrucciones".</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-15.jpg" alt="Paso 5: Pega la configuración copiada y haz clic en &quot;Guardar instrucciones&quot;." loading="lazy">
-                <figcaption><b>Paso 5</b><span>Pega la configuración copiada y haz clic en "Guardar instrucciones".</span></figcaption>
-              </figure>
-            </div>
-            </div>
-          </article>
-
-          <article class="guide-path">
-            <div class="guide-path-head" data-toggle-guide>
-              <svg class="guide-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"></path></svg>
-              <div>
-                <h3>4. Proyectos de ChatGPT</h3>
-                <p>Usa la configuración como instrucción del proyecto para que ChatGPT mantenga ese rol experto en todas las conversaciones dentro del proyecto.</p>
-              </div>
-            </div>
-            <div class="guide-path-body">
-            <div class="guide-steps">
-              <div class="guide-step"><b>1. Copia</b><span>Elige una configuración en esta herramienta y cópiala.</span></div>
-              <div class="guide-step"><b>2. Crea el proyecto</b><span>En ChatGPT, crea o abre un Proyecto y entra a sus instrucciones personalizadas.</span></div>
-              <div class="guide-step"><b>3. Pega y guarda</b><span>Pega el texto copiado en las instrucciones del proyecto y guarda.</span></div>
-              <div class="guide-step"><b>4. Conversa</b><span>Empieza una conversación dentro del proyecto ya configurado.</span></div>
-            </div>
-            <div class="screenshot-grid">
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-16.jpg" alt="Paso 1: En ChatGPT, haz clic en el ícono + junto a &quot;Proyectos&quot; para crear uno nuevo." loading="lazy">
-                <figcaption><b>Paso 1</b><span>En ChatGPT, haz clic en el ícono + junto a "Proyectos" para crear uno nuevo.</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-17.jpg" alt="Paso 2: Escribe el nombre del proyecto y confirma en &quot;Crear proyecto&quot;." loading="lazy">
-                <figcaption><b>Paso 2</b><span>Escribe el nombre del proyecto y confirma en "Crear proyecto".</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-18.jpg" alt="Paso 3: Dentro del proyecto, haz clic en los tres puntos junto a &quot;Compartir&quot;." loading="lazy">
-                <figcaption><b>Paso 3</b><span>Dentro del proyecto, haz clic en los tres puntos junto a "Compartir".</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-19.jpg" alt="Paso 4: Selecciona &quot;Configuración del proyecto&quot;." loading="lazy">
-                <figcaption><b>Paso 4</b><span>Selecciona "Configuración del proyecto".</span></figcaption>
-              </figure>
-              <figure class="shot">
-                <img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/marketing/guia-557/557-20.jpg" alt="Paso 5: Pega la configuración copiada en el campo de instrucciones y guarda." loading="lazy">
-                <figcaption><b>Paso 5</b><span>Pega la configuración copiada en el campo de instrucciones y guarda.</span></figcaption>
-              </figure>
-            </div>
-            </div>
-          </article>
-        </div>
-      </section>
+      <!-- Manual de uso: lo pinta manuales/visor.js con manuales/557.json (la vieja Guía de uso es su capítulo "Dónde pegar una configuración") -->
+      <section id="guide" class="section"></section>
 
       <section id="busqueda" class="section">
         <div class="hero"><div class="intro">
@@ -1948,7 +1778,7 @@ NEVER:
         creadorRellenar: 'Rellenar campos',
         creadorError: 'No encontré el bloque. Copia la respuesta completa de la gema y vuelve a pegarla.',
         creadorToast: 'Campos rellenados. Revisa la configuración y cópiala.',
-        guideLinkLabel: 'Guía de uso',
+        guideLinkLabel: 'Manual de uso',
         emptyPromptTitle: 'Elige una categoría o tema',
         emptyPromptBody: 'Usa el panel izquierdo para explorar por categoría y tema, o escribe lo que necesitas en el buscador.',
         exploreByCategory: 'Explora por categoría',
@@ -1994,7 +1824,7 @@ NEVER:
         creadorRellenar: 'Fill the fields',
         creadorError: 'I could not find the block. Copy the complete reply from the Gem and paste it again.',
         creadorToast: 'Fields filled. Review the configuration and copy it.',
-        guideLinkLabel: 'Usage guide',
+        guideLinkLabel: 'User manual',
         emptyPromptTitle: 'Pick a category or topic',
         emptyPromptBody: 'Use the left panel to browse by category and topic, or type what you need in the search box.',
         exploreByCategory: 'Explore by category',
@@ -2556,9 +2386,6 @@ ${clean}`;
       lc('imCreadorCancelar', labels.creadorCancelar, true); lc('imCreadorRellenar', labels.creadorRellenar, true);
       const errEl = document.getElementById('imCreadorError'); if (errEl) errEl.dataset.msg = labels.creadorError;
       const relEl = document.getElementById('imCreadorRellenar'); if (relEl) relEl.dataset.toast = labels.creadorToast;
-      document.querySelector('#guide .eyebrow').textContent = labels.guideEyebrow;
-      document.querySelector('#guide .intro h2').textContent = labels.guideTitle;
-      document.querySelector('#guide .intro p:last-child').textContent = labels.guideCopy;
       renderSidebarTree();
       renderCards();
       if (state.selected) {
@@ -2576,8 +2403,23 @@ ${clean}`;
       document.getElementById('biblioBtn').addEventListener('click', () => { goToCategory('Todas'); closeMobileMenu(); });
       el.treeRoot.addEventListener('click', toggleTreeRoot);
       document.querySelectorAll('.sidebar-links .sidebar-link').forEach(btn => {
-        btn.addEventListener('click', () => { switchTab(btn.dataset.tab); closeMobileMenu(); });
+        btn.addEventListener('click', () => {
+          if (btn.dataset.tab === 'guide' && window.IM_MANUAL) { IM_MANUAL.abrir(); closeMobileMenu(); return; }
+          switchTab(btn.dataset.tab); closeMobileMenu();
+        });
       });
+      // Manual de uso: la barra lateral se vuelve el índice y el capítulo se pinta en #guide
+      if (window.IM_MANUAL) {
+        let pestanaPrevia = 'library';
+        IM_MANUAL.configurar({
+          url: 'manuales/557.json', modo: 'lateral', contenedor: '#guide', sidebarScroll: '.sidebar-scroll',
+          textoVolver: 'Volver a la herramienta',
+          desplazamiento: window.matchMedia('(max-width: 860px)').matches ? 56 : 0,
+          alAbrir: () => { if (state.activeTab !== 'guide') pestanaPrevia = state.activeTab || 'library'; switchTab('guide'); },
+          alCerrar: () => switchTab(pestanaPrevia !== 'guide' ? pestanaPrevia : 'library'),
+          cerrarMenu: closeMobileMenu,
+        });
+      }
       el.mobileMenuToggle.addEventListener('click', openMobileMenu);
       el.mobileMenuClose.addEventListener('click', closeMobileMenu);
       el.sidebarBackdrop.addEventListener('click', closeMobileMenu);
