@@ -270,7 +270,9 @@
         const usaHotmart = !!p.hotmart_url && (!completa || !!ofertaPack);
         if (usaHotmart) {
           $('prodCop').textContent = esRegalo ? '' : 'Pagas en dólares o en tu moneda local: Hotmart te muestra el precio en tu país antes de confirmar.';
-          $('infoConsent').textContent = 'Entrega inmediata: tu acceso se activa apenas se apruebe el pago. Y si no es lo que esperabas, tienes 7 días para pedir el reembolso desde Hotmart.';
+          $('infoConsent').textContent = p.id === '6c01d354-e05d-47be-a6d6-3075abcc16d3'
+            ? 'Entrega inmediata: tu acceso al bootcamp se activa apenas se apruebe el pago. Y si al terminar la clase 1 sientes que no es para ti, pides el reembolso antes de la clase 2 y te devolvemos el 100%.'
+            : 'Entrega inmediata: tu acceso se activa apenas se apruebe el pago. Y si no es lo que esperabas, tienes 7 días para pedir el reembolso desde Hotmart.';
           $('cajaConsent').querySelector('span').innerHTML = 'Aceptar los <a href="terminos.html" target="_blank" rel="noopener">términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.';
           $('lineaSeguro').textContent = '🔒 Pago seguro con Hotmart. Tarjetas de cualquier país, PayPal y métodos locales según tu país (PSE y Nequi en Colombia, OXXO y SPEI en México, Mercado Pago en Argentina). Nunca vemos los datos de tu tarjeta.';
         } else {

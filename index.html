@@ -25,6 +25,9 @@
     fbq('init', '4305759369641678');
     fbq('track', 'PageView');
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     /* ─── RESET & BASE ─────────────────────────────────────────────── */
@@ -986,7 +989,72 @@
     .footer-redes a { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.16); color: #b9c6d8; transition: all .2s; }
     .footer-redes a:hover { color: #fff; border-color: var(--blue-elec); background: rgba(47,107,255,0.18); }
     .footer-redes svg { width: 18px; height: 18px; }
-  </style>
+  
+    /* ── Identidad del bootcamp (hero claro, tarjeta de oferta) ── */
+    .hero-bc { position: relative; overflow: hidden; background: #fff; color: #192333; font-family: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif; padding: 56px 5vw 44px; }
+    .hero-bc::before { content: ''; position: absolute; right: -10%; top: -30%; width: 60vw; max-width: 820px; aspect-ratio: 1; background: radial-gradient(closest-side, #D7EBFF, rgba(215,235,255,0) 72%); pointer-events: none; }
+    .hero-bc::after { content: ''; position: absolute; left: -20%; bottom: -60%; width: 50vw; max-width: 700px; aspect-ratio: 1; background: radial-gradient(closest-side, #E8F3FF, rgba(232,243,255,0) 72%); pointer-events: none; }
+    .hero-bc-wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 0.85fr; align-items: center; gap: 24px; text-align: left; }
+    .bc-etq { font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #246BFD; display: inline-flex; align-items: center; gap: 10px; }
+    .bc-h1 { margin: 14px 0 0; font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(50px, 7.4vw, 96px); color: #192333; }
+    .bc-h1 span { display: block; }
+    .bc-h1 .bc-gem { display: flex; align-items: center; gap: 0.1em; }
+    .bc-h1 .azul { color: #246BFD; }
+    .bc-estrella { width: 0.72em; height: 0.72em; flex: none; margin-top: 0.03em; filter: drop-shadow(0 8px 22px rgba(36,107,253,0.35)); }
+    .bc-linea { margin: 14px 0 0; font-size: clamp(18px, 2vw, 22px); font-weight: 500; color: #192333; }
+    .cuenta-bc { margin-top: 26px; }
+    .cuenta-bc .lbl { font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #52647C; display: flex; align-items: center; gap: 8px; }
+    .cuenta-bc .vivo { width: 10px; height: 10px; border-radius: 50%; background: #ff3b5c; box-shadow: 0 0 0 4px rgba(255,59,92,0.2); animation: bcLate 1.2s infinite; }
+    @keyframes bcLate { 50% { box-shadow: 0 0 0 9px rgba(255,59,92,0.04); } }
+    .cajas { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .caja { background: #fff; border: 1px solid #E7EDF4; border-radius: 18px; padding: 14px 16px 12px; min-width: 92px; text-align: center; box-shadow: 0 12px 34px rgba(25,35,51,0.08); }
+    .caja b { display: block; font-size: clamp(30px, 4.4vw, 48px); font-weight: 700; color: #246BFD; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+    .caja span { display: block; margin-top: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: #52647C; }
+    .bc-cta { margin-top: 20px; display: inline-flex; align-items: center; gap: 10px; background: #246BFD; color: #fff; border-radius: 999px; padding: 15px 26px; font-weight: 600; font-size: 17px; box-shadow: 0 14px 34px rgba(36,107,253,0.28); text-decoration: none; transition: transform .15s, background .15s; font-family: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif; }
+    .bc-cta:hover { transform: translateY(-1px); background: #124DC5; }
+    .bc-cta svg { width: 18px; height: 18px; }
+    .estrella-bc { position: relative; display: flex; justify-content: center; align-items: center; min-height: 360px; }
+    .estrella-bc::before { content: ''; position: absolute; width: 70%; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(from 0deg, rgba(36,107,253,0) 0%, rgba(36,107,253,0.35) 25%, rgba(255,95,162,0.28) 50%, rgba(34,211,181,0.28) 75%, rgba(36,107,253,0) 100%); filter: blur(34px); animation: bcGira 16s linear infinite; }
+    .estrella-bc::after { content: ''; position: absolute; width: 52%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,0.9), rgba(215,235,255,0) 70%); animation: bcPulso 5s ease-in-out infinite; }
+    .estrella-bc img { position: relative; z-index: 1; width: min(100%, 400px); height: auto; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); animation: bcFlota 7s ease-in-out infinite; }
+    @keyframes bcGira { to { transform: rotate(360deg); } }
+    @keyframes bcFlota { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-16px) rotate(2deg); } }
+    @keyframes bcPulso { 0%, 100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.18); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .estrella-bc::before, .estrella-bc::after, .estrella-bc img { animation: none; } }
+    .paq-bc { position: relative; overflow: hidden; background: #fff; color: #192333; font-family: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif; border-radius: 24px; padding: 28px 30px; margin-bottom: 24px; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: center; box-shadow: 0 20px 60px rgba(36,107,253,0.14); text-align: left; }
+    .paq-bc::before { content: ''; position: absolute; right: -10%; top: -40%; width: 50%; aspect-ratio: 1; background: radial-gradient(closest-side, #D7EBFF, rgba(215,235,255,0) 72%); pointer-events: none; }
+    .paq-bc > * { position: relative; }
+    .paq-bc h3 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; margin: 10px 0 8px; color: #192333; }
+    .paq-bc h3 span { color: #246BFD; }
+    .paq-bc p { color: #52647C; margin: 0 0 14px; font-size: 15px; line-height: 1.5; }
+    .paq-bc ul { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 6px; font-size: 14px; color: #192333; }
+    .paq-bc li { display: flex; gap: 8px; align-items: flex-start; }
+    .paq-bc li svg { width: 18px; height: 18px; stroke: #246BFD; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; margin-top: 2px; }
+    .paq-bc .precio { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+    .paq-bc .precio s { color: #52647C; font-size: 18px; }
+    .paq-bc .precio b { font-size: 44px; font-weight: 700; color: #246BFD; letter-spacing: -0.04em; line-height: 1; }
+    .paq-bc .precio .pct { background: #192333; color: #fff; border-radius: 999px; padding: 6px 11px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; }
+    .paq-bc .lado { text-align: center; }
+    .paq-bc .lado img { width: min(100%, 300px); height: auto; mix-blend-mode: multiply; }
+    .paq-bc .bc-cta { margin-top: 12px; }
+    @media (max-width: 900px) {
+      .hero-bc { padding: 32px 16px 36px; }
+      .hero-bc-wrap { grid-template-columns: 1fr; gap: 0; }
+      .estrella-bc { order: -1; min-height: 220px; margin-bottom: 6px; }
+      .estrella-bc img { width: min(54vw, 230px); }
+      .caja { min-width: 72px; padding: 12px 10px 10px; }
+      .bc-cta { width: 100%; justify-content: center; }
+      .paq-bc { grid-template-columns: 1fr; padding: 22px; }
+      .paq-bc .lado { order: -1; }
+      .paq-bc .lado img { width: min(60%, 220px); }
+    }
+    /* La barra de navegación de esta página es fija: el hero del bootcamp necesita aire arriba */
+    #heroBootcamp.hero-bc { padding-top: 118px; }
+    @media (max-width: 900px) { #heroBootcamp.hero-bc { padding-top: 92px; } }
+    .faq-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 0 0 22px; }
+    .faq-tab { border: 1px solid rgba(255,255,255,0.18); background: transparent; color: #D1D5DB; border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+    .faq-tab.activa { background: var(--blue-elec); border-color: var(--blue-elec); color: #fff; }
+</style>
 </head>
 <body>
 
@@ -1009,7 +1077,28 @@
   </nav>
 
   <!-- ═══ HERO ═════════════════════════════════════════════════════ -->
-  <section class="hero">
+  <section class="hero-bc" id="heroBootcamp" hidden>
+      <div class="hero-bc-wrap">
+        <div>
+          <span class="bc-etq" id="heroBcEtq">Bootcamp en vivo · 3 clases · 3, 4 y 5 de noviembre</span>
+          <h2 class="bc-h1"><span class="bc-gem">Gemini<svg class="bc-estrella" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gEstrellaBc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset=".45" stop-color="#3b82f6"/><stop offset=".8" stop-color="#22d3b5"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><path fill="url(#gEstrellaBc)" stroke="none" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg></span><span class="azul">de 0 a 100</span></h2>
+          <p class="bc-linea">De ideas a proyectos reales.</p>
+          <div class="cuenta-bc">
+            <div class="lbl" id="heroBcLbl"></div>
+            <div class="cajas" id="heroBcTiles">
+              <div class="caja"><b id="hbD">00</b><span>días</span></div>
+              <div class="caja"><b id="hbH">00</b><span>horas</span></div>
+              <div class="caja"><b id="hbM">00</b><span>min</span></div>
+              <div class="caja"><b id="hbS">00</b><span>seg</span></div>
+            </div>
+          </div>
+          <a class="bc-cta" id="heroBcCta" href="bootcamp.html">Más información <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="estrella-bc"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" width="720" height="795" loading="lazy" /></div>
+      </div>
+  </section>
+
+  <section class="hero" id="heroVideo">
     <video
       class="hero-video"
       autoplay muted loop playsinline
@@ -1035,7 +1124,7 @@
   <!-- ═══ TENDENCIAS ════════════════════════════════════════════════ -->
   <section class="tendencias">
     <div class="tendencias-header">
-      <h2 class="section-title reveal" style="margin-bottom:0;">Tendencias</h2>
+      <h2 class="section-title reveal" style="margin-bottom:0;">Tendencias en IA MASIVA</h2>
     </div>
     <div class="scroll-wrapper">
       <button class="scroll-arrow left hidden" id="arrowLeft" aria-label="Anterior">&#8592;</button>
@@ -1135,6 +1224,7 @@
   <section class="paquetes-section" id="paquetes" style="display: none;">
     <h2 class="section-title">Paquetes y ofertas</h2>
     <p class="paquetes-sub">Precios de lanzamiento por tiempo limitado. Tuyos para siempre, con todo lo que les sigamos sumando.</p>
+    <div class="paq-bc" id="paqBootcamp" hidden><div><span class="bc-etq">Bootcamp en vivo · 3, 4 y 5 de noviembre</span><h3>Gemini <span>de 0 a 100</span></h3><p>Tres noches en vivo para pasar de preguntarle cosas a Gemini a dirigirlo: lo configuras a tu medida, trabajas proyectos completos y dejas agentes trabajando por ti.</p><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Bootcamp en vivo, 3 clases, queda grabado</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Pack Gemini 3x gratis: 557 Configuraciones, 400 Skills y 200 Diseños</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Recursos exclusivos y certificado de participación</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Garantía: si la clase 1 no te gusta, reembolso del 100%</li></ul><div class="precio"><s>$257</s><b>$97</b><span class="pct">-62% BLACK FRIDAY</span></div><a class="bc-cta" href="bootcamp.html">Ver el bootcamp <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div><div class="lado"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-mockup-1793044000.jpg" alt="Bootcamp Gemini de 0 a 100" loading="lazy" /></div></div>
     <div class="paquetes-grid" id="paquetesGrid"></div>
   </section>
 
@@ -1190,6 +1280,105 @@
   <section class="faq-section">
     <div class="faq-inner">
       <h2 class="section-title reveal">Preguntas frecuentes</h2>
+      <div class="faq-tabs" id="faqTabs" hidden><button class="faq-tab activa" type="button" data-faq="faqBootcamp">Sobre el Bootcamp</button><button class="faq-tab" type="button" data-faq="faqSitio">Sobre IA MASIVA</button></div>
+      <div id="faqBootcamp" hidden>
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Necesito saber algo de IA o de programación?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>No. El bootcamp empieza desde cero y todo lo que se construye se hace hablándole a la IA. Lo único que necesitas es un computador y una cuenta de Google.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Necesito pagar Gemini?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>Puedes seguir las tres clases con una cuenta de Google. Algunas funciones avanzadas rinden más con Google AI Pro, y te decimos cuáles en la clase 1 para que decidas con calma.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Qué pasa si no puedo asistir a una clase en vivo?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>Queda grabada y la ves cuando puedas en tu área de miembros. El soporte por WhatsApp sigue disponible para tus dudas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Las herramientas son por un tiempo?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>No. Las 557 configuraciones, las 400 skills y los 200 diseños son tuyos para siempre, con las actualizaciones que hagamos.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          Ya compré alguna de las herramientas. ¿Qué pasa?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>Escríbenos antes de comprar y te damos un cupón por el valor de lo que ya tienes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Cómo entro a las clases?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>Al comprar te llega un correo con el acceso a tu área del bootcamp en IA MASIVA, el calendario de las clases y tus herramientas. El día de cada clase entras desde ahí con tu correo, y te recordamos una hora antes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Recibo certificado?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>Sí. Al finalizar obtienes un certificado de participación que valida todo lo que aprendiste.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <button class="faq-question">
+          ¿Y si no me gusta?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            <p>Si al terminar la clase 1 sientes que esto no es para ti, nos escribes y te devolvemos el 100% de tu dinero. La única condición es que lo pidas antes de la clase 2.</p>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div id="faqSitio">
 
       <div class="faq-item reveal">
         <button class="faq-question">
@@ -1263,6 +1452,7 @@
         </div>
       </div>
 
+      </div>
     </div>
   </section>
 
@@ -1860,7 +2050,38 @@
           sb.from('bundle_componentes').select('bundle_id'),
         ]);
         const packs = new Set((comps ?? []).map(c => c.bundle_id));
-        pintarPaquetes(data, (p) => PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`, (id) => packs.has(id));
+        const PRODUCTO_BOOTCAMP = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+        const bootcampActivo = (data || []).some(p => p.id === PRODUCTO_BOOTCAMP);
+        pintarPaquetes((data || []).filter(p => p.id !== PRODUCTO_BOOTCAMP), (p) => PAGINA_PAQUETE[p.id] || `producto.html?p=${p.id}`, (id) => packs.has(id));
+        // Bootcamp Gemini de 0 a 100: hero con contador, bloque en ofertas y preguntas propias,
+        // solo mientras el producto esté activo y el evento no haya terminado. El hero de video
+        // se conserva y vuelve solo cuando esto se apaga.
+        const CIERRE_OFERTA = Date.parse('2026-11-03T18:00:00-05:00'), INICIO_CLASE_1 = Date.parse('2026-11-04T00:00:00Z'), FIN_EVENTO = Date.parse('2026-11-06T06:00:00Z');
+        if (bootcampActivo && Date.now() < FIN_EVENTO) {
+          const heroBc = document.getElementById('heroBootcamp'), heroVideo = document.getElementById('heroVideo');
+          if (heroBc) {
+            heroBc.hidden = false; if (heroVideo) heroVideo.style.display = 'none';
+            const lbl = document.getElementById('heroBcLbl');
+            const hasta = CIERRE_OFERTA > Date.now() ? CIERRE_OFERTA : INICIO_CLASE_1;
+            lbl.textContent = CIERRE_OFERTA > Date.now() ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
+            const dd = (n) => String(Math.max(0, n)).padStart(2, '0');
+            const tic = () => { const d = Math.max(0, hasta - Date.now()); document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3)); };
+            tic(); setInterval(tic, 1000);
+          }
+          const paqBc = document.getElementById('paqBootcamp');
+          if (paqBc) { paqBc.hidden = false; const sec = document.getElementById('paquetes'); if (sec) sec.style.display = ''; const div = document.getElementById('paquetesDivisor'); if (div) div.style.display = ''; }
+          const tabs = document.getElementById('faqTabs');
+          if (tabs) {
+            tabs.hidden = false; document.getElementById('faqBootcamp').hidden = false; document.getElementById('faqSitio').hidden = true;
+            tabs.querySelectorAll('.faq-tab').forEach(b => b.addEventListener('click', () => {
+              tabs.querySelectorAll('.faq-tab').forEach(x => x.classList.toggle('activa', x === b));
+              document.getElementById('faqBootcamp').hidden = b.dataset.faq !== 'faqBootcamp';
+              document.getElementById('faqSitio').hidden = b.dataset.faq !== 'faqSitio';
+              document.querySelectorAll('#' + b.dataset.faq + ' .reveal').forEach(el => el.classList.add('visible'));
+            }));
+            document.querySelectorAll('#faqBootcamp .reveal').forEach(el => el.classList.add('visible'));
+          }
+        }
       } catch (_) {}
     })();
   </script>
