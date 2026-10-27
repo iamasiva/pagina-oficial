@@ -991,7 +991,13 @@
     .footer-redes svg { width: 18px; height: 18px; }
   
     /* ── Identidad del bootcamp (hero claro, tarjeta de oferta) ── */
-    .hero-bc { position: relative; overflow: hidden; background: #fff; color: #192333; font-family: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif; padding: 56px 5vw 44px; }
+    .hero-bc { position: relative; overflow: hidden; background: #fff; color: #192333; font-family: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif; padding: 56px 5vw 150px; }
+    .hero-bc-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(to bottom, rgba(5,5,5,0) 0%, rgba(5,5,5,0.5) 55%, #050505 100%); pointer-events: none; z-index: 2; }
+    .bc-precio { margin: 14px 0 0; font-size: 17px; color: #52647C; }
+    .bc-precio s { text-decoration-thickness: 2px; }
+    .bc-precio b { color: #246BFD; font-weight: 700; font-size: 22px; }
+    .sello-bc { position: absolute; z-index: 2; top: 6%; right: 4%; width: 112px; height: 112px; border-radius: 50%; background: #246BFD; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 34px; letter-spacing: -0.03em; line-height: 1; transform: rotate(-8deg); box-shadow: 0 18px 40px rgba(36,107,253,0.35); }
+    .sello-bc small { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; margin-top: 4px; }
     .hero-bc::before { content: ''; position: absolute; right: -10%; top: -30%; width: 60vw; max-width: 820px; aspect-ratio: 1; background: radial-gradient(closest-side, #D7EBFF, rgba(215,235,255,0) 72%); pointer-events: none; }
     .hero-bc::after { content: ''; position: absolute; left: -20%; bottom: -60%; width: 50vw; max-width: 700px; aspect-ratio: 1; background: radial-gradient(closest-side, #E8F3FF, rgba(232,243,255,0) 72%); pointer-events: none; }
     .hero-bc-wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 0.85fr; align-items: center; gap: 24px; text-align: left; }
@@ -1038,11 +1044,20 @@
     .paq-bc .lado img { width: min(100%, 300px); height: auto; mix-blend-mode: multiply; }
     .paq-bc .bc-cta { margin-top: 12px; }
     @media (max-width: 900px) {
-      .hero-bc { padding: 32px 16px 36px; }
+      .hero-bc { padding: 32px 16px 120px; }
+      .hero-bc-fade { height: 120px; }
       .hero-bc-wrap { grid-template-columns: 1fr; gap: 0; }
-      .estrella-bc { order: -1; min-height: 220px; margin-bottom: 6px; }
+      .bc-etq .largo { display: none; }
+      .bc-h1 { font-size: clamp(44px, 14vw, 64px); }
+      .estrella-bc { order: -1; min-height: 210px; margin-bottom: 4px; }
       .estrella-bc img { width: min(54vw, 230px); }
-      .caja { min-width: 72px; padding: 12px 10px 10px; }
+      .sello-bc { width: 84px; height: 84px; font-size: 24px; top: 4%; right: 2%; }
+      .sello-bc small { font-size: 9px; }
+      .cajas { gap: 8px; }
+      .caja { flex: 1; min-width: 0; padding: 12px 6px 10px; border-radius: 14px; }
+      .caja b { font-size: 28px; }
+      .caja span { font-size: 10px; letter-spacing: 0.1em; }
+      .bc-precio { font-size: 15px; }
       .bc-cta { width: 100%; justify-content: center; }
       .paq-bc { grid-template-columns: 1fr; padding: 22px; }
       .paq-bc .lado { order: -1; }
@@ -1080,9 +1095,10 @@
   <section class="hero-bc" id="heroBootcamp" hidden>
       <div class="hero-bc-wrap">
         <div>
-          <span class="bc-etq" id="heroBcEtq">Bootcamp en vivo · 3 clases · 3, 4 y 5 de noviembre</span>
+          <span class="bc-etq" id="heroBcEtq">Bootcamp en vivo · 3 clases<span class="largo"> · 3, 4 y 5 de noviembre</span></span>
           <h2 class="bc-h1"><span class="bc-gem">Gemini<svg class="bc-estrella" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gEstrellaBc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset=".45" stop-color="#3b82f6"/><stop offset=".8" stop-color="#22d3b5"/><stop offset="1" stop-color="#facc15"/></linearGradient></defs><path fill="url(#gEstrellaBc)" stroke="none" d="M12 0C12.6 7 17 11.4 24 12 17 12.6 12.6 17 12 24 11.4 17 7 12.6 0 12 7 11.4 11.4 7 12 0Z"/></svg></span><span class="azul">de 0 a 100</span></h2>
           <p class="bc-linea">De ideas a proyectos reales.</p>
+          <p class="bc-precio">Todo vale <s>$257</s>. Llévalo hoy por <b>$97</b></p>
           <div class="cuenta-bc">
             <div class="lbl" id="heroBcLbl"></div>
             <div class="cajas" id="heroBcTiles">
@@ -1094,8 +1110,9 @@
           </div>
           <a class="bc-cta" id="heroBcCta" href="bootcamp.html">Más información <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <div class="estrella-bc"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" width="720" height="795" loading="lazy" /></div>
+        <div class="estrella-bc"><div class="sello-bc"><span>-62%</span><small>Black Friday</small></div><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" width="720" height="795" loading="lazy" /></div>
       </div>
+      <div class="hero-bc-fade"></div>
   </section>
 
   <section class="hero" id="heroVideo">
