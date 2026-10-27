@@ -729,6 +729,20 @@
     function partes(iso) { const [y, m, d] = iso.split('-').map(Number); return { d, mes: MESES[m - 1], dia: DIAS[new Date(y, m - 1, d).getDay()] }; }
 
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    // ── Canal de origen (UTM): se guarda al llegar y persigue al visitante 30 días.
+    // pago.html lo lee al crear la compra y lo pasa a Hotmart, así la venta queda
+    // atribuida al video o DM que la trajo (mismo mecanismo que index y producto).
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get('utm_source')) {
+        localStorage.setItem('im_utm', JSON.stringify({
+          source: q.get('utm_source').trim().toLowerCase().slice(0, 60),
+          medium: (q.get('utm_medium') || '').trim().toLowerCase().slice(0, 60) || null,
+          campaign: (q.get('utm_campaign') || '').trim().toLowerCase().slice(0, 60) || null,
+          guardado: Date.now(),
+        }));
+      }
+    } catch (_) {}
     const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
     const $ = (id) => document.getElementById(id);
     const usd = (n) => '$' + n;
