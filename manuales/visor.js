@@ -104,7 +104,7 @@
       li.className = 'im-man-cap-item';
       li.dataset.cap = cap.id;
       li.innerHTML =
-        '<button type="button" class="im-man-cap-btn" data-cap="' + esc(cap.id) + '"><span class="n' + (cap.numero ? '' : ' sin') + '">' + (cap.numero || '·') + '</span><span>' + esc(cap.titulo) + '</span></button>' +
+        '<button type="button" class="im-man-cap-btn" data-cap="' + esc(cap.id) + '"><span class="n' + (cap.numero ? '' : ' sin') + '">' + (cap.numero || '·') + '</span><span>' + esc(cap.titulo) + '</span>' + (cap.avanzado ? '<span class="tag">Avanzado</span>' : '') + '</button>' +
         (cap.secciones.length
           ? '<ul class="im-man-secs">' + cap.secciones.map((s) => '<li><button type="button" class="im-man-sec-btn" data-cap="' + esc(cap.id) + '" data-sec="' + esc(s.id) + '">' + esc(s.titulo) + '</button></li>').join('') + '</ul>'
           : '');
@@ -151,7 +151,7 @@
       V.principal.innerHTML =
         (V.cfg.modo === 'pagina' ? '<button type="button" class="im-man-idx-toggle">Índice del manual</button>' : '') +
         '<div class="im-man-vista">' +
-          '<div class="im-man-migas">' + esc(V.datos.titulo || V.cfg.titulo) + (cap.numero ? ' · Capítulo ' + cap.numero : '') + '</div>' +
+          '<div class="im-man-migas">' + esc(V.datos.titulo || V.cfg.titulo) + (cap.numero ? ' · Capítulo ' + cap.numero : '') + (cap.avanzado ? ' · Avanzado' : '') + '</div>' +
           '<article class="im-man-cuerpo"><h2>' + esc(cap.titulo) + '</h2>' + cap.html + '</article>' +
           '<nav class="im-man-pie">' +
             (ant ? '<button type="button" class="ant" data-cap="' + esc(ant.id) + '"><span>Anterior</span>' + esc(ant.titulo) + '</button>' : '<span></span>') +

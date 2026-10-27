@@ -86,7 +86,8 @@ function convertir(tool, md) {
   const doc = { herramienta: NOMBRES[tool] || tool, titulo: 'Manual de uso', generado: new Date().toISOString().slice(0, 10), capitulos: [] };
   let cap = null; const avisos = [];
   // Los capítulos pueden venir numerados en el .md ("3. Biblioteca"); el índice ya numera, así que se quita el prefijo
-  const nuevoCap = (titulo) => { const mn = /^(\d+)[.)]\s+/.exec(titulo); const numero = mn ? Number(mn[1]) : null; titulo = titulo.replace(/^\d+[.)]\s+/, ''); cap = { id: slug(titulo), numero, titulo, secciones: [], html: '' }; doc.capitulos.push(cap); return cap; };
+  // Un título que termina en "(avanzado)" marca el capítulo como avanzado: el visor le pone la etiqueta y quita el sufijo
+  const nuevoCap = (titulo) => { const mn = /^(\d+)[.)]\s+/.exec(titulo); const numero = mn ? Number(mn[1]) : null; titulo = titulo.replace(/^\d+[.)]\s+/, ''); const avanzado = /\s*\(avanzado\)\s*$/i.test(titulo); titulo = titulo.replace(/\s*\(avanzado\)\s*$/i, ''); cap = { id: slug(titulo), numero, titulo, avanzado, secciones: [], html: '' }; doc.capitulos.push(cap); return cap; };
   const asegurarCap = () => cap || nuevoCap('Qué es');
   const figs = (texto) => { let out = ''; texto.replace(RE_CAP, (_, n, d) => { out += figura(tool, n, d.trim()); return ''; }); return out; };
 

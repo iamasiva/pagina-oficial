@@ -647,6 +647,15 @@
     @media (max-width: 860px) {
       .config-detail-back { margin-left: 52px; }
     }
+    /* Tarjeta "Empieza aquí" de la portada y pistas de ayuda en la ficha (manual de uso) */
+    .im-empieza { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 18px; font-size: 14px; color: var(--ink); }
+    .im-empieza p { margin: 0; }
+    .im-empieza .acciones { display: flex; gap: 8px; align-items: center; }
+    .im-empieza .cerrar { border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; text-decoration: underline; }
+    .im-empieza[hidden] { display: none; }
+    .im-pista { display: block; font-size: 12px; color: var(--muted); margin: 2px 0 6px; line-height: 1.35; }
+    /* "Crea la skill": oculto hasta que Google defina cómo se comparten las habilidades (decisión 27 oct 2026) */
+    .im-skill-aviso [data-skill] { display: none; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -770,6 +779,10 @@
               <p id="heroDesc">Explora por categoría o busca por nombre, herramienta o caso de uso. Cada skill trae sus tres campos listos para pegar en Gemini y un formulario propio para generar el prompt final en segundos.</p>
             </div>
           </div>
+        <div class="im-empieza" id="imEmpieza" hidden>
+          <p><strong>¿Primera vez aquí?</strong> Tu primera skill en Gemini en seis pasos, en el Manual de uso.</p>
+          <div class="acciones"><button type="button" class="secondary-btn" id="imEmpiezaBtn"><span>Leer "Empieza aquí"</span></button><button type="button" class="cerrar" id="imEmpiezaCerrar">No volver a mostrar</button></div>
+        </div>
 
           <div class="toolbar">
             <div class="search-wrap">
@@ -808,8 +821,8 @@
             </div>
             <div class="drawer-meta" id="detailMeta"></div>
             <div class="skill-llamada">
-              <button class="skill-chip" id="detailSkillChip" type="button" title="Copiar el nombre para pegarlo en Gemini">/nombre-de-la-skill</button>
-              <span class="skill-llamada-nota">Tócalo para copiarlo. En cualquier chat de Gemini, pega el nombre y escribe tu pedido a continuación. Si al pegar no se marca como skill, escribe la barra y elígela de la lista.</span>
+              <button class="skill-chip" id="detailSkillChip" type="button" title="Copiar el nombre para pegarlo en Gemini">@nombre-de-la-skill</button>
+              <span class="skill-llamada-nota">Tócalo para copiarlo. En cualquier chat de Gemini, pega el nombre y escribe tu pedido a continuación. Si al pegar no se marca como skill, escribe @ y elígela de la lista.</span>
             </div>
           </div>
           <div class="drawer-body">
@@ -832,7 +845,7 @@
             <div class="step-block">
               <div class="step-title"><h3>Paso 1 · Crea tu skill en Gemini (solo una vez)</h3></div>
               <div class="step">
-              <p class="hint">En Gemini entra a Habilidades, toca Crear y pega estos tres campos tal cual, en este orden. Se crea una sola vez; desde ahí queda lista en todos tus chats.</p>
+              <p class="hint">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual. Pega estos tres campos tal cual, en este orden. Se crea una sola vez; desde ahí queda lista en todos tus chats.</p>
 
               <div class="gem-field">
                 <div class="gem-field-head">
@@ -902,7 +915,7 @@
           <div class="drawer-head">
             <div class="drawer-title-row">
               <span class="badge">Herramienta especial</span>
-              <span class="meta-chip">Se instala una sola vez</span>
+              <span class="meta-chip">Se crea en Gemini una sola vez</span>
             </div>
             <div class="drawer-title">
               <h2>Skill para crear skills</h2>
@@ -970,7 +983,7 @@
             <div class="step-block">
               <div class="step-title"><h3>Crea esta skill en Gemini (solo una vez)</h3></div>
               <div class="step">
-                <p class="hint">En Gemini entra a Habilidades, toca Crear y pega estos tres campos tal cual. ¿Ya la creaste antes? <button class="ghost-btn" id="builderGoGenerateLink" type="button">Ve directo a generar el prompt →</button></p>
+                <p class="hint">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual. Pega estos tres campos tal cual. ¿Ya la creaste antes? <button class="ghost-btn" id="builderGoGenerateLink" type="button">Ve directo a generar el prompt →</button></p>
 
                 <div class="gem-field">
                   <div class="gem-field-head">
@@ -1048,7 +1061,7 @@
             <a class="primary-btn" href="https://gemini.google.com/gem/1kQIJy4nNb3xBfatu48c4sx11ztMtIR_g?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
             <p class="busq-nota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
             <div class="im-skill-aviso" id="imSkillAvisoBusq">
-            <p>Las gemas de Gemini van a desaparecer. Por ahora el Bibliotecario sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/bibliotecario-del-400</code> en cualquier chat.</p>
+            <p>El Bibliotecario funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.</p>
             <button class="im-mini-btn" type="button" data-skill="bibliotecario-del-400"><span>Crea la skill</span></button>
           </div>
           </div>
@@ -1058,7 +1071,7 @@
           <div class="hero"><div class="intro">
             <p class="eyebrow">Tu espacio</p>
             <h2>Mis agentes: tus skills, tus chats y tus prompts.</h2>
-            <p>Guarda las skills que ya creaste en Gemini, organizadas en servidores por tema, con su nombre listo para copiar y, dentro de cada una, sus chats y los prompts que reutilizas.</p>
+            <p>Guarda las skills que ya creaste en Gemini, organizadas en carpetas por tema (aquí se llaman servidores y módulos), con su nombre listo para copiar y, dentro de cada una, sus chats y los prompts que reutilizas. No es obligatorio: las skills funcionan igual sin guardarlas.</p>
           </div></div>
           <div class="im-toolbar">
             <button id="imMgVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
@@ -1093,7 +1106,7 @@
             <label class="im-modal-label">Skill</label>
             <input id="imMetaNombre" type="text" readonly  autocomplete="off" />
             <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
-            <input id="imMetaUrl" type="text" placeholder="/nombre-de-la-skill"  autocomplete="off" />
+            <input id="imMetaUrl" type="text" placeholder="@nombre-de-la-skill"  autocomplete="off" />
             <label class="im-modal-label">Servidor (opcional)</label>
             <select id="imMetaSelCat"></select>
             <input id="imMetaCatNueva" type="text" placeholder="Nombre del nuevo servidor" style="display:none; margin-top:8px;"  autocomplete="off" />
@@ -1138,7 +1151,7 @@
                 <input id="imGemaNombre" type="text" placeholder="Ej: Mi skill de contenido semanal"  autocomplete="off" />
               </div>
               <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
-              <input id="imGemaUrl" type="text" placeholder="/nombre-de-la-skill"  autocomplete="off" />
+              <input id="imGemaUrl" type="text" placeholder="@nombre-de-la-skill"  autocomplete="off" />
               <label class="im-modal-label">¿Para qué es? (opcional)</label>
               <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte"  autocomplete="off" />
               <div id="imGemaInstrCampo">
@@ -1226,7 +1239,7 @@
       <h3 id="imSkillTitulo">Crea esta skill en Gemini</h3>
       <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar. Se crea una sola vez.</p>
       <ol class="im-skill-pasos">
-        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Habilidades y toca Nueva habilidad.</span></li>
+        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual.</span></li>
         <li><b>2</b><span id="imSkillPaso2">Copia y pega cada campo en su lugar y guarda.</span></li>
         <li><b>3</b><span id="imSkillPaso3">En cualquier chat escribe el nombre de la skill y lo que necesitas.</span></li>
       </ol>
@@ -1246,7 +1259,7 @@
           <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
         </div>
       </div>
-      <p class="im-skill-estado" id="imSkillNota">La gema sigue activa. Cuando Google la retire, tu skill ya está lista.</p>
+      <p class="im-skill-estado" id="imSkillNota">El asistente sigue activo desde Gemini. Cuando Google retire las gemas, tu habilidad ya está lista.</p>
       <div class="im-modal-acciones">
         <button id="imSkillCerrar" class="im-mini-btn" type="button"><span>Cerrar</span></button>
       </div>
@@ -1399,11 +1412,12 @@
       return String(nombre || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
         .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     }
-    function llamadaSkill(nombre) { return "/" + slugSkill(nombre); }
+    function llamadaSkill(nombre) { return "@" + slugSkill(nombre); }
     // Lo que escribe el usuario como nombre de su skill: siempre con la barra y sin espacios
     function normalizarLlamada(texto) {
-      const t = String(texto || "").trim().replace(/^\/+/, "");
-      return t ? "/" + slugSkill(t) : "";
+      // Hoy Gemini llama las habilidades con @ (antes con /): se acepta cualquiera de los dos al escribir
+      const t = String(texto || "").trim().replace(/^[\/@]+/, "");
+      return t ? "@" + slugSkill(t) : "";
     }
     // Las instrucciones nacieron para skills (archivos de conocimiento): en una
     // skill los archivos se adjuntan en el chat.
@@ -2074,6 +2088,14 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         renderToolTree();
       });
 
+      // Tarjeta "Empieza aquí": abre el capítulo 1 del manual; se oculta si el usuario lo pide
+      (function () {
+        const caja = document.getElementById('imEmpieza'); if (!caja) return;
+        let oculta = false; try { oculta = localStorage.getItem('im_empieza_400_oculta') === '1'; } catch (_) {}
+        if (!oculta) caja.hidden = false;
+        document.getElementById('imEmpiezaBtn').addEventListener('click', () => { if (window.IM_MANUAL) IM_MANUAL.abrir('empieza-aqui'); });
+        document.getElementById('imEmpiezaCerrar').addEventListener('click', () => { caja.hidden = true; try { localStorage.setItem('im_empieza_400_oculta', '1'); } catch (_) {} });
+      })();
       // Manual de uso: la barra lateral se vuelve el índice y el capítulo se pinta en #section-guide
       let seccionPrevia = "library";
       if (window.IM_MANUAL) {
@@ -2294,7 +2316,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
       // El "/nombre" de una skill guardada: lo que escribió el usuario, o el del catálogo, o el del título
       function llamadaDeGuardada(g) {
-        if (g.url && g.url.startsWith('/')) return g.url;
+        if (g.url && /^[\/@]/.test(g.url)) return '@' + g.url.replace(/^[\/@]+/, ''); // las guardadas con / se muestran con @
         const cat = gemDeCatalogo(g);
         return llamadaSkill(cat ? cat.nombre : g.titulo);
       }
@@ -2727,7 +2749,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imGemaNombreCampo').style.display = catalogo ? 'none' : '';
         if (catalogo) $('imGemaCatalogoInfo').innerHTML = `<span class="im-tag im-tag-catalogo" style="margin:0 8px 0 0;">Catálogo</span>${escapeHtml(catalogo.nombre)}`;
         $('imGemaNombre').value = g?.titulo ?? '';
-        $('imGemaUrl').value = (g?.url && g.url.startsWith('/')) ? g.url : (catalogo ? llamadaSkill(catalogo.nombre) : (g?.titulo ? llamadaSkill(g.titulo) : ''));
+        $('imGemaUrl').value = (g?.url && /^[\/@]/.test(g.url)) ? '@' + g.url.replace(/^[\/@]+/, '') : (catalogo ? llamadaSkill(catalogo.nombre) : (g?.titulo ? llamadaSkill(g.titulo) : ''));
         $('imGemaDesc').value = g?.descripcion ?? catalogo?.descripcion_corta ?? '';
         // La instrucción solo aplica a skills propias (las de catálogo la traen de la biblioteca)
         $('imGemaInstrCampo').style.display = catalogo ? 'none' : '';
@@ -3389,7 +3411,7 @@ ${ficha}`;
       const CACHE = {}; let abierta = null;
       async function abrir(clave) {
         abierta = clave;
-        q('imSkillPaso3').innerHTML = 'En cualquier chat escribe <code>/' + clave + '</code> y lo que necesitas.';
+        q('imSkillPaso3').innerHTML = 'En cualquier chat escribe <code>@' + clave + '</code> y lo que necesitas.';
         q('imSkillCampos').style.display = 'none';
         const estado = q('imSkillEstado'); estado.style.display = ''; estado.textContent = 'Cargando los campos...';
         modal.classList.add('abierto');

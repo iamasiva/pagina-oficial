@@ -851,6 +851,15 @@
     .im-con-cab h3 { flex: 1; }
     .im-con-q { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--muted); font-weight: 800; font-size: 0.8rem; line-height: 1; cursor: pointer; }
     .im-con-q:hover { border-color: var(--accent); color: var(--accent); }
+    /* "Crea la skill": oculto hasta que Google defina cómo se comparten las habilidades (decisión 27 oct 2026) */
+    .im-skill-aviso [data-skill] { display: none; }
+    /* Tarjeta "Empieza aquí" de la portada y pistas de ayuda en la ficha (manual de uso) */
+    .im-empieza { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 18px; font-size: 14px; color: var(--ink); }
+    .im-empieza p { margin: 0; }
+    .im-empieza .acciones { display: flex; gap: 8px; align-items: center; }
+    .im-empieza .cerrar { border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; text-decoration: underline; }
+    .im-empieza[hidden] { display: none; }
+    .im-pista { display: block; font-size: 12px; color: var(--muted); margin: 2px 0 6px; line-height: 1.35; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -959,6 +968,10 @@
             <p id="heroCopy">Elige una categoría o tema en el panel izquierdo, o busca directamente lo que necesitas.</p>
           </div>
         </div>
+        <div class="im-empieza" id="imEmpieza" hidden>
+          <p><strong>¿Primera vez aquí?</strong> Tu primer experto en Gemini en seis pasos, en el Manual de uso.</p>
+          <div class="acciones"><button type="button" class="secondary-btn" id="imEmpiezaBtn"><span>Leer "Empieza aquí"</span></button><button type="button" class="cerrar" id="imEmpiezaCerrar">No volver a mostrar</button></div>
+        </div>
 
         <div class="toolbar">
           <div class="search-wrap">
@@ -1016,6 +1029,7 @@
                 </div>
                 <div class="field">
                   <label for="questionsSelect">Preguntas máximas</label>
+                  <small class="im-pista">Cuántas preguntas te hace el experto antes de responder. No limita las que tú le haces.</small>
                   <select id="questionsSelect" data-other-target="otherQuestions"></select>
                   <input id="otherQuestions" class="other-language" type="text" placeholder="Escribe un número u otra regla" autocomplete="off">
                 </div>
@@ -1041,7 +1055,7 @@
                     <div class="steps">
                       <div class="step"><b>1. Copia</b><span>Usa el botón de copiado.</span></div>
                       <div class="step"><b id="howUseStepTitle">2. Abre Gemini</b><span id="howUseStepDetail">Entra al cuaderno de NotebookLM/Gemini que quieres configurar.</span></div>
-                      <div class="step"><b>3. Pega</b><span>Coloca el texto en instrucciones del sistema.</span></div>
+                      <div class="step"><b>3. Pega</b><span>Pégalo al inicio de un chat nuevo, o en la configuración del cuaderno para dejarlo fijo (Manual de uso, capítulo 6).</span></div>
                     </div>
                   </div>
                 </div>
@@ -1075,7 +1089,7 @@
             <button class="secondary-btn" id="imCreadorPegar" type="button"><span>Pegar respuesta del Creador</span></button>
           </div>
           <div class="im-skill-aviso" id="imSkillAvisoCreador">
-            <p>Las gemas de Gemini van a desaparecer. Por ahora el Creador sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/creador-de-configuraciones-557</code> en cualquier chat.</p>
+            <p>El Creador funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.</p>
             <button class="secondary-btn" type="button" data-skill="creador-de-configuraciones-557"><span>Crea la skill</span></button>
           </div>
         </div>
@@ -1150,7 +1164,7 @@
           <a class="primary-btn" id="imBusqBtn" href="https://gemini.google.com/gem/12SRZ1JGpNGIbARoG2qGHOVoYaai-4nSh?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
           <p class="busq-nota" id="imBusqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
           <div class="im-skill-aviso" id="imSkillAvisoBusq">
-            <p>Las gemas de Gemini van a desaparecer. Por ahora el Bibliotecario sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/bibliotecario-del-557</code> en cualquier chat.</p>
+            <p>El Bibliotecario funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.</p>
             <button class="secondary-btn" type="button" data-skill="bibliotecario-del-557"><span>Crea la skill</span></button>
           </div>
         </div>
@@ -1163,7 +1177,7 @@
           <a class="primary-btn" id="imArqBtn" href="https://gemini.google.com/gem/1lT34etjW4rxD3X4cS9FmQdh0A8p-cJum?usp=sharing" target="_blank" rel="noopener">Abrir el Arquitecto en Gemini</a>
           <p class="busq-nota" id="imArqNota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
           <div class="im-skill-aviso" id="imSkillAvisoArq">
-            <p>Las gemas de Gemini van a desaparecer. Por ahora el Arquitecto sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con <code>/arquitecto-del-557</code> en cualquier chat.</p>
+            <p>El Arquitecto funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.</p>
             <button class="secondary-btn" type="button" data-skill="arquitecto-del-557"><span>Crea la skill</span></button>
           </div>
         </div>
@@ -1255,7 +1269,7 @@
       <h3 id="imSkillTitulo">Crea esta skill en Gemini</h3>
       <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar. Se crea una sola vez.</p>
       <ol class="im-skill-pasos">
-        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Habilidades y toca Nueva habilidad.</span></li>
+        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual.</span></li>
         <li><b>2</b><span id="imSkillPaso2">Copia y pega cada campo en su lugar y guarda.</span></li>
         <li><b>3</b><span id="imSkillPaso3">En cualquier chat escribe el nombre de la skill y lo que necesitas.</span></li>
       </ol>
@@ -1275,7 +1289,7 @@
           <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
         </div>
       </div>
-      <p class="im-skill-estado" id="imSkillNota">La gema sigue activa. Cuando Google la retire, tu skill ya está lista.</p>
+      <p class="im-skill-estado" id="imSkillNota">El asistente sigue activo desde Gemini. Cuando Google retire las gemas, tu habilidad ya está lista.</p>
       <div class="im-modal-acciones">
         <button id="imSkillCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
@@ -1507,6 +1521,7 @@
         </div>
         <div class="field">
           <label for="customQuestions">Preguntas máximas</label>
+          <small class="im-pista">Cuántas preguntas te hace el experto antes de responder. No limita las que tú le haces.</small>
           <select id="customQuestions" data-other-target="customOtherQuestions"></select>
           <input id="customOtherQuestions" class="other-language" type="text" placeholder="Escribe un número u otra regla" autocomplete="off">
         </div>
@@ -1750,7 +1765,7 @@ NEVER:
         allCategories: 'Todas',
         noResults: 'No encontré roles con esos filtros.',
         viewConfig: 'Ver configuración',
-        showing: (showing, total, libraryTotal) => `Mostrando ${showing} de ${total} ${total === 1 ? 'configuración encontrada' : 'configuraciones encontradas'}. Total de biblioteca: ${libraryTotal}.`,
+        showing: (showing, total, libraryTotal) => `Mostrando ${showing} de ${total} ${total === 1 ? 'configuración encontrada' : 'configuraciones encontradas'}. La biblioteca tiene ${libraryTotal} expertos base, con 557 variantes en total.`,
         loadMore: 'Ver más configuraciones',
         builderEyebrow: 'Configuración personalizada',
         builderTitle: 'Crea tu propio rol experto.',
@@ -1796,7 +1811,7 @@ NEVER:
         allCategories: 'All',
         noResults: 'No roles found with those filters.',
         viewConfig: 'View configuration',
-        showing: (showing, total, libraryTotal) => `Showing ${showing} of ${total} ${total === 1 ? 'configuration found' : 'configurations found'}. Library total: ${libraryTotal}.`,
+        showing: (showing, total, libraryTotal) => `Showing ${showing} of ${total} ${total === 1 ? 'configuration found' : 'configurations found'}. The library has ${libraryTotal} base experts, 557 variants in total.`,
         loadMore: 'Show more configurations',
         builderEyebrow: 'Custom configuration',
         builderTitle: 'Create your own expert role.',
@@ -2137,6 +2152,7 @@ NEVER:
       el.drawerTitle.textContent = state.selected.name;
       el.drawerDescription.textContent = descriptionFor(state.selected);
       el.drawerBadge.textContent = `${categoryLabel(state.selected.category)} · ${sensitivityLabel(state.selected.sensitivity)}`;
+      el.drawerBadge.title = 'Sensibilidad: qué tan delicado es el tema (salud, dinero, asuntos legales). No cambia la configuración; solo te avisa para revisar las respuestas con más cuidado.';
       resetControls(opts.resetPlatform !== false);
       hideConfigResult();
     }
@@ -2391,6 +2407,7 @@ ${clean}`;
       if (state.selected) {
         el.drawerDescription.textContent = descriptionFor(state.selected);
         el.drawerBadge.textContent = `${categoryLabel(state.selected.category)} · ${sensitivityLabel(state.selected.sensitivity)}`;
+      el.drawerBadge.title = 'Sensibilidad: qué tan delicado es el tema (salud, dinero, asuntos legales). No cambia la configuración; solo te avisa para revisar las respuestas con más cuidado.';
       }
     }
 
@@ -2409,6 +2426,14 @@ ${clean}`;
         });
       });
       // Manual de uso: la barra lateral se vuelve el índice y el capítulo se pinta en #guide
+      // Tarjeta "Empieza aquí": abre el capítulo 1 del manual; se oculta si el usuario lo pide
+      (function () {
+        const caja = document.getElementById('imEmpieza'); if (!caja) return;
+        let oculta = false; try { oculta = localStorage.getItem('im_empieza_557_oculta') === '1'; } catch (_) {}
+        if (!oculta) caja.hidden = false;
+        document.getElementById('imEmpiezaBtn').addEventListener('click', () => { if (window.IM_MANUAL) IM_MANUAL.abrir('empieza-aqui'); });
+        document.getElementById('imEmpiezaCerrar').addEventListener('click', () => { caja.hidden = true; try { localStorage.setItem('im_empieza_557_oculta', '1'); } catch (_) {} });
+      })();
       if (window.IM_MANUAL) {
         let pestanaPrevia = 'library';
         IM_MANUAL.configurar({
@@ -2630,12 +2655,12 @@ ${clean}`;
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo. Si te dice que la crees, lleva esa descripción al Creador de configuraciones (en Crea tu configuración) y te llena los campos.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
-          skillAviso: 'Las gemas de Gemini van a desaparecer. Por ahora {nombre} sigue activo, pero ya puedes crearlo como una skill de Gemini y llamarlo con {llamada} en cualquier chat.',
+          skillAviso: '{nombre} funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.',
           skillNombres: { 'creador-de-configuraciones-557': 'el Creador', 'bibliotecario-del-557': 'el Bibliotecario', 'arquitecto-del-557': 'el Arquitecto' },
           skillBtn: 'Crea la skill', skillBadge: 'Skill de Gemini', skillTitulo: 'Crea esta skill en Gemini', skillSub: 'Los 3 campos listos para copiar y pegar. Se crea una sola vez.',
-          skillPaso1: 'En Gemini abre Habilidades y toca Nueva habilidad.', skillPaso2: 'Copia y pega cada campo en su lugar y guarda.', skillPaso3: 'En cualquier chat escribe {llamada} y lo que necesitas.',
+          skillPaso1: 'En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual.', skillPaso2: 'Copia y pega cada campo en su lugar y guarda.', skillPaso3: 'En cualquier chat escribe {llamada} y lo que necesitas.',
           skillLblNombre: 'Nombre', skillLblDesc: 'Descripción', skillLblInstr: 'Instrucciones', skillCopiar: 'Copiar', skillCopiado: 'Copiado', skillCerrar: 'Cerrar',
-          skillInstrNota: 'Se copian completas, aunque aquí solo se vea el inicio.', skillNota: 'La gema sigue activa. Cuando Google la retire, tu skill ya está lista.',
+          skillInstrNota: 'Se copian completas, aunque aquí solo se vea el inicio.', skillNota: 'El asistente sigue activo desde Gemini. Cuando Google retire las gemas, tu habilidad ya está lista.',
           skillCargando: 'Cargando los campos...', skillNoDisp: 'No pudimos cargar esta skill. Recarga la página e inténtalo de nuevo.',
           arqEyebrow: 'Estructura tu proyecto', arqTitulo: '¿Tienes un proyecto y no sabes por dónde empezar a organizarlo?',
           arqCopy: 'El Bibliotecario te encuentra la configuración; el Arquitecto te estructura el proyecto completo. Cuéntale qué quieres lograr y arma contigo el árbol: categoría, subcategorías, cuadernos y chats, cada uno con su objetivo. Al final te entrega un bloque que pegas en Mis cuadernos con "Importar árbol" y toda la estructura se crea sola.',
@@ -2648,7 +2673,7 @@ ${clean}`;
           ver: 'Ver', copiar: 'Copiar', eliminar: 'Eliminar', abrir: 'Abrir cuaderno', variantes: 'variantes',
           copiarObj: 'Copiar objetivo', objCopiado: 'Objetivo copiado ✓', verCompleto: 'Ver completo', verMenos: 'Ver menos',
           guardadoCfg: 'Guardada en mis configuraciones', favOn: 'Agregada a favoritos', favOff: 'Quitada de favoritos', eliminado: 'Eliminado', cuadGuardado: 'Cuaderno guardado',
-          datosFaltan: 'El título y el link son obligatorios', generaPrimero: 'Primero genera una configuración', nombreVacio: 'Escribe un nombre', confirmaEliminar: '¿Eliminar definitivamente?', sinCategoria: 'Sin categoría',
+          datosFaltan: 'El título y el link son obligatorios', generaPrimero: 'Primero genera una configuración', nombreVacio: 'Escribe un nombre', confirmaEliminar: 'Se elimina solo tu copia guardada. La configuración de la biblioteca sigue disponible.', confirmaTitulo: '¿Eliminar esta configuración guardada?', btnSiEliminar: 'Sí, eliminar', sinCategoria: 'Sin categoría',
         },
         en: {
           tabFav: 'Favorites', tabMis: 'My configurations', tabCuad: 'My notebooks', espacio: 'Your space', salir: 'Exit',
@@ -2658,10 +2683,10 @@ ${clean}`;
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set. If it tells you to create one, take that description to the Configuration Creator (in Create your own) and it fills the fields for you.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
-          skillAviso: 'Gemini gems are going away. For now {nombre} still works, but you can already create it as a Gemini skill and call it with {llamada} in any chat.',
+          skillAviso: '{nombre} currently works as a Gemini Gem. Google is replacing Gems with Skills; as soon as it announces how Skills are shared, we will migrate it. Your purchase does not change.',
           skillNombres: { 'creador-de-configuraciones-557': 'the Creator', 'bibliotecario-del-557': 'the Librarian', 'arquitecto-del-557': 'the Architect' },
           skillBtn: 'Create the skill', skillBadge: 'Gemini skill', skillTitulo: 'Create this skill in Gemini', skillSub: 'The 3 fields, ready to copy and paste. You create it once.',
-          skillPaso1: 'In Gemini open Skills and tap New skill.', skillPaso2: 'Copy and paste each field in its place and save.', skillPaso3: 'In any chat type {llamada} followed by what you need.',
+          skillPaso1: 'In Gemini open Settings, then Skills, tap Create and choose Create manually.', skillPaso2: 'Copy and paste each field in its place and save.', skillPaso3: 'In any chat type {llamada} followed by what you need.',
           skillLblNombre: 'Name', skillLblDesc: 'Description', skillLblInstr: 'Instructions', skillCopiar: 'Copy', skillCopiado: 'Copied', skillCerrar: 'Close',
           skillInstrNota: 'They are copied in full, even though only the beginning is shown here.', skillNota: 'The gem still works. When Google retires it, your skill is already there.',
           skillCargando: 'Loading the fields...', skillNoDisp: 'We could not load this skill. Reload the page and try again.',
@@ -2676,7 +2701,7 @@ ${clean}`;
           ver: 'View', copiar: 'Copy', eliminar: 'Delete', abrir: 'Open notebook', variantes: 'variants',
           copiarObj: 'Copy objective', objCopiado: 'Objective copied ✓', verCompleto: 'Show full', verMenos: 'Show less',
           guardadoCfg: 'Saved to my configurations', favOn: 'Added to favorites', favOff: 'Removed from favorites', eliminado: 'Deleted', cuadGuardado: 'Notebook saved',
-          datosFaltan: 'Title and link are required', generaPrimero: 'Generate a configuration first', nombreVacio: 'Write a name', confirmaEliminar: 'Delete permanently?', sinCategoria: 'Uncategorized',
+          datosFaltan: 'Title and link are required', generaPrimero: 'Generate a configuration first', nombreVacio: 'Write a name', confirmaEliminar: 'Only your saved copy is deleted. The library configuration stays available.', confirmaTitulo: 'Delete this saved configuration?', btnSiEliminar: 'Yes, delete', sinCategoria: 'Uncategorized',
         },
       };
       const tt = () => IM_TEXT[state.interfaceLanguage] || IM_TEXT.es;
@@ -2880,7 +2905,8 @@ ${clean}`;
       });
       $('imCfgDetEliminar').addEventListener('click', async () => {
         const c = misConfigs.find(k => String(k.id) === String(cfgDetalleId));
-        if (!c || !confirm(tt().confirmaEliminar)) return;
+        if (!c) return;
+        if (!await confirmarC(tt().confirmaEliminar, tt().confirmaTitulo, tt().btnSiEliminar)) return;
         await db.from('user_configs').delete().eq('id', c.id);
         misConfigs = misConfigs.filter(k => k.id !== c.id);
         cerrarDetalleCfg();
@@ -2945,7 +2971,7 @@ ${clean}`;
         varPhNombre: 'Ej: Mi negocio de repostería',
         varPhTexto: 'Describe tu situación tal como se la contarías a un experto...',
         varGuardada: 'Variante guardada', varActualizada: 'Variante actualizada', varEliminada: 'Variante eliminada',
-        varConfirmaEliminar: '¿Eliminar esta variante? Las configuraciones que ya generaste no se pierden.',
+        varConfirmaEliminar: 'Las configuraciones que ya generaste no se pierden.', varConfirmaTitulo: '¿Eliminar esta variante?',
         varTextoVacio: 'Escribe la situación antes de guardar.', varNombreVacio: 'Ponle un nombre corto para reconocerla.',
         varGrupo: '— Mis variantes —', varEditarBtn: 'Editar', varCopiarBtn: 'Copiar',
         cerrarDet: 'Cerrar',
@@ -2964,7 +2990,7 @@ ${clean}`;
         varPhNombre: 'E.g.: My bakery business',
         varPhTexto: 'Describe your situation as you would tell it to an expert...',
         varGuardada: 'Variant saved', varActualizada: 'Variant updated', varEliminada: 'Variant deleted',
-        varConfirmaEliminar: 'Delete this variant? Configurations you already generated are not lost.',
+        varConfirmaEliminar: 'Configurations you already generated are not lost.', varConfirmaTitulo: 'Delete this variant?',
         varTextoVacio: 'Write the situation before saving.', varNombreVacio: 'Give it a short name to recognize it.',
         varGrupo: '— My variants —', varEditarBtn: 'Edit', varCopiarBtn: 'Copy',
         cerrarDet: 'Close',
@@ -3104,7 +3130,8 @@ ${clean}`;
       });
       $('imVarDetEliminar').addEventListener('click', async () => {
         const v = misVariantes.find(k => String(k.id) === String(varDetalleId));
-        if (!v || !confirm(tt().varConfirmaEliminar)) return;
+        if (!v) return;
+        if (!await confirmarC(tt().varConfirmaEliminar, tt().varConfirmaTitulo, tt().btnSiEliminar)) return;
         await db.from('user_variantes').delete().eq('id', v.id);
         misVariantes = misVariantes.filter(k => k.id !== v.id);
         window.__IM_VARS.delete(String(v.id));
@@ -4269,7 +4296,7 @@ ${clean}`;
       // ── Skills de Gemini: cada asistente (gema) se ofrece también como skill con sus 3 campos ──
       const SKILL_CACHE = {};
       let skillAbierta = null;
-      const llamadaSkillIM = (clave) => '/' + clave;
+      const llamadaSkillIM = (clave) => '@' + clave; // Gemini llama las habilidades con @
       function avisoSkillHtml(x, clave) {
         const nombre = (x.skillNombres || {})[clave] || clave;
         return escapeHtml(x.skillAviso).replace('{nombre}', escapeHtml(nombre)).replace('{llamada}', '<code>' + escapeHtml(llamadaSkillIM(clave)) + '</code>');

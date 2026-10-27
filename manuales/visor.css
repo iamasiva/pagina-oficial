@@ -30,6 +30,7 @@ body.im-manual-abierto .im-man-idx, .im-man-lateral .im-man-idx { display: block
 .im-man-cap-item.activo > .im-man-cap-btn { background: rgba(255,255,255,.18); color: #fff; }
 .im-man-cap-btn .n { flex: none; width: 20px; height: 20px; border-radius: 6px; background: rgba(255,255,255,.14); font-size: 11px; font-weight: 850; display: inline-flex; align-items: center; justify-content: center; }
 .im-man-cap-btn .n.sin { background: transparent; color: rgba(255,255,255,.5); }
+.im-man-cap-btn .tag { margin-left: auto; flex: none; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; background: rgba(255,255,255,.12); color: rgba(255,255,255,.7); border-radius: 4px; padding: 2px 5px; align-self: center; }
 .im-man-secs { list-style: none; margin: 2px 0 8px; padding: 0 0 0 20px; display: none; flex-direction: column; gap: 1px; }
 .im-man-cap-item.activo > .im-man-secs, .im-man-idx.buscando .im-man-secs { display: flex; }
 .im-man-sec-btn {
