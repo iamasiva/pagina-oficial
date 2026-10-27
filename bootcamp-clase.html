@@ -52,6 +52,15 @@
     .player .msg { max-width: 520px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
     .player .msg b { color: var(--white); font-size: 1.1rem; }
     .cuenta { font-family: var(--display); font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 800; color: var(--white); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+    /* Subtítulos: ayuda para activar los subtítulos instantáneos del navegador o del teléfono */
+    .cc-fila { padding: 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); }
+    .cc-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; background: none; color: var(--white); font: inherit; font-size: 0.78rem; cursor: pointer; }
+    .cc-btn b { font-size: 0.68rem; letter-spacing: 0.08em; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 4px; }
+    .cc-btn:hover, .cc-btn[aria-expanded="true"] { border-color: rgba(47,107,255,0.7); }
+    .cc-panel { padding: 4px 14px 12px; font-size: 0.82rem; color: var(--muted); line-height: 1.55; border-top: 1px solid var(--line); }
+    .cc-panel p { margin: 8px 0 0; }
+    .cc-panel b { color: var(--white); font-weight: 600; }
+    .cc-panel[hidden] { display: none; }
     .bajo-video { padding: 7px 14px; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 6px 14px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); }
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue-elec); color: #fff; border: 0; border-radius: 10px; padding: 11px 16px; font: inherit; font-weight: 700; cursor: pointer; }
     .btn.sec { background: transparent; border: 1px solid var(--line); color: var(--gray); }
@@ -152,6 +161,16 @@
             <span id="bajoVideoTexto">¿Se traba el video?</span>
             <button class="lnk" id="btnReconectar" type="button">Reconectar</button>
             <button class="lnk" id="btnEstable" type="button" title="Cambia al reproductor estándar de Cloudflare (más retraso, más tolerante)">Modo estable</button>
+          </div>
+          <div class="cc-fila">
+            <button class="cc-btn" id="btnCC" type="button" aria-expanded="false" aria-controls="ccPanel"><b>CC</b> Subtítulos en vivo</button>
+            <span>Si prefieres leer lo que decimos, tu navegador o tu teléfono pueden subtitular la clase en tiempo real.</span>
+          </div>
+          <div class="cc-panel" id="ccPanel" hidden>
+            <p><b>En el computador (Chrome):</b> abre la configuración de Chrome, entra a <b>Accesibilidad</b> y activa <b>Subtítulos instantáneos</b>. Si te pide idioma, agrega Español. Desde ese momento, cualquier audio que suene en Chrome, incluida esta clase, sale con subtítulos en una ventanita que puedes mover.</p>
+            <p><b>En Android:</b> en Ajustes, entra a Accesibilidad y activa <b>Subtítulos instantáneos</b>. También aparece como un botón debajo del control de volumen.</p>
+            <p><b>En iPhone:</b> en Ajustes, entra a Accesibilidad y activa <b>Subtítulos en vivo</b>. En iPhone la calidad en español todavía es irregular; si no te sirve, usa el computador.</p>
+            <p>Los subtítulos los genera tu dispositivo, no nosotros, así que pueden tener errores. Las grabaciones de las clases quedan disponibles después por si quieres volver sobre algo.</p>
           </div>
         </div>
         <aside class="chat" id="chat">
@@ -263,6 +282,12 @@
     // firmado; en Safari sin MSE va el HLS nativo. Si falla seguido con señal
     // presente, cae solo al reproductor estándar de Cloudflare (10 a 12 s).
     let hlsActual = null, modoEstable = false, fallosLL = 0, ultimoTicket = null;
+    // Ayuda de subtítulos (se abre y se cierra; la elección no se guarda)
+    (function () {
+      const b = document.getElementById('btnCC'), panel = document.getElementById('ccPanel');
+      if (!b || !panel) return;
+      b.addEventListener('click', () => { const abierto = panel.hidden; panel.hidden = !abierto; b.setAttribute('aria-expanded', String(abierto)); });
+    })();
     const LL_LIMITE = 3;
     function soltarVideo() { if (hlsActual) { try { hlsActual.destroy(); } catch (_) {} hlsActual = null; } }
     function montarIframe(cuerpo) {
