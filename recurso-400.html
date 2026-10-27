@@ -437,6 +437,8 @@
     #imMejorarError { color: var(--danger, #b3261e); font-size: 13px; margin: 8px 0 0; }
     #imMejorarGracias { margin: 6px 0 0; font-weight: 600; }
   </style>
+  <link rel="stylesheet" href="manuales/visor.css">
+  <script src="manuales/visor.js"></script>
 </head>
 <body>
 
@@ -727,7 +729,7 @@
           </button>
           <button class="sidebar-link" data-nav="guide">
             <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            Guía de uso
+            Manual de uso
           </button>
           <button class="sidebar-link" id="imMejorarBtn" type="button">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
@@ -1033,34 +1035,8 @@
           </div>
         </section>
 
-        <section class="section" id="section-guide">
-          <div class="hero">
-            <div class="intro">
-              <p class="eyebrow">Cómo usar el producto</p>
-              <h2>De la biblioteca a tu skill funcionando en Gemini</h2>
-              <p>Cada skill trae sus tres campos y su formulario de uso ya resueltos, así que el camino es siempre el mismo, sin importar la categoría. Una skill se crea una sola vez y desde ahí responde en cualquier chat.</p>
-            </div>
-          </div>
-          <div class="guide-paths">
-            <div class="guide-path open">
-              <div class="guide-path-head" data-guide-toggle>
-                <div>
-                  <h3>Ruta única · Skills de Gemini</h3>
-                  <p>6 pasos para pasar de esta biblioteca a una skill propia funcionando en tu cuenta de Gemini.</p>
-                </div>
-                <svg class="guide-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </div>
-              <div class="guide-path-body">
-                <div class="guide-step-row"><div class="guide-step-text"><b>1. Elige tu skill en esta biblioteca</b><span>Explora por categoría o busca por lo que necesitas lograr. Abre la ficha de la skill.</span></div></div>
-                <div class="guide-step-row"><div class="guide-step-text"><b>2. En Gemini, entra a Habilidades y toca Crear</b><span>Está en el menú de tu cuenta de Gemini. El formulario pide tres campos: nombre, descripción e instrucciones.</span></div></div>
-                <div class="guide-step-row"><div class="guide-step-text"><b>3. Copia y pega los tres campos</b><span>En la ficha, cada campo tiene su botón Copiar. Pégalos tal cual, en el mismo orden, y guarda. Esto se hace una sola vez por skill.</span></div></div>
-                <div class="guide-step-row"><div class="guide-step-text"><b>4. Llena el formulario de la skill y copia el prompt</b><span>El prompt se arma solo con tus datos y ya empieza con el nombre de la skill.</span></div></div>
-                <div class="guide-step-row"><div class="guide-step-text"><b>5. Pega el prompt en cualquier chat de Gemini</b><span>Si la ficha sugiere una herramienta, elígela en el chat antes de enviar. Si sugiere archivos, adjúntalos en ese mismo chat.</span></div></div>
-                <div class="guide-step-row"><div class="guide-step-text"><b>6. Sigue conversando</b><span>A partir de aquí, pide ajustes, da más contexto o profundiza en el resultado. La skill sigue activa en esa conversación.</span></div></div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <!-- Manual de uso: lo pinta manuales/visor.js con manuales/400.json (la vieja Guía de uso es su capítulo "Guía de uso") -->
+        <section class="section" id="section-guide"></section>
 
         <section class="section" id="section-busqueda">
           <div class="hero"><div class="intro">
@@ -2063,6 +2039,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         fallbackCopy(text, done);
       }
     }
+    // El modal "Crea esta skill en Gemini" corre fuera de __initApp y también necesita copiar
+    window.copyText = copyText;
 
     function fallbackCopy(text, done) {
       const ta = document.createElement("textarea");
@@ -2096,9 +2074,26 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         renderToolTree();
       });
 
+      // Manual de uso: la barra lateral se vuelve el índice y el capítulo se pinta en #section-guide
+      let seccionPrevia = "library";
+      if (window.IM_MANUAL) {
+        IM_MANUAL.configurar({
+          url: "manuales/400.json", modo: "lateral", contenedor: "#section-guide", sidebarScroll: ".sidebar-scroll",
+          textoVolver: "Volver a la herramienta",
+          desplazamiento: window.matchMedia("(max-width: 860px)").matches ? 56 : 0,
+          alAbrir: () => {
+            const activa = document.querySelector(".section.active");
+            if (activa && activa.id !== "section-guide") seccionPrevia = activa.id.replace("section-", "");
+            showSection("guide");
+          },
+          alCerrar: () => { if (seccionPrevia && seccionPrevia !== "guide") showSection(seccionPrevia); else goHome(); },
+          cerrarMenu: closeMobileMenu,
+        });
+      }
       document.querySelectorAll(".sidebar-link[data-nav]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const nav = btn.getAttribute("data-nav");
+          if (nav === "guide" && window.IM_MANUAL) { IM_MANUAL.abrir(); closeMobileMenu(); return; }
           if (nav === "builder") {
             openGemBuilder();
             return;
@@ -2595,7 +2590,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       let ctxMoverSub = null;
       function abrirModalMoverSub(n) {
         const destinos = catsRaiz().filter(c => c.id !== n.parent_id && c.id !== n.id);
-        if (!destinos.length) { showToast('No hay otro servidor a dónde moverla, crea una primero'); return; }
+        if (!destinos.length) { showToast('No hay otro servidor a dónde moverlo: crea uno primero'); return; }
         ctxMoverSub = n;
         $('imMoverSubSel').innerHTML = destinos.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
         $('imModalMoverSub').classList.add('abierto');
@@ -2606,7 +2601,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         const { error } = await db.from('user_gema_categorias').update({ parent_id: destino }).eq('id', ctxMoverSub.id);
         if (error) { showToast('No se pudo mover: ' + error.message); return; }
         $('imModalMoverSub').classList.remove('abierto');
-        showToast('Módulo movida'); cargarTodo();
+        showToast('Módulo movido'); cargarTodo();
       });
       $('imMoverSubCancelar').addEventListener('click', () => $('imModalMoverSub').classList.remove('abierto'));
       $('imModalMoverSub').addEventListener('click', (e) => { if (e.target.id === 'imModalMoverSub') e.target.classList.remove('abierto'); });
@@ -2637,7 +2632,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       }
       async function eliminarNodo(n) {
         const esSub = !!n.parent_id;
-        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'módulos, ') + 'skills, chats y prompts guardados. Si quieres conservar alguna ' + (esSub ? 'skill' : 'módulo o skill') + ', muévela a otro lugar antes de eliminar.', esSub ? '¿Eliminar el módulo?' : '¿Eliminar el servidor?', 'Sí, eliminar todo')) return;
+        if (!await confirmar('Se eliminará todo lo que contiene: ' + (esSub ? '' : 'módulos, ') + 'skills, chats y prompts guardados. Si quieres conservar ' + (esSub ? 'alguna skill, muévela' : 'algún módulo o skill, muévelo') + ' a otro lugar antes de eliminar.', esSub ? '¿Eliminar el módulo?' : '¿Eliminar el servidor?', 'Sí, eliminar todo')) return;
         const err = await borrarFila('user_gema_categorias', n.id);
         if (err) { showToast('No se pudo eliminar: ' + err); return; }
         showToast('Eliminada'); cargarTodo();
@@ -2692,18 +2687,18 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       function llenarSelCat(ids, catSel, subSel) {
         $(ids.cat).innerHTML = '<option value="">Sin servidor</option>' +
           catsRaiz().map(n => `<option value="${n.id}" ${n.id === catSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-          '<option value="__nueva__">➕ Nueva servidor…</option>';
+          '<option value="__nueva__">➕ Nuevo servidor…</option>';
         $(ids.catN).style.display = 'none'; $(ids.catN).value = '';
         llenarSelSub(ids, catSel, subSel);
       }
       function llenarSelSub(ids, catId, subSel) {
         const sel = $(ids.sub);
         if (!catId || catId === '__nueva__') {
-          sel.innerHTML = '<option value="">Sin módulo</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nueva módulo…</option>' : '');
+          sel.innerHTML = '<option value="">Sin módulo</option>' + (catId === '__nueva__' ? '<option value="__nueva__">➕ Nuevo módulo…</option>' : '');
         } else {
           sel.innerHTML = '<option value="">Sin módulo</option>' +
             subsDe(catId).map(n => `<option value="${n.id}" ${n.id === subSel ? 'selected' : ''}>${escapeHtml(n.nombre)}</option>`).join('') +
-            '<option value="__nueva__">➕ Nueva módulo…</option>';
+            '<option value="__nueva__">➕ Nuevo módulo…</option>';
         }
         $(ids.subN).style.display = 'none'; $(ids.subN).value = '';
       }
@@ -2751,7 +2746,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         let subId = $(ids.sub).value || null;
         if (catId === '__nueva__') {
           const nombre = $(ids.catN).value.trim();
-          if (!nombre) { showToast('Escribe el nombre de el servidor'); return undefined; }
+          if (!nombre) { showToast('Escribe el nombre del servidor'); return undefined; }
           const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: null, nombre }).select('id').single();
           if (error) { showToast('No se pudo crear el servidor'); return undefined; }
           catId = data.id;
@@ -2760,7 +2755,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           if (!catId) subId = null;
           else {
             const nombre = $(ids.subN).value.trim();
-            if (!nombre) { showToast('Escribe el nombre de el módulo'); return undefined; }
+            if (!nombre) { showToast('Escribe el nombre del módulo'); return undefined; }
             const { data, error } = await db.from('user_gema_categorias').insert({ user_id: IM.userId, parent_id: catId, nombre }).select('id').single();
             if (error) { showToast('No se pudo crear el módulo'); return undefined; }
             subId = data.id;
@@ -2781,8 +2776,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           const titulo = catalogo ? (ctxGema.skill?.titulo ?? catalogo.nombre) : $('imGemaNombre').value.trim();
           if (!titulo) { showToast('Escribe el nombre'); return; }
           let url = $('imGemaUrl').value.trim();
-          if (!url) { showToast('Pega el link de tu skill'); return; }
-          if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+          if (!url) { showToast('Escribe el nombre con el que la llamas en Gemini'); return; }
+          url = normalizarLlamada(url);
           const descripcion = $('imGemaDesc').value.trim() || null;
           if (modo === 'crear') {
             const fila = { user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null };
@@ -2934,9 +2929,10 @@ ${ficha}`;
         return true;
       }
 
+      // Link de un cuaderno de NotebookLM: se guarda tal cual (solo se completa el https:// si falta)
       const normalizarLink = (v) => {
         let url = v.trim();
-        url = normalizarLlamada(url);
+        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
         return url;
       };
 

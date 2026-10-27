@@ -27,7 +27,8 @@ const DESTINO = path.join(ROOT, 'manuales');
 const args = process.argv.slice(2);
 const opts = { placeholders: args.includes('--placeholders'), permitirRayas: args.includes('--permitir-rayas') };
 const herramientas = args.filter(a => /^\d+$/.test(a));
-if (!herramientas.length) herramientas.push('557', '400', '200');
+// El 200 no lleva manual escrito (decisión 27 oct 2026: su video basta); se construye solo si se pide explícitamente
+if (!herramientas.length) herramientas.push('557', '400');
 
 const NOMBRES = {
   '557': '557 Configuraciones para NotebookLM y Gemini',
