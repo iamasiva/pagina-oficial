@@ -460,18 +460,22 @@
     async function init() {
       ({ data: { session } } = await sb.auth.getSession());
       if (!session) { location.replace('index.html'); return; }
-      const [perfil, compra, cfg, fila] = await Promise.all([
+      const [perfil, compra, cfg, fila, equipo] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
         sb.from('bootcamp_config').select('admin_only, anuncio, hotmart_curso_url').eq('product_id', PRODUCT_ID).maybeSingle(),
         sb.from('bootcamp_clases').select('numero, titulo, inicio_utc, duracion_min, estado, hotmart_lesson_url, aviso').eq('product_id', PRODUCT_ID).eq('numero', numero).maybeSingle(),
+        sb.rpc('bootcamp_soy_equipo', { p_product: PRODUCT_ID }),
       ]);
       esAdmin = !!perfil.data?.es_admin; config = cfg.data; clase = fila.data;
-      if (!esAdmin && (!compra.data || !config || config.admin_only)) { location.replace(LANDING); return; }
+      // Equipo de ensayo: entra sin compra y puede simular el estado (el servidor le da video y chat en cualquier estado)
+      const esEquipo = !esAdmin && equipo?.data === true;
+      if (!esAdmin && !esEquipo && (!compra.data || !config || config.admin_only)) { location.replace(LANDING); return; }
       if (!clase) { location.replace('recurso-bootcamp.html'); return; }
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
-      if (esAdmin) {
+      if (esAdmin || esEquipo) {
         $('chipAdmin').hidden = false; $('sim').hidden = false;
+        if (esEquipo) $('chipAdmin').textContent = 'Ensayo del equipo';
         const q = new URLSearchParams(location.search).get('estado');
         if (q && ETIQUETA[q]) { simulado = q; $('simEstado').value = q; }
         $('simEstado').addEventListener('change', (e) => { simulado = e.target.value; pintar(); });
@@ -495,7 +499,7 @@
       $('lnkInstr').addEventListener('click', () => { $('instr').hidden = false; });
       $('instrOk').addEventListener('click', () => { $('instr').hidden = true; try { localStorage.setItem(INSTR_KEY, '1'); } catch (_) {} });
       try { if (!localStorage.getItem(INSTR_KEY)) $('instr').hidden = false; } catch (_) {}
-      if (localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
+      if (!esEquipo && localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
       // Estado real: una consulta ligera cada 90 s solo cuando la clase está cerca o en curso.
       refresco = setInterval(() => {
         const cerca = Math.abs(new Date(clase.inicio_utc) - Date.now()) < 3 * 3600e3 || ['lobby', 'live'].includes(clase.estado);

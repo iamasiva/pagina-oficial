@@ -43,6 +43,11 @@
     .clase .cab b { font-size: 1rem; }
     .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .nota { color: var(--muted); font-size: 0.85rem; }
+    .equipo { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    .equipo td { padding: 9px 0; border-top: 1px solid var(--line); color: var(--white); font-size: 0.95rem; }
+    .equipo tr:first-child td { border-top: 0; }
+    .equipo-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .equipo-form input { flex: 1; min-width: 200px; }
     .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #fff; color: #050505; padding: 12px 16px; border-radius: 12px; font-weight: 600; opacity: 0; transition: opacity .2s; pointer-events: none; }
     .toast.ver { opacity: 1; }
     .pill-prod { display: inline-flex; gap: 8px; align-items: center; font-size: 0.85rem; color: var(--gray); }
@@ -73,9 +78,15 @@
       </section>
 
       <section class="bloque">
-        <h2>Ensayo con el equipo</h2>
-        <p class="nota">Los compradores siempre ven el estado real de la clase. El equipo (cuentas con <code>es_admin</code>) puede entrar a la clase como si estuviera en vivo, con video y chat, sin cambiar nada para los demás: cada miembro abre este enlace mientras StreamYard emite al live input de la clase.</p>
-        <p class="nota"><a href="bootcamp-clase.html?n=1&amp;estado=live" target="_blank" rel="noopener" style="color:var(--cyan)">iamasiva.co/bootcamp-clase.html?n=1&amp;estado=live</a> (cambia el número para otra clase). Al terminar el ensayo, "Reiniciar sala" en el chat para que los alumnos no vean los mensajes de prueba.</p>
+        <h2>Equipo de ensayo</h2>
+        <p class="nota">Los compradores siempre ven el estado real de la clase. Los correos de esta lista entran al área del bootcamp sin comprar y ven la transmisión y el chat en cualquier estado, con el link de ensayo. No son administradores: no moderan ni editan nada. Cada uno debe tener cuenta en IA MASIVA con ese mismo correo.</p>
+        <div id="equipoLista" class="nota" style="margin-top:10px">Cargando...</div>
+        <div class="equipo-form">
+          <input id="equipoCorreo" type="email" placeholder="correo@ejemplo.com" autocomplete="off" />
+          <input id="equipoNota" placeholder="Nombre o nota (opcional)" autocomplete="off" />
+          <button class="btn chico" id="equipoAgregar">Agregar al equipo</button>
+        </div>
+        <p class="nota" style="margin-top:12px">Link de ensayo (para el equipo y para ti): <a href="bootcamp-clase.html?n=1&amp;estado=live" target="_blank" rel="noopener" style="color:var(--cyan)">iamasiva.co/bootcamp-clase.html?n=1&amp;estado=live</a> (cambia el número para otra clase). El día real no hay que tocar esta lista: la clase se abre a todos los compradores al pasar a "Sala abierta" o "En vivo".</p>
       </section>
 
       <section class="bloque">
@@ -142,6 +153,27 @@
       aviso(cambios.admin_only ? 'Banderas guardadas (sigue en modo solo equipo)' : 'Banderas guardadas: el bootcamp está ABIERTO a compradores');
     }
 
+    // ── Equipo de ensayo (tabla bootcamp_equipo, solo admin por RLS) ──
+    async function cargarEquipo() {
+      const { data, error } = await sb.from('bootcamp_equipo').select('email, nota, creado_en').eq('product_id', PRODUCT_ID).order('creado_en');
+      if (error) { $('equipoLista').innerHTML = `Falta la tabla del equipo: corre <code>sql/bootcamp-equipo.sql</code> en Supabase. (${esc(error.message)})`; $('equipoAgregar').disabled = true; return; }
+      if (!data.length) { $('equipoLista').textContent = 'Nadie todavía. Agrega los correos del equipo que va a ensayar.'; return; }
+      $('equipoLista').innerHTML = `<table class="equipo">${data.map(e => `<tr><td><b>${esc(e.email)}</b>${e.nota ? ` <span class="nota">· ${esc(e.nota)}</span>` : ''}</td><td style="text-align:right"><button class="btn sec chico" data-quitar="${esc(e.email)}">Quitar</button></td></tr>`).join('')}</table>`;
+      document.querySelectorAll('[data-quitar]').forEach(b => b.addEventListener('click', async () => {
+        const { error: e } = await sb.from('bootcamp_equipo').delete().eq('product_id', PRODUCT_ID).eq('email', b.dataset.quitar);
+        if (e) { aviso('No se quitó: ' + e.message, true); return; }
+        aviso(`${b.dataset.quitar} ya no está en el equipo`); await cargarEquipo();
+      }));
+    }
+    async function agregarEquipo() {
+      const email = $('equipoCorreo').value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { aviso('Escribe un correo válido', true); return; }
+      const { error } = await sb.from('bootcamp_equipo').upsert({ product_id: PRODUCT_ID, email, nota: $('equipoNota').value.trim() || null }, { onConflict: 'product_id,email' });
+      if (error) { aviso('No se agregó: ' + error.message, true); return; }
+      $('equipoCorreo').value = ''; $('equipoNota').value = '';
+      aviso(`${email} ya puede entrar al ensayo con su cuenta de IA MASIVA`); await cargarEquipo();
+    }
+
     async function cargarClases() {
       const { data, error } = await sb.from('bootcamp_clases').select('*').eq('product_id', PRODUCT_ID).order('numero');
       if (error) { $('clases').innerHTML = `<p class="nota">No se pudo leer bootcamp_clases: ${esc(error.message)}. ¿Corriste sql/bootcamp-clases.sql?</p>`; return; }
@@ -167,7 +199,9 @@
         $('guardarCfg').disabled = true; $('guardarCfg').textContent = 'Falta bootcamp_config (corre sql/bootcamp-clases.sql)';
       }
       $('guardarCfg').addEventListener('click', guardarConfig);
-      await cargarClases();
+      $('equipoAgregar').addEventListener('click', agregarEquipo);
+      $('equipoCorreo').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); agregarEquipo(); } });
+      await Promise.all([cargarClases(), cargarEquipo()]);
       document.body.removeAttribute('data-cargando');
     }
     init().catch(e => { document.body.removeAttribute('data-cargando'); aviso('Error: ' + e.message, true); });

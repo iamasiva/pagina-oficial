@@ -37,14 +37,17 @@ export default async function handler(req, res) {
     if (!secreto || !base) return res.status(503).json({ error: 'El chat no está configurado todavía' });
 
     const db = adminClient();
-    const [{ data: perfil }, { data: compra }, { data: config }, { data: clase }] = await Promise.all([
+    const [{ data: perfil }, { data: compra }, { data: config }, { data: clase }, { data: equipo }] = await Promise.all([
       db.from('profiles').select('es_admin, nombre').eq('id', user.id).maybeSingle(),
       db.from('purchases').select('id').eq('user_id', user.id).eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
       db.from('bootcamp_config').select('admin_only, chat_mode').eq('product_id', PRODUCT_ID).maybeSingle(),
       db.from('bootcamp_clases').select('numero, estado').eq('product_id', PRODUCT_ID).eq('numero', numero).maybeSingle(),
+      // Equipo de ensayo (bootcamp_equipo): entra al chat en cualquier estado, como alumno
+      db.from('bootcamp_equipo').select('email').eq('product_id', PRODUCT_ID).eq('email', String(user.email ?? '').toLowerCase()).maybeSingle(),
     ]);
     const esAdmin = !!perfil?.es_admin;
-    if (!esAdmin) {
+    const acceso = esAdmin || !!equipo;
+    if (!acceso) {
       if (!compra) return res.status(403).json({ error: 'El chat es para compradores del bootcamp' });
       if (!config || config.admin_only) return res.status(403).json({ error: 'El bootcamp todavía no está abierto' });
       if (!clase || !['lobby', 'live'].includes(clase.estado)) return res.status(409).json({ error: 'El chat se abre con la clase' });

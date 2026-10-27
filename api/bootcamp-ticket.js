@@ -40,20 +40,23 @@ export default async function handler(req, res) {
     if (!Number.isInteger(numero) || numero < 1 || numero > 9) return res.status(400).json({ error: 'Clase inválida' });
 
     const db = adminClient();
-    const [{ data: perfil }, { data: compra }, { data: config }, { data: clase }] = await Promise.all([
+    const [{ data: perfil }, { data: compra }, { data: config }, { data: clase }, { data: equipo }] = await Promise.all([
       db.from('profiles').select('es_admin').eq('id', user.id).maybeSingle(),
       db.from('purchases').select('id').eq('user_id', user.id).eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
       db.from('bootcamp_config').select('admin_only, video_enabled').eq('product_id', PRODUCT_ID).maybeSingle(),
       db.from('bootcamp_clases').select('numero, estado').eq('product_id', PRODUCT_ID).eq('numero', numero).maybeSingle(),
+      // Equipo de ensayo (bootcamp_equipo): ve la señal en cualquier estado, sin compra
+      db.from('bootcamp_equipo').select('email').eq('product_id', PRODUCT_ID).eq('email', String(user.email ?? '').toLowerCase()).maybeSingle(),
     ]);
     const esAdmin = !!perfil?.es_admin;
-    if (!esAdmin) {
+    const acceso = esAdmin || !!equipo;
+    if (!acceso) {
       if (!compra) return res.status(403).json({ error: 'Esta clase es para compradores del bootcamp' });
       if (!config || config.admin_only) return res.status(403).json({ error: 'El bootcamp todavía no está abierto' });
     }
     if (!clase) return res.status(404).json({ error: 'Clase no encontrada' });
     if (!config?.video_enabled) return res.status(409).json({ error: 'El video no está habilitado todavía' });
-    if (!esAdmin && !['lobby', 'live'].includes(clase.estado)) return res.status(409).json({ error: 'La clase no está en vivo' });
+    if (!acceso && !['lobby', 'live'].includes(clase.estado)) return res.status(409).json({ error: 'La clase no está en vivo' });
 
     const uid = String(process.env[`CF_STREAM_LIVE_INPUT_${numero}`] ?? '').trim();
     // Acepta "customer-xxxx", "customer-xxxx.cloudflarestream.com" o la URL completa

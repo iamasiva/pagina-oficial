@@ -35,6 +35,8 @@ Puerta en el cliente (las tres páginas): sin sesión → `index.html`; con sesi
 
 Cómo cambia el estado: por ahora, actualizando la fila en Supabase (política admin). La consola admin con botones y bitácora llega en la fase 7. La página de clase relee su estado cada 90 s solo cuando la clase está a menos de 3 h o en sala/en vivo; no hay polling en el resto de la página.
 
+Equipo de ensayo (26 oct 2026): la tabla `bootcamp_equipo` (correo por producto, solo admin por RLS; `sql/bootcamp-equipo.sql`) guarda a quienes entran al home y a la clase sin compra y reciben ticket de video y de chat en cualquier estado, como alumnos (no moderan). Se administra en la consola `bootcamp-admin.html`, sección "Equipo de ensayo"; el home muestra a los admins el botón "Abrir consola" junto al soporte. Las páginas preguntan con la función `bootcamp_soy_equipo(product)` (security definer, no expone la lista); los tickets consultan la tabla con la service key. El día real no se toca la lista: la clase se abre a todos los compradores al pasar a `lobby` o `live`.
+
 Simulación para el equipo: un admin puede abrir `bootcamp-clase.html?n=1&estado=live` (o usar el selector flotante) para ver cualquier estado sin tocar la base. Nadie más ve ese selector y no cambia nada real.
 
 ## GATE 1 (evidencia)

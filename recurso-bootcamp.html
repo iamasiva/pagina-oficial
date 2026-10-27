@@ -88,6 +88,7 @@
     .card-pie span { color: var(--muted); font-size: 13px; }
     .soporte { margin-top: 36px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; color: var(--gray); font-size: 0.95rem; }
     .btn-sec { display: inline-flex; align-items: center; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 16px; font-weight: 600; color: #fff; }
+    [hidden] { display: none !important; }
     footer { padding: 24px 0 40px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
 
     @media (max-width: 900px) {
@@ -109,6 +110,7 @@
       <a class="nav-logo" href="app.html">IA MASIVA</a>
       <div class="nav-der">
         <span class="chip" id="chipAdmin" hidden>Vista previa admin</span>
+        <span class="chip" id="chipEquipo" hidden>Equipo de ensayo</span>
         <a href="app.html">← Volver al catálogo</a>
       </div>
     </div>
@@ -157,6 +159,7 @@
         <div class="soporte">
           <span>¿Algo no te abre o tienes dudas antes de una clase? Escríbenos y te ayudamos en el momento.</span>
           <a class="btn-sec" href="https://wa.me/message/GUQZZ7GFPBJOM1" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px">Soporte por WhatsApp <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;flex:none" fill="#25D366" stroke="none"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5s1.07 2.9 1.22 3.1c.15.2 2.11 3.22 5.1 4.52.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35M12.05 21.8h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.82 9.82 0 0 1 7 2.9 9.82 9.82 0 0 1 2.89 7c0 5.45-4.44 9.88-9.9 9.88M20.47 3.53A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.33.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.33 11.89-11.89 0-3.18-1.24-6.16-3.49-8.4"/></svg></a>
+          <a class="btn-sec" id="btnConsola" href="bootcamp-admin.html" hidden title="Solo lo ve el equipo administrador">Abrir consola</a>
         </div>
       </div>
     </div>
@@ -278,28 +281,32 @@
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { location.replace('index.html'); return; }
-      const [perfil, compra, cfg, clases, compras, guias] = await Promise.all([
+      const [perfil, compra, cfg, clases, compras, guias, equipo] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
         sb.from('bootcamp_config').select('admin_only, anuncio').eq('product_id', PRODUCT_ID).maybeSingle(),
         sb.from('bootcamp_clases').select('numero, titulo, inicio_utc, duracion_min, estado, hotmart_lesson_url, aviso').eq('product_id', PRODUCT_ID).order('numero'),
         sb.from('purchases').select('product_id').eq('estado', 'APROBADA').in('product_id', HERRAMIENTAS.map(h => h.id)),
         sb.from('guides').select('slug').in('slug', RECURSOS.map(r => r.slug)).not('contenido_url', 'is', null),
+        // Equipo de ensayo (lista privada en bootcamp_equipo, manejada desde la consola)
+        sb.rpc('bootcamp_soy_equipo', { p_product: PRODUCT_ID }),
       ]);
       const esAdmin = !!perfil.data?.es_admin;
+      const esEquipo = !esAdmin && equipo?.data === true;
       const tiene = !!compra.data;
       const config = cfg.data;
-      // Puerta: comprador con el bootcamp abierto, o admin. Todo lo demás vuelve a la landing.
-      if (!esAdmin && (!tiene || !config || config.admin_only)) { location.replace(LANDING); return; }
+      // Puerta: comprador con el bootcamp abierto, admin o equipo de ensayo. Todo lo demás vuelve a la landing.
+      if (!esAdmin && !esEquipo && (!tiene || !config || config.admin_only)) { location.replace(LANDING); return; }
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
-      if (esAdmin) { $('chipAdmin').hidden = false; if (!config || config.admin_only) $('avisoAdmin').hidden = false; }
+      if (esAdmin) { $('chipAdmin').hidden = false; $('btnConsola').hidden = false; if (!config || config.admin_only) $('avisoAdmin').hidden = false; }
+      if (esEquipo) $('chipEquipo').hidden = false;
       if (config?.anuncio) { $('anuncio').textContent = config.anuncio; $('anuncio').hidden = false; }
       const lista = (clases.data && clases.data.length) ? clases.data : CLASES_FALLBACK;
       pintarCuenta(lista);
       pintarClases(lista);
       pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)), aperturaRecursos(lista));
       document.body.removeAttribute('data-cargando');
-      if (localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
+      if (!esEquipo && localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
     }
     init().catch(() => location.replace(LANDING));
   </script>
