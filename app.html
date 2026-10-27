@@ -125,6 +125,12 @@
     .app-hero.bc::before, .app-hero.bc::after { display: none; }
     .app-hero.bc .app-hero-bg, .app-hero.bc .app-hero-content, .app-hero.bc .app-hero-empty { display: none !important; }
     .app-hero.bc .hero-edit-btn { background: rgba(25,35,51,0.08); color: #192333; border-color: rgba(25,35,51,0.2); }
+    /* Mientras no se sabe qué hero va (sin pista guardada en este navegador): bloque claro en espera, nunca el carrusel */
+    .app-hero.cargando { background: #fff; min-height: max(60vh, 480px); padding: 0; display: flex; align-items: center; justify-content: center; }
+    .app-hero.cargando::before, .app-hero.cargando::after { display: none; }
+    .app-hero.cargando .app-hero-bg, .app-hero.cargando .app-hero-content, .app-hero.cargando .app-hero-empty, .app-hero.cargando .hero-bc { display: none !important; }
+    .hero-espera { display: none; width: 30px; height: 30px; border: 3px solid rgba(36,107,253,0.18); border-top-color: #246BFD; border-radius: 50%; animation: splashGira 0.9s linear infinite; }
+    .app-hero.cargando .hero-espera { display: block; }
 
     /* ── Identidad del bootcamp (hero claro, tarjeta de oferta) ── */
     .hero-bc { position: relative; overflow: hidden; background: #fff; color: #192333; font-family: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif; padding: 56px 5vw 150px; }
@@ -642,7 +648,8 @@
   </nav>
 
   <!-- ═══ HERO ═════════════════════════════════════════════════ -->
-  <div class="app-hero" id="appHero">
+  <div class="app-hero cargando" id="appHero">
+    <div class="hero-espera" aria-hidden="true"></div>
     <button class="hero-edit-btn hidden" id="heroEditBtn" title="Editar imágenes del hero">&#9998;</button>
     <p class="app-hero-empty hidden" id="heroEmptyMsg">Muy pronto vas a ver aquí nuestros productos destacados.</p>
     <div class="hero-bc hidden" id="heroBootcamp">
@@ -1143,7 +1150,9 @@
     let heroSlides = [], heroIndex = 0, heroTimer = null, heroSlidesRaw = [];
 
     // ── AUTH GUARD ────────────────────────────────────────────
+    pintarHeroBcDesdeCache();
     pintarDesdeCache();
+    setTimeout(() => { const h = document.getElementById('appHero'); if (h) h.classList.remove('cargando'); }, 12000);
     sb.auth.getSession().then(({ data: { session } }) => {
       if (!session) { window.location.href = 'index.html'; return; }
       initApp(session);
@@ -2252,6 +2261,10 @@
 
     // Hero del bootcamp: mientras el producto esté activo y el evento no haya
     // terminado, el hero es este bloque centrado. Contador y botón según compra.
+    // El estado decidido se guarda en el navegador: en la siguiente visita el
+    // hero del bootcamp se pinta de una, sin pasar antes por el carrusel.
+    const HERO_BC_CACHE = 'im_hero_bc_v1';
+    const FLECHA_BC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     function bootcampVigente() {
       const activo = allProducts.some(p => p.id === PRODUCTO_BOOTCAMP) || (isAdmin && allGuides.some(g => g.id === GUIA_BOOTCAMP));
       const clases = clasesBootcamp.slice().sort((a, b) => a.numero - b.numero);
@@ -2259,38 +2272,55 @@
       const terminado = !!ultima && (['ended_pending_upload', 'evergreen_ready'].includes(ultima.estado) || (Date.now() > new Date(ultima.inicio_utc).getTime() + 6 * 3600e3 && !['live', 'lobby'].includes(ultima.estado)));
       return activo && clases.length > 0 && !terminado;
     }
-    function pintarHeroBootcamp() {
+    // Pinta el hero a partir de un estado ya decidido (datos frescos o lo último
+    // que este navegador vio). Sin estado vigente, vuelve el carrusel.
+    function aplicarHeroBc(st) {
       const hero = document.getElementById('appHero'), caja = document.getElementById('heroBootcamp');
       if (!hero || !caja) return;
       clearInterval(heroBcTimer);
+      hero.classList.remove('cargando');
+      if (!st || !st.vigente) { caja.classList.add('hidden'); hero.classList.remove('bc'); return; }
+      hero.classList.add('bc'); caja.classList.remove('hidden');
+      const lbl = document.getElementById('heroBcLbl'), tiles = document.getElementById('heroBcTiles'), cta = document.getElementById('heroBcCta');
+      lbl.innerHTML = st.lbl; tiles.classList.toggle('hidden', !st.tiles);
+      cta.innerHTML = st.cta + ' ' + FLECHA_BC; cta.href = st.href;
+      if (!st.tiles || !st.hasta) return;
+      const dd = (n) => String(Math.max(0, n)).padStart(2, '0');
+      const cuenta = () => { const d = Math.max(0, st.hasta - Date.now()); document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3)); };
+      cuenta(); heroBcTimer = setInterval(cuenta, 1000);
+    }
+    function pintarHeroBootcamp() {
       const activo = allProducts.some(p => p.id === PRODUCTO_BOOTCAMP) || (isAdmin && allGuides.some(g => g.id === GUIA_BOOTCAMP));
       const clases = clasesBootcamp.slice().sort((a, b) => a.numero - b.numero);
       const ultima = clases[clases.length - 1];
       const terminado = !!ultima && (['ended_pending_upload', 'evergreen_ready'].includes(ultima.estado) || (Date.now() > new Date(ultima.inicio_utc).getTime() + 6 * 3600e3 && !['live', 'lobby'].includes(ultima.estado)));
-      if (!activo || !clases.length || terminado) { caja.classList.add('hidden'); hero.classList.remove('bc'); return; }
-      hero.classList.add('bc'); caja.classList.remove('hidden');
-      const ahora = Date.now();
-      const viva = clases.find(c => c.estado === 'live'), sala = clases.find(c => c.estado === 'lobby');
-      const proxima = clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado) && new Date(c.inicio_utc) > ahora) || clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado)) || clases[0];
-      const lbl = document.getElementById('heroBcLbl'), tiles = document.getElementById('heroBcTiles'), cta = document.getElementById('heroBcCta');
-      const dd = (n) => String(Math.max(0, n)).padStart(2, '0');
-      const cuenta = (hasta) => { const d = Math.max(0, hasta - Date.now()); document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3)); };
-      const accesoEquipo = isAdmin;
-      const FLECHA_BC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-      const ctaTexto = (t) => { cta.innerHTML = t + ' ' + FLECHA_BC; };
-      if (tieneBootcamp || accesoEquipo) {
-        if (viva) { lbl.innerHTML = `<span class="vivo"></span>Clase ${viva.numero} en vivo ahora`; tiles.classList.add('hidden'); ctaTexto(`Entrar a la clase ${viva.numero}`); cta.href = `bootcamp-clase.html?n=${viva.numero}`; return; }
-        if (sala) { lbl.textContent = `La sala de la clase ${sala.numero} está abierta`; tiles.classList.add('hidden'); ctaTexto(`Entrar a la clase ${sala.numero}`); cta.href = `bootcamp-clase.html?n=${sala.numero}`; return; }
-        tiles.classList.remove('hidden'); lbl.textContent = `La clase ${proxima.numero} empieza en`;
-        ctaTexto(`Ver clase ${proxima.numero}`); cta.href = `bootcamp-clase.html?n=${proxima.numero}`;
-        const hasta = new Date(proxima.inicio_utc).getTime(); cuenta(hasta); heroBcTimer = setInterval(() => cuenta(hasta), 1000);
-        return;
+      let st = { vigente: false };
+      if (activo && clases.length && !terminado) {
+        const ahora = Date.now();
+        const fin = new Date(ultima.inicio_utc).getTime() + 6 * 3600e3;
+        const viva = clases.find(c => c.estado === 'live'), sala = clases.find(c => c.estado === 'lobby');
+        const proxima = clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado) && new Date(c.inicio_utc) > ahora) || clases.find(c => ['scheduled', 'rescheduled'].includes(c.estado)) || clases[0];
+        if (tieneBootcamp || isAdmin) {
+          if (viva) st = { vigente: true, fin, lbl: `<span class="vivo"></span>Clase ${viva.numero} en vivo ahora`, tiles: false, cta: `Entrar a la clase ${viva.numero}`, href: `bootcamp-clase.html?n=${viva.numero}` };
+          else if (sala) st = { vigente: true, fin, lbl: `La sala de la clase ${sala.numero} está abierta`, tiles: false, cta: `Entrar a la clase ${sala.numero}`, href: `bootcamp-clase.html?n=${sala.numero}` };
+          else st = { vigente: true, fin, lbl: `La clase ${proxima.numero} empieza en`, tiles: true, hasta: new Date(proxima.inicio_utc).getTime(), cta: `Ver clase ${proxima.numero}`, href: `bootcamp-clase.html?n=${proxima.numero}` };
+        } else {
+          const cierre = new Date(CIERRE_OFERTA_BOOTCAMP).getTime();
+          st = { vigente: true, fin, lbl: cierre > ahora ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en', tiles: true, hasta: cierre > ahora ? cierre : new Date(proxima.inicio_utc).getTime(), cta: 'Más información', href: 'bootcamp.html' };
+        }
       }
-      tiles.classList.remove('hidden'); ctaTexto('Más información'); cta.href = 'bootcamp.html';
-      const cierre = new Date(CIERRE_OFERTA_BOOTCAMP).getTime();
-      const hasta = cierre > ahora ? cierre : new Date(proxima.inicio_utc).getTime();
-      lbl.textContent = cierre > ahora ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
-      cuenta(hasta); heroBcTimer = setInterval(() => cuenta(hasta), 1000);
+      aplicarHeroBc(st);
+      try { localStorage.setItem(HERO_BC_CACHE, JSON.stringify(st)); } catch (_) {}
+    }
+    // Primera pintada: lo último que este navegador decidió. Sin pista (o con el
+    // evento ya terminado) el hero se queda en espera hasta que lleguen los datos.
+    function pintarHeroBcDesdeCache() {
+      try {
+        const st = JSON.parse(localStorage.getItem(HERO_BC_CACHE) || 'null');
+        if (!st) return;
+        if (st.vigente && st.fin && Date.now() > st.fin) return;
+        aplicarHeroBc(st);
+      } catch (_) {}
     }
 
     let heroFirma = null;

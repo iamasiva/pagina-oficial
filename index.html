@@ -1065,6 +1065,10 @@
     }
     /* La barra de navegación de esta página es fija: el hero del bootcamp necesita aire arriba */
     #heroBootcamp.hero-bc { padding-top: 118px; }
+    /* Sin pista guardada de qué hero va: bloque claro en espera, ni video ni bootcamp a medias */
+    .hero-espera { min-height: max(70vh, 600px); background: #fff; display: flex; align-items: center; justify-content: center; }
+    .hero-espera[hidden] { display: none; }
+    .hero-espera-spin { width: 30px; height: 30px; border: 3px solid rgba(36,107,253,0.18); border-top-color: #246BFD; border-radius: 50%; animation: bcGira 0.9s linear infinite; }
     @media (max-width: 900px) { #heroBootcamp.hero-bc { padding-top: 92px; } }
     .faq-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 0 0 22px; }
     .faq-tab { border: 1px solid rgba(255,255,255,0.18); background: transparent; color: #D1D5DB; border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 600; cursor: pointer; }
@@ -1092,6 +1096,7 @@
   </nav>
 
   <!-- ═══ HERO ═════════════════════════════════════════════════════ -->
+  <div class="hero-espera" id="heroEspera" hidden><div class="hero-espera-spin"></div></div>
   <section class="hero-bc" id="heroBootcamp" hidden>
       <div class="hero-bc-wrap">
         <div>
@@ -1137,6 +1142,21 @@
       </form>
     </div>
   </section>
+  <script>
+    // Hero: lo último que este navegador decidió (bootcamp o video) se pinta de
+    // una, con el contador ya corriendo; sin pista, un bloque claro en espera.
+    (function () {
+      var FIN = Date.parse('2026-11-06T06:00:00Z'), CIERRE = Date.parse('2026-11-03T18:00:00-05:00'), CLASE1 = Date.parse('2026-11-04T00:00:00Z'), pista = null;
+      try { pista = localStorage.getItem('im_hero_bc_home'); } catch (e) {}
+      var bc = document.getElementById('heroBootcamp'), vid = document.getElementById('heroVideo'), esp = document.getElementById('heroEspera');
+      if (pista === '1' && Date.now() < FIN) {
+        bc.hidden = false; vid.style.display = 'none';
+        var hasta = CIERRE > Date.now() ? CIERRE : CLASE1, d = Math.max(0, hasta - Date.now()), dd = function (n) { return String(n).padStart(2, '0'); };
+        document.getElementById('heroBcLbl').textContent = CIERRE > Date.now() ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
+        document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3));
+      } else if (pista !== '0') { vid.style.display = 'none'; esp.hidden = false; }
+    })();
+  </script>
 
   <!-- ═══ TENDENCIAS ════════════════════════════════════════════════ -->
   <section class="tendencias">
@@ -2060,6 +2080,8 @@
       if (div) div.style.display = '';
       return true;
     }
+    const mostrarEspera = (si) => { const e = document.getElementById('heroEspera'); if (e) e.hidden = !si; };
+    const mostrarHeroVideo = () => { mostrarEspera(false); const v = document.getElementById('heroVideo'); if (v && document.getElementById('heroBootcamp')?.hidden !== false) v.style.display = ''; };
     (async () => {
       try {
         const [{ data }, { data: comps }] = await Promise.all([
@@ -2074,10 +2096,12 @@
         // solo mientras el producto esté activo y el evento no haya terminado. El hero de video
         // se conserva y vuelve solo cuando esto se apaga.
         const CIERRE_OFERTA = Date.parse('2026-11-03T18:00:00-05:00'), INICIO_CLASE_1 = Date.parse('2026-11-04T00:00:00Z'), FIN_EVENTO = Date.parse('2026-11-06T06:00:00Z');
-        if (bootcampActivo && Date.now() < FIN_EVENTO) {
+        const conBootcamp = bootcampActivo && Date.now() < FIN_EVENTO;
+        try { localStorage.setItem('im_hero_bc_home', conBootcamp ? '1' : '0'); } catch (_) {}
+        if (conBootcamp) {
           const heroBc = document.getElementById('heroBootcamp'), heroVideo = document.getElementById('heroVideo');
           if (heroBc) {
-            heroBc.hidden = false; if (heroVideo) heroVideo.style.display = 'none';
+            heroBc.hidden = false; if (heroVideo) heroVideo.style.display = 'none'; mostrarEspera(false);
             const lbl = document.getElementById('heroBcLbl');
             const hasta = CIERRE_OFERTA > Date.now() ? CIERRE_OFERTA : INICIO_CLASE_1;
             lbl.textContent = CIERRE_OFERTA > Date.now() ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
@@ -2098,8 +2122,10 @@
             }));
             document.querySelectorAll('#faqBootcamp .reveal').forEach(el => el.classList.add('visible'));
           }
+        } else {
+          mostrarHeroVideo();
         }
-      } catch (_) {}
+      } catch (_) { mostrarHeroVideo(); }
     })();
   </script>
 
