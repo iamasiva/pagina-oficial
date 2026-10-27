@@ -1049,6 +1049,9 @@
     const GUIA_BOOTCAMP = '94122704-34a4-4e9b-be9c-0d7946b9a1f9';
     const CIERRE_OFERTA_BOOTCAMP = '2026-11-03T18:00:00-05:00';
     let clasesBootcamp = [], tieneBootcamp = false, heroBcTimer = null;
+    // Declaradas aquí (y no junto al hero) porque la primera pintada del hero corre al arrancar el script
+    const HERO_BC_CACHE = 'im_hero_bc_v1';
+    const FLECHA_BC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     // Si el visor se abrió desde el bootcamp (app.html?guia=<id>&volver=bootcamp),
     // "Cerrar" devuelve a su home en vez de al catálogo
     let volverA = null;
@@ -2263,8 +2266,6 @@
     // terminado, el hero es este bloque centrado. Contador y botón según compra.
     // El estado decidido se guarda en el navegador: en la siguiente visita el
     // hero del bootcamp se pinta de una, sin pasar antes por el carrusel.
-    const HERO_BC_CACHE = 'im_hero_bc_v1';
-    const FLECHA_BC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     function bootcampVigente() {
       const activo = allProducts.some(p => p.id === PRODUCTO_BOOTCAMP) || (isAdmin && allGuides.some(g => g.id === GUIA_BOOTCAMP));
       const clases = clasesBootcamp.slice().sort((a, b) => a.numero - b.numero);
