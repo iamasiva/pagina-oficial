@@ -136,7 +136,7 @@
     .sello-bc small { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; margin-top: 4px; }
     .hero-bc::before { content: ''; position: absolute; right: -10%; top: -30%; width: 60vw; max-width: 820px; aspect-ratio: 1; background: radial-gradient(closest-side, #D7EBFF, rgba(215,235,255,0) 72%); pointer-events: none; }
     .hero-bc::after { content: ''; position: absolute; left: -20%; bottom: -60%; width: 50vw; max-width: 700px; aspect-ratio: 1; background: radial-gradient(closest-side, #E8F3FF, rgba(232,243,255,0) 72%); pointer-events: none; }
-    .hero-bc-wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 0.85fr; align-items: center; gap: 24px; text-align: left; }
+    .hero-bc-wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: auto minmax(300px, 400px); justify-content: center; align-items: center; gap: clamp(20px, 3vw, 40px); text-align: left; }
     .bc-etq { font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #246BFD; display: inline-flex; align-items: center; gap: 10px; }
     .bc-h1 { margin: 14px 0 0; font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(50px, 7.4vw, 96px); color: #192333; }
     .bc-h1 span { display: block; }
