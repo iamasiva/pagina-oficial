@@ -1290,6 +1290,7 @@
         <div id="imModalUsarPrompt" class="im-modal">
           <div class="im-modal-caja" style="max-width:560px;">
             <h3 id="imUsarNombre"></h3>
+            <button id="imUsarPrevios" class="im-mini-btn" type="button" style="display:none; margin-top:10px;">Usar los datos de la última vez</button>
             <div id="imUsarCampos"></div>
             <textarea id="imUsarPreview" class="code-output" style="min-height:170px; margin-top:12px;" readonly autocomplete="off"></textarea>
             <div class="im-modal-acciones">
@@ -3251,13 +3252,17 @@ ${ficha}`;
         const v = (valores[c.trim()] ?? '').trim();
         return v || m;
       });
+      // Cada uso empieza con los campos vacíos (casi siempre son datos nuevos); los de
+      // la última vez quedan a un clic con "Usar los datos de la última vez".
       function abrirUsarPrompt(p) {
         const campos = camposDe(p.contenido);
-        ctxUsar = { p, valores: { ...(p.valores || {}) } };
+        const previos = { ...(p.valores || {}) };
+        ctxUsar = { p, campos, valores: {}, previos };
         $('imUsarNombre').textContent = p.nombre;
         $('imUsarCampos').innerHTML = campos.map(c => `
           <label class="im-modal-label">${escapeHtml(c)}</label>
-          <input type="text" data-usarcampo="${escapeHtml(c)}" value="${escapeHtml(ctxUsar.valores[c] ?? '')}" placeholder="${escapeHtml(c)}"  autocomplete="off" />`).join('');
+          <input type="text" data-usarcampo="${escapeHtml(c)}" value="" placeholder="${escapeHtml(c)}"  autocomplete="off" />`).join('');
+        $('imUsarPrevios').style.display = campos.some(c => (previos[c] ?? '').trim()) ? '' : 'none';
         actualizarUsarPreview();
         $('imModalUsarPrompt').classList.add('abierto');
         const primero = $('imUsarCampos').querySelector('input');
@@ -3266,6 +3271,17 @@ ${ficha}`;
       function actualizarUsarPreview() {
         $('imUsarPreview').value = tejerPrompt(ctxUsar.p.contenido, ctxUsar.valores);
       }
+      $('imUsarPrevios').addEventListener('click', () => {
+        if (!ctxUsar) return;
+        for (const c of ctxUsar.campos) {
+          const v = ctxUsar.previos[c] ?? '';
+          ctxUsar.valores[c] = v;
+          const inp = $('imUsarCampos').querySelector(`[data-usarcampo="${CSS.escape(c)}"]`);
+          if (inp) inp.value = v;
+        }
+        $('imUsarPrevios').style.display = 'none';
+        actualizarUsarPreview();
+      });
       $('imUsarCampos').addEventListener('input', (e) => {
         const c = e.target.dataset.usarcampo;
         if (!c || !ctxUsar) return;
@@ -3275,7 +3291,9 @@ ${ficha}`;
       $('imUsarCopiar').addEventListener('click', async () => {
         if (!ctxUsar) return;
         const texto = tejerPrompt(ctxUsar.p.contenido, ctxUsar.valores);
-        const { error } = await db.from('user_prompts').update({ valores: ctxUsar.valores, updated_at: new Date().toISOString() }).eq('id', ctxUsar.p.id);
+        // Se guarda lo que escribiste encima de lo de la última vez (un campo vacío no borra el anterior)
+        const llenos = Object.fromEntries(Object.entries(ctxUsar.valores).filter(([, v]) => String(v).trim()));
+        const { error } = await db.from('user_prompts').update({ valores: { ...ctxUsar.previos, ...llenos }, updated_at: new Date().toISOString() }).eq('id', ctxUsar.p.id);
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
         $('imModalUsarPrompt').classList.remove('abierto');
         ctxUsar = null;
