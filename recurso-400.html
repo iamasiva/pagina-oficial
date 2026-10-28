@@ -845,7 +845,8 @@
             <div class="step-block">
               <div class="step-title"><h3>Paso 1 · Crea tu skill en Gemini (solo una vez)</h3></div>
               <div class="step">
-              <p class="hint">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual. Pega estos tres campos tal cual, en este orden. Se crea una sola vez; desde ahí queda lista en todos tus chats.</p>
+              <p class="hint">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual. Pega estos tres campos tal cual, en este orden. Se crea una sola vez; desde ahí queda lista en todos tus chats. El atajo: descarga el archivo SKILL.md y en Habilidades usa Crear, Subir.</p>
+              <div class="actions" style="margin:0 0 14px;"><button class="secondary-btn" id="descargarSkillBtn" type="button">Descargar SKILL.md</button></div>
 
               <div class="gem-field">
                 <div class="gem-field-head">
@@ -1076,6 +1077,7 @@
           <div class="im-toolbar">
             <button id="imMgVolver" class="im-mini-btn" type="button" style="display:none">← Volver</button>
             <div class="im-toolbar-acciones">
+              <button id="imMgDescargarTodas" class="im-mini-btn" type="button" title="Un ZIP con una carpeta por skill, lista para Subir en Gemini">Descargar todas</button>
               <button id="imMgNuevaCat" class="im-mini-btn" type="button">Crear servidor</button>
               <button id="imMgNuevaGema" class="im-btn-primario" type="button">Guardar skill</button>
             </div>
@@ -1152,13 +1154,15 @@
               </div>
               <label class="im-modal-label">Nombre con el que la llamas en Gemini</label>
               <input id="imGemaUrl" type="text" placeholder="@nombre-de-la-skill"  autocomplete="off" />
-              <label class="im-modal-label">¿Para qué es? (opcional)</label>
-              <input id="imGemaDesc" type="text" placeholder="Nota corta para acordarte"  autocomplete="off" />
+              <label class="im-modal-label">Descripción</label>
+              <input id="imGemaDesc" type="text" placeholder="Qué hace la skill, como en la caja Descripción de Gemini"  autocomplete="off" />
               <div id="imGemaInstrCampo">
                 <label class="im-modal-label">Instrucciones de la skill (opcional)</label>
                 <textarea id="imGemaInstr" rows="4" spellcheck="false" placeholder="Pégalas desde Gemini: Habilidades, tu skill, campo Instrucciones." autocomplete="off"></textarea>
-                <p class="im-modal-nota" style="margin:6px 0 0;">Con las instrucciones guardadas podrás crear el agente local de esta skill.</p>
+                <p class="im-modal-nota" style="margin:6px 0 0;">Con las instrucciones guardadas podrás crear el agente local y descargar la skill como SKILL.md.</p>
               </div>
+              <label class="im-modal-label">¿Para qué es? (opcional)</label>
+              <input id="imGemaNota" type="text" placeholder="Nota corta para acordarte"  autocomplete="off" />
             </div>
             <label class="im-modal-label">Servidor (opcional)</label>
             <select id="imGemaSelCat"></select>
@@ -1429,6 +1433,19 @@
     }
     // Descripción de la skill: la redactada con disparadores si existe; si no, la corta del catálogo
     function descripcionSkill(gem) { return gem.descripcion_skill || gem.descripcion_corta || ""; }
+    // Archivo SKILL.md con el formato que Gemini acepta en Habilidades > Crear > Subir:
+    // encabezado con name (kebab-case) y description, y debajo las instrucciones.
+    function skillMd({ nombre, descripcion, instrucciones }) {
+      const name = slugSkill(nombre) || "mi-skill";
+      const desc = String(descripcion || "").replace(/\s+/g, " ").trim().replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      return "---\nname: " + name + "\ndescription: \"" + desc + "\"\n---\n\n" + String(instrucciones || "").trim() + "\n";
+    }
+    function descargarArchivo(nombreArchivo, contenido, tipo) {
+      const blob = contenido instanceof Blob ? contenido : new Blob([contenido], { type: (tipo || "text/markdown") + ";charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = nombreArchivo; document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
 
     const GEM_BUILDER = {
       id: "builder",
@@ -2152,6 +2169,11 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       els.copyConfigBtn.addEventListener("click", () => copyText(els.configOutput.value, els.copyConfigFeedback));
       document.getElementById("detailSkillChip").addEventListener("click", (e) => copyText(e.currentTarget.textContent.trim()));
       els.copyPromptBtn.addEventListener("click", () => copyText(els.promptOutput.value, els.copyPromptFeedback));
+      document.getElementById("descargarSkillBtn").addEventListener("click", () => {
+        if (!activeGem) return;
+        descargarArchivo("SKILL.md", skillMd({ nombre: activeGem.nombre, descripcion: descripcionSkill(activeGem), instrucciones: instruccionSkill(activeGem.configuracion) }));
+        showToast("SKILL.md descargado. En Gemini: Habilidades, Crear, Subir");
+      });
       document.querySelectorAll(".copy-mini[data-copy-target]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const target = document.getElementById(btn.getAttribute("data-copy-target"));
@@ -2366,12 +2388,14 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
               <div class="im-est-tit">
                 <h3>${escapeHtml(g.titulo)} <span class="im-tag ${g.item_id ? 'im-tag-catalogo' : 'im-tag-propia'}">${g.item_id ? 'Catálogo' : 'Propia'}</span></h3>
                 ${g.descripcion ? `<div class="im-skill-meta">${escapeHtml(g.descripcion)}</div>` : ''}
+                ${g.nota ? `<div class="im-skill-meta" style="font-style:italic; opacity:.85;">${escapeHtml(g.nota)}</div>` : ''}
               </div>
               <button class="im-menu-btn" type="button" data-menu="skill-${g.id}" style="position:static; flex:none;">⋮</button>
               ${menu === 'skill-' + g.id ? menuHtmlMG('skill-' + g.id) : ''}
             </div>
             <div class="im-est-franja">
               <button class="skill-chip" type="button" data-copiarskill="${escapeHtml(llamadaDeGuardada(g))}" title="Copiar el nombre para pegarlo en Gemini">${escapeHtml(llamadaDeGuardada(g))}</button>
+              <button class="im-mini-btn" type="button" data-descargarskill="${g.id}" title="Archivo para Habilidades, Crear, Subir">Descargar SKILL.md</button>
               ${g.item_id || (g.instruccion && g.instruccion.trim())
                 ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}">Crear agente local</button>`
                 : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta skill, primero guarda su instrucción: edita la skill y pega la instrucción desde Gemini (abre tu skill, Editar, campo Instrucciones).</span></span>`}
@@ -2486,6 +2510,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (copiarS) { copyText(copiarS.dataset.copiarskill); return; }
         const al = e.target.closest('[data-agentelocal]');
         if (al) { const g = misGemas.find(x => x.id === al.dataset.agentelocal); if (g) abrirModalAgente(g); return; }
+        const ds = e.target.closest('[data-descargarskill]');
+        if (ds) {
+          const g = misGemas.find(x => x.id === ds.dataset.descargarskill); const sk = g && skillDeGuardada(g);
+          if (!sk) { showToast('Edita la skill y guarda su instrucción para poder descargarla'); return; }
+          descargarArchivo('SKILL.md', sk.md); showToast('SKILL.md descargado. En Gemini: Habilidades, Crear, Subir'); return;
+        }
         const aoff = e.target.closest('[data-agenteoff]');
         if (aoff) { showToast('Edita la skill y guarda su instrucción para poder crear el agente local'); return; }
         const abrirC = e.target.closest('[data-abrirchat]');
@@ -2751,6 +2781,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         $('imGemaNombre').value = g?.titulo ?? '';
         $('imGemaUrl').value = (g?.url && /^[\/@]/.test(g.url)) ? '@' + g.url.replace(/^[\/@]+/, '') : (catalogo ? llamadaSkill(catalogo.nombre) : (g?.titulo ? llamadaSkill(g.titulo) : ''));
         $('imGemaDesc').value = g?.descripcion ?? catalogo?.descripcion_corta ?? '';
+        $('imGemaNota').value = g?.nota ?? '';
         // La instrucción solo aplica a skills propias (las de catálogo la traen de la biblioteca)
         $('imGemaInstrCampo').style.display = catalogo ? 'none' : '';
         $('imGemaInstr').value = g?.instruccion ?? '';
@@ -2801,15 +2832,16 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
           if (!url) { showToast('Escribe el nombre con el que la llamas en Gemini'); return; }
           url = normalizarLlamada(url);
           const descripcion = $('imGemaDesc').value.trim() || null;
-          if (modo === 'crear') {
-            const fila = { user_id: IM.userId, titulo, url, descripcion, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null };
-            if (!catalogo) fila.instruccion = $('imGemaInstr').value.trim() || null;
-            ({ error } = await db.from('user_gemas').insert(fila));
-          } else {
-            const cambios = { titulo, url, descripcion, nodo_id: nodoId, updated_at: new Date().toISOString() };
-            if (!catalogo) cambios.instruccion = $('imGemaInstr').value.trim() || null;
-            ({ error } = await db.from('user_gemas').update(cambios).eq('id', ctxGema.skill.id));
-          }
+          const nota = $('imGemaNota').value.trim() || null;
+          const datos = modo === 'crear'
+            ? { user_id: IM.userId, titulo, url, descripcion, nota, nodo_id: nodoId, item_id: catalogo ? uuidDeCatalogo(catalogo.id) : null }
+            : { titulo, url, descripcion, nota, nodo_id: nodoId, updated_at: new Date().toISOString() };
+          if (!catalogo) datos.instruccion = $('imGemaInstr').value.trim() || null;
+          const guardar = (d) => modo === 'crear' ? db.from('user_gemas').insert(d) : db.from('user_gemas').update(d).eq('id', ctxGema.skill.id);
+          let r = await guardar(datos);
+          // Si la base todavía no tiene la columna nota, se guarda sin ella y se avisa
+          if (r.error && /nota/i.test(r.error.message)) { delete datos.nota; r = await guardar(datos); if (!r.error && nota) showToast('La nota no se guardó todavía: falta habilitarla en la base'); }
+          error = r.error;
         }
         if (error) { showToast('No se pudo guardar: ' + error.message); return; }
         $('imModalGema').classList.remove('abierto');
@@ -2912,6 +2944,49 @@ ${ficha}`;
       const URL_EXT_NOTEBOOKLM = 'https://chromewebstore.google.com/detail/notebooklm-sources-export/ildjnemeokopkjjkkhooonanjckcclfj';
 
       const linksDeGema = (g) => (g?.cuadernos || '').split('\n').map(l => l.trim()).filter(Boolean);
+
+      // ── Descargar skills como SKILL.md (una o todas en ZIP) ──
+      function skillDeGuardada(g) {
+        const cat = gemDeCatalogo(g);
+        const instrucciones = ((cat ? instruccionSkill(cat.configuracion) : g.instruccion) || '').trim();
+        if (!instrucciones) return null;
+        const nombre = llamadaDeGuardada(g).replace(/^@/, '');
+        const descripcion = ((cat ? descripcionSkill(cat) : g.descripcion) || '').trim();
+        return { nombre, descripcion, instrucciones, md: skillMd({ nombre, descripcion, instrucciones }), cuadernos: linksDeGema(g) };
+      }
+      function cargarJSZip() {
+        if (window.JSZip) return Promise.resolve(window.JSZip);
+        return new Promise((res, rej) => {
+          const sc = document.createElement('script');
+          sc.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          sc.onload = () => res(window.JSZip); sc.onerror = () => rej(new Error('No se pudo cargar el empaquetador'));
+          document.head.append(sc);
+        });
+      }
+      async function descargarTodasLasSkills() {
+        if (!misGemas.length) { showToast('Todavía no tienes skills guardadas'); return; }
+        const btn = $('imMgDescargarTodas'); btn.disabled = true;
+        try {
+          const JSZip = await cargarJSZip();
+          const zip = new JSZip(); const usados = new Set(); let incluidas = 0, sinInstr = 0;
+          for (const g of misGemas) {
+            const sk = skillDeGuardada(g);
+            if (!sk) { sinInstr++; continue; }
+            let carpeta = slugSkill(sk.nombre) || 'mi-skill', k = 2; const base = carpeta;
+            while (usados.has(carpeta)) carpeta = base + '-' + (k++);
+            usados.add(carpeta);
+            zip.file(carpeta + '/SKILL.md', sk.md);
+            if (sk.cuadernos.length) zip.file(carpeta + '/conocimiento/cuadernos.md', '# Cuadernos de NotebookLM que usa esta skill\n\n' + sk.cuadernos.map(l => '- ' + l).join('\n') + '\n');
+            incluidas++;
+          }
+          if (!incluidas) { showToast('Ninguna skill tiene instrucción guardada para descargar'); return; }
+          const blob = await zip.generateAsync({ type: 'blob' });
+          descargarArchivo('mis-skills-ia-masiva.zip', blob);
+          showToast(`ZIP con ${incluidas} skill${incluidas === 1 ? '' : 's'}` + (sinInstr ? `; ${sinInstr} sin instrucción guardada quedaron por fuera` : ''));
+        } catch (e) { showToast('No se pudo armar el ZIP: ' + e.message); }
+        finally { btn.disabled = false; }
+      }
+      $('imMgDescargarTodas').addEventListener('click', descargarTodasLasSkills);
       // Receta MCP actualizable desde la base (app_config.mcp_notebooklm); si
       // no hay fila o falla, el bloque usa el texto integrado
       let mcpCfg = null;
