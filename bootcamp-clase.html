@@ -53,14 +53,69 @@
     .player .msg b { color: var(--white); font-size: 1.1rem; }
     .cuenta { font-family: var(--display); font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 800; color: var(--white); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
     /* Subtítulos: ayuda para activar los subtítulos instantáneos del navegador o del teléfono */
-    .cc-fila { padding: 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); }
-    .cc-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; background: none; color: var(--white); font: inherit; font-size: 0.78rem; cursor: pointer; }
-    .cc-btn b { font-size: 0.68rem; letter-spacing: 0.08em; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 4px; }
-    .cc-btn:hover, .cc-btn[aria-expanded="true"] { border-color: rgba(47,107,255,0.7); }
-    .cc-panel { padding: 4px 14px 12px; font-size: 0.82rem; color: var(--muted); line-height: 1.55; border-top: 1px solid var(--line); }
-    .cc-panel p { margin: 8px 0 0; }
-    .cc-panel b { color: var(--white); font-weight: 600; }
-    .cc-panel[hidden] { display: none; }
+    .cabeza-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .btn-cc { cursor: pointer; font: inherit; font-size: 0.86rem; font-weight: 600; }
+    .btn-cc b { font-size: 0.68rem; letter-spacing: 0.08em; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 4px; }
+    .btn-cc:hover { border-color: rgba(47,107,255,0.7); }
+    /* Ventana de ayuda de subtítulos */
+    .cc-modal { position: fixed; inset: 0; z-index: 60; background: rgba(5,5,5,0.78); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .cc-modal[hidden] { display: none; }
+    .cc-caja { width: min(560px, 100%); max-height: 92vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px 20px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+    .cc-caja-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .cc-caja-cab h3 { margin: 0; font-size: 1.05rem; }
+    .cc-cerrar { background: none; border: 1px solid var(--line); color: var(--gray); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
+    .cc-cerrar:hover { color: var(--white); border-color: rgba(255,255,255,0.4); }
+    .cc-caja p { margin: 8px 0 0; font-size: 0.86rem; color: var(--muted); line-height: 1.55; }
+    .cc-caja p b { color: var(--white); font-weight: 600; }
+    .cc-pasos { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .cc-pasos li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.86rem; color: var(--gray); line-height: 1.5; }
+    .cc-pasos li b { color: var(--white); font-weight: 600; }
+    .cc-pasos li i { font-style: normal; flex: none; width: 24px; height: 24px; border-radius: 50%; background: rgba(47,107,255,0.2); color: var(--white); font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .cc-dir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
+    .cc-dir code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.84rem; background: rgba(255,255,255,0.06); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; color: var(--white); user-select: all; }
+    .cc-copiar { border: 1px solid rgba(47,107,255,0.7); background: rgba(47,107,255,0.18); color: var(--white); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .cc-copiar:hover { background: rgba(47,107,255,0.32); }
+    .cc-nota { font-size: 0.78rem; }
+    /* Demo animada (12 s en bucle): abre una pestaña nueva, pega la dirección y enciende el interruptor */
+    .cc-demo { position: relative; overflow: hidden; margin: 14px 0 4px; border-radius: 14px; background: #fff; color: #1f1f1f; font-family: Roboto, system-ui, -apple-system, Arial, sans-serif; border: 1px solid rgba(255,255,255,0.12); }
+    .cc-win-top { background: #dee1e6; padding: 8px 10px 0; }
+    .cc-tabs { display: flex; gap: 4px; align-items: flex-end; height: 30px; }
+    .cc-tab { flex: none; border-radius: 10px 10px 0 0; padding: 7px 12px; font-size: 0.72rem; line-height: 1.2; color: #3c4043; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cc-tab.clase { width: 40%; background: #fff; animation: ccTabClase 12s infinite; }
+    .cc-tab.nueva { width: 34%; background: #fff; opacity: 0; animation: ccTabNueva 12s infinite; }
+    .cc-mas { width: 22px; height: 22px; border-radius: 50%; color: #3c4043; font-size: 1rem; line-height: 22px; text-align: center; margin-bottom: 4px; }
+    .cc-omni-bar { background: #fff; padding: 6px 10px 8px; border-bottom: 1px solid #e3e3e3; }
+    .cc-omni { position: relative; background: #f1f3f4; border-radius: 999px; height: 26px; display: flex; align-items: center; padding: 0 12px; font-size: 0.74rem; color: #1f1f1f; overflow: hidden; }
+    .cc-omni-url { position: absolute; left: 12px; color: #5f6368; animation: ccUrl 12s infinite; }
+    .cc-omni-txt { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; overflow: hidden; max-width: 0; animation: ccTexto 12s steps(32, end) infinite; }
+    .cc-content { position: relative; height: 142px; }
+    .cc-page { position: absolute; inset: 0; padding: 12px 16px; }
+    .cc-page-clase { background: #0b0e24; animation: ccPagClase 12s infinite; }
+    .cc-page-clase b { display: block; font-size: 0.66rem; letter-spacing: 0.2em; color: #2F6BFF; }
+    .cc-page-clase i { display: block; margin-top: 8px; height: 10px; border-radius: 4px; background: rgba(255,255,255,0.16); }
+    .cc-page-blank { background: #fff; opacity: 0; animation: ccPagBlank 12s infinite; }
+    .cc-page-settings { background: #fff; opacity: 0; animation: ccPagSettings 12s infinite; }
+    .cc-demo-fila { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .cc-demo-fila h4 { margin: 0; font-size: 0.9rem; font-weight: 500; color: #1f1f1f; }
+    .cc-demo-fila p { margin: 2px 0 0; font-size: 0.74rem; line-height: 1.4; color: #5f6368; }
+    .cc-toggle { position: relative; flex: none; width: 36px; height: 18px; border-radius: 999px; background: #9aa0a6; animation: ccTrack 12s infinite; }
+    .cc-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); animation: ccKnob 12s infinite; }
+    .cc-demo-idiomas { margin-top: 10px; padding-top: 8px; border-top: 1px solid #e3e3e3; opacity: 0; animation: ccIdiomas 12s infinite; }
+    .cc-demo-idiomas h4 { margin: 0; font-size: 0.82rem; font-weight: 500; color: #1f1f1f; }
+    .cc-demo-idiomas .lang { margin-top: 6px; font-size: 0.82rem; color: #1f1f1f; padding-left: 10px; }
+    .cc-cursor { position: absolute; top: 110px; left: 40%; width: 14px; height: 14px; border-radius: 50%; background: #1a73e8; box-shadow: 0 0 0 5px rgba(26,115,232,0.22); opacity: 0; pointer-events: none; animation: ccCursor 12s ease-in-out infinite; }
+    @keyframes ccTabClase { 0%, 16% { background: #fff; color: #1f1f1f; } 18%, 100% { background: #f1f3f4; color: #5f6368; } }
+    @keyframes ccTabNueva { 0%, 16% { opacity: 0; } 18%, 100% { opacity: 1; } }
+    @keyframes ccUrl { 0%, 16% { opacity: 1; } 18%, 100% { opacity: 0; } }
+    @keyframes ccTexto { 0%, 22% { max-width: 0; } 44%, 100% { max-width: 100%; } }
+    @keyframes ccPagClase { 0%, 17% { opacity: 1; } 19%, 100% { opacity: 0; } }
+    @keyframes ccPagBlank { 0%, 17% { opacity: 0; } 19%, 47% { opacity: 1; } 49%, 100% { opacity: 0; } }
+    @keyframes ccPagSettings { 0%, 47% { opacity: 0; } 49%, 100% { opacity: 1; } }
+    @keyframes ccTrack { 0%, 64% { background: #9aa0a6; } 68%, 100% { background: #1a73e8; } }
+    @keyframes ccKnob { 0%, 64% { left: 2px; } 68%, 100% { left: 20px; } }
+    @keyframes ccIdiomas { 0%, 71% { opacity: 0; transform: translateY(4px); } 77%, 100% { opacity: 1; transform: none; } }
+    @keyframes ccCursor { 0% { opacity: 0; left: 40%; top: 110px; transform: scale(1); } 5% { opacity: 1; } 14% { left: calc(74% + 26px); top: 15px; } 16% { transform: scale(0.7); } 18% { transform: scale(1); } 21% { opacity: 1; left: calc(74% + 26px); top: 15px; } 24%, 50% { opacity: 0; left: calc(74% + 26px); top: 15px; } 52% { opacity: 1; } 62% { left: calc(100% - 36px); top: 94px; transform: scale(1); } 65% { transform: scale(0.7); } 68% { transform: scale(1); } 86% { opacity: 1; } 92%, 100% { opacity: 0; left: calc(100% - 36px); top: 94px; } }
+    @media (prefers-reduced-motion: reduce) { .cc-demo * { animation: none !important; } .cc-tab.nueva, .cc-page-settings, .cc-demo-idiomas { opacity: 1; } .cc-page-clase, .cc-page-blank, .cc-omni-url, .cc-cursor { display: none; } .cc-omni-txt { max-width: 100%; } .cc-toggle { background: #1a73e8; } .cc-toggle::after { left: 20px; } }
     .bajo-video { padding: 7px 14px; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 6px 14px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); }
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue-elec); color: #fff; border: 0; border-radius: 10px; padding: 11px 16px; font: inherit; font-weight: 700; cursor: pointer; }
     .btn.sec { background: transparent; border: 1px solid var(--line); color: var(--gray); }
@@ -143,7 +198,10 @@
           <h1 id="titulo">Cargando...</h1>
           <div class="cuando"><span id="cuando"></span><button class="lnk" id="lnkInstr" type="button">Ver instrucciones</button></div>
         </div>
-        <a class="btn-wa" href="https://wa.me/message/GUQZZ7GFPBJOM1" target="_blank" rel="noopener">¿Tienes problemas? <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;flex:none" fill="#25D366"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5s1.07 2.9 1.22 3.1c.15.2 2.11 3.22 5.1 4.52.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35M12.05 21.8h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.82 9.82 0 0 1 7 2.9 9.82 9.82 0 0 1 2.89 7c0 5.45-4.44 9.88-9.9 9.88M20.47 3.53A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.33.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.33 11.89-11.89 0-3.18-1.24-6.16-3.49-8.4"/></svg></a>
+        <div class="cabeza-acciones">
+          <button class="btn-wa btn-cc" id="btnCC" type="button" aria-haspopup="dialog" aria-controls="ccModal"><b>CC</b> Subtítulos en vivo</button>
+          <a class="btn-wa" href="https://wa.me/message/GUQZZ7GFPBJOM1" target="_blank" rel="noopener">¿Tienes problemas? <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;flex:none" fill="#25D366"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5s1.07 2.9 1.22 3.1c.15.2 2.11 3.22 5.1 4.52.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35M12.05 21.8h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.82 9.82 0 0 1 7 2.9 9.82 9.82 0 0 1 2.89 7c0 5.45-4.44 9.88-9.9 9.88M20.47 3.53A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.33.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.33 11.89-11.89 0-3.18-1.24-6.16-3.49-8.4"/></svg></a>
+        </div>
       </div>
 
       <div class="sim" id="sim" hidden>
@@ -161,15 +219,6 @@
             <span id="bajoVideoTexto">¿Se traba el video?</span>
             <button class="lnk" id="btnReconectar" type="button">Reconectar</button>
             <button class="lnk" id="btnEstable" type="button" title="Cambia al reproductor estándar de Cloudflare (más retraso, más tolerante)">Modo estable</button>
-          </div>
-          <div class="cc-fila">
-            <button class="cc-btn" id="btnCC" type="button" aria-expanded="false" aria-controls="ccPanel"><b>CC</b> Subtítulos en vivo</button>
-          </div>
-          <div class="cc-panel" id="ccPanel" hidden>
-            <p><b>En el computador (Chrome):</b> abre la configuración de Chrome, entra a <b>Accesibilidad</b> y activa <b>Subtítulos instantáneos</b>. Si te pide idioma, agrega Español. Desde ese momento, cualquier audio que suene en Chrome, incluida esta clase, sale con subtítulos en una ventanita que puedes mover.</p>
-            <p><b>En Android:</b> en Ajustes, entra a Accesibilidad y activa <b>Subtítulos instantáneos</b>. También aparece como un botón debajo del control de volumen.</p>
-            <p><b>En iPhone:</b> en Ajustes, entra a Accesibilidad y activa <b>Subtítulos en vivo</b>. En iPhone la calidad en español todavía es irregular; si no te sirve, usa el computador.</p>
-            <p>Los subtítulos los genera tu dispositivo, no nosotros, así que pueden tener errores. Las grabaciones de las clases quedan disponibles después por si quieres volver sobre algo.</p>
           </div>
         </div>
         <aside class="chat" id="chat">
@@ -214,6 +263,33 @@
         <li>Si algo falla, usa el botón "¿Tienes problemas?" y te ayudamos por WhatsApp en el momento.</li>
       </ul>
       <button class="btn" id="instrOk" type="button">Entendido, entrar a la clase</button>
+    </div>
+  </div>
+
+  <div class="cc-modal" id="ccModal" hidden role="dialog" aria-modal="true" aria-labelledby="ccTitulo">
+    <div class="cc-caja">
+      <div class="cc-caja-cab"><h3 id="ccTitulo">Subtítulos en vivo</h3><button class="cc-cerrar" id="ccCerrar" type="button" aria-label="Cerrar">&times;</button></div>
+      <p>Chrome puede subtitular esta clase en español mientras la ves. Se activa una sola vez y queda para siempre:</p>
+      <ol class="cc-pasos">
+        <li><i>1</i><span>Abre una pestaña nueva y pega esta dirección en la barra de arriba:<span class="cc-dir"><code id="ccDir">chrome://settings/accessibility</code><button class="cc-copiar" id="ccCopiar" type="button">Copiar dirección</button></span></span></li>
+        <li><i>2</i><span>Enciende <b>Subtitulado instantáneo</b>, el primer interruptor de la lista.</span></li>
+        <li><i>3</i><span>Debajo aparece <b>Idiomas compatibles</b>. Si no ves <b>español</b>, toca <b>Agregar idiomas</b> y elígelo.</span></li>
+        <li><i>4</i><span>Vuelve a esta pestaña. Los subtítulos salen en una ventanita que puedes mover y agrandar.</span></li>
+      </ol>
+      <div class="cc-demo" aria-hidden="true">
+        <div class="cc-win-top"><div class="cc-tabs"><div class="cc-tab clase">Clase 1 &middot; IA MASIVA</div><div class="cc-tab nueva">Nueva pestaña</div><div class="cc-mas">+</div></div></div>
+        <div class="cc-omni-bar"><div class="cc-omni"><span class="cc-omni-url">iamasiva.co/bootcamp-clase</span><span class="cc-omni-txt">chrome://settings/accessibility</span></div></div>
+        <div class="cc-content">
+          <div class="cc-page cc-page-clase"><b>CLASE 1</b><i style="width:62%"></i><i style="width:38%"></i></div>
+          <div class="cc-page cc-page-blank"></div>
+          <div class="cc-page cc-page-settings">
+            <div class="cc-demo-fila"><div><h4>Subtitulado instantáneo</h4><p>Crea subtítulos automáticamente para los idiomas admitidos. El audio nunca sale del dispositivo.</p></div><div class="cc-toggle"></div></div>
+            <div class="cc-demo-idiomas"><h4>Idiomas compatibles con Subtitulado instantáneo</h4><div class="lang">español (predeterminado)</div></div>
+          </div>
+        </div>
+        <div class="cc-cursor"></div>
+      </div>
+      <p class="cc-nota"><b>En el celular:</b> Android los trae en Ajustes, Accesibilidad, Subtítulos instantáneos. En iPhone (Subtítulos en vivo) el español todavía no está garantizado; si no te sirve, usa el computador. Los subtítulos los genera tu dispositivo, así que pueden tener errores.</p>
     </div>
   </div>
 
@@ -281,11 +357,25 @@
     // firmado; en Safari sin MSE va el HLS nativo. Si falla seguido con señal
     // presente, cae solo al reproductor estándar de Cloudflare (10 a 12 s).
     let hlsActual = null, modoEstable = false, fallosLL = 0, ultimoTicket = null;
-    // Ayuda de subtítulos (se abre y se cierra; la elección no se guarda)
+    // Ayuda de subtítulos: ventana con la demo animada de Chrome y la dirección para copiar
+    // (una página no puede abrir chrome:// por enlace, así que se copia y se pega en la barra)
     (function () {
-      const b = document.getElementById('btnCC'), panel = document.getElementById('ccPanel');
-      if (!b || !panel) return;
-      b.addEventListener('click', () => { const abierto = panel.hidden; panel.hidden = !abierto; b.setAttribute('aria-expanded', String(abierto)); });
+      const b = document.getElementById('btnCC'), modal = document.getElementById('ccModal');
+      if (!b || !modal) return;
+      const abrir = () => { modal.hidden = false; document.getElementById('ccCerrar').focus(); };
+      const cerrar = () => { modal.hidden = true; b.focus(); };
+      b.addEventListener('click', abrir);
+      document.getElementById('ccCerrar').addEventListener('click', cerrar);
+      modal.addEventListener('click', (e) => { if (e.target === modal) cerrar(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) cerrar(); });
+      const cop = document.getElementById('ccCopiar');
+      cop.addEventListener('click', async () => {
+        const dir = document.getElementById('ccDir').textContent.trim(); let ok = false;
+        try { await navigator.clipboard.writeText(dir); ok = true; } catch (_) {}
+        if (!ok) { const a = document.createElement('textarea'); a.value = dir; a.setAttribute('readonly', ''); a.style.cssText = 'position:fixed;top:0;left:0;opacity:0'; document.body.append(a); a.select(); try { ok = document.execCommand('copy'); } catch (_) {} a.remove(); }
+        cop.textContent = ok ? 'Copiada. Pégala en una pestaña nueva' : 'Selecciona y copia la dirección';
+        setTimeout(() => { cop.textContent = 'Copiar dirección'; }, 3000);
+      });
     })();
     const LL_LIMITE = 3;
     function soltarVideo() { if (hlsActual) { try { hlsActual.destroy(); } catch (_) {} hlsActual = null; } }
