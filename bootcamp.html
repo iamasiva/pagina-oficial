@@ -818,14 +818,26 @@
       toastTimer = setTimeout(() => t.classList.remove('ver'), 4200);
     }
 
-    // Evento del embudo con el mismo criterio de producto.html (el equipo no cuenta)
+    // Evento del embudo con el mismo criterio de producto.html (el equipo no cuenta).
+    // Lleva el UTM guardado (30 días), igual que pago.html, para saber de qué
+    // video, correo o DM viene cada visita y cada clic en comprar.
+    function utmActual() {
+      try {
+        const u = JSON.parse(localStorage.getItem('im_utm') ?? 'null');
+        if (!u?.source || Date.now() - u.guardado > 30 * 24 * 3600 * 1000) return null;
+        return u;
+      } catch (_) { return null; }
+    }
     async function registrarEvento(tipo) {
       if (localStorage.getItem('im_es_admin') === '1') return;
+      const base = { tipo, product_id: PRODUCT_ID };
+      const u = utmActual();
+      const cuerpo = u ? { ...base, utm_source: u.source, utm_medium: u.medium, utm_campaign: u.campaign } : base;
       try {
         await fetch('https://api.iamasiva.co/rest/v1/eventos', {
           method: 'POST', keepalive: true,
           headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-          body: JSON.stringify({ tipo, product_id: PRODUCT_ID }),
+          body: JSON.stringify(cuerpo),
         });
       } catch (_) {}
     }
