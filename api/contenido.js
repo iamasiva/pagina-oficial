@@ -28,9 +28,19 @@ export default async function handler(req, res) {
     // Gratuitas: URL pública tal cual.
     if (!guide.es_premium) return res.status(200).json({ url: guide.contenido_url });
 
-    // Premium: compra APROBADA o admin.
-    const { data: perfil } = await db.from('profiles').select('es_admin').eq('id', user.id).single();
-    if (!perfil?.es_admin) {
+    // Premium: compra APROBADA o admin. El equipo de ensayo del bootcamp (tabla
+    // bootcamp_equipo, se maneja desde la consola) entra a los recursos del bootcamp
+    // sin compra y antes del primer día, igual que en recurso-bootcamp.html.
+    const { data: perfil } = await db.from('profiles').select('es_admin, email').eq('id', user.id).single();
+    let esEquipo = false;
+    if (!perfil?.es_admin && esRecursoBootcamp(guide)) {
+      const correo = String(user.email || perfil?.email || '').trim().toLowerCase();
+      if (correo) {
+        const { data: eq } = await db.from('bootcamp_equipo').select('email').eq('product_id', PRODUCTO_BOOTCAMP).eq('email', correo).limit(1).maybeSingle();
+        esEquipo = !!eq;
+      }
+    }
+    if (!perfil?.es_admin && !esEquipo) {
       const { data: compra } = esRecursoBootcamp(guide)
         ? await db.from('purchases').select('id').eq('user_id', user.id).eq('product_id', PRODUCTO_BOOTCAMP).eq('estado', 'APROBADA').limit(1).maybeSingle()
         : await db.from('purchases').select('id').eq('user_id', user.id).eq('guide_id', guideId).eq('estado', 'APROBADA').limit(1).maybeSingle();
@@ -38,10 +48,10 @@ export default async function handler(req, res) {
     }
 
     // Recurso del bootcamp: se habilita el primer día del evento (medianoche de Bogotá
-    // del día de la clase 1) para los compradores; los admins siempre. URL pública tal
-    // cual (mismo bucket que las guías gratuitas).
+    // del día de la clase 1) para los compradores; los admins y el equipo de ensayo
+    // siempre. URL pública tal cual (mismo bucket que las guías gratuitas).
     if (esRecursoBootcamp(guide)) {
-      if (!perfil?.es_admin) {
+      if (!perfil?.es_admin && !esEquipo) {
         const { data: clase1 } = await db.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCTO_BOOTCAMP).eq('numero', 1).maybeSingle();
         if (clase1?.inicio_utc) {
           const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.inicio_utc));
