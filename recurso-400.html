@@ -565,6 +565,7 @@
     .im-est-tit { flex: 1; min-width: 0; }
     .im-est-tit h3 { margin: 0; font-size: 1.02rem; color: var(--ink); }
     .im-est-franja { margin-top: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .im-est-acciones { display: inline-flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
     .im-est-tabs { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .im-est-tabbar { display: flex; gap: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
     .im-vtab { border: none; background: none; color: var(--muted); font: inherit; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: 999px; cursor: pointer; }
@@ -2395,10 +2396,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             </div>
             <div class="im-est-franja">
               <button class="skill-chip" type="button" data-copiarskill="${escapeHtml(llamadaDeGuardada(g))}" title="Copiar el nombre para pegarlo en Gemini">${escapeHtml(llamadaDeGuardada(g))}</button>
+              <span class="im-est-acciones">
               <button class="im-mini-btn" type="button" data-descargarskill="${g.id}" title="Archivo para Habilidades, Crear, Subir">Descargar SKILL.md</button>
               ${g.item_id || (g.instruccion && g.instruccion.trim())
                 ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}">Crear agente local</button>`
                 : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta skill, primero guarda su instrucción: edita la skill y pega la instrucción desde Gemini (abre tu skill, Editar, campo Instrucciones).</span></span>`}
+              </span>
             </div>
             <div class="im-est-tabs">
               <div class="im-est-tabbar">
