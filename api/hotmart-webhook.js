@@ -26,7 +26,7 @@
 import crypto from 'node:crypto';
 import { adminClient, componentesDelPack, bonosDelProducto } from './_lib.js';
 import { enviarEventoMeta } from './_meta.js';
-import { enviarBienvenidaBootcamp, PRODUCTO_BOOTCAMP } from './_correo-bootcamp.js';
+import { enviarBienvenidaBootcamp, agregarCompradorBrevo, quitarCompradorBrevo, PRODUCTO_BOOTCAMP } from './_correo-bootcamp.js';
 
 const EVENTOS_ACCESO = new Set(['PURCHASE_APPROVED', 'PURCHASE_COMPLETE']);
 const EVENTOS_REVOCAN = new Set(['PURCHASE_REFUNDED', 'PURCHASE_CHARGEBACK', 'PURCHASE_CANCELED']);
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
     }
 
     if (EVENTOS_REVOCAN.has(tipo)) {
-      const resultado = await revocar({ db, compra, transaccion });
+      const resultado = await revocar({ db, compra, transaccion, correo });
       await registrar(db, evento, resultado);
       return res.status(200).json({ ok: true, resultado });
     }
@@ -272,26 +272,34 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
     if (!e) regalos++;
   }
 
-  // 8) Correo de bienvenida (solo el bootcamp): acceso, calendario, herramientas
-  // y cómo entrar a la clase. Nunca rompe el webhook; su resultado va a la bitácora.
+  // 8) Solo el bootcamp: correo de bienvenida (acceso, calendario, herramientas,
+  // cómo entrar a la clase) y alta en la lista "Compradores bootcamp" de Brevo
+  // (excluida de las campañas de venta, destino de los recordatorios de clase).
+  // Nada de esto rompe el webhook; los resultados van a la bitácora.
   let correoInfo = '';
   if (producto.id === PRODUCTO_BOOTCAMP) {
     correoInfo = ', ' + await enviarBienvenidaBootcamp({ correo, nombre: d.buyer?.name, invitado: !userId });
+    correoInfo += ', ' + await agregarCompradorBrevo({ correo });
   }
   return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${bonos.length ? `, ${regalos} bono(s) nuevo(s) de ${bonos.length}` : ''}${aviso}${correoInfo}`;
 }
 
-async function revocar({ db, compra, transaccion }) {
+async function revocar({ db, compra, transaccion, correo }) {
   // La compra, las piezas del pack y los bonos comparten la transacción de Hotmart
-  const { data: filas } = await db.from('purchases').select('id, estado, gateway')
+  const { data: filas } = await db.from('purchases').select('id, estado, gateway, product_id')
     .eq('gateway_transaction_id', transaccion).in('gateway', ['hotmart', 'bundle', 'bono']);
-  const ids = (filas ?? []).filter(f => f.estado === 'APROBADA').map(f => f.id);
+  const aprobadas = (filas ?? []).filter(f => f.estado === 'APROBADA');
+  const ids = aprobadas.map(f => f.id);
+  let listaInfo = '';
   if (ids.length) {
     const { error } = await db.from('purchases').update({ estado: 'ANULADA' }).in('id', ids);
     if (error) throw new Error('No se pudo retirar el acceso: ' + error.message);
+    // Reembolso del bootcamp: sale de la lista de compradores de Brevo (vuelve a
+    // recibir las campañas y deja de recibir los recordatorios de clase).
+    if (aprobadas.some(f => f.product_id === PRODUCTO_BOOTCAMP)) listaInfo = ', ' + await quitarCompradorBrevo(correo);
   }
   // Una compra que nunca se aprobó (cancelada antes de pagar) queda cancelada
   const sck = sckDe(compra);
   if (sck) await db.from('purchases').update({ estado: 'DECLINADA' }).eq('referencia', sck).eq('gateway', 'hotmart').eq('estado', 'PENDIENTE');
-  return ids.length ? `acceso retirado a ${ids.length} fila(s)` : 'nada que retirar';
+  return ids.length ? `acceso retirado a ${ids.length} fila(s)${listaInfo}` : 'nada que retirar';
 }

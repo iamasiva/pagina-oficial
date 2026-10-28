@@ -73,20 +73,23 @@
       if (!recurso) { location.replace('recurso-bootcamp.html'); return; }
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { location.replace('index.html'); return; }
-      const [perfil, compra, cfg, clase1] = await Promise.all([
+      const [perfil, compra, cfg, clase1, equipo] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
         sb.from('bootcamp_config').select('admin_only').eq('product_id', PRODUCT_ID).maybeSingle(),
         sb.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCT_ID).eq('numero', 1).maybeSingle(),
+        sb.rpc('bootcamp_soy_equipo', { p_product: PRODUCT_ID }).then(r => r, () => ({ data: false })),
       ]);
       const esAdmin = !!perfil.data?.es_admin;
-      if (!esAdmin && (!compra.data || !cfg.data || cfg.data.admin_only)) { location.replace(LANDING); return; }
+      // El equipo de ensayo (tabla bootcamp_equipo) entra y ve los recursos antes de la fecha, igual que un admin
+      const esEquipo = !esAdmin && equipo?.data === true;
+      if (!esAdmin && !esEquipo && (!compra.data || !cfg.data || cfg.data.admin_only)) { location.replace(LANDING); return; }
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
       if (esAdmin) $('chipAdmin').hidden = false;
       $('titulo').textContent = recurso.nombre; document.title = `${recurso.nombre} · Bootcamp · IA MASIVA`;
       document.body.removeAttribute('data-cargando');
       // Para los compradores, los recursos se habilitan el primer día del bootcamp (medianoche de Bogotá)
-      if (!esAdmin && clase1.data?.inicio_utc) {
+      if (!esAdmin && !esEquipo && clase1.data?.inicio_utc) {
         const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.data.inicio_utc));
         const apertura = new Date(dia + 'T05:00:00Z');
         if (Date.now() < apertura.getTime()) {

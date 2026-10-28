@@ -89,6 +89,49 @@ export function htmlBienvenidaBootcamp({ nombre, correo, invitado }) {
 </body></html>`;
 }
 
+// Lista "Compradores bootcamp" de Brevo (#16). Las campañas de venta la excluyen y
+// los recordatorios de clase se envían a ella, así nadie toca listas a mano: el
+// comprador entra al aprobarse el pago y sale si pide reembolso. Nunca lanza error.
+export const LISTA_BREVO_COMPRADORES = Number(process.env.BREVO_COMPRADORES_LIST_ID) || 16;
+
+export async function agregarCompradorBrevo({ correo }) {
+  if (!correo) return 'lista Brevo: sin correo';
+  if (!process.env.BREVO_API_KEY) return 'lista Brevo: falta BREVO_API_KEY';
+  try {
+    const r = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: correo,
+        updateEnabled: true,
+        listIds: [LISTA_BREVO_COMPRADORES],
+      }),
+    });
+    if (r.ok) return `lista Brevo: agregado a #${LISTA_BREVO_COMPRADORES}`;
+    const detalle = await r.text().catch(() => '');
+    return `lista Brevo: NO agregado (${r.status}: ${detalle.slice(0, 120)})`;
+  } catch (e) {
+    return 'lista Brevo: NO agregado: ' + e.message;
+  }
+}
+
+export async function quitarCompradorBrevo(correo) {
+  if (!correo) return 'lista Brevo: sin correo';
+  if (!process.env.BREVO_API_KEY) return 'lista Brevo: falta BREVO_API_KEY';
+  try {
+    const r = await fetch(`https://api.brevo.com/v3/contacts/lists/${LISTA_BREVO_COMPRADORES}/contacts/remove`, {
+      method: 'POST',
+      headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
+      body: JSON.stringify({ emails: [correo] }),
+    });
+    if (r.ok) return `lista Brevo: retirado de #${LISTA_BREVO_COMPRADORES}`;
+    const detalle = await r.text().catch(() => '');
+    return `lista Brevo: NO retirado (${r.status}: ${detalle.slice(0, 120)})`;
+  } catch (e) {
+    return 'lista Brevo: NO retirado: ' + e.message;
+  }
+}
+
 export async function enviarBienvenidaBootcamp({ correo, nombre, invitado }) {
   if (!correo) return 'correo de bienvenida no enviado (sin correo del comprador)';
   if (!process.env.BREVO_API_KEY) return 'correo de bienvenida no enviado (falta BREVO_API_KEY)';

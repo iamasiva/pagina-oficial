@@ -231,7 +231,7 @@
       const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(c1.inicio_utc));
       return new Date(dia + 'T05:00:00Z').getTime();
     }
-    function pintarHerramientas(propias, esAdmin, disponibles, apertura) {
+    function pintarHerramientas(propias, esAdmin, disponibles, apertura, esEquipo) {
       $('herramientas').innerHTML = HERRAMIENTAS.map(h => {
         const tiene = esAdmin || propias.has(h.id);
         return `<a class="card" href="${tiene ? h.pagina : '#'}"${tiene ? '' : ' onclick="return false"'}>
@@ -239,7 +239,8 @@
           <div class="card-pie"><b>${esc(h.nombre)}</b><span>${tiene ? 'Abrir herramienta' : 'Se activa con tu compra'}</span></div>
         </a>`;
       }).join('');
-      const bloqueados = !esAdmin && apertura && Date.now() < apertura;
+      // El equipo de ensayo también ve los recursos antes de la fecha, para preparar los ejemplos de clase
+      const bloqueados = !esAdmin && !esEquipo && apertura && Date.now() < apertura;
       const fechaApertura = apertura ? cap(fmtFecha.format(new Date(apertura))) : '';
       $('recursos').innerHTML = RECURSOS.map(r => {
         const listo = disponibles.has(r.slug);
@@ -307,7 +308,7 @@
       const lista = (clases.data && clases.data.length) ? clases.data : CLASES_FALLBACK;
       pintarCuenta(lista);
       pintarClases(lista);
-      pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)), aperturaRecursos(lista));
+      pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)), aperturaRecursos(lista), esEquipo);
       document.body.removeAttribute('data-cargando');
       if (!esEquipo && localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
     }
