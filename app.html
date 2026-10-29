@@ -30,6 +30,7 @@
     fbq('track', 'PageView');
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="retorno-im.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -1102,15 +1103,20 @@
     // La cortina se retira cuando el catálogo ya está pintado (desde la copia
     // local o desde la base); red de seguridad a los 2,5s pase lo que pase.
     let splashRetirado = false;
-    function ocultarSplash() {
-      if (splashRetirado) return;
+    // Llegando a abrir un recurso (?guia=) o volviendo de uno: la cortina se queda
+    // hasta que el visor o la vista anterior estén listos, sin asomar el inicio
+    const ABRIENDO_GUIA = new URLSearchParams(location.search).has('guia');
+    const REGRESO = window.IMRetorno ? IMRetorno.alVolver() : null;
+    const splashRetenido = ABRIENDO_GUIA || !!REGRESO;
+    function ocultarSplash(forzar) {
+      if (splashRetirado || (splashRetenido && forzar !== true)) return;
       splashRetirado = true;
       const s = document.getElementById('imSplash');
       if (!s) return;
       s.classList.add('oculta');
       setTimeout(() => s.remove(), 450);
     }
-    setTimeout(ocultarSplash, 2500);
+    setTimeout(() => ocultarSplash(true), splashRetenido ? 9000 : 2500);
 
     // Pintura instantánea: lo último que el navegador vio, mientras llega lo fresco
     const CACHE_CONTENIDO = 'im_contenido_v1';
@@ -1183,6 +1189,19 @@
       window.scrollTo(0, 0);
     }
     window.abrirPanelUsuario = abrirPanelUsuario;
+
+    // Los recursos con página propia (557, 400, 200, bootcamp) se abren saliendo
+    // del catálogo: se guarda la vista y la posición para volver al mismo punto
+    if (window.IMRetorno) IMRetorno.estadoExtra = () => ({ vista: vistaActual });
+    function irARecurso(url) {
+      if (window.IMRetorno) IMRetorno.salir(url);
+      window.location.href = url;
+    }
+    function restaurarRegreso(r) {
+      const v = r.vista;
+      if (v?.type && v.type !== 'all') setFilter(v.type, v.cat || null);
+      window.scrollTo({ top: r.y || 0, behavior: 'instant' });
+    }
 
     function irInicio() {
       const caja = document.getElementById('appBuscar');
@@ -1377,7 +1396,9 @@
     }
 
     // ── FILTERS ───────────────────────────────────────────────
+    let vistaActual = { type: 'all', cat: null };
     function setFilter(type, cat = null) {
+      vistaActual = { type, cat };
       ['filterAll','filterGratis','filterPremium','filterCatBtn'].forEach(id =>
         document.getElementById(id).classList.remove('active')
       );
@@ -1687,7 +1708,7 @@
         const propio = LANDING_GUIA[guideId];
         if (propio) {
           const admin = (typeof isAdmin !== 'undefined' && isAdmin) || localStorage.getItem('im_es_admin') === '1';
-          window.location.href = admin && propio.pagina ? propio.pagina : propio.landing;
+          irARecurso(admin && propio.pagina ? propio.pagina : propio.landing);
           return;
         }
         alert('Esta es una guía de pago. Pronto podrás adquirirla.'); return;
@@ -1695,7 +1716,7 @@
       // Si ya es suyo, directo al recurso: jamás de vuelta a la página de venta
       const { data: compra } = await sb.from('purchases').select('id')
         .eq('product_id', product.id).eq('estado', 'APROBADA').maybeSingle();
-      if (compra && PAGINAS_PRODUCTO[product.id]) { window.location.href = PAGINAS_PRODUCTO[product.id]; return; }
+      if (compra && PAGINAS_PRODUCTO[product.id]) { irARecurso(PAGINAS_PRODUCTO[product.id]); return; }
       // La compra pasa por la landing de venta (ahí están los CTAs y el pago)
       window.location.href = LANDING_PRODUCTO[product.id] || `producto.html?p=${product.id}`;
     }
@@ -2055,7 +2076,7 @@
       if (productoPack) { abrirPanelUsuario('compras'); return; }
       // Productos-app comprados: se navega a su página propia, no al visor
       const productoApp = allProducts.find(p => p.guide_id === id && PAGINAS_PRODUCTO[p.id]);
-      if (productoApp) { window.location.href = PAGINAS_PRODUCTO[productoApp.id]; return; }
+      if (productoApp) { irARecurso(PAGINAS_PRODUCTO[productoApp.id]); return; }
       const g = allGuides.find(g => g.id === id) || bootcampGuides.find(g => g.id === id);
       if (!g?.contenido_url) return;
       // Guía gratuita: primero la ficha (portada + descripción + Ver Recurso).
@@ -2199,7 +2220,7 @@
     }
 
     function closeGuideViewer() {
-      if (volverA) { const destino = volverA; volverA = null; location.replace(destino); return; }
+      if (volverA) { const destino = volverA; volverA = null; if (window.IMRetorno) IMRetorno.irA(destino, true); else location.replace(destino); return; }
       document.getElementById('guideOverlay').classList.remove('active');
       document.getElementById('comentPanel').classList.remove('abierto');
       desmontarGuia();
@@ -3000,6 +3021,16 @@
       await cargaPublica;
       if (isAdmin) await loadAndRender();
       else renderAll();
+      // Llegada desde el bootcamp (bootcamp-recurso.html): el recurso se abre ya,
+      // detrás de la cortina; "Cerrar" devuelve al bootcamp donde estaba
+      const guiaParam = new URLSearchParams(location.search).get('guia');
+      if (guiaParam) {
+        volverA = new URLSearchParams(location.search).get('volver') === 'bootcamp' ? 'recurso-bootcamp.html' : null;
+        try { await openGuide(guiaParam, false, true); } catch (_) {}
+        // Si no se pudo abrir, de vuelta al bootcamp (no al inicio del catálogo)
+        if (volverA && !document.getElementById('guideOverlay').classList.contains('active')) { closeGuideViewer(); return; }
+        ocultarSplash(true);
+      }
       await cargarPacks();
       // Con los packs ya cargados, el badge "Tuyo" del pack completo por
       // piezas necesita un repintado
@@ -3009,13 +3040,8 @@
       // Llegada desde la landing de un pack ya adquirido: se aterriza en
       // "Tus compras", donde están sus piezas listas para abrir
       try { if (new URLSearchParams(location.search).get('ver') === 'compras') abrirPanelUsuario('compras'); } catch (_) {}
-      // Llegada desde el bootcamp (bootcamp-recurso.html): se abre el recurso en el
-      // visor; "Cerrar" devuelve al home del bootcamp
-      try {
-        const q = new URLSearchParams(location.search);
-        const guiaParam = q.get('guia');
-        if (guiaParam) { volverA = q.get('volver') === 'bootcamp' ? 'recurso-bootcamp.html' : null; await openGuide(guiaParam, false, true); }
-      } catch (_) {}
+      // De vuelta de un recurso: la misma vista (Tus compras, Favoritos...) y el mismo punto
+      if (REGRESO && !guiaParam) { try { restaurarRegreso(REGRESO); } catch (_) {} ocultarSplash(true); }
     }
   </script>
 <script>

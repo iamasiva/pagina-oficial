@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="retorno-im.js"></script>
   <style>
     /* Home privado del bootcamp: hero con la identidad del bootcamp (blanco, halo
        azul, estrella) y, debajo, las tarjetas con el estilo del catálogo (app.html). */
@@ -113,7 +114,7 @@
       <div class="nav-der">
         <span class="chip" id="chipAdmin" hidden>Vista previa admin</span>
         <span class="chip" id="chipEquipo" hidden>Equipo de ensayo</span>
-        <a href="app.html">← Volver al catálogo</a>
+        <a href="app.html" data-im-volver>← Volver al catálogo</a>
       </div>
     </div>
   </div>
@@ -310,6 +311,9 @@
       pintarClases(lista);
       pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)), aperturaRecursos(lista), esEquipo);
       document.body.removeAttribute('data-cargando');
+      // De vuelta de un recurso o una clase: el mismo punto de la página, sin viaje
+      const regreso = window.IMRetorno ? IMRetorno.alVolver() : null;
+      if (regreso?.y) window.scrollTo({ top: regreso.y, behavior: 'instant' });
       if (!esEquipo && localStorage.getItem('im_es_admin') !== '1') sb.from('aperturas').insert({ user_id: session.user.id, product_id: PRODUCT_ID }).then(() => {}, () => {});
     }
     init().catch(() => location.replace(LANDING));

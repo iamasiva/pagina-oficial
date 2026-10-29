@@ -8,11 +8,18 @@
   <title>Recurso del bootcamp · IA MASIVA</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="retorno-im.js"></script>
   <style>
     :root { --black: #050505; --card: #0b1440; --line: rgba(255,255,255,0.1); --white: #fff; --gray: #D1D5DB; --muted: #9aa3b8; --blue: #2F6BFF; --cyan: #00E5FF; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--black); color: var(--white); line-height: 1.5; }
     body[data-cargando] main, body[data-cargando] .nav { visibility: hidden; }
+    /* La misma cortina de app.html: de aquí se pasa al visor sin que se note el cambio de página */
+    #imSplash { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #050F3A 0%, #0B1E6D 60%, #1E3A8A 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+    body:not([data-cargando]) #imSplash { display: none; }
+    .splash-logo { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: 0.12em; color: #fff; }
+    .splash-spin { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.18); border-top-color: #2F6BFF; border-radius: 50%; animation: splashGira 0.9s linear infinite; }
+    @keyframes splashGira { to { transform: rotate(360deg); } }
     a { color: inherit; text-decoration: none; }
     h1, p { margin: 0; }
     .wrap { width: min(1100px, 100% - 32px); margin: 0 auto; }
@@ -36,14 +43,15 @@
   </style>
 </head>
 <body data-cargando="1">
-  <div class="nav"><div class="wrap"><a class="nav-logo" href="app.html">IA MASIVA</a><span><span class="chip" id="chipAdmin" hidden>Vista previa admin</span><a class="l" href="recurso-bootcamp.html">← Volver al bootcamp</a></span></div></div>
+  <div id="imSplash"><div class="splash-logo">IA MASIVA</div><div class="splash-spin"></div></div>
+  <div class="nav"><div class="wrap"><a class="nav-logo" href="app.html">IA MASIVA</a><span><span class="chip" id="chipAdmin" hidden>Vista previa admin</span><a class="l" href="recurso-bootcamp.html" data-im-volver>← Volver al bootcamp</a></span></div></div>
   <main>
     <div class="wrap">
       <div class="cabeza"><div><span class="etq" id="etq">Recurso del bootcamp</span><h1 id="titulo">Cargando...</h1></div></div>
       <div class="cargando" id="cargando">Cargando el recurso...</div>
       <div class="estado oculto" id="pronto">
         <img id="prontoImg" alt="" />
-        <div><h2 id="prontoTitulo"></h2><p id="prontoTexto"></p><a class="btn" href="recurso-bootcamp.html">Volver al bootcamp</a></div>
+        <div><h2 id="prontoTitulo"></h2><p id="prontoTexto"></p><a class="btn" href="recurso-bootcamp.html" data-im-volver>Volver al bootcamp</a></div>
       </div>
     </div>
   </main>
@@ -87,7 +95,6 @@
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
       if (esAdmin) $('chipAdmin').hidden = false;
       $('titulo').textContent = recurso.nombre; document.title = `${recurso.nombre} · Bootcamp · IA MASIVA`;
-      document.body.removeAttribute('data-cargando');
       // Para los compradores, los recursos se habilitan el primer día del bootcamp (medianoche de Bogotá)
       if (!esAdmin && !esEquipo && clase1.data?.inicio_utc) {
         const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.data.inicio_utc));
@@ -98,6 +105,7 @@
           $('prontoImg').src = recurso.portada; $('prontoTitulo').textContent = recurso.nombre;
           $('prontoTexto').textContent = `Los recursos del bootcamp se habilitan el primer día, el ${f}. Lo vas a encontrar aquí mismo, en esta dirección.`;
           $('pronto').classList.remove('oculto');
+          document.body.removeAttribute('data-cargando');
           return;
         }
       }
@@ -108,6 +116,7 @@
         $('prontoImg').src = recurso.portada; $('prontoTitulo').textContent = recurso.nombre;
         $('prontoTexto').textContent = `Este recurso se entrega en la clase ${recurso.clase}. Cuando esté publicado lo vas a encontrar aquí mismo, en esta dirección.`;
         $('pronto').classList.remove('oculto');
+        document.body.removeAttribute('data-cargando');
         return;
       }
       // El recurso se abre en el visor de IA MASIVA (misma barra, Favoritos y
