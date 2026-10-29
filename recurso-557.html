@@ -576,6 +576,8 @@
     .im-skill-pasos li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink); line-height: 1.45; }
     .im-skill-pasos li b { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
     .im-skill-campo { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 10px; background: var(--surface); }
+    .im-skill-descarga { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 4px; }
+    .im-skill-descarga small { color: var(--muted); font-size: 0.8rem; }
     .im-skill-campo-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
     .im-skill-campo-cab span { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
     .im-skill-campo-cab button { min-height: 32px; height: 32px; padding: 0 12px; font-size: 0.8rem; cursor: pointer; }
@@ -851,8 +853,11 @@
     .im-con-cab h3 { flex: 1; }
     .im-con-q { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--muted); font-weight: 800; font-size: 0.8rem; line-height: 1; cursor: pointer; }
     .im-con-q:hover { border-color: var(--accent); color: var(--accent); }
-    /* "Crea la skill": oculto hasta que Google defina cómo se comparten las habilidades (decisión 27 oct 2026) */
-    .im-skill-aviso [data-skill] { display: none; }
+    .im-con-tabs { display: flex; gap: 2px; border-bottom: 1.5px solid var(--line); margin: 6px 0 12px; }
+    .im-con-tab { background: none; border: none; padding: 8px 12px; font-weight: 800; font-size: 0.86rem; color: var(--muted); cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; }
+    .im-con-tab:hover { color: var(--text, inherit); }
+    .im-con-tab.activa { color: var(--accent); border-bottom-color: var(--accent); }
+    /* "Crea la skill": visible desde el 28 oct 2026 (Gemini ya permite subir una skill con SKILL.md) */
     /* Tarjeta "Empieza aquí" de la portada y pistas de ayuda en la ficha (manual de uso) */
     .im-empieza { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 18px; font-size: 14px; color: var(--ink); }
     .im-empieza p { margin: 0; }
@@ -1275,6 +1280,7 @@
       </ol>
       <p class="im-skill-estado" id="imSkillEstado">Cargando los campos...</p>
       <div id="imSkillCampos" style="display:none">
+        <div class="im-skill-descarga"><button id="imSkillDescargar" class="primary-btn" type="button"><span>Descargar SKILL.md</span></button><small id="imSkillDescargaNota">Para Habilidades, Crear, Subir. O copia los 3 campos de abajo.</small></div>
         <div class="im-skill-campo">
           <div class="im-skill-campo-cab"><span id="imSkillLblNombre">Nombre</span><button class="secondary-btn" type="button" data-copia="nombre"><span>Copiar</span></button></div>
           <div class="im-skill-valor mono" id="imSkillNombre"></div>
@@ -1289,7 +1295,7 @@
           <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
         </div>
       </div>
-      <p class="im-skill-estado" id="imSkillNota">El asistente sigue activo desde Gemini. Cuando Google retire las gemas, tu habilidad ya está lista.</p>
+      <p class="im-skill-estado" id="imSkillNota">La gema sigue funcionando mientras Google la mantenga; con la skill ya no dependes de ella.</p>
       <div class="im-modal-acciones">
         <button id="imSkillCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
@@ -1469,6 +1475,10 @@
       <div class="im-con-cab">
         <h3 id="imConTitulo">Conectar este proyecto</h3>
         <button id="imConAyudaBtn" class="im-con-q" type="button" aria-label="¿Qué es esto?">?</button>
+      </div>
+      <div class="im-con-tabs" role="tablist">
+        <button class="im-con-tab activa" type="button" role="tab" data-contab="conectar">Conectar</button>
+        <button class="im-con-tab" type="button" role="tab" data-contab="actualizar">Actualizar</button>
       </div>
       <p class="im-modal-nota" id="imConAyuda" style="display:none; margin:0 0 10px;"></p>
       <textarea id="imConTexto" rows="12" readonly spellcheck="false" autocomplete="off"></textarea>
@@ -2655,12 +2665,12 @@ ${clean}`;
           busqTab: 'Búsqueda guiada', busqEyebrow: 'Búsqueda guiada', busqTitulo: '¿No sabes cuál configuración necesitas?',
           busqCopy: 'Cuéntale al Bibliotecario del 557 lo que quieres lograr y te responde con el nombre exacto de la configuración que te sirve (o te describe la que deberías crear si no existe). Pega ese nombre en el buscador de la biblioteca y listo. Si te dice que la crees, lleva esa descripción al Creador de configuraciones (en Crea tu configuración) y te llena los campos.',
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
-          skillAviso: '{nombre} funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.',
+          skillAviso: '{nombre} ya está listo como skill de Gemini: la creas una sola vez y la llamas con {llamada} en cualquier chat. La gema de arriba sigue funcionando mientras Google la mantenga.',
           skillNombres: { 'creador-de-configuraciones-557': 'el Creador', 'bibliotecario-del-557': 'el Bibliotecario', 'arquitecto-del-557': 'el Arquitecto' },
-          skillBtn: 'Crea la skill', skillBadge: 'Skill de Gemini', skillTitulo: 'Crea esta skill en Gemini', skillSub: 'Los 3 campos listos para copiar y pegar. Se crea una sola vez.',
-          skillPaso1: 'En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual.', skillPaso2: 'Copia y pega cada campo en su lugar y guarda.', skillPaso3: 'En cualquier chat escribe {llamada} y lo que necesitas.',
+          skillBtn: 'Crea la skill', skillBadge: 'Skill de Gemini', skillTitulo: 'Crea esta skill en Gemini', skillSub: 'Los 3 campos listos para copiar y pegar, o el archivo SKILL.md para subirla de una vez. Se crea una sola vez.',
+          skillPaso1: 'En Gemini abre Configuración, luego Habilidades y toca Crear. Elige Crear manualmente para pegar los campos, o Subir si descargaste el archivo.', skillPaso2: 'Pega cada campo en su caja y guarda, o sube el archivo SKILL.md tal cual, sin cambiarle el nombre.', skillDescargar: 'Descargar SKILL.md', skillDescargaNota: 'Para Habilidades, Crear, Subir. O copia los 3 campos de abajo.', skillDescargado: 'SKILL.md descargado. En Gemini: Habilidades, Crear, Subir', skillPaso3: 'En cualquier chat escribe {llamada} y lo que necesitas.',
           skillLblNombre: 'Nombre', skillLblDesc: 'Descripción', skillLblInstr: 'Instrucciones', skillCopiar: 'Copiar', skillCopiado: 'Copiado', skillCerrar: 'Cerrar',
-          skillInstrNota: 'Se copian completas, aunque aquí solo se vea el inicio.', skillNota: 'El asistente sigue activo desde Gemini. Cuando Google retire las gemas, tu habilidad ya está lista.',
+          skillInstrNota: 'Se copian completas, aunque aquí solo se vea el inicio.', skillNota: 'La gema sigue funcionando mientras Google la mantenga; con la skill ya no dependes de ella.',
           skillCargando: 'Cargando los campos...', skillNoDisp: 'No pudimos cargar esta skill. Recarga la página e inténtalo de nuevo.',
           arqEyebrow: 'Estructura tu proyecto', arqTitulo: '¿Tienes un proyecto y no sabes por dónde empezar a organizarlo?',
           arqCopy: 'El Bibliotecario te encuentra la configuración; el Arquitecto te estructura el proyecto completo. Cuéntale qué quieres lograr y arma contigo el árbol: categoría, subcategorías, cuadernos y chats, cada uno con su objetivo. Al final te entrega un bloque que pegas en Mis cuadernos con "Importar árbol" y toda la estructura se crea sola.',
@@ -2683,12 +2693,12 @@ ${clean}`;
           busqTab: 'Guided search', busqEyebrow: 'Guided search', busqTitulo: 'Not sure which configuration you need?',
           busqCopy: 'Tell the 557 Librarian what you want to achieve and it replies with the exact name of the configuration you need (or describes the one you should create if none exists). It replies in Spanish and the names work in the library search box as-is: paste the name and you are set. If it tells you to create one, take that description to the Configuration Creator (in Create your own) and it fills the fields for you.',
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
-          skillAviso: '{nombre} currently works as a Gemini Gem. Google is replacing Gems with Skills; as soon as it announces how Skills are shared, we will migrate it. Your purchase does not change.',
+          skillAviso: '{nombre} is ready as a Gemini skill: create it once and call it with {llamada} in any chat. The gem above keeps working while Google keeps it.',
           skillNombres: { 'creador-de-configuraciones-557': 'the Creator', 'bibliotecario-del-557': 'the Librarian', 'arquitecto-del-557': 'the Architect' },
-          skillBtn: 'Create the skill', skillBadge: 'Gemini skill', skillTitulo: 'Create this skill in Gemini', skillSub: 'The 3 fields, ready to copy and paste. You create it once.',
-          skillPaso1: 'In Gemini open Settings, then Skills, tap Create and choose Create manually.', skillPaso2: 'Copy and paste each field in its place and save.', skillPaso3: 'In any chat type {llamada} followed by what you need.',
+          skillBtn: 'Create the skill', skillBadge: 'Gemini skill', skillTitulo: 'Create this skill in Gemini', skillSub: 'The 3 fields ready to copy and paste, or the SKILL.md file to upload it at once. You create it only once.',
+          skillPaso1: 'In Gemini open Settings, then Skills and tap Create. Choose Create manually to paste the fields, or Upload if you downloaded the file.', skillPaso2: 'Paste each field in its box and save, or upload the SKILL.md file as is, without renaming it.', skillDescargar: 'Download SKILL.md', skillDescargaNota: 'For Skills, Create, Upload. Or copy the 3 fields below.', skillDescargado: 'SKILL.md downloaded. In Gemini: Skills, Create, Upload', skillPaso3: 'In any chat type {llamada} followed by what you need.',
           skillLblNombre: 'Name', skillLblDesc: 'Description', skillLblInstr: 'Instructions', skillCopiar: 'Copy', skillCopiado: 'Copied', skillCerrar: 'Close',
-          skillInstrNota: 'They are copied in full, even though only the beginning is shown here.', skillNota: 'The gem still works. When Google retires it, your skill is already there.',
+          skillInstrNota: 'They are copied in full, even though only the beginning is shown here.', skillNota: 'The gem keeps working while Google keeps it; with the skill you no longer depend on it.',
           skillCargando: 'Loading the fields...', skillNoDisp: 'We could not load this skill. Reload the page and try again.',
           arqEyebrow: 'Structure your project', arqTitulo: 'Do you have a project and no idea how to start organizing it?',
           arqCopy: 'The Librarian finds you the configuration; the Architect structures your whole project. Tell it what you want to achieve and it builds the tree with you: category, subcategories, notebooks and chats, each with its objective. At the end it hands you a block you paste in My notebooks with "Import tree" and the whole structure creates itself.',
@@ -3188,6 +3198,16 @@ ${clean}`;
         conPaso2Cuad: 'PASO 2 · Mi cuaderno (fuente de verdad, generado por IA MASIVA):',
         conPaso3: 'PASO 3 · Cómo trabajar conmigo:\n- Cada nodo tiene un objetivo; el objetivo de un chat aporta al de su cuaderno, el del cuaderno al de su subcategoría y el de la subcategoría al problema principal de la categoría.\n- Cuando necesites contenido de un cuaderno, consúltalo por MCP usando su notebook_id. Si un cuaderno tiene configuración asignada, adopta ese rol al trabajar temas de ese cuaderno.\n- Confírmame la conexión listando mis cuadernos y diciéndome qué entendiste del proyecto antes de empezar.',
         conPaso3Cuad: 'PASO 3 · Cómo trabajar conmigo:\n- El cuaderno tiene un objetivo y el contexto muestra a qué categoría o subcategoría aporta.\n- Cuando necesites su contenido, consúltalo por MCP usando su notebook_id. Si tiene configuración asignada, adopta ese rol al trabajar sus temas.\n- Confírmame la conexión diciéndome qué entendiste del cuaderno antes de empezar.',
+        conTabConectar: 'Conectar', conTabActualizar: 'Actualizar',
+        conAyudaAct: 'Úsalo cuando ya conectaste antes y luego cambiaste algo: agregaste o quitaste cuadernos, o cambiaste objetivos, configuraciones o chats. Pégalo en la misma herramienta: tu agente comprueba que la conexión sigue viva (si se perdió, el mismo texto trae cómo recuperarla), recibe la versión nueva y te dice qué cambió.',
+        conActIntroProyecto: 'Actualiza la conexión con mi proyecto "{n}" de IA MASIVA. Ya lo conectamos antes, pero no lo des por hecho: primero comprueba que la conexión sigue viva usando una herramienta de NotebookLM (por ejemplo, consulta uno de mis cuadernos con su notebook_id). Si responde, no repitas la instalación ni el inicio de sesión y sigue con el PASO 1.',
+        conActIntroCuaderno: 'Actualiza la conexión con mi cuaderno "{n}" de IA MASIVA. Ya lo conectamos antes, pero no lo des por hecho: primero comprueba que la conexión sigue viva usando una herramienta de NotebookLM (por ejemplo, consulta el cuaderno con su notebook_id). Si responde, no repitas la instalación ni el inicio de sesión y sigue con el PASO 1.',
+        conActRecuperar: 'SI LA CONEXIÓN SE PERDIÓ (las herramientas de NotebookLM no aparecen, no responden o piden iniciar sesión otra vez), recupérala primero con esto y luego sigue con el PASO 1:',
+        conActPaso1: 'PASO 1 · Versión nueva de mi proyecto (reemplaza la anterior; fuente de verdad, generada por IA MASIVA):',
+        conActPaso1Cuad: 'PASO 1 · Versión nueva de mi cuaderno (reemplaza la anterior; fuente de verdad, generada por IA MASIVA):',
+        conActPaso2: 'PASO 2 · Qué hacer con la actualización:\n- Compara esta versión con la que tenías (el archivo {f} en la carpeta del proyecto, o lo que recuerdes de la conexión anterior) y dime qué cambió: cuadernos nuevos, cuadernos que ya no están y objetivos, configuraciones o chats modificados. Si no tienes la versión anterior, dime qué cuadernos tiene ahora el proyecto.\n- Desde ahora trabaja solo con esta versión: los cuadernos que ya no aparecen dejan de ser parte del proyecto.\n- Para cada cuaderno nuevo, comprueba por MCP que puedes consultarlo con su notebook_id.\n- Guarda esta versión en {f}, reemplazando la anterior.\n- Confírmame la actualización con el resumen de cambios antes de seguir.',
+        conActPaso2Cuad: 'PASO 2 · Qué hacer con la actualización:\n- Compara esta versión con la que tenías (el archivo {f} en la carpeta del proyecto, o lo que recuerdes de la conexión anterior) y dime qué cambió: objetivo, configuración, chats o el proyecto al que aporta. Si no tienes la versión anterior, dime qué entendiste ahora del cuaderno.\n- Desde ahora trabaja solo con esta versión.\n- Si cambió el notebook_id, comprueba por MCP que puedes consultarlo.\n- Guarda esta versión en {f}, reemplazando la anterior.\n- Confírmame la actualización con el resumen de cambios antes de seguir.',
+        conGuardarMapa: '- Guarda este mapa en un archivo llamado {f} en la carpeta del proyecto: lo usaremos cuando te pase una actualización.',
       });
       Object.assign(IM_TEXT.en, {
         crearCat: 'New category', crearSub: 'New subcategory', agregarCuad: 'Add notebook',
@@ -3234,6 +3254,16 @@ ${clean}`;
         conPaso2Cuad: 'STEP 2 · My notebook (source of truth, generated by IA MASIVA):',
         conPaso3: 'STEP 3 · How to work with me:\n- Every node has an objective; the objective of a chat feeds the one of its notebook, the notebook feeds its subcategory, and the subcategory resolves the main problem of the category.\n- When you need the content of a notebook, query it through MCP using its notebook_id. If a notebook has an assigned configuration, adopt that role when working on its topics.\n- Confirm the connection by listing my notebooks and telling me what you understood about the project before starting.',
         conPaso3Cuad: 'STEP 3 · How to work with me:\n- The notebook has an objective and the context shows which category or subcategory it feeds.\n- When you need its content, query it through MCP using its notebook_id. If it has an assigned configuration, adopt that role when working on its topics.\n- Confirm the connection by telling me what you understood about the notebook before starting.',
+        conTabConectar: 'Connect', conTabActualizar: 'Update',
+        conAyudaAct: 'Use it when you already connected before and then changed something: you added or removed notebooks, or changed objectives, configurations or chats. Paste it in the same tool: your agent checks that the connection is still alive (if it was lost, the same text explains how to recover it), receives the new version and tells you what changed.',
+        conActIntroProyecto: 'Update the connection to my IA MASIVA project "{n}". We connected it before, but do not take it for granted: first check that the connection is still alive by using a NotebookLM tool (for example, query one of my notebooks with its notebook_id). If it responds, do not repeat the installation or the sign-in and go on to STEP 1.',
+        conActIntroCuaderno: 'Update the connection to my IA MASIVA notebook "{n}". We connected it before, but do not take it for granted: first check that the connection is still alive by using a NotebookLM tool (for example, query the notebook with its notebook_id). If it responds, do not repeat the installation or the sign-in and go on to STEP 1.',
+        conActRecuperar: 'IF THE CONNECTION WAS LOST (the NotebookLM tools do not show up, do not respond or ask to sign in again), recover it first with this and then go on to STEP 1:',
+        conActPaso1: 'STEP 1 · New version of my project (replaces the previous one; source of truth, generated by IA MASIVA):',
+        conActPaso1Cuad: 'STEP 1 · New version of my notebook (replaces the previous one; source of truth, generated by IA MASIVA):',
+        conActPaso2: 'STEP 2 · What to do with the update:\n- Compare this version with the one you had (the file {f} in the project folder, or what you remember from the previous connection) and tell me what changed: new notebooks, notebooks that are gone, and modified objectives, configurations or chats. If you do not have the previous version, tell me which notebooks the project has now.\n- From now on work only with this version: notebooks that no longer appear are no longer part of the project.\n- For each new notebook, check through MCP that you can query it with its notebook_id.\n- Save this version in {f}, replacing the previous one.\n- Confirm the update with the summary of changes before continuing.',
+        conActPaso2Cuad: 'STEP 2 · What to do with the update:\n- Compare this version with the one you had (the file {f} in the project folder, or what you remember from the previous connection) and tell me what changed: objective, configuration, chats or the project it feeds. If you do not have the previous version, tell me what you understand about the notebook now.\n- From now on work only with this version.\n- If the notebook_id changed, check through MCP that you can query it.\n- Save this version in {f}, replacing the previous one.\n- Confirm the update with the summary of changes before continuing.',
+        conGuardarMapa: '- Save this map in a file named {f} in the project folder: we will use it when I send you an update.',
       });
 
       let cuadernos = [], nodos = [], chatsC = [];
@@ -4231,26 +4261,52 @@ ${clean}`;
         return json;
       }
 
+      // Archivo donde el agente guarda el mapa (Conectar lo crea, Actualizar lo compara y lo reemplaza)
+      const slugConexion = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'proyecto';
+      const archivoConexion = (tipo, nombre) => 'ia-masiva-' + (tipo === 'proyecto' ? 'proyecto-' : 'cuaderno-') + slugConexion(nombre) + '.json';
+
       function textoConexion(ctx) {
         const x = tt();
+        const actualizar = ctx.modo === 'actualizar';
         if (ctx.tipo === 'proyecto') {
           const cat = nodoDe(ctx.catId);
           if (!cat) return '';
           const json = JSON.stringify(arbolConexion(cat), null, 2);
-          return x.conIntroProyecto.replace('{n}', cat.nombre) + '\n\n' + paso1Conexion() + '\n\n' + x.conPaso2 + '\n' + json + '\n\n' + x.conPaso3;
+          const f = archivoConexion('proyecto', cat.nombre);
+          if (actualizar) return x.conActIntroProyecto.replace('{n}', cat.nombre) + '\n\n' + x.conActRecuperar + '\n' + paso1Conexion() + '\n\n' + x.conActPaso1 + '\n' + json + '\n\n' + x.conActPaso2.replaceAll('{f}', f);
+          return x.conIntroProyecto.replace('{n}', cat.nombre) + '\n\n' + paso1Conexion() + '\n\n' + x.conPaso2 + '\n' + json + '\n\n' + x.conPaso3 + '\n' + x.conGuardarMapa.replaceAll('{f}', f);
         }
         const c = cuadernos.find(k => k.id === ctx.cuadernoId);
         if (!c) return '';
         const json = JSON.stringify(cuadernoSueltoConexion(c), null, 2);
-        return x.conIntroCuaderno.replace('{n}', c.titulo) + '\n\n' + paso1Conexion() + '\n\n' + x.conPaso2Cuad + '\n' + json + '\n\n' + x.conPaso3Cuad;
+        const f = archivoConexion('cuaderno', c.titulo);
+        if (actualizar) return x.conActIntroCuaderno.replace('{n}', c.titulo) + '\n\n' + x.conActRecuperar + '\n' + paso1Conexion() + '\n\n' + x.conActPaso1Cuad + '\n' + json + '\n\n' + x.conActPaso2Cuad.replaceAll('{f}', f);
+        return x.conIntroCuaderno.replace('{n}', c.titulo) + '\n\n' + paso1Conexion() + '\n\n' + x.conPaso2Cuad + '\n' + json + '\n\n' + x.conPaso3Cuad + '\n' + x.conGuardarMapa.replaceAll('{f}', f);
       }
 
+      let conCtx = null;
+      function pintarConexion() {
+        const x = tt();
+        document.querySelectorAll('#imModalConectar [data-contab]').forEach(b => {
+          b.classList.toggle('activa', b.dataset.contab === conCtx.modo);
+          b.setAttribute('aria-selected', String(b.dataset.contab === conCtx.modo));
+          b.textContent = b.dataset.contab === 'actualizar' ? x.conTabActualizar : x.conTabConectar;
+        });
+        $('imConAyuda').textContent = conCtx.modo === 'actualizar' ? x.conAyudaAct : x.conAyuda;
+        $('imConTexto').value = textoConexion(conCtx);
+        $('imConTexto').scrollTop = 0;
+      }
+      document.querySelectorAll('#imModalConectar [data-contab]').forEach(b => b.addEventListener('click', () => {
+        if (!conCtx) return;
+        conCtx.modo = b.dataset.contab;
+        pintarConexion();
+      }));
       function abrirModalConectar(ctx) {
         const x = tt();
+        conCtx = { ...ctx, modo: 'conectar' };
         $('imConTitulo').textContent = ctx.tipo === 'proyecto' ? x.conProyecto : x.conCuaderno;
-        $('imConAyuda').textContent = x.conAyuda;
         $('imConAyuda').style.display = 'none';
-        $('imConTexto').value = textoConexion(ctx);
+        pintarConexion();
         $('imConCerrar').querySelector('span').textContent = x.cerrar;
         $('imConCopiar').querySelector('span').textContent = x.copiar;
         $('imModalConectar').classList.add('abierto');
@@ -4299,7 +4355,8 @@ ${clean}`;
       const llamadaSkillIM = (clave) => '@' + clave; // Gemini llama las habilidades con @
       function avisoSkillHtml(x, clave) {
         const nombre = (x.skillNombres || {})[clave] || clave;
-        return escapeHtml(x.skillAviso).replace('{nombre}', escapeHtml(nombre)).replace('{llamada}', '<code>' + escapeHtml(llamadaSkillIM(clave)) + '</code>');
+        const html = escapeHtml(x.skillAviso).replace('{nombre}', escapeHtml(nombre)).replace('{llamada}', '<code>' + escapeHtml(llamadaSkillIM(clave)) + '</code>');
+        return html.charAt(0).toUpperCase() + html.slice(1); // "el Creador..." al inicio de frase va con mayúscula
       }
       function pintarPasosSkill(x, clave) {
         $('imSkillPaso1').textContent = x.skillPaso1;
@@ -4316,6 +4373,8 @@ ${clean}`;
         $('imSkillLblNombre').textContent = x.skillLblNombre; $('imSkillLblDesc').textContent = x.skillLblDesc; $('imSkillLblInstr').textContent = x.skillLblInstr;
         $('imSkillInstrNota').textContent = x.skillInstrNota; $('imSkillNota').textContent = x.skillNota;
         $('imSkillCerrar').querySelector('span').textContent = x.skillCerrar;
+        $('imSkillDescargar').querySelector('span').textContent = x.skillDescargar;
+        $('imSkillDescargaNota').textContent = x.skillDescargaNota;
         document.querySelectorAll('#imModalSkill [data-copia] span').forEach(s => { s.textContent = x.skillCopiar; });
         pintarPasosSkill(x, skillAbierta || 'bibliotecario-del-557');
       }
@@ -4338,6 +4397,16 @@ ${clean}`;
       }
       document.querySelectorAll('[data-skill]').forEach(btn => btn.addEventListener('click', () => abrirModalSkill(btn.dataset.skill)));
       $('imSkillCerrar').addEventListener('click', () => $('imModalSkill').classList.remove('abierto'));
+      // Archivo SKILL.md (Gemini: Habilidades > Crear > Subir); el nombre ya viene en kebab-case
+      $('imSkillDescargar').addEventListener('click', () => {
+        const fila = skillAbierta && SKILL_CACHE[skillAbierta]; if (!fila) return;
+        const desc = String(fila.descripcion || '').replace(/\s+/g, ' ').trim().replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        const md = '---\nname: ' + fila.nombre + '\ndescription: "' + desc + '"\n---\n\n' + String(fila.instrucciones || '').trim() + '\n';
+        const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }));
+        const a = document.createElement('a'); a.href = url; a.download = 'SKILL.md'; document.body.append(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        showToast(tt().skillDescargado);
+      });
       $('imModalSkill').addEventListener('click', (e) => { if (e.target.id === 'imModalSkill') e.target.classList.remove('abierto'); });
       document.querySelectorAll('#imModalSkill [data-copia]').forEach(btn => btn.addEventListener('click', () => {
         const fila = skillAbierta && SKILL_CACHE[skillAbierta]; if (!fila) return;

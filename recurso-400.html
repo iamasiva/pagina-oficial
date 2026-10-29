@@ -497,6 +497,8 @@
     .im-skill-pasos li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink); line-height: 1.45; }
     .im-skill-pasos li b { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
     .im-skill-campo { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 10px; background: var(--surface); }
+    .im-skill-descarga { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 4px; }
+    .im-skill-descarga small { color: var(--muted); font-size: 0.8rem; }
     .im-skill-campo-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
     .im-skill-campo-cab span { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
     .im-skill-campo-cab button { min-height: 32px; height: 32px; padding: 0 12px; font-size: 0.8rem; cursor: pointer; }
@@ -656,7 +658,6 @@
     .im-empieza[hidden] { display: none; }
     .im-pista { display: block; font-size: 12px; color: var(--muted); margin: 2px 0 6px; line-height: 1.35; }
     /* "Crea la skill": oculto hasta que Google defina cómo se comparten las habilidades (decisión 27 oct 2026) */
-    .im-skill-aviso [data-skill] { display: none; }
   </style>
   <div class="im-gate" id="imCargando"><p>Cargando tu recurso…</p></div>
   <div class="im-gate im-oculto" id="imSinAcceso">
@@ -1063,7 +1064,7 @@
             <a class="primary-btn" href="https://gemini.google.com/gem/1kQIJy4nNb3xBfatu48c4sx11ztMtIR_g?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
             <p class="busq-nota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
             <div class="im-skill-aviso" id="imSkillAvisoBusq">
-            <p>El Bibliotecario funciona por ahora como gema de Gemini. Google va a reemplazar las gemas por habilidades; en cuanto anuncie cómo se comparten, lo migraremos. Tu compra no cambia.</p>
+            <p>El Bibliotecario ya está listo como skill de Gemini: la creas una sola vez y la llamas con <code>@bibliotecario-del-400</code> en cualquier chat. La gema de arriba sigue funcionando mientras Google la mantenga.</p>
             <button class="im-mini-btn" type="button" data-skill="bibliotecario-del-400"><span>Crea la skill</span></button>
           </div>
           </div>
@@ -1242,14 +1243,15 @@
     <div class="im-modal-caja im-modal-skill">
       <span class="badge" id="imSkillBadge">Skill de Gemini</span>
       <h3 id="imSkillTitulo">Crea esta skill en Gemini</h3>
-      <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar. Se crea una sola vez.</p>
+      <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar, o el archivo SKILL.md para subirla de una vez. Se crea una sola vez.</p>
       <ol class="im-skill-pasos">
-        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual.</span></li>
-        <li><b>2</b><span id="imSkillPaso2">Copia y pega cada campo en su lugar y guarda.</span></li>
+        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Configuración, luego Habilidades y toca Crear. Elige Crear manualmente para pegar los campos, o Subir si descargaste el archivo.</span></li>
+        <li><b>2</b><span id="imSkillPaso2">Pega cada campo en su caja y guarda, o sube el archivo SKILL.md tal cual, sin cambiarle el nombre.</span></li>
         <li><b>3</b><span id="imSkillPaso3">En cualquier chat escribe el nombre de la skill y lo que necesitas.</span></li>
       </ol>
       <p class="im-skill-estado" id="imSkillEstado">Cargando los campos...</p>
       <div id="imSkillCampos" style="display:none">
+        <div class="im-skill-descarga"><button id="imSkillDescargar" class="im-btn-primario" type="button"><span>Descargar SKILL.md</span></button><small>Para Habilidades, Crear, Subir. O copia los 3 campos de abajo.</small></div>
         <div class="im-skill-campo">
           <div class="im-skill-campo-cab"><span id="imSkillLblNombre">Nombre</span><button class="im-mini-btn" type="button" data-copia="nombre"><span>Copiar</span></button></div>
           <div class="im-skill-valor mono" id="imSkillNombre"></div>
@@ -1264,7 +1266,7 @@
           <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
         </div>
       </div>
-      <p class="im-skill-estado" id="imSkillNota">El asistente sigue activo desde Gemini. Cuando Google retire las gemas, tu habilidad ya está lista.</p>
+      <p class="im-skill-estado" id="imSkillNota">La gema sigue funcionando mientras Google la mantenga; con la skill ya no dependes de ella.</p>
       <div class="im-modal-acciones">
         <button id="imSkillCerrar" class="im-mini-btn" type="button"><span>Cerrar</span></button>
       </div>
@@ -2074,6 +2076,8 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
     }
     // El modal "Crea esta skill en Gemini" corre fuera de __initApp y también necesita copiar
     window.copyText = copyText;
+    // La ventana de skills (script de abajo) usa estas mismas piezas
+    window.imSkillUtil = { skillMd, descargarArchivo, showToast, escapeHtml };
 
     function fallbackCopy(text, done) {
       const ta = document.createElement("textarea");
@@ -2398,7 +2402,7 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
             <div class="im-est-franja">
               <button class="skill-chip" type="button" data-copiarskill="${escapeHtml(llamadaDeGuardada(g))}" title="Copiar el nombre para pegarlo en Gemini">${escapeHtml(llamadaDeGuardada(g))}</button>
               <span class="im-est-acciones">
-              <button class="im-mini-btn" type="button" data-descargarskill="${g.id}" title="Archivo para Habilidades, Crear, Subir">Descargar SKILL.md</button>
+              <button class="im-mini-btn" type="button" data-verskill="${g.id}" title="Los 3 campos para copiar o el archivo SKILL.md">Skill</button>
               ${g.item_id || (g.instruccion && g.instruccion.trim())
                 ? `<button class="im-mini-btn" type="button" data-agentelocal="${g.id}">Crear agente local</button>`
                 : `<span class="im-agente-off" data-agenteoff="${g.id}"><button class="im-mini-btn" type="button" disabled>Crear agente local</button><span class="im-agente-tip">Para crear el agente local de esta skill, primero guarda su instrucción: edita la skill y pega la instrucción desde Gemini (abre tu skill, Editar, campo Instrucciones).</span></span>`}
@@ -2514,11 +2518,12 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         if (copiarS) { copyText(copiarS.dataset.copiarskill); return; }
         const al = e.target.closest('[data-agentelocal]');
         if (al) { const g = misGemas.find(x => x.id === al.dataset.agentelocal); if (g) abrirModalAgente(g); return; }
-        const ds = e.target.closest('[data-descargarskill]');
-        if (ds) {
-          const g = misGemas.find(x => x.id === ds.dataset.descargarskill); const sk = g && skillDeGuardada(g);
-          if (!sk) { showToast('Edita la skill y guarda su instrucción para poder descargarla'); return; }
-          descargarArchivo('SKILL.md', sk.md); showToast('SKILL.md descargado. En Gemini: Habilidades, Crear, Subir'); return;
+        const vs = e.target.closest('[data-verskill]');
+        if (vs) {
+          const g = misGemas.find(x => x.id === vs.dataset.verskill); const sk = g && skillDeGuardada(g);
+          if (!sk) { showToast('Edita la skill y guarda su instrucción para poder verla y descargarla'); return; }
+          if (window.imAbrirSkill) window.imAbrirSkill({ nombre: sk.nombre, descripcion: sk.descripcion, instrucciones: sk.instrucciones });
+          return;
         }
         const aoff = e.target.closest('[data-agenteoff]');
         if (aoff) { showToast('Edita la skill y guarda su instrucción para poder crear el agente local'); return; }
@@ -3504,27 +3509,44 @@ ${ficha}`;
     (function imSkillAsistente() {
       const q = (id) => document.getElementById(id);
       const modal = q('imModalSkill'); if (!modal) return;
-      const CACHE = {}; let abierta = null;
+      const CACHE = {}; let abierta = null, fila = null;
+      const U = () => window.imSkillUtil || {};
+      const escapeHtml = (t) => (U().escapeHtml ? U().escapeHtml(t) : String(t ?? ''));
+      const NOTA = q('imSkillNota').textContent;
+      function pintar(f, opts = {}) {
+        fila = f;
+        q('imSkillPaso3').innerHTML = 'En cualquier chat escribe <code>@' + escapeHtml(f.nombre) + '</code> y lo que necesitas.';
+        q('imSkillNombre').textContent = f.nombre; q('imSkillDesc').textContent = f.descripcion || ''; q('imSkillInstr').textContent = f.instrucciones || '';
+        q('imSkillNota').textContent = opts.nota || NOTA; q('imSkillNota').style.display = opts.nota === false ? 'none' : '';
+        q('imSkillEstado').style.display = 'none'; q('imSkillCampos').style.display = '';
+      }
       async function abrir(clave) {
-        abierta = clave;
+        abierta = clave; fila = null;
         q('imSkillPaso3').innerHTML = 'En cualquier chat escribe <code>@' + clave + '</code> y lo que necesitas.';
-        q('imSkillCampos').style.display = 'none';
+        q('imSkillCampos').style.display = 'none'; q('imSkillNota').textContent = NOTA; q('imSkillNota').style.display = '';
         const estado = q('imSkillEstado'); estado.style.display = ''; estado.textContent = 'Cargando los campos...';
         modal.classList.add('abierto');
-        let fila = CACHE[clave];
-        if (!fila) {
+        let f = CACHE[clave];
+        if (!f) {
           const { data, error } = await sb.from('producto_skills').select('clave,nombre,descripcion,instrucciones').eq('clave', clave).maybeSingle();
           if (error || !data) { estado.textContent = 'No pudimos cargar esta skill. Recarga la página e inténtalo de nuevo.'; return; }
-          fila = CACHE[clave] = data;
+          f = CACHE[clave] = data;
         }
         if (abierta !== clave) return;
-        q('imSkillNombre').textContent = fila.nombre; q('imSkillDesc').textContent = fila.descripcion; q('imSkillInstr').textContent = fila.instrucciones;
-        estado.style.display = 'none'; q('imSkillCampos').style.display = '';
+        pintar(f);
       }
+      // Skills guardadas en Mis agentes: la misma ventana, con los datos de esa skill
+      window.imAbrirSkill = (f) => { abierta = null; pintar(f, { nota: false }); modal.classList.add('abierto'); };
       document.querySelectorAll('[data-skill]').forEach(b => b.addEventListener('click', () => abrir(b.dataset.skill)));
       q('imSkillCerrar').addEventListener('click', () => modal.classList.remove('abierto'));
+      q('imSkillDescargar').addEventListener('click', () => {
+        if (!fila) return;
+        const u = U(); if (!u.skillMd) return;
+        u.descargarArchivo('SKILL.md', u.skillMd({ nombre: fila.nombre, descripcion: fila.descripcion, instrucciones: fila.instrucciones }));
+        u.showToast('SKILL.md descargado. En Gemini: Habilidades, Crear, Subir');
+      });
       modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('abierto'); });
-      modal.querySelectorAll('[data-copia]').forEach(b => b.addEventListener('click', () => { const f = abierta && CACHE[abierta]; if (f) copyText(f[b.dataset.copia] || ''); }));
+      modal.querySelectorAll('[data-copia]').forEach(b => b.addEventListener('click', () => { if (fila) copyText(fila[b.dataset.copia] || ''); }));
     })();
 
     // Interruptor claro/oscuro: recuerda la elección para todos los recursos
