@@ -1271,7 +1271,7 @@ setUiLanguage(savedLanguage);
   // ── Skill de diseño: vive en premium_items (solo compradores), no en esta página ──
   const slugSkill = (s) => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const arrobaSkill = () => '@' + (slugSkill(IM.skill?.nombre) || 'disenador-de-presentaciones');
+  const arrobaSkill = () => '@' + (slugSkill(IM.skill?.nombre) || 'codigo-de-diseno');
   function skillMd(sk) {
     const desc = String(sk.descripcion ?? '').replace(/\s+/g, ' ').trim().replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     return '---\nname: ' + slugSkill(sk.nombre) + '\ndescription: "' + desc + '"\n---\n\n' + String(sk.instrucciones ?? '').trim() + '\n';
