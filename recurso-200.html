@@ -186,6 +186,10 @@
     .im-volver { margin-bottom: 18px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font-size: 13px; font-weight: 700; }
     .im-volver:hover { border-color: var(--navy); }
     .im-card-mis .card-body { position: relative; }
+    /* El menú ⋮ abre hacia afuera (a la derecha) aunque tape al diseño vecino; hacia adentro solo si no cabe en la pantalla */
+    .im-card-mis { overflow: visible; }
+    .im-card-mis .preview-wrap { border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0; }
+    .im-card-mis.menu-abierto { position: relative; z-index: 20; }
     .im-card-mis .badges { margin-right: 30px; }
     .im-card-mis h3 { min-height: 0; }
     .im-base { margin: -8px 0 14px; color: var(--muted); font-size: 12px; min-height: 16px; }
@@ -257,9 +261,10 @@
     .im-sk-valor { font-size: 13.5px; color: var(--ink); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
     .im-sk-valor.recorte { max-height: 96px; overflow: hidden; color: var(--muted); font-size: 12.5px; }
     .im-sk-nota { margin: 10px 0 0; color: var(--muted); font-size: 12.5px; }
+    .im-link-sm { font-size: 12px; font-weight: 700; }
     @media (max-width: 620px) {
-      .im-mis-acciones { width: 100%; }
-      .im-mis-acciones .im-btn { flex: 1; }
+      .im-mis-acciones { width: 100%; flex-wrap: wrap; }
+      .im-mis-acciones .im-btn { flex: 1 1 auto; }
     }
     @media (max-width: 620px) {
       .masthead { padding-bottom: 38px; }
@@ -370,6 +375,7 @@
       <div class="results-head im-mis-head">
         <div class="im-mis-titulo"><h2 data-i18n="misDisenos">Mis diseños</h2><span class="result-count" id="imMisCount"></span></div>
         <div class="im-mis-acciones">
+          <button class="im-btn im-btn-sec" id="imNuevaCatBtn" type="button" data-i18n="imNuevaCatBtn">Nueva categoría</button>
           <button class="im-btn im-btn-sec" id="imSkillBtn" type="button" data-i18n="imSkillBtn">Skill de diseño</button>
           <button class="im-btn im-btn-pri" id="imImportarBtn" type="button" data-i18n="imImportar">Importar diseño</button>
         </div>
@@ -427,6 +433,17 @@
       </div>
     </div>
   </div>
+  <div class="im-modal" id="imCat">
+    <div class="im-modal-caja">
+      <h3 id="imCatTitulo"></h3>
+      <label class="im-modal-label" for="imCatNombre" id="imCatLbl"></label>
+      <input id="imCatNombre" type="text" maxlength="60" autocomplete="off">
+      <div class="im-modal-acciones">
+        <button class="action reset" id="imCatCancelar" type="button"></button>
+        <button class="action copy" id="imCatOk" type="button"></button>
+      </div>
+    </div>
+  </div>
   <div class="im-modal" id="imImp">
     <div class="im-modal-caja im-caja-ancha">
       <h3 id="imImpTitulo"></h3>
@@ -434,6 +451,9 @@
       <div id="imImpBNombre">
         <label class="im-modal-label" for="imImpNombre" id="imImpLblNombre"></label>
         <input id="imImpNombre" type="text" maxlength="80" autocomplete="off">
+        <label class="im-modal-label" for="imImpSelCat" id="imImpLblCat"></label>
+        <select id="imImpSelCat"></select>
+        <input id="imImpCatNueva" type="text" maxlength="60" autocomplete="off" style="display:none; margin-top:8px;">
       </div>
       <div id="imImpBMini">
         <p class="im-imp-pasos" id="imImpMiniPasos"></p>
@@ -957,12 +977,12 @@ setUiLanguage(savedLanguage);
   };
   // Importar diseño + Skill de diseño
   const IM_I18N_IMP = {
-    es: { imImportar:'Importar diseño', imSkillBtn:'Skill de diseño', imImpIntro:'¿No tienes el código o la miniatura? Pídeselos a la {skill}: en Gemini escribe {at} y cuéntale qué presentación quieres.', imImpNombre:'Nombre del diseño', imImpMini:'Miniatura', imImpMiniElegir:'Toca aquí para elegir la imagen', imImpMiniCambiar:'Toca para cambiar la imagen', imImpMiniAyuda:'JPG, PNG o WebP de hasta 10 MB. La ajustamos al tamaño de las miniaturas de la biblioteca.', imImpMiniPesada:'La imagen es muy pesada ({mb} MB) y el máximo es 10 MB. Puedes pedirle a Gemini o a cualquier IA que genera imágenes que la cree con un tamaño menor a 10 MB.', imImpMiniTipo:'Ese archivo no es una imagen JPG, PNG o WebP.', imImpMiniLeer:'No pudimos leer esa imagen. Prueba con otra.', imImpCodigo:'Código del diseño', imImpCodigoPh:'Pega aquí el código que te entregó la skill', imImpCodOk:'Código listo', imImpCodNoJson:'No encontramos un código válido. Copia completo el bloque que te entregó la skill.', imImpCodFalta:'Al código le falta: {campos}. Pídele a la skill el código completo.', imImpCodColor:'El color {campo} no es válido. Debe ser un código como #1A2B3C.', imImpFaltaMini:'Sube la miniatura', imImpFaltaCodigo:'Pega el código del diseño', imImpBoton:'Importar', imImpGuardarCodigo:'Reemplazar', imImpGuardarMini:'Cambiar', imImpTrabajando:'Guardando…', imImportado:'Diseño importado', imReemplazar:'Reemplazar código', imCambiarMini:'Cambiar miniatura', imCodigoListo:'Código reemplazado', imMiniLista:'Miniatura cambiada', imImpSinServidor:'La importación aún no está habilitada en el servidor', imSkTitulo:'Skill de diseño', imSkSub:'Aquí tienes el archivo SKILL.md o los 3 campos listos para copiar y pegar.', imSkDescargar:'Descargar SKILL.md', imSkNombre:'Nombre', imSkDesc:'Descripción', imSkInstr:'Instrucciones', imSkCopiar:'Copiar', imSkCopiado:'Copiado', imSkNota:'Se copian completas, aunque aquí solo se vea el inicio.', imSkCerrar:'Cerrar', imSkDescargado:'SKILL.md descargado. En Gemini: Habilidades, Crear, Subir', imSkNoDisp:'La skill no está disponible en este momento' },
-    en: { imImportar:'Import design', imSkillBtn:'Design skill', imImpIntro:'Don’t have the code or the thumbnail? Ask the {skill} for them: in Gemini type {at} and tell it what presentation you want.', imImpNombre:'Design name', imImpMini:'Thumbnail', imImpMiniElegir:'Tap here to choose the image', imImpMiniCambiar:'Tap to change the image', imImpMiniAyuda:'JPG, PNG or WebP up to 10 MB. We resize it to match the library thumbnails.', imImpMiniPesada:'The image is too heavy ({mb} MB) and the limit is 10 MB. You can ask Gemini or any image AI to create it under 10 MB.', imImpMiniTipo:'That file is not a JPG, PNG or WebP image.', imImpMiniLeer:'We couldn’t read that image. Try another one.', imImpCodigo:'Design code', imImpCodigoPh:'Paste here the code the skill gave you', imImpCodOk:'Code ready', imImpCodNoJson:'We couldn’t find a valid code. Copy the whole block the skill gave you.', imImpCodFalta:'The code is missing: {campos}. Ask the skill for the complete code.', imImpCodColor:'The color {campo} is not valid. It must be a code like #1A2B3C.', imImpFaltaMini:'Upload the thumbnail', imImpFaltaCodigo:'Paste the design code', imImpBoton:'Import', imImpGuardarCodigo:'Replace', imImpGuardarMini:'Change', imImpTrabajando:'Saving…', imImportado:'Imported design', imReemplazar:'Replace code', imCambiarMini:'Change thumbnail', imCodigoListo:'Code replaced', imMiniLista:'Thumbnail changed', imImpSinServidor:'Importing is not enabled on the server yet', imSkTitulo:'Design skill', imSkSub:'Here is the SKILL.md file or the 3 fields ready to copy and paste.', imSkDescargar:'Download SKILL.md', imSkNombre:'Name', imSkDesc:'Description', imSkInstr:'Instructions', imSkCopiar:'Copy', imSkCopiado:'Copied', imSkNota:'They are copied in full, even if only the beginning shows here.', imSkCerrar:'Close', imSkDescargado:'SKILL.md downloaded. In Gemini: Skills, Create, Upload', imSkNoDisp:'The skill is not available right now' },
-    pt: { imImportar:'Importar design', imSkillBtn:'Skill de design', imImpIntro:'Não tem o código ou a miniatura? Peça à {skill}: no Gemini digite {at} e conte qual apresentação você quer.', imImpNombre:'Nome do design', imImpMini:'Miniatura', imImpMiniElegir:'Toque aqui para escolher a imagem', imImpMiniCambiar:'Toque para trocar a imagem', imImpMiniAyuda:'JPG, PNG ou WebP de até 10 MB. Ajustamos ao tamanho das miniaturas da biblioteca.', imImpMiniPesada:'A imagem é muito pesada ({mb} MB) e o máximo é 10 MB. Você pode pedir ao Gemini ou a qualquer IA que gera imagens que a crie com menos de 10 MB.', imImpMiniTipo:'Esse arquivo não é uma imagem JPG, PNG ou WebP.', imImpMiniLeer:'Não conseguimos ler essa imagem. Tente outra.', imImpCodigo:'Código do design', imImpCodigoPh:'Cole aqui o código que a skill entregou', imImpCodOk:'Código pronto', imImpCodNoJson:'Não encontramos um código válido. Copie o bloco completo que a skill entregou.', imImpCodFalta:'Falta no código: {campos}. Peça à skill o código completo.', imImpCodColor:'A cor {campo} não é válida. Deve ser um código como #1A2B3C.', imImpFaltaMini:'Envie a miniatura', imImpFaltaCodigo:'Cole o código do design', imImpBoton:'Importar', imImpGuardarCodigo:'Substituir', imImpGuardarMini:'Trocar', imImpTrabajando:'Salvando…', imImportado:'Design importado', imReemplazar:'Substituir código', imCambiarMini:'Trocar miniatura', imCodigoListo:'Código substituído', imMiniLista:'Miniatura trocada', imImpSinServidor:'A importação ainda não está habilitada no servidor', imSkTitulo:'Skill de design', imSkSub:'Aqui está o arquivo SKILL.md ou os 3 campos prontos para copiar e colar.', imSkDescargar:'Baixar SKILL.md', imSkNombre:'Nome', imSkDesc:'Descrição', imSkInstr:'Instruções', imSkCopiar:'Copiar', imSkCopiado:'Copiado', imSkNota:'São copiadas completas, mesmo que aqui apareça só o início.', imSkCerrar:'Fechar', imSkDescargado:'SKILL.md baixado. No Gemini: Habilidades, Criar, Enviar', imSkNoDisp:'A skill não está disponível no momento' },
-    fr: { imImportar:'Importer un design', imSkillBtn:'Skill de design', imImpIntro:'Pas de code ni de miniature ? Demandez-les à la {skill} : dans Gemini, tapez {at} et décrivez la présentation que vous voulez.', imImpNombre:'Nom du design', imImpMini:'Miniature', imImpMiniElegir:'Touchez ici pour choisir l’image', imImpMiniCambiar:'Touchez pour changer l’image', imImpMiniAyuda:'JPG, PNG ou WebP jusqu’à 10 Mo. Nous l’ajustons à la taille des miniatures de la bibliothèque.', imImpMiniPesada:'L’image est trop lourde ({mb} Mo) et le maximum est de 10 Mo. Vous pouvez demander à Gemini ou à toute IA d’images de la créer en moins de 10 Mo.', imImpMiniTipo:'Ce fichier n’est pas une image JPG, PNG ou WebP.', imImpMiniLeer:'Impossible de lire cette image. Essayez-en une autre.', imImpCodigo:'Code du design', imImpCodigoPh:'Collez ici le code fourni par la skill', imImpCodOk:'Code prêt', imImpCodNoJson:'Aucun code valide trouvé. Copiez le bloc complet fourni par la skill.', imImpCodFalta:'Il manque au code : {campos}. Demandez le code complet à la skill.', imImpCodColor:'La couleur {campo} n’est pas valide. Elle doit être un code comme #1A2B3C.', imImpFaltaMini:'Ajoutez la miniature', imImpFaltaCodigo:'Collez le code du design', imImpBoton:'Importer', imImpGuardarCodigo:'Remplacer', imImpGuardarMini:'Changer', imImpTrabajando:'Enregistrement…', imImportado:'Design importé', imReemplazar:'Remplacer le code', imCambiarMini:'Changer la miniature', imCodigoListo:'Code remplacé', imMiniLista:'Miniature changée', imImpSinServidor:'L’import n’est pas encore activé sur le serveur', imSkTitulo:'Skill de design', imSkSub:'Voici le fichier SKILL.md ou les 3 champs prêts à copier-coller.', imSkDescargar:'Télécharger SKILL.md', imSkNombre:'Nom', imSkDesc:'Description', imSkInstr:'Instructions', imSkCopiar:'Copier', imSkCopiado:'Copié', imSkNota:'Elles sont copiées en entier, même si seul le début s’affiche ici.', imSkCerrar:'Fermer', imSkDescargado:'SKILL.md téléchargé. Dans Gemini : Compétences, Créer, Importer', imSkNoDisp:'La skill n’est pas disponible pour le moment' },
-    de: { imImportar:'Design importieren', imSkillBtn:'Design-Skill', imImpIntro:'Kein Code oder Vorschaubild? Frag den {skill}: Tippe in Gemini {at} und beschreibe die Präsentation, die du willst.', imImpNombre:'Name des Designs', imImpMini:'Vorschaubild', imImpMiniElegir:'Hier tippen, um das Bild zu wählen', imImpMiniCambiar:'Tippen, um das Bild zu ändern', imImpMiniAyuda:'JPG, PNG oder WebP bis 10 MB. Wir passen es an die Größe der Bibliotheksvorschauen an.', imImpMiniPesada:'Das Bild ist zu groß ({mb} MB), das Maximum ist 10 MB. Du kannst Gemini oder jede Bild-KI bitten, es mit weniger als 10 MB zu erstellen.', imImpMiniTipo:'Diese Datei ist kein JPG-, PNG- oder WebP-Bild.', imImpMiniLeer:'Das Bild konnte nicht gelesen werden. Versuche ein anderes.', imImpCodigo:'Design-Code', imImpCodigoPh:'Füge hier den Code ein, den der Skill dir gegeben hat', imImpCodOk:'Code bereit', imImpCodNoJson:'Kein gültiger Code gefunden. Kopiere den ganzen Block, den der Skill dir gegeben hat.', imImpCodFalta:'Im Code fehlt: {campos}. Bitte den Skill um den vollständigen Code.', imImpCodColor:'Die Farbe {campo} ist ungültig. Sie muss ein Code wie #1A2B3C sein.', imImpFaltaMini:'Lade das Vorschaubild hoch', imImpFaltaCodigo:'Füge den Design-Code ein', imImpBoton:'Importieren', imImpGuardarCodigo:'Ersetzen', imImpGuardarMini:'Ändern', imImpTrabajando:'Speichern…', imImportado:'Importiertes Design', imReemplazar:'Code ersetzen', imCambiarMini:'Vorschaubild ändern', imCodigoListo:'Code ersetzt', imMiniLista:'Vorschaubild geändert', imImpSinServidor:'Der Import ist auf dem Server noch nicht aktiviert', imSkTitulo:'Design-Skill', imSkSub:'Hier ist die Datei SKILL.md oder die 3 Felder zum Kopieren und Einfügen.', imSkDescargar:'SKILL.md herunterladen', imSkNombre:'Name', imSkDesc:'Beschreibung', imSkInstr:'Anweisungen', imSkCopiar:'Kopieren', imSkCopiado:'Kopiert', imSkNota:'Sie werden vollständig kopiert, auch wenn hier nur der Anfang zu sehen ist.', imSkCerrar:'Schließen', imSkDescargado:'SKILL.md heruntergeladen. In Gemini: Skills, Erstellen, Hochladen', imSkNoDisp:'Der Skill ist gerade nicht verfügbar' },
-    it: { imImportar:'Importa design', imSkillBtn:'Skill di design', imImpIntro:'Non hai il codice o la miniatura? Chiedili alla {skill}: in Gemini scrivi {at} e descrivi la presentazione che vuoi.', imImpNombre:'Nome del design', imImpMini:'Miniatura', imImpMiniElegir:'Tocca qui per scegliere l’immagine', imImpMiniCambiar:'Tocca per cambiare l’immagine', imImpMiniAyuda:'JPG, PNG o WebP fino a 10 MB. La adattiamo alle dimensioni delle miniature della libreria.', imImpMiniPesada:'L’immagine è troppo pesante ({mb} MB) e il massimo è 10 MB. Puoi chiedere a Gemini o a qualsiasi IA di immagini di crearla sotto i 10 MB.', imImpMiniTipo:'Questo file non è un’immagine JPG, PNG o WebP.', imImpMiniLeer:'Non siamo riusciti a leggere questa immagine. Provane un’altra.', imImpCodigo:'Codice del design', imImpCodigoPh:'Incolla qui il codice che ti ha dato la skill', imImpCodOk:'Codice pronto', imImpCodNoJson:'Nessun codice valido trovato. Copia tutto il blocco che ti ha dato la skill.', imImpCodFalta:'Al codice manca: {campos}. Chiedi alla skill il codice completo.', imImpCodColor:'Il colore {campo} non è valido. Deve essere un codice come #1A2B3C.', imImpFaltaMini:'Carica la miniatura', imImpFaltaCodigo:'Incolla il codice del design', imImpBoton:'Importa', imImpGuardarCodigo:'Sostituisci', imImpGuardarMini:'Cambia', imImpTrabajando:'Salvataggio…', imImportado:'Design importato', imReemplazar:'Sostituisci codice', imCambiarMini:'Cambia miniatura', imCodigoListo:'Codice sostituito', imMiniLista:'Miniatura cambiata', imImpSinServidor:'L’importazione non è ancora attiva sul server', imSkTitulo:'Skill di design', imSkSub:'Ecco il file SKILL.md o i 3 campi pronti da copiare e incollare.', imSkDescargar:'Scarica SKILL.md', imSkNombre:'Nome', imSkDesc:'Descrizione', imSkInstr:'Istruzioni', imSkCopiar:'Copia', imSkCopiado:'Copiato', imSkNota:'Vengono copiate per intero, anche se qui si vede solo l’inizio.', imSkCerrar:'Chiudi', imSkDescargado:'SKILL.md scaricato. In Gemini: Skill, Crea, Carica', imSkNoDisp:'La skill non è disponibile al momento' },
+    es: { imImportar:'Importar diseño', imSkillBtn:'Skill de diseño', imImpIntro:'¿No tienes el código o la miniatura? Pídeselos a la {skill}: en Gemini escribe {at} y cuéntale qué presentación quieres.', imImpNombre:'Nombre del diseño', imImpMini:'Miniatura', imImpMiniElegir:'Toca aquí para elegir la imagen', imImpMiniCambiar:'Toca para cambiar la imagen', imImpMiniAyuda:'JPG, PNG o WebP de hasta 10 MB.', imImpMiniPesada:'La imagen es muy pesada ({mb} MB) y el máximo es 10 MB. Puedes pedirle a Gemini o a cualquier IA que genera imágenes que la cree con un tamaño menor a 10 MB.', imImpMiniTipo:'Ese archivo no es una imagen JPG, PNG o WebP.', imImpMiniLeer:'No pudimos leer esa imagen. Prueba con otra.', imImpCodigo:'Código del diseño', imImpCodigoPh:'Pega aquí el código que te entregó la skill', imImpCodOk:'Código listo', imImpCodNoJson:'No encontramos un código válido. Copia completo el bloque que te entregó la skill.', imImpCodFalta:'Al código le falta: {campos}. Pídele a la skill el código completo.', imImpCodColor:'El color {campo} no es válido. Debe ser un código como #1A2B3C.', imImpFaltaMini:'Sube la miniatura', imImpFaltaCodigo:'Pega el código del diseño', imImpBoton:'Importar', imImpGuardarCodigo:'Reemplazar', imImpGuardarMini:'Cambiar', imImpTrabajando:'Guardando…', imImportado:'Diseño importado', imReemplazar:'Reemplazar código', imCambiarMini:'Cambiar miniatura', imCodigoListo:'Código reemplazado', imMiniLista:'Miniatura cambiada', imImpSinServidor:'La importación aún no está habilitada en el servidor', imSkTitulo:'Skill de diseño', imSkSub:'Aquí tienes el archivo SKILL.md o los 3 campos listos para copiar y pegar.', imSkDescargar:'Descargar SKILL.md', imSkNombre:'Nombre', imSkDesc:'Descripción', imSkInstr:'Instrucciones', imSkCopiar:'Copiar', imSkCopiado:'Copiado', imSkNota:'Se copian completas, aunque aquí solo se vea el inicio.', imSkCerrar:'Cerrar', imSkDescargado:'SKILL.md descargado. En Gemini: Habilidades, Crear, Subir', imSkNoDisp:'La skill no está disponible en este momento' },
+    en: { imImportar:'Import design', imSkillBtn:'Design skill', imImpIntro:'Don’t have the code or the thumbnail? Ask the {skill} for them: in Gemini type {at} and tell it what presentation you want.', imImpNombre:'Design name', imImpMini:'Thumbnail', imImpMiniElegir:'Tap here to choose the image', imImpMiniCambiar:'Tap to change the image', imImpMiniAyuda:'JPG, PNG or WebP up to 10 MB.', imImpMiniPesada:'The image is too heavy ({mb} MB) and the limit is 10 MB. You can ask Gemini or any image AI to create it under 10 MB.', imImpMiniTipo:'That file is not a JPG, PNG or WebP image.', imImpMiniLeer:'We couldn’t read that image. Try another one.', imImpCodigo:'Design code', imImpCodigoPh:'Paste here the code the skill gave you', imImpCodOk:'Code ready', imImpCodNoJson:'We couldn’t find a valid code. Copy the whole block the skill gave you.', imImpCodFalta:'The code is missing: {campos}. Ask the skill for the complete code.', imImpCodColor:'The color {campo} is not valid. It must be a code like #1A2B3C.', imImpFaltaMini:'Upload the thumbnail', imImpFaltaCodigo:'Paste the design code', imImpBoton:'Import', imImpGuardarCodigo:'Replace', imImpGuardarMini:'Change', imImpTrabajando:'Saving…', imImportado:'Imported design', imReemplazar:'Replace code', imCambiarMini:'Change thumbnail', imCodigoListo:'Code replaced', imMiniLista:'Thumbnail changed', imImpSinServidor:'Importing is not enabled on the server yet', imSkTitulo:'Design skill', imSkSub:'Here is the SKILL.md file or the 3 fields ready to copy and paste.', imSkDescargar:'Download SKILL.md', imSkNombre:'Name', imSkDesc:'Description', imSkInstr:'Instructions', imSkCopiar:'Copy', imSkCopiado:'Copied', imSkNota:'They are copied in full, even if only the beginning shows here.', imSkCerrar:'Close', imSkDescargado:'SKILL.md downloaded. In Gemini: Skills, Create, Upload', imSkNoDisp:'The skill is not available right now' },
+    pt: { imImportar:'Importar design', imSkillBtn:'Skill de design', imImpIntro:'Não tem o código ou a miniatura? Peça à {skill}: no Gemini digite {at} e conte qual apresentação você quer.', imImpNombre:'Nome do design', imImpMini:'Miniatura', imImpMiniElegir:'Toque aqui para escolher a imagem', imImpMiniCambiar:'Toque para trocar a imagem', imImpMiniAyuda:'JPG, PNG ou WebP de até 10 MB.', imImpMiniPesada:'A imagem é muito pesada ({mb} MB) e o máximo é 10 MB. Você pode pedir ao Gemini ou a qualquer IA que gera imagens que a crie com menos de 10 MB.', imImpMiniTipo:'Esse arquivo não é uma imagem JPG, PNG ou WebP.', imImpMiniLeer:'Não conseguimos ler essa imagem. Tente outra.', imImpCodigo:'Código do design', imImpCodigoPh:'Cole aqui o código que a skill entregou', imImpCodOk:'Código pronto', imImpCodNoJson:'Não encontramos um código válido. Copie o bloco completo que a skill entregou.', imImpCodFalta:'Falta no código: {campos}. Peça à skill o código completo.', imImpCodColor:'A cor {campo} não é válida. Deve ser um código como #1A2B3C.', imImpFaltaMini:'Envie a miniatura', imImpFaltaCodigo:'Cole o código do design', imImpBoton:'Importar', imImpGuardarCodigo:'Substituir', imImpGuardarMini:'Trocar', imImpTrabajando:'Salvando…', imImportado:'Design importado', imReemplazar:'Substituir código', imCambiarMini:'Trocar miniatura', imCodigoListo:'Código substituído', imMiniLista:'Miniatura trocada', imImpSinServidor:'A importação ainda não está habilitada no servidor', imSkTitulo:'Skill de design', imSkSub:'Aqui está o arquivo SKILL.md ou os 3 campos prontos para copiar e colar.', imSkDescargar:'Baixar SKILL.md', imSkNombre:'Nome', imSkDesc:'Descrição', imSkInstr:'Instruções', imSkCopiar:'Copiar', imSkCopiado:'Copiado', imSkNota:'São copiadas completas, mesmo que aqui apareça só o início.', imSkCerrar:'Fechar', imSkDescargado:'SKILL.md baixado. No Gemini: Habilidades, Criar, Enviar', imSkNoDisp:'A skill não está disponível no momento' },
+    fr: { imImportar:'Importer un design', imSkillBtn:'Skill de design', imImpIntro:'Pas de code ni de miniature ? Demandez-les à la {skill} : dans Gemini, tapez {at} et décrivez la présentation que vous voulez.', imImpNombre:'Nom du design', imImpMini:'Miniature', imImpMiniElegir:'Touchez ici pour choisir l’image', imImpMiniCambiar:'Touchez pour changer l’image', imImpMiniAyuda:'JPG, PNG ou WebP jusqu’à 10 Mo.', imImpMiniPesada:'L’image est trop lourde ({mb} Mo) et le maximum est de 10 Mo. Vous pouvez demander à Gemini ou à toute IA d’images de la créer en moins de 10 Mo.', imImpMiniTipo:'Ce fichier n’est pas une image JPG, PNG ou WebP.', imImpMiniLeer:'Impossible de lire cette image. Essayez-en une autre.', imImpCodigo:'Code du design', imImpCodigoPh:'Collez ici le code fourni par la skill', imImpCodOk:'Code prêt', imImpCodNoJson:'Aucun code valide trouvé. Copiez le bloc complet fourni par la skill.', imImpCodFalta:'Il manque au code : {campos}. Demandez le code complet à la skill.', imImpCodColor:'La couleur {campo} n’est pas valide. Elle doit être un code comme #1A2B3C.', imImpFaltaMini:'Ajoutez la miniature', imImpFaltaCodigo:'Collez le code du design', imImpBoton:'Importer', imImpGuardarCodigo:'Remplacer', imImpGuardarMini:'Changer', imImpTrabajando:'Enregistrement…', imImportado:'Design importé', imReemplazar:'Remplacer le code', imCambiarMini:'Changer la miniature', imCodigoListo:'Code remplacé', imMiniLista:'Miniature changée', imImpSinServidor:'L’import n’est pas encore activé sur le serveur', imSkTitulo:'Skill de design', imSkSub:'Voici le fichier SKILL.md ou les 3 champs prêts à copier-coller.', imSkDescargar:'Télécharger SKILL.md', imSkNombre:'Nom', imSkDesc:'Description', imSkInstr:'Instructions', imSkCopiar:'Copier', imSkCopiado:'Copié', imSkNota:'Elles sont copiées en entier, même si seul le début s’affiche ici.', imSkCerrar:'Fermer', imSkDescargado:'SKILL.md téléchargé. Dans Gemini : Compétences, Créer, Importer', imSkNoDisp:'La skill n’est pas disponible pour le moment' },
+    de: { imImportar:'Design importieren', imSkillBtn:'Design-Skill', imImpIntro:'Kein Code oder Vorschaubild? Frag den {skill}: Tippe in Gemini {at} und beschreibe die Präsentation, die du willst.', imImpNombre:'Name des Designs', imImpMini:'Vorschaubild', imImpMiniElegir:'Hier tippen, um das Bild zu wählen', imImpMiniCambiar:'Tippen, um das Bild zu ändern', imImpMiniAyuda:'JPG, PNG oder WebP bis 10 MB.', imImpMiniPesada:'Das Bild ist zu groß ({mb} MB), das Maximum ist 10 MB. Du kannst Gemini oder jede Bild-KI bitten, es mit weniger als 10 MB zu erstellen.', imImpMiniTipo:'Diese Datei ist kein JPG-, PNG- oder WebP-Bild.', imImpMiniLeer:'Das Bild konnte nicht gelesen werden. Versuche ein anderes.', imImpCodigo:'Design-Code', imImpCodigoPh:'Füge hier den Code ein, den der Skill dir gegeben hat', imImpCodOk:'Code bereit', imImpCodNoJson:'Kein gültiger Code gefunden. Kopiere den ganzen Block, den der Skill dir gegeben hat.', imImpCodFalta:'Im Code fehlt: {campos}. Bitte den Skill um den vollständigen Code.', imImpCodColor:'Die Farbe {campo} ist ungültig. Sie muss ein Code wie #1A2B3C sein.', imImpFaltaMini:'Lade das Vorschaubild hoch', imImpFaltaCodigo:'Füge den Design-Code ein', imImpBoton:'Importieren', imImpGuardarCodigo:'Ersetzen', imImpGuardarMini:'Ändern', imImpTrabajando:'Speichern…', imImportado:'Importiertes Design', imReemplazar:'Code ersetzen', imCambiarMini:'Vorschaubild ändern', imCodigoListo:'Code ersetzt', imMiniLista:'Vorschaubild geändert', imImpSinServidor:'Der Import ist auf dem Server noch nicht aktiviert', imSkTitulo:'Design-Skill', imSkSub:'Hier ist die Datei SKILL.md oder die 3 Felder zum Kopieren und Einfügen.', imSkDescargar:'SKILL.md herunterladen', imSkNombre:'Name', imSkDesc:'Beschreibung', imSkInstr:'Anweisungen', imSkCopiar:'Kopieren', imSkCopiado:'Kopiert', imSkNota:'Sie werden vollständig kopiert, auch wenn hier nur der Anfang zu sehen ist.', imSkCerrar:'Schließen', imSkDescargado:'SKILL.md heruntergeladen. In Gemini: Skills, Erstellen, Hochladen', imSkNoDisp:'Der Skill ist gerade nicht verfügbar' },
+    it: { imImportar:'Importa design', imSkillBtn:'Skill di design', imImpIntro:'Non hai il codice o la miniatura? Chiedili alla {skill}: in Gemini scrivi {at} e descrivi la presentazione che vuoi.', imImpNombre:'Nome del design', imImpMini:'Miniatura', imImpMiniElegir:'Tocca qui per scegliere l’immagine', imImpMiniCambiar:'Tocca per cambiare l’immagine', imImpMiniAyuda:'JPG, PNG o WebP fino a 10 MB.', imImpMiniPesada:'L’immagine è troppo pesante ({mb} MB) e il massimo è 10 MB. Puoi chiedere a Gemini o a qualsiasi IA di immagini di crearla sotto i 10 MB.', imImpMiniTipo:'Questo file non è un’immagine JPG, PNG o WebP.', imImpMiniLeer:'Non siamo riusciti a leggere questa immagine. Provane un’altra.', imImpCodigo:'Codice del design', imImpCodigoPh:'Incolla qui il codice che ti ha dato la skill', imImpCodOk:'Codice pronto', imImpCodNoJson:'Nessun codice valido trovato. Copia tutto il blocco che ti ha dato la skill.', imImpCodFalta:'Al codice manca: {campos}. Chiedi alla skill il codice completo.', imImpCodColor:'Il colore {campo} non è valido. Deve essere un codice come #1A2B3C.', imImpFaltaMini:'Carica la miniatura', imImpFaltaCodigo:'Incolla il codice del design', imImpBoton:'Importa', imImpGuardarCodigo:'Sostituisci', imImpGuardarMini:'Cambia', imImpTrabajando:'Salvataggio…', imImportado:'Design importato', imReemplazar:'Sostituisci codice', imCambiarMini:'Cambia miniatura', imCodigoListo:'Codice sostituito', imMiniLista:'Miniatura cambiata', imImpSinServidor:'L’importazione non è ancora attiva sul server', imSkTitulo:'Skill di design', imSkSub:'Ecco il file SKILL.md o i 3 campi pronti da copiare e incollare.', imSkDescargar:'Scarica SKILL.md', imSkNombre:'Nome', imSkDesc:'Descrizione', imSkInstr:'Istruzioni', imSkCopiar:'Copia', imSkCopiado:'Copiato', imSkNota:'Vengono copiate per intero, anche se qui si vede solo l’inizio.', imSkCerrar:'Chiudi', imSkDescargado:'SKILL.md scaricato. In Gemini: Skill, Crea, Carica', imSkNoDisp:'La skill non è disponibile al momento' },
   };
   for (const [lang, textos] of Object.entries(IM_I18N_IMP)) Object.assign(IM_I18N[lang], textos);
   // La miniatura se agrega después, desde el menú del diseño (la skill solo entrega el código)
@@ -975,6 +995,16 @@ setUiLanguage(savedLanguage);
     it: { imImpIntro:'Non hai il codice? Chiedilo alla {skill}: in Gemini scrivi {at} e descrivi la presentazione che vuoi.', imAgregarMini:'Aggiungi miniatura', imEditarMini:'Modifica miniatura', imMiniPasos:'1. Copia il prompt. 2. Apri una nuova chat di Gemini, attiva «Crea immagine» e incollalo. 3. Scarica l’immagine e caricala qui.', imMiniPromptLbl:'Prompt della miniatura', imMiniGuardar:'Salva', imMiniAgregada:'Miniatura aggiunta', imMiniActualizada:'Miniatura aggiornata', imImportadoSinMini:'Design importato. Aggiungi la miniatura dal suo menu ⋮', imCodigoListoSinMini:'Codice sostituito. Aggiungi la nuova miniatura dal menu ⋮', imAvisoReemplazo:'Sostituendo il codice la miniatura attuale viene eliminata. Poi crea la nuova con «Aggiungi miniatura».' },
   };
   for (const [lang, textos] of Object.entries(IM_I18N_MINI)) Object.assign(IM_I18N[lang], textos);
+  // Categorías propias: se crean con su botón y existen aunque estén vacías
+  const IM_I18N_CAT = {
+    es: { imNuevaCatBtn:'Nueva categoría', imCatTitulo:'Nueva categoría', imCatLbl:'Nombre de la categoría', imCatCrear:'Crear', imCatCreada:'Categoría creada', imCatExiste:'Esa categoría ya existe', imCatVacia:'Aún no hay diseños en esta categoría.', imCatEliminar:'Eliminar categoría', imCatConfTitulo:'¿Eliminar la categoría?', imCatConfTexto:'Los diseños de «{cat}» quedan sin categoría. No se borra ningún diseño.', imCatEliminada:'Categoría eliminada', imCatSinServidor:'Las categorías aún no están habilitadas en el servidor' },
+    en: { imNuevaCatBtn:'New category', imCatTitulo:'New category', imCatLbl:'Category name', imCatCrear:'Create', imCatCreada:'Category created', imCatExiste:'That category already exists', imCatVacia:'No designs in this category yet.', imCatEliminar:'Delete category', imCatConfTitulo:'Delete this category?', imCatConfTexto:'Designs in «{cat}» will have no category. No design is deleted.', imCatEliminada:'Category deleted', imCatSinServidor:'Categories are not enabled on the server yet' },
+    pt: { imNuevaCatBtn:'Nova categoria', imCatTitulo:'Nova categoria', imCatLbl:'Nome da categoria', imCatCrear:'Criar', imCatCreada:'Categoria criada', imCatExiste:'Essa categoria já existe', imCatVacia:'Ainda não há designs nesta categoria.', imCatEliminar:'Excluir categoria', imCatConfTitulo:'Excluir a categoria?', imCatConfTexto:'Os designs de «{cat}» ficam sem categoria. Nenhum design é excluído.', imCatEliminada:'Categoria excluída', imCatSinServidor:'As categorias ainda não estão habilitadas no servidor' },
+    fr: { imNuevaCatBtn:'Nouvelle catégorie', imCatTitulo:'Nouvelle catégorie', imCatLbl:'Nom de la catégorie', imCatCrear:'Créer', imCatCreada:'Catégorie créée', imCatExiste:'Cette catégorie existe déjà', imCatVacia:'Aucun design dans cette catégorie pour l’instant.', imCatEliminar:'Supprimer la catégorie', imCatConfTitulo:'Supprimer la catégorie ?', imCatConfTexto:'Les designs de « {cat} » n’auront plus de catégorie. Aucun design n’est supprimé.', imCatEliminada:'Catégorie supprimée', imCatSinServidor:'Les catégories ne sont pas encore activées sur le serveur' },
+    de: { imNuevaCatBtn:'Neue Kategorie', imCatTitulo:'Neue Kategorie', imCatLbl:'Name der Kategorie', imCatCrear:'Erstellen', imCatCreada:'Kategorie erstellt', imCatExiste:'Diese Kategorie gibt es schon', imCatVacia:'In dieser Kategorie gibt es noch keine Designs.', imCatEliminar:'Kategorie löschen', imCatConfTitulo:'Kategorie löschen?', imCatConfTexto:'Die Designs in „{cat}“ haben dann keine Kategorie. Kein Design wird gelöscht.', imCatEliminada:'Kategorie gelöscht', imCatSinServidor:'Kategorien sind auf dem Server noch nicht aktiviert' },
+    it: { imNuevaCatBtn:'Nuova categoria', imCatTitulo:'Nuova categoria', imCatLbl:'Nome della categoria', imCatCrear:'Crea', imCatCreada:'Categoria creata', imCatExiste:'Questa categoria esiste già', imCatVacia:'Non ci sono ancora design in questa categoria.', imCatEliminar:'Elimina categoria', imCatConfTitulo:'Eliminare la categoria?', imCatConfTexto:'I design di «{cat}» resteranno senza categoria. Nessun design viene eliminato.', imCatEliminada:'Categoria eliminata', imCatSinServidor:'Le categorie non sono ancora attive sul server' },
+  };
+  for (const [lang, textos] of Object.entries(IM_I18N_CAT)) Object.assign(IM_I18N[lang], textos);
   for (const [lang, textos] of Object.entries(IM_I18N)) Object.assign(translations[lang] ?? translations.es, textos);
 
   let misDisenos = [];
@@ -1048,16 +1078,29 @@ setUiLanguage(savedLanguage);
     (data ?? []).forEach(x => { if (x.signedUrl && x.path) urlMini.set(x.path, x.signedUrl); });
   }
 
+  let misCats = [];   // categorías creadas (tabla user_diseno_categorias), existen aunque estén vacías
   async function cargarMis() {
-    const { data, error } = await db.from('user_disenos').select('*')
-      .eq('product_id', IM.productId).order('created_at', { ascending: false });
-    if (error) { toast(t('imNoCargo')); return; }
-    misDisenos = data ?? [];
+    const [res, resCats] = await Promise.all([
+      db.from('user_disenos').select('*').eq('product_id', IM.productId).order('created_at', { ascending: false }),
+      db.from('user_diseno_categorias').select('nombre').eq('product_id', IM.productId),
+    ]);
+    if (res.error) { toast(t('imNoCargo')); return; }
+    misDisenos = res.data ?? [];
+    misCats = resCats.error ? [] : (resCats.data ?? []).map(c => c.nombre);
     await firmarMiniaturas();
     renderMis();
   }
 
-  const catsPlanas = () => [...new Set(misDisenos.map(d => d.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const catsPlanas = () => [...new Set([...misCats, ...misDisenos.map(d => d.categoria).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
+  // Una categoría nueva escrita al guardar o importar también queda registrada (si ya existe, no pasa nada)
+  const registrarCategoria = (nombre) => db.from('user_diseno_categorias').insert({ user_id: IM.userId, product_id: IM.productId, nombre }).then(() => {}, () => {});
+  function opcionesCat(sel) {
+    const cats = catsPlanas();
+    if (sel && !cats.includes(sel)) cats.push(sel);
+    return `<option value="">${escapeHtml(t('imSinCat'))}</option>` +
+      cats.map(c => `<option value="${escapeHtml(c)}" ${c === sel ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('') +
+      `<option value="__nueva__">${escapeHtml(t('imNuevaCat'))}</option>`;
+  }
 
   function menuMisHtml(d) {
     return `
@@ -1074,10 +1117,22 @@ setUiLanguage(savedLanguage);
   // el lift del hover del card y se ve como si el card entero se hundiera.
   function pintarMenuMis() {
     document.querySelectorAll('#imMisGrid .im-menu').forEach(n => n.remove());
-    if (menuMis === null) return;
+    if (menuMis === null) { ubicarMenu(); return; }
     const btn = document.querySelector(`#imMisGrid .im-menu-btn[data-immenu="${menuMis}"]`);
     const d = misDisenos.find(x => x.id === menuMis);
     if (btn && d) btn.insertAdjacentHTML('afterend', menuMisHtml(d));
+    ubicarMenu();
+  }
+  // Arranca en el botón ⋮ y abre hacia la derecha; si se sale de la pantalla, hacia adentro
+  function ubicarMenu() {
+    document.querySelectorAll('#imMisGrid .im-card-mis.menu-abierto').forEach(c => c.classList.remove('menu-abierto'));
+    const m = document.querySelector('#imMisGrid .im-menu');
+    if (!m) return;
+    m.closest('.im-card-mis').classList.add('menu-abierto');
+    const btn = m.parentElement.querySelector('.im-menu-btn');
+    m.style.left = btn.offsetLeft + 'px';
+    m.style.right = 'auto';
+    if (m.getBoundingClientRect().right > document.documentElement.clientWidth - 8) { m.style.left = 'auto'; m.style.right = '10px'; }
   }
 
   function cardMis(d) {
@@ -1101,8 +1156,8 @@ setUiLanguage(savedLanguage);
   function renderMis() {
     pintarBotonPanel();
     if ($('im-mis').hidden) return;
-    // Sin diseños guardados: solo el mensaje, nada de chips ni contador
-    if (!misDisenos.length) {
+    // Sin diseños ni categorías: solo el mensaje, nada de chips ni contador
+    if (!misDisenos.length && !catsPlanas().length) {
       $('imMisChips').innerHTML = '';
       $('imMisCount').textContent = '';
       $('imMisGrid').innerHTML = `<div class="empty">${escapeHtml(t('imVacio'))}</div>`;
@@ -1113,8 +1168,11 @@ setUiLanguage(savedLanguage);
     $('imMisChips').innerHTML = ['ALL', ...cats].map(c =>
       `<button class="filter ${c === catActiva ? 'active' : ''}" type="button" data-imchip="${escapeHtml(c)}">${escapeHtml(c === 'ALL' ? t('imTodas') : c)}</button>`).join('');
     const visibles = misDisenos.filter(d => catActiva === 'ALL' || d.categoria === catActiva);
-    $('imMisCount').textContent = `${visibles.length} ${visibles.length === 1 ? t('imDisenoUno') : t('imDisenoMuchos')}`;
-    $('imMisGrid').innerHTML = visibles.map(cardMis).join('');
+    $('imMisCount').innerHTML = escapeHtml(`${visibles.length} ${visibles.length === 1 ? t('imDisenoUno') : t('imDisenoMuchos')}`) +
+      (catActiva !== 'ALL' ? ` · <button class="im-link im-link-sm" type="button" data-imborrarcat>${escapeHtml(t('imCatEliminar'))}</button>` : '');
+    $('imMisGrid').innerHTML = visibles.length ? visibles.map(cardMis).join('')
+      : `<div class="empty">${escapeHtml(t(catActiva === 'ALL' ? 'imVacio' : 'imCatVacia'))}</div>`;
+    ubicarMenu();
   }
 
   function setVistaMis(v) {
@@ -1179,11 +1237,7 @@ setUiLanguage(savedLanguage);
 
   // ── Modal de nombre + categoría plana (crear y editar datos) ──
   function llenarSelCat(sel) {
-    const cats = catsPlanas();
-    if (sel && !cats.includes(sel)) cats.push(sel);
-    $('imMDSelCat').innerHTML = `<option value="">${escapeHtml(t('imSinCat'))}</option>` +
-      cats.map(c => `<option value="${escapeHtml(c)}" ${c === sel ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('') +
-      `<option value="__nueva__">${escapeHtml(t('imNuevaCat'))}</option>`;
+    $('imMDSelCat').innerHTML = opcionesCat(sel);
     $('imMDCatNueva').style.display = 'none';
     $('imMDCatNueva').value = '';
     $('imMDCatNueva').placeholder = t('imNuevaCatNombre');
@@ -1215,7 +1269,8 @@ setUiLanguage(savedLanguage);
     const nombre = $('imMDNombre').value.trim();
     if (!nombre) { toast(t('imNombreVacio')); return; }
     let categoria = $('imMDSelCat').value;
-    if (categoria === '__nueva__') {
+    const catNueva = categoria === '__nueva__';
+    if (catNueva) {
       categoria = $('imMDCatNueva').value.trim();
       if (!categoria) { toast(t('imNuevaCatNombre')); return; }
     }
@@ -1231,6 +1286,7 @@ setUiLanguage(savedLanguage);
       }));
     }
     if (error) { toast(t('imNoGuardo') + ': ' + error.message); return; }
+    if (catNueva) await registrarCategoria(categoria);
     $('imMD').classList.remove('abierto');
     toast(t(ctxDatos ? 'imActualizado' : 'imGuardado'));
     ctxDatos = null;
@@ -1241,9 +1297,9 @@ setUiLanguage(savedLanguage);
 
   // ── Confirmación propia + borrado verificado ──
   let confResolve = null;
-  function confirmar() {
-    $('imConfTitulo').textContent = t('imConfTitulo');
-    $('imConfTexto').textContent = t('imConfTexto');
+  function confirmar(titulo, texto) {
+    $('imConfTitulo').textContent = titulo ?? t('imConfTitulo');
+    $('imConfTexto').textContent = texto ?? t('imConfTexto');
     $('imConfNo').textContent = t('imCancelar');
     $('imConfSi').textContent = t('imConfSi');
     $('imConf').classList.add('abierto');
@@ -1267,8 +1323,46 @@ setUiLanguage(savedLanguage);
     cargarMis();
   }
 
+  // ── Categorías: crear con su botón; eliminar deja sus diseños sin categoría ──
+  function abrirNuevaCat() {
+    $('imCatTitulo').textContent = t('imCatTitulo');
+    $('imCatLbl').textContent = t('imCatLbl');
+    $('imCatCancelar').textContent = t('imCancelar');
+    $('imCatOk').textContent = t('imCatCrear');
+    $('imCatNombre').value = '';
+    $('imCat').classList.add('abierto');
+    $('imCatNombre').focus();
+  }
+  async function crearCategoria() {
+    const nombre = $('imCatNombre').value.trim();
+    if (!nombre) { toast(t('imCatLbl')); $('imCatNombre').focus(); return; }
+    if (catsPlanas().some(c => c.toLowerCase() === nombre.toLowerCase())) { toast(t('imCatExiste')); return; }
+    const { error } = await db.from('user_diseno_categorias').insert({ user_id: IM.userId, product_id: IM.productId, nombre });
+    if (error) { toast(/user_diseno_categorias|schema cache|does not exist/i.test(error.message) ? t('imCatSinServidor') : t('imNoGuardo') + ': ' + error.message); return; }
+    $('imCat').classList.remove('abierto');
+    toast(t('imCatCreada'));
+    catActiva = nombre;
+    cargarMis();
+  }
+  async function eliminarCategoria(nombre) {
+    if (!await confirmar(t('imCatConfTitulo'), format(t('imCatConfTexto'), { cat: nombre }))) return;
+    const { error } = await db.from('user_disenos').update({ categoria: null, updated_at: new Date().toISOString() })
+      .eq('product_id', IM.productId).eq('categoria', nombre);
+    if (error) { toast(t('imNoBorro')); return; }
+    await db.from('user_diseno_categorias').delete().eq('product_id', IM.productId).eq('nombre', nombre);
+    catActiva = 'ALL';
+    toast(t('imCatEliminada'));
+    cargarMis();
+  }
+  $('imNuevaCatBtn').addEventListener('click', abrirNuevaCat);
+  $('imCatOk').addEventListener('click', crearCategoria);
+  $('imCatNombre').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); crearCategoria(); } });
+  $('imCatCancelar').addEventListener('click', () => $('imCat').classList.remove('abierto'));
+  $('imCat').addEventListener('click', (e) => { if (e.target.id === 'imCat') e.target.classList.remove('abierto'); });
+
   // ── Delegación en la vista Mis diseños ──
   $('im-mis').addEventListener('click', async (e) => {
+    if (e.target.closest('[data-imborrarcat]')) { eliminarCategoria(catActiva); return; }
     const chip = e.target.closest('[data-imchip]');
     if (chip) { catActiva = chip.dataset.imchip; menuMis = null; renderMis(); return; }
     const mb = e.target.closest('[data-immenu]');
@@ -1452,6 +1546,11 @@ setUiLanguage(savedLanguage);
     $('imImpCancelar').textContent = t('imCancelar');
     $('imImpOk').textContent = t(modo === 'codigo' ? 'imImpGuardarCodigo' : modo === 'miniatura' ? 'imMiniGuardar' : 'imImpBoton');
     $('imImpNombre').value = '';
+    $('imImpLblCat').textContent = t('imCategoria');
+    $('imImpSelCat').innerHTML = opcionesCat(modo === 'nuevo' && catActiva !== 'ALL' ? catActiva : '');
+    $('imImpCatNueva').style.display = 'none';
+    $('imImpCatNueva').value = '';
+    $('imImpCatNueva').placeholder = t('imNuevaCatNombre');
     $('imImpCodigo').value = '';
     $('imImpArchivo').value = '';
     ['imImpMiniErr', 'imImpCodErr', 'imImpCodOk'].forEach(id => avisoImp(id, ''));
@@ -1554,6 +1653,13 @@ setUiLanguage(savedLanguage);
     const { modo, fila } = ctxImp;
     const nombre = $('imImpNombre').value.trim();
     if (modo === 'nuevo' && !nombre) { toast(t('imNombreVacio')); $('imImpNombre').focus(); return; }
+    let categoria = $('imImpSelCat').value;
+    const catNueva = categoria === '__nueva__';
+    if (modo === 'nuevo' && catNueva) {
+      categoria = $('imImpCatNueva').value.trim();
+      if (!categoria) { toast(t('imNuevaCatNombre')); $('imImpCatNueva').focus(); return; }
+    }
+    categoria = categoria || null;
     if (modo === 'miniatura' && !impMini) { if ($('imImpMiniErr').hidden) avisoImp('imImpMiniErr', t('imImpFaltaMini')); toast(t('imImpFaltaMini')); return; }
     if (modo !== 'miniatura' && !impCodigo) { if ($('imImpCodErr').hidden) avisoImp('imImpCodErr', t('imImpFaltaCodigo')); toast(t('imImpFaltaCodigo')); return; }
 
@@ -1568,7 +1674,7 @@ setUiLanguage(savedLanguage);
         const valores = { ...impCodigo.plantilla.variables, LANGUAGE: 'Spanish' };
         ({ error } = await db.from('user_disenos').insert({
           user_id: IM.userId, product_id: IM.productId, item_id: null,
-          nombre, categoria: null, plantilla: impCodigo.plantilla, miniatura: null,
+          nombre, categoria, plantilla: impCodigo.plantilla, miniatura: null,
           valores, contenido: promptCon(impCodigo.plantilla, valores),
         }));
       } else if (modo === 'codigo') {
@@ -1588,7 +1694,7 @@ setUiLanguage(savedLanguage);
       impOcupado = false;
       cerrarImportar();
       toast(t(modo === 'codigo' ? 'imCodigoListoSinMini' : modo === 'miniatura' ? (fila.miniatura ? 'imMiniActualizada' : 'imMiniAgregada') : 'imImportadoSinMini'));
-      if (modo === 'nuevo') catActiva = 'ALL';
+      if (modo === 'nuevo') { if (catNueva && categoria) await registrarCategoria(categoria); catActiva = categoria || 'ALL'; }
       cargarMis();
     } catch (error) {
       if (ruta) db.storage.from(BUCKET).remove([ruta]);
@@ -1605,6 +1711,11 @@ setUiLanguage(savedLanguage);
     setTimeout(() => { $('imImpCopiarPrompt').textContent = t('imSkCopiar'); }, 1600);
   });
   $('imTemaBtn')?.addEventListener('click', () => setTimeout(renderMis));
+  $('imImpSelCat').addEventListener('change', () => {
+    const nueva = $('imImpSelCat').value === '__nueva__';
+    $('imImpCatNueva').style.display = nueva ? '' : 'none';
+    if (nueva) $('imImpCatNueva').focus();
+  });
   $('imImportarBtn').addEventListener('click', () => abrirImportar('nuevo'));
   $('imImpCancelar').addEventListener('click', cerrarImportar);
   $('imImp').addEventListener('click', (e) => {
