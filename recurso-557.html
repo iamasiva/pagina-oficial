@@ -1103,15 +1103,7 @@
           <form id="customForm" class="builder-panel" autocomplete="off">
             <h3 class="panel-title">Datos del rol</h3>
             <div class="field">
-              <label for="customRole">Nombre del rol</label>
-              <input id="customRole" type="text" placeholder="Ej: Asesor de turismo sostenible" autocomplete="off">
-            </div>
-            <div class="field">
-              <label for="customSpecialty">Área de especialidad</label>
-              <input id="customSpecialty" type="text" placeholder="Ej: Ecoturismo en Colombia y el Caribe" autocomplete="off">
-            </div>
-            <div class="field">
-              <label for="customUserType">Para quién</label>
+              <label for="customUserType">Tu situación / variante</label>
               <select id="customUserType" data-other-target="customOtherUserType">
                 <option>Emprendedor</option>
                 <option>Profesional independiente</option>
@@ -1121,6 +1113,14 @@
                 <option>Otro</option>
               </select>
               <input id="customOtherUserType" class="other-language" type="text" placeholder="Describe para quién es" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="customRole">Nombre del rol</label>
+              <input id="customRole" type="text" placeholder="Ej: Asesor de turismo sostenible" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="customSpecialty">Área de especialidad</label>
+              <input id="customSpecialty" type="text" placeholder="Ej: Ecoturismo en Colombia y el Caribe" autocomplete="off">
             </div>
             <div class="field">
               <label for="customExpertise">Áreas clave de expertise</label>
@@ -2308,7 +2308,10 @@ ${clean}`;
       }
       const role = roleValue || 'Custom expert advisor';
       const specialty = specialtyValue || 'a specific professional domain';
-      const userType = selectedOrOther('customUserType', 'customOtherUserType', 'Uso personal');
+      // "Tu situación / variante": una opción fija, Otro, o una variante guardada (uv:<id>)
+      const userTypeSel = document.getElementById('customUserType').value;
+      const varianteCrear = userTypeSel.startsWith('uv:') ? (window.__IM_VARS?.get(userTypeSel.slice(3))?.situacion || '').trim() : '';
+      const userType = varianteCrear ? '' : selectedOrOther('customUserType', 'customOtherUserType', 'Uso personal');
       const language = selectedOrOther('customLanguage', 'customOtherLanguage', 'Español');
       const tone = selectedOrOther('customTone', 'customOtherTone', 'Profesional y directo');
       const platform = selectedOrOther('customPlatform', 'customOtherPlatform', 'Gemini');
@@ -2317,7 +2320,9 @@ ${clean}`;
       const region = document.getElementById('customRegion').value.trim() || 'América Latina';
       const bullets = rawExpertise.split(/[,\n]/).map(x => x.trim()).filter(Boolean).slice(0, 8);
       const expertise = bullets.length ? bullets.map(x => `- ${x}`).join('\n') : '- Domain diagnosis and practical recommendations\n- Context-aware decision support\n- Clear next steps for the user';
-      let output = CUSTOM_TEMPLATE
+      let output = (varianteCrear
+          ? CUSTOM_TEMPLATE.replace('Your expertise is tailored for {{USER_TYPE}}.', 'Your expertise is tailored for this situation: ' + varianteCrear + (/[.!?]$/.test(varianteCrear) ? '' : '.'))
+          : CUSTOM_TEMPLATE)
         .replaceAll('{{PLATFORM}}', platform)
         .replaceAll('{{USER_ROLE_NAME}}', role)
         .replaceAll('{{USER_SPECIALTY}}', specialty)
@@ -2977,7 +2982,7 @@ ${clean}`;
         varGuardada: 'Variante guardada', varActualizada: 'Variante actualizada', varEliminada: 'Variante eliminada',
         varConfirmaEliminar: 'Las configuraciones que ya generaste no se pierden.', varConfirmaTitulo: '¿Eliminar esta variante?',
         varTextoVacio: 'Escribe la situación antes de guardar.', varNombreVacio: 'Ponle un nombre corto para reconocerla.',
-        varGrupo: '— Mis variantes —', varEditarBtn: 'Editar', varCopiarBtn: 'Copiar',
+        varGrupo: 'Mis variantes', varEditarBtn: 'Editar', varCopiarBtn: 'Copiar',
         cerrarDet: 'Cerrar',
         cfgCuadTitulo: 'Configuración del cuaderno',
         cfgN: 'configuraciones', cfgN1: 'configuración', misSinCat: 'Sin categoría',
@@ -2996,7 +3001,7 @@ ${clean}`;
         varGuardada: 'Variant saved', varActualizada: 'Variant updated', varEliminada: 'Variant deleted',
         varConfirmaEliminar: 'Configurations you already generated are not lost.', varConfirmaTitulo: 'Delete this variant?',
         varTextoVacio: 'Write the situation before saving.', varNombreVacio: 'Give it a short name to recognize it.',
-        varGrupo: '— My variants —', varEditarBtn: 'Edit', varCopiarBtn: 'Copy',
+        varGrupo: 'My variants', varEditarBtn: 'Edit', varCopiarBtn: 'Copy',
         cerrarDet: 'Close',
         cfgCuadTitulo: 'Notebook configuration',
         cfgN: 'configurations', cfgN1: 'configuration', misSinCat: 'Uncategorized',
@@ -3017,10 +3022,33 @@ ${clean}`;
         renderVariantes();
       }
 
+      // "Crea tu configuración": las variantes del usuario van al final de "Tu situación / variante"
+      function opcionesVariantesCrear() {
+        const sel = document.getElementById('customUserType');
+        if (!sel) return;
+        const antes = sel.value;
+        sel.querySelectorAll('option[data-uv]').forEach(o => o.remove());
+        if (misVariantes.length) {
+          const sep = document.createElement('option');
+          sep.disabled = true; sep.textContent = tt().varGrupo; sep.dataset.uv = '1';
+          sel.appendChild(sep);
+          misVariantes.forEach(v => {
+            const o = document.createElement('option');
+            o.value = 'uv:' + v.id; o.textContent = v.nombre; o.dataset.uv = '1';
+            sel.appendChild(o);
+          });
+        }
+        if (antes.startsWith('uv:')) {
+          sel.value = [...sel.options].some(o => o.value === antes) ? antes : sel.options[0].value;
+          sel.dispatchEvent(new Event('change'));
+        }
+      }
+
       // Cada variante es una etiqueta colgante: la identidad que el usuario
       // le cuelga al experto al elegirla en el desplegable
       let varDetalleId = null;
       function renderVariantes() {
+        opcionesVariantesCrear();
         $('imVarVacio').style.display = misVariantes.length ? 'none' : 'block';
         $('imVarVacio').textContent = tt().varVacio;
         $('imVarList').innerHTML = misVariantes.length ? `<div class="im-tags-grid">${misVariantes.map(v => `
