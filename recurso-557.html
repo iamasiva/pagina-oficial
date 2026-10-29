@@ -1272,15 +1272,10 @@
     <div class="im-modal-caja im-modal-skill">
       <span class="badge" id="imSkillBadge">Skill de Gemini</span>
       <h3 id="imSkillTitulo">Crea esta skill en Gemini</h3>
-      <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar. Se crea una sola vez.</p>
-      <ol class="im-skill-pasos">
-        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual.</span></li>
-        <li><b>2</b><span id="imSkillPaso2">Copia y pega cada campo en su lugar y guarda.</span></li>
-        <li><b>3</b><span id="imSkillPaso3">En cualquier chat escribe el nombre de la skill y lo que necesitas.</span></li>
-      </ol>
+      <p class="im-skill-sub" id="imSkillSub">Aquí tienes el archivo SKILL.md o los 3 campos listos para copiar y pegar.</p>
       <p class="im-skill-estado" id="imSkillEstado">Cargando los campos...</p>
       <div id="imSkillCampos" style="display:none">
-        <div class="im-skill-descarga"><button id="imSkillDescargar" class="primary-btn" type="button"><span>Descargar SKILL.md</span></button><small id="imSkillDescargaNota">Para Habilidades, Crear, Subir. O copia los 3 campos de abajo.</small></div>
+        <div class="im-skill-descarga"><button id="imSkillDescargar" class="primary-btn" type="button"><span>Descargar SKILL.md</span></button></div>
         <div class="im-skill-campo">
           <div class="im-skill-campo-cab"><span id="imSkillLblNombre">Nombre</span><button class="secondary-btn" type="button" data-copia="nombre"><span>Copiar</span></button></div>
           <div class="im-skill-valor mono" id="imSkillNombre"></div>
@@ -1295,7 +1290,6 @@
           <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
         </div>
       </div>
-      <p class="im-skill-estado" id="imSkillNota">La gema sigue funcionando mientras Google la mantenga; con la skill ya no dependes de ella.</p>
       <div class="im-modal-acciones">
         <button id="imSkillCerrar" class="secondary-btn" type="button"><span>Cerrar</span></button>
       </div>
@@ -2667,7 +2661,7 @@ ${clean}`;
           busqBtn: 'Abrir el Bibliotecario en Gemini', busqNota: 'Se abre en una pestaña nueva con tu cuenta de Google.',
           skillAviso: '{nombre} ya está listo como skill de Gemini: la creas una sola vez y la llamas con {llamada} en cualquier chat. La gema de arriba sigue funcionando mientras Google la mantenga.',
           skillNombres: { 'creador-de-configuraciones-557': 'el Creador', 'bibliotecario-del-557': 'el Bibliotecario', 'arquitecto-del-557': 'el Arquitecto' },
-          skillBtn: 'Crea la skill', skillBadge: 'Skill de Gemini', skillTitulo: 'Crea esta skill en Gemini', skillSub: 'Los 3 campos listos para copiar y pegar, o el archivo SKILL.md para subirla de una vez. Se crea una sola vez.',
+          skillBtn: 'Crea la skill', skillBadge: 'Skill de Gemini', skillTitulo: 'Crea esta skill en Gemini', skillSub: 'Aquí tienes el archivo SKILL.md o los 3 campos listos para copiar y pegar.',
           skillPaso1: 'En Gemini abre Configuración, luego Habilidades y toca Crear. Elige Crear manualmente para pegar los campos, o Subir si descargaste el archivo.', skillPaso2: 'Pega cada campo en su caja y guarda, o sube el archivo SKILL.md tal cual, sin cambiarle el nombre.', skillDescargar: 'Descargar SKILL.md', skillDescargaNota: 'Para Habilidades, Crear, Subir. O copia los 3 campos de abajo.', skillDescargado: 'SKILL.md descargado. En Gemini: Habilidades, Crear, Subir', skillPaso3: 'En cualquier chat escribe {llamada} y lo que necesitas.',
           skillLblNombre: 'Nombre', skillLblDesc: 'Descripción', skillLblInstr: 'Instrucciones', skillCopiar: 'Copiar', skillCopiado: 'Copiado', skillCerrar: 'Cerrar',
           skillInstrNota: 'Se copian completas, aunque aquí solo se vea el inicio.', skillNota: 'La gema sigue funcionando mientras Google la mantenga; con la skill ya no dependes de ella.',
@@ -2695,7 +2689,7 @@ ${clean}`;
           busqBtn: 'Open the Librarian in Gemini', busqNota: 'Opens in a new tab with your Google account.',
           skillAviso: '{nombre} is ready as a Gemini skill: create it once and call it with {llamada} in any chat. The gem above keeps working while Google keeps it.',
           skillNombres: { 'creador-de-configuraciones-557': 'the Creator', 'bibliotecario-del-557': 'the Librarian', 'arquitecto-del-557': 'the Architect' },
-          skillBtn: 'Create the skill', skillBadge: 'Gemini skill', skillTitulo: 'Create this skill in Gemini', skillSub: 'The 3 fields ready to copy and paste, or the SKILL.md file to upload it at once. You create it only once.',
+          skillBtn: 'Create the skill', skillBadge: 'Gemini skill', skillTitulo: 'Create this skill in Gemini', skillSub: 'Here is the SKILL.md file, or the 3 fields ready to copy and paste.',
           skillPaso1: 'In Gemini open Settings, then Skills and tap Create. Choose Create manually to paste the fields, or Upload if you downloaded the file.', skillPaso2: 'Paste each field in its box and save, or upload the SKILL.md file as is, without renaming it.', skillDescargar: 'Download SKILL.md', skillDescargaNota: 'For Skills, Create, Upload. Or copy the 3 fields below.', skillDescargado: 'SKILL.md downloaded. In Gemini: Skills, Create, Upload', skillPaso3: 'In any chat type {llamada} followed by what you need.',
           skillLblNombre: 'Name', skillLblDesc: 'Description', skillLblInstr: 'Instructions', skillCopiar: 'Copy', skillCopiado: 'Copied', skillCerrar: 'Close',
           skillInstrNota: 'They are copied in full, even though only the beginning is shown here.', skillNota: 'The gem keeps working while Google keeps it; with the skill you no longer depend on it.',
@@ -4359,6 +4353,7 @@ ${clean}`;
         return html.charAt(0).toUpperCase() + html.slice(1); // "el Creador..." al inicio de frase va con mayúscula
       }
       function pintarPasosSkill(x, clave) {
+        if (!$('imSkillPaso1')) return; // la ventana ya no muestra pasos
         $('imSkillPaso1').textContent = x.skillPaso1;
         $('imSkillPaso2').textContent = x.skillPaso2;
         $('imSkillPaso3').innerHTML = escapeHtml(x.skillPaso3).replace('{llamada}', '<code>' + escapeHtml(llamadaSkillIM(clave)) + '</code>');
@@ -4371,10 +4366,9 @@ ${clean}`;
         });
         $('imSkillBadge').textContent = x.skillBadge; $('imSkillTitulo').textContent = x.skillTitulo; $('imSkillSub').textContent = x.skillSub;
         $('imSkillLblNombre').textContent = x.skillLblNombre; $('imSkillLblDesc').textContent = x.skillLblDesc; $('imSkillLblInstr').textContent = x.skillLblInstr;
-        $('imSkillInstrNota').textContent = x.skillInstrNota; $('imSkillNota').textContent = x.skillNota;
+        $('imSkillInstrNota').textContent = x.skillInstrNota;
         $('imSkillCerrar').querySelector('span').textContent = x.skillCerrar;
         $('imSkillDescargar').querySelector('span').textContent = x.skillDescargar;
-        $('imSkillDescargaNota').textContent = x.skillDescargaNota;
         document.querySelectorAll('#imModalSkill [data-copia] span').forEach(s => { s.textContent = x.skillCopiar; });
         pintarPasosSkill(x, skillAbierta || 'bibliotecario-del-557');
       }

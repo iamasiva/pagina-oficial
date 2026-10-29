@@ -1243,15 +1243,10 @@
     <div class="im-modal-caja im-modal-skill">
       <span class="badge" id="imSkillBadge">Skill de Gemini</span>
       <h3 id="imSkillTitulo">Crea esta skill en Gemini</h3>
-      <p class="im-skill-sub" id="imSkillSub">Los 3 campos listos para copiar y pegar, o el archivo SKILL.md para subirla de una vez. Se crea una sola vez.</p>
-      <ol class="im-skill-pasos">
-        <li><b>1</b><span id="imSkillPaso1">En Gemini abre Configuración, luego Habilidades y toca Crear. Elige Crear manualmente para pegar los campos, o Subir si descargaste el archivo.</span></li>
-        <li><b>2</b><span id="imSkillPaso2">Pega cada campo en su caja y guarda, o sube el archivo SKILL.md tal cual, sin cambiarle el nombre.</span></li>
-        <li><b>3</b><span id="imSkillPaso3">En cualquier chat escribe el nombre de la skill y lo que necesitas.</span></li>
-      </ol>
+      <p class="im-skill-sub" id="imSkillSub">Aquí tienes el archivo SKILL.md o los 3 campos listos para copiar y pegar.</p>
       <p class="im-skill-estado" id="imSkillEstado">Cargando los campos...</p>
       <div id="imSkillCampos" style="display:none">
-        <div class="im-skill-descarga"><button id="imSkillDescargar" class="im-btn-primario" type="button"><span>Descargar SKILL.md</span></button><small>Para Habilidades, Crear, Subir. O copia los 3 campos de abajo.</small></div>
+        <div class="im-skill-descarga"><button id="imSkillDescargar" class="im-btn-primario" type="button"><span>Descargar SKILL.md</span></button></div>
         <div class="im-skill-campo">
           <div class="im-skill-campo-cab"><span id="imSkillLblNombre">Nombre</span><button class="im-mini-btn" type="button" data-copia="nombre"><span>Copiar</span></button></div>
           <div class="im-skill-valor mono" id="imSkillNombre"></div>
@@ -1266,7 +1261,6 @@
           <p class="im-skill-estado" id="imSkillInstrNota">Se copian completas, aunque aquí solo se vea el inicio.</p>
         </div>
       </div>
-      <p class="im-skill-estado" id="imSkillNota">La gema sigue funcionando mientras Google la mantenga; con la skill ya no dependes de ella.</p>
       <div class="im-modal-acciones">
         <button id="imSkillCerrar" class="im-mini-btn" type="button"><span>Cerrar</span></button>
       </div>
@@ -3512,18 +3506,14 @@ ${ficha}`;
       const CACHE = {}; let abierta = null, fila = null;
       const U = () => window.imSkillUtil || {};
       const escapeHtml = (t) => (U().escapeHtml ? U().escapeHtml(t) : String(t ?? ''));
-      const NOTA = q('imSkillNota').textContent;
       function pintar(f, opts = {}) {
         fila = f;
-        q('imSkillPaso3').innerHTML = 'En cualquier chat escribe <code>@' + escapeHtml(f.nombre) + '</code> y lo que necesitas.';
         q('imSkillNombre').textContent = f.nombre; q('imSkillDesc').textContent = f.descripcion || ''; q('imSkillInstr').textContent = f.instrucciones || '';
-        q('imSkillNota').textContent = opts.nota || NOTA; q('imSkillNota').style.display = opts.nota === false ? 'none' : '';
         q('imSkillEstado').style.display = 'none'; q('imSkillCampos').style.display = '';
       }
       async function abrir(clave) {
         abierta = clave; fila = null;
-        q('imSkillPaso3').innerHTML = 'En cualquier chat escribe <code>@' + clave + '</code> y lo que necesitas.';
-        q('imSkillCampos').style.display = 'none'; q('imSkillNota').textContent = NOTA; q('imSkillNota').style.display = '';
+        q('imSkillCampos').style.display = 'none';
         const estado = q('imSkillEstado'); estado.style.display = ''; estado.textContent = 'Cargando los campos...';
         modal.classList.add('abierto');
         let f = CACHE[clave];
@@ -3536,7 +3526,7 @@ ${ficha}`;
         pintar(f);
       }
       // Skills guardadas en Mis agentes: la misma ventana, con los datos de esa skill
-      window.imAbrirSkill = (f) => { abierta = null; pintar(f, { nota: false }); modal.classList.add('abierto'); };
+      window.imAbrirSkill = (f) => { abierta = null; pintar(f); modal.classList.add('abierto'); };
       document.querySelectorAll('[data-skill]').forEach(b => b.addEventListener('click', () => abrir(b.dataset.skill)));
       q('imSkillCerrar').addEventListener('click', () => modal.classList.remove('abierto'));
       q('imSkillDescargar').addEventListener('click', () => {
