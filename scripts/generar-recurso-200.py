@@ -9,6 +9,11 @@ nombre + categorías planas sin subcategorías, en los 6 idiomas de la app).
 Único parche técnico al app: loading="lazy" en las imágenes de la galería.
 
 Uso:  python3 scripts/generar-recurso-200.py
+
+OJO (29 oct 2026): desde el commit 1e4be54 recurso-200.html se edita directo
+(chip Biblioteca, hamburguesa, Manual de uso, modo oscuro, caché del catálogo,
+Importar diseño y Skill de diseño...). Este script ya NO reproduce la página
+viva: correrlo borra todo eso. Los cambios nuevos van en recurso-200.html.
 """
 
 SRC = '/Users/sergiolizcano/Desktop/PROYECTOS/PROYECTOS IA MASIVA/VERSIONES FINALES RECURSOS/200 diseños para presentaciones'

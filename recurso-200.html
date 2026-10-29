@@ -204,6 +204,60 @@
     .im-modal-acciones { display: flex; gap: 10px; margin-top: 20px; }
     #imToast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 12px); z-index: 60; background: var(--navy); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 14px; opacity: 0; transition: .2s ease; pointer-events: none; max-width: min(90vw, 480px); }
     #imToast.show { opacity: 1; transform: translate(-50%, 0); }
+    /* Herramientas: accesos a los otros recursos (herramientas-im.js) */
+    .im-herr { position: relative; }
+    .im-herr-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; background: transparent; color: #e8d7ba; font-size: 12px; font-weight: 800; }
+    .im-herr-btn:hover, .im-herr-btn[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: white; }
+    .im-herr-btn svg { transition: transform .15s ease; }
+    .im-herr-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .im-herr-menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 30; min-width: 260px; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 2px; }
+    .im-herr-fila { display: flex; align-items: center; gap: 8px; }
+    .im-herr-link { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; padding: 10px; border-radius: 8px; color: var(--ink); font-size: 13px; font-weight: 750; text-decoration: none; }
+    .im-herr-link svg { flex: 0 0 auto; }
+    .im-herr-link span { white-space: nowrap; }
+    a.im-herr-link:hover { background: var(--surface-2); }
+    .im-herr-fila.apagada .im-herr-link { opacity: .45; cursor: not-allowed; user-select: none; }
+    .im-herr-activar { flex: 0 0 auto; margin-right: 4px; padding: 5px 11px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11.5px; font-weight: 800; text-decoration: none; }
+    .im-herr-activar:hover { filter: brightness(1.1); }
+    @media (max-width: 720px) {
+      .nav-actions .im-herr-btn { width: 100%; justify-content: center; }
+      .im-herr-menu { position: static; min-width: 0; margin-top: 8px; box-shadow: none; }
+    }
+    .im-mis-head { align-items: center; gap: 14px; flex-wrap: wrap; }
+    .im-mis-titulo { display: flex; align-items: baseline; gap: 14px; }
+    .im-mis-acciones { display: flex; gap: 10px; }
+    .im-btn { padding: 11px 16px; border-radius: 11px; font-size: 14px; font-weight: 800; white-space: nowrap; }
+    .im-btn-sec { color: var(--ink); background: var(--surface); border: 1px solid var(--line); }
+    .im-btn-sec:hover { border-color: var(--navy); }
+    .im-btn-pri { color: white; background: var(--accent); border: 1px solid var(--accent); }
+    .im-btn-pri:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .im-caja-ancha { width: min(540px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; }
+    .im-modal-texto code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; background: var(--accent-soft); color: var(--accent-dark); padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+    .im-link { background: none; border: none; padding: 0; color: var(--accent-dark); font-weight: 800; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+    .im-drop { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 16 / 9; max-height: 240px; border: 2px dashed var(--line); border-radius: 12px; background: var(--surface-2); color: var(--muted); font-size: 13px; font-weight: 700; text-align: center; padding: 14px; cursor: pointer; overflow: hidden; outline: none; }
+    .im-drop:hover, .im-drop:focus-visible, .im-drop.encima { border-color: var(--accent); color: var(--accent-dark); }
+    .im-drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .im-drop.con-imagen { border-style: solid; padding: 0; }
+    .im-drop.con-imagen span { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: rgba(20,33,61,.82); color: white; padding: 6px 12px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
+    .im-imp-ayuda { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .im-imp-error { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); font-size: 13px; font-weight: 600; line-height: 1.5; }
+    .im-imp-ok { margin: 8px 0 0; color: #15803d; font-size: 13px; font-weight: 800; }
+    html[data-tema="oscuro"] .im-imp-ok { color: #4ade80; }
+    .im-modal-caja textarea.im-imp-codigo { min-height: 140px; height: 140px; font-size: 12px; }
+    .im-sk-descarga { margin: 16px 0 6px; display: flex; }
+    .im-sk-descarga .action { flex: 0 0 auto; }
+    .im-sk-campo { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-top: 10px; }
+    .im-sk-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .im-sk-cab span { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .im-sk-copiar { padding: 6px 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 12px; font-weight: 800; }
+    .im-sk-copiar:hover { border-color: var(--navy); }
+    .im-sk-valor { font-size: 13.5px; color: var(--ink); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+    .im-sk-valor.recorte { max-height: 96px; overflow: hidden; color: var(--muted); font-size: 12.5px; }
+    .im-sk-nota { margin: 10px 0 0; color: var(--muted); font-size: 12.5px; }
+    @media (max-width: 620px) {
+      .im-mis-acciones { width: 100%; }
+      .im-mis-acciones .im-btn { flex: 1; }
+    }
     @media (max-width: 620px) {
       .masthead { padding-bottom: 38px; }
       .interface-language span { display: none; }
@@ -248,6 +302,10 @@
         IA MASIVA
       </a>
       <div class="nav-actions">
+        <div class="im-herr" id="imHerrWrap">
+          <button class="im-herr-btn" id="imHerrBtn" type="button" aria-haspopup="true" aria-expanded="false"><span id="imHerrEtiqueta">Herramientas</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+          <div class="im-herr-menu" id="imHerrLista" hidden></div>
+        </div>
         <button class="im-mis-btn" id="imVideoBtn" type="button" data-i18n="imVideo">Manual de uso</button>
         <a class="im-mis-btn" href="https://wa.me/message/GUQZZ7GFPBJOM1" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.83 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.24-8.25 8.24a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm-3.2 4.5c-.15 0-.4.06-.6.28-.2.22-.79.77-.79 1.88s.81 2.18.92 2.33c.11.15 1.58 2.42 3.86 3.39.54.23.96.37 1.29.48.54.17 1.03.15 1.42.09.43-.06 1.34-.55 1.53-1.08.19-.53.19-.98.13-1.08-.06-.09-.2-.15-.43-.26-.22-.11-1.34-.66-1.55-.74-.2-.07-.36-.11-.5.11-.15.22-.57.74-.7.89-.13.15-.26.17-.48.06-.22-.11-.94-.35-1.79-1.11-.66-.59-1.11-1.32-1.24-1.54-.13-.22-.01-.34.1-.45.1-.1.22-.26.33-.39.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.23-.7-1.68-.18-.44-.37-.38-.5-.39l-.43-.01z"></path></svg>
@@ -306,7 +364,13 @@
 
     <section id="im-mis" hidden>
       <button class="im-volver" id="imMisVolver" type="button" data-i18n="imVolver">← Volver a la biblioteca</button>
-      <div class="results-head"><h2 data-i18n="misDisenos">Mis diseños</h2><span class="result-count" id="imMisCount"></span></div>
+      <div class="results-head im-mis-head">
+        <div class="im-mis-titulo"><h2 data-i18n="misDisenos">Mis diseños</h2><span class="result-count" id="imMisCount"></span></div>
+        <div class="im-mis-acciones">
+          <button class="im-btn im-btn-sec" id="imSkillBtn" type="button" data-i18n="imSkillBtn">Skill de diseño</button>
+          <button class="im-btn im-btn-pri" id="imImportarBtn" type="button" data-i18n="imImportar">Importar diseño</button>
+        </div>
+      </div>
       <div class="filters" id="imMisChips" style="margin-bottom:20px;"></div>
       <section class="grid" id="imMisGrid"></section>
     </section>
@@ -357,6 +421,56 @@
       <div class="im-modal-acciones">
         <button class="action reset" id="imConfNo" type="button"></button>
         <button class="action copy" id="imConfSi" type="button"></button>
+      </div>
+    </div>
+  </div>
+  <div class="im-modal" id="imImp">
+    <div class="im-modal-caja im-caja-ancha">
+      <h3 id="imImpTitulo"></h3>
+      <p class="im-modal-texto" id="imImpIntro"></p>
+      <div id="imImpBNombre">
+        <label class="im-modal-label" for="imImpNombre" id="imImpLblNombre"></label>
+        <input id="imImpNombre" type="text" maxlength="80" autocomplete="off">
+      </div>
+      <div id="imImpBMini">
+        <label class="im-modal-label" id="imImpLblMini"></label>
+        <label class="im-drop" id="imImpDrop" for="imImpArchivo" tabindex="0"><img id="imImpPrev" alt="" hidden><span id="imImpDropTxt"></span></label>
+        <input id="imImpArchivo" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <p class="im-imp-ayuda" id="imImpMiniAyuda"></p>
+        <p class="im-imp-error" id="imImpMiniErr" hidden></p>
+      </div>
+      <div id="imImpBCodigo">
+        <label class="im-modal-label" for="imImpCodigo" id="imImpLblCodigo"></label>
+        <textarea id="imImpCodigo" class="im-imp-codigo" spellcheck="false"></textarea>
+        <p class="im-imp-ok" id="imImpCodOk" hidden></p>
+        <p class="im-imp-error" id="imImpCodErr" hidden></p>
+      </div>
+      <div class="im-modal-acciones">
+        <button class="action reset" id="imImpCancelar" type="button"></button>
+        <button class="action copy" id="imImpOk" type="button"></button>
+      </div>
+    </div>
+  </div>
+  <div class="im-modal" id="imSk">
+    <div class="im-modal-caja im-caja-ancha">
+      <h3 id="imSkTitulo"></h3>
+      <p class="im-modal-texto" id="imSkSub"></p>
+      <div class="im-sk-descarga"><button class="action copy" id="imSkDescargar" type="button"></button></div>
+      <div class="im-sk-campo">
+        <div class="im-sk-cab"><span id="imSkLblNombre"></span><button class="im-sk-copiar" type="button" data-imskcopia="nombre"></button></div>
+        <div class="im-sk-valor" id="imSkNombre"></div>
+      </div>
+      <div class="im-sk-campo">
+        <div class="im-sk-cab"><span id="imSkLblDesc"></span><button class="im-sk-copiar" type="button" data-imskcopia="descripcion"></button></div>
+        <div class="im-sk-valor" id="imSkDesc"></div>
+      </div>
+      <div class="im-sk-campo">
+        <div class="im-sk-cab"><span id="imSkLblInstr"></span><button class="im-sk-copiar" type="button" data-imskcopia="instrucciones"></button></div>
+        <div class="im-sk-valor recorte" id="imSkInstr"></div>
+      </div>
+      <p class="im-sk-nota" id="imSkNota"></p>
+      <div class="im-modal-acciones">
+        <button class="action reset" id="imSkCerrar" type="button"></button>
       </div>
     </div>
   </div>
@@ -825,13 +939,23 @@ setUiLanguage(savedLanguage);
 
   // Textos propios en los 6 idiomas: entran a translations y los sirve t()
   const IM_I18N = {
-    es: { misDisenos:'Mis diseños', imVideo:'Manual de uso', imSalir:'Salir', imVolver:'← Volver a la biblioteca', imGuardar:'Guardar diseño', imGuardarCambios:'Guardar cambios', imOk:'Guardar', imGuardado:'Diseño guardado', imActualizado:'Diseño actualizado', imNombre:'Nombre', imCategoria:'Categoría (opcional)', imSinCat:'Sin categoría', imNuevaCat:'➕ Nueva categoría…', imNuevaCatNombre:'Nombre de la nueva categoría', imTodas:'Todas', imVacio:'Aún no guardas diseños. Personaliza cualquier estilo y presiona "Guardar diseño".', imCopiar:'Copiar prompt', imCopiado:'¡Copiado!', imEditar:'Editar diseño', imDatos:'Nombre y categoría', imEliminar:'Eliminar', imEliminado:'Diseño eliminado', imCancelar:'Cancelar', imConfTitulo:'¿Eliminar el diseño?', imConfTexto:'Se eliminará definitivamente.', imConfSi:'Sí, eliminar', imNombreVacio:'Ponle un nombre', imNoGuardo:'No se pudo guardar', imNoBorro:'No se pudo eliminar', imNoCargo:'No se pudo cargar tu espacio', imDisenoUno:'diseño', imDisenoMuchos:'diseños', imBase:'Basado en: {name}' },
-    en: { misDisenos:'My designs', imVideo:'User manual', imSalir:'Exit', imVolver:'← Back to the library', imGuardar:'Save design', imGuardarCambios:'Save changes', imOk:'Save', imGuardado:'Design saved', imActualizado:'Design updated', imNombre:'Name', imCategoria:'Category (optional)', imSinCat:'No category', imNuevaCat:'➕ New category…', imNuevaCatNombre:'New category name', imTodas:'All', imVacio:'No designs saved yet. Customize any style and press "Save design".', imCopiar:'Copy prompt', imCopiado:'Copied!', imEditar:'Edit design', imDatos:'Name & category', imEliminar:'Delete', imEliminado:'Design deleted', imCancelar:'Cancel', imConfTitulo:'Delete this design?', imConfTexto:'It will be permanently deleted.', imConfSi:'Yes, delete', imNombreVacio:'Give it a name', imNoGuardo:'Could not save', imNoBorro:'Could not delete', imNoCargo:'Could not load your space', imDisenoUno:'design', imDisenoMuchos:'designs', imBase:'Based on: {name}' },
-    pt: { misDisenos:'Meus designs', imVideo:'Manual de uso', imSalir:'Sair', imVolver:'← Voltar à biblioteca', imGuardar:'Salvar design', imGuardarCambios:'Salvar alterações', imOk:'Salvar', imGuardado:'Design salvo', imActualizado:'Design atualizado', imNombre:'Nome', imCategoria:'Categoria (opcional)', imSinCat:'Sem categoria', imNuevaCat:'➕ Nova categoria…', imNuevaCatNombre:'Nome da nova categoria', imTodas:'Todas', imVacio:'Você ainda não salvou designs. Personalize um estilo e pressione "Salvar design".', imCopiar:'Copiar prompt', imCopiado:'Copiado!', imEditar:'Editar design', imDatos:'Nome e categoria', imEliminar:'Excluir', imEliminado:'Design excluído', imCancelar:'Cancelar', imConfTitulo:'Excluir este design?', imConfTexto:'Ele será excluído definitivamente.', imConfSi:'Sim, excluir', imNombreVacio:'Dê um nome a ele', imNoGuardo:'Não foi possível salvar', imNoBorro:'Não foi possível excluir', imNoCargo:'Não foi possível carregar seu espaço', imDisenoUno:'design', imDisenoMuchos:'designs', imBase:'Baseado em: {name}' },
-    fr: { misDisenos:'Mes designs', imVideo:'Mode d\'emploi', imSalir:'Quitter', imVolver:'← Retour à la bibliothèque', imGuardar:'Enregistrer le design', imGuardarCambios:'Enregistrer les modifications', imOk:'Enregistrer', imGuardado:'Design enregistré', imActualizado:'Design mis à jour', imNombre:'Nom', imCategoria:'Catégorie (facultatif)', imSinCat:'Sans catégorie', imNuevaCat:'➕ Nouvelle catégorie…', imNuevaCatNombre:'Nom de la nouvelle catégorie', imTodas:'Toutes', imVacio:'Aucun design enregistré. Personnalisez un style et appuyez sur « Enregistrer le design ».', imCopiar:'Copier le prompt', imCopiado:'Copié !', imEditar:'Modifier le design', imDatos:'Nom et catégorie', imEliminar:'Supprimer', imEliminado:'Design supprimé', imCancelar:'Annuler', imConfTitulo:'Supprimer ce design ?', imConfTexto:'Il sera définitivement supprimé.', imConfSi:'Oui, supprimer', imNombreVacio:'Donnez-lui un nom', imNoGuardo:'Impossible d’enregistrer', imNoBorro:'Impossible de supprimer', imNoCargo:'Impossible de charger votre espace', imDisenoUno:'design', imDisenoMuchos:'designs', imBase:'Basé sur : {name}' },
-    de: { misDisenos:'Meine Designs', imVideo:'Handbuch', imSalir:'Beenden', imVolver:'← Zurück zur Bibliothek', imGuardar:'Design speichern', imGuardarCambios:'Änderungen speichern', imOk:'Speichern', imGuardado:'Design gespeichert', imActualizado:'Design aktualisiert', imNombre:'Name', imCategoria:'Kategorie (optional)', imSinCat:'Ohne Kategorie', imNuevaCat:'➕ Neue Kategorie…', imNuevaCatNombre:'Name der neuen Kategorie', imTodas:'Alle', imVacio:'Noch keine Designs gespeichert. Passe einen Stil an und drücke „Design speichern“.', imCopiar:'Prompt kopieren', imCopiado:'Kopiert!', imEditar:'Design bearbeiten', imDatos:'Name & Kategorie', imEliminar:'Löschen', imEliminado:'Design gelöscht', imCancelar:'Abbrechen', imConfTitulo:'Dieses Design löschen?', imConfTexto:'Es wird endgültig gelöscht.', imConfSi:'Ja, löschen', imNombreVacio:'Gib ihm einen Namen', imNoGuardo:'Speichern fehlgeschlagen', imNoBorro:'Löschen fehlgeschlagen', imNoCargo:'Dein Bereich konnte nicht geladen werden', imDisenoUno:'Design', imDisenoMuchos:'Designs', imBase:'Basiert auf: {name}' },
-    it: { misDisenos:'I miei design', imVideo:'Manuale d\'uso', imSalir:'Esci', imVolver:'← Torna alla libreria', imGuardar:'Salva design', imGuardarCambios:'Salva modifiche', imOk:'Salva', imGuardado:'Design salvato', imActualizado:'Design aggiornato', imNombre:'Nome', imCategoria:'Categoria (facoltativa)', imSinCat:'Senza categoria', imNuevaCat:'➕ Nuova categoria…', imNuevaCatNombre:'Nome della nuova categoria', imTodas:'Tutte', imVacio:'Non hai ancora salvato design. Personalizza uno stile e premi "Salva design".', imCopiar:'Copia prompt', imCopiado:'Copiato!', imEditar:'Modifica design', imDatos:'Nome e categoria', imEliminar:'Elimina', imEliminado:'Design eliminato', imCancelar:'Annulla', imConfTitulo:'Eliminare questo design?', imConfTexto:'Verrà eliminato definitivamente.', imConfSi:'Sì, elimina', imNombreVacio:'Dagli un nome', imNoGuardo:'Impossibile salvare', imNoBorro:'Impossibile eliminare', imNoCargo:'Impossibile caricare il tuo spazio', imDisenoUno:'design', imDisenoMuchos:'design', imBase:'Basato su: {name}' },
+    es: { misDisenos:'Mis diseños', imVideo:'Manual de uso', imSalir:'Salir', imVolver:'← Volver a la biblioteca', imGuardar:'Guardar diseño', imGuardarCambios:'Guardar cambios', imOk:'Guardar', imGuardado:'Diseño guardado', imActualizado:'Diseño actualizado', imNombre:'Nombre', imCategoria:'Categoría (opcional)', imSinCat:'Sin categoría', imNuevaCat:'➕ Nueva categoría…', imNuevaCatNombre:'Nombre de la nueva categoría', imTodas:'Todas', imVacio:'Aún no guardas diseños. Personaliza cualquier estilo y presiona "Guardar diseño", o trae uno tuyo con "Importar diseño".', imCopiar:'Copiar prompt', imCopiado:'¡Copiado!', imEditar:'Editar diseño', imDatos:'Nombre y categoría', imEliminar:'Eliminar', imEliminado:'Diseño eliminado', imCancelar:'Cancelar', imConfTitulo:'¿Eliminar el diseño?', imConfTexto:'Se eliminará definitivamente.', imConfSi:'Sí, eliminar', imNombreVacio:'Ponle un nombre', imNoGuardo:'No se pudo guardar', imNoBorro:'No se pudo eliminar', imNoCargo:'No se pudo cargar tu espacio', imDisenoUno:'diseño', imDisenoMuchos:'diseños', imBase:'Basado en: {name}' },
+    en: { misDisenos:'My designs', imVideo:'User manual', imSalir:'Exit', imVolver:'← Back to the library', imGuardar:'Save design', imGuardarCambios:'Save changes', imOk:'Save', imGuardado:'Design saved', imActualizado:'Design updated', imNombre:'Name', imCategoria:'Category (optional)', imSinCat:'No category', imNuevaCat:'➕ New category…', imNuevaCatNombre:'New category name', imTodas:'All', imVacio:'No designs saved yet. Customize any style and press "Save design", or bring your own with "Import design".', imCopiar:'Copy prompt', imCopiado:'Copied!', imEditar:'Edit design', imDatos:'Name & category', imEliminar:'Delete', imEliminado:'Design deleted', imCancelar:'Cancel', imConfTitulo:'Delete this design?', imConfTexto:'It will be permanently deleted.', imConfSi:'Yes, delete', imNombreVacio:'Give it a name', imNoGuardo:'Could not save', imNoBorro:'Could not delete', imNoCargo:'Could not load your space', imDisenoUno:'design', imDisenoMuchos:'designs', imBase:'Based on: {name}' },
+    pt: { misDisenos:'Meus designs', imVideo:'Manual de uso', imSalir:'Sair', imVolver:'← Voltar à biblioteca', imGuardar:'Salvar design', imGuardarCambios:'Salvar alterações', imOk:'Salvar', imGuardado:'Design salvo', imActualizado:'Design atualizado', imNombre:'Nome', imCategoria:'Categoria (opcional)', imSinCat:'Sem categoria', imNuevaCat:'➕ Nova categoria…', imNuevaCatNombre:'Nome da nova categoria', imTodas:'Todas', imVacio:'Você ainda não salvou designs. Personalize um estilo e pressione "Salvar design", ou traga o seu com "Importar design".', imCopiar:'Copiar prompt', imCopiado:'Copiado!', imEditar:'Editar design', imDatos:'Nome e categoria', imEliminar:'Excluir', imEliminado:'Design excluído', imCancelar:'Cancelar', imConfTitulo:'Excluir este design?', imConfTexto:'Ele será excluído definitivamente.', imConfSi:'Sim, excluir', imNombreVacio:'Dê um nome a ele', imNoGuardo:'Não foi possível salvar', imNoBorro:'Não foi possível excluir', imNoCargo:'Não foi possível carregar seu espaço', imDisenoUno:'design', imDisenoMuchos:'designs', imBase:'Baseado em: {name}' },
+    fr: { misDisenos:'Mes designs', imVideo:'Mode d\'emploi', imSalir:'Quitter', imVolver:'← Retour à la bibliothèque', imGuardar:'Enregistrer le design', imGuardarCambios:'Enregistrer les modifications', imOk:'Enregistrer', imGuardado:'Design enregistré', imActualizado:'Design mis à jour', imNombre:'Nom', imCategoria:'Catégorie (facultatif)', imSinCat:'Sans catégorie', imNuevaCat:'➕ Nouvelle catégorie…', imNuevaCatNombre:'Nom de la nouvelle catégorie', imTodas:'Toutes', imVacio:'Aucun design enregistré. Personnalisez un style et appuyez sur « Enregistrer le design », ou apportez le vôtre avec « Importer un design ».', imCopiar:'Copier le prompt', imCopiado:'Copié !', imEditar:'Modifier le design', imDatos:'Nom et catégorie', imEliminar:'Supprimer', imEliminado:'Design supprimé', imCancelar:'Annuler', imConfTitulo:'Supprimer ce design ?', imConfTexto:'Il sera définitivement supprimé.', imConfSi:'Oui, supprimer', imNombreVacio:'Donnez-lui un nom', imNoGuardo:'Impossible d’enregistrer', imNoBorro:'Impossible de supprimer', imNoCargo:'Impossible de charger votre espace', imDisenoUno:'design', imDisenoMuchos:'designs', imBase:'Basé sur : {name}' },
+    de: { misDisenos:'Meine Designs', imVideo:'Handbuch', imSalir:'Beenden', imVolver:'← Zurück zur Bibliothek', imGuardar:'Design speichern', imGuardarCambios:'Änderungen speichern', imOk:'Speichern', imGuardado:'Design gespeichert', imActualizado:'Design aktualisiert', imNombre:'Name', imCategoria:'Kategorie (optional)', imSinCat:'Ohne Kategorie', imNuevaCat:'➕ Neue Kategorie…', imNuevaCatNombre:'Name der neuen Kategorie', imTodas:'Alle', imVacio:'Noch keine Designs gespeichert. Passe einen Stil an und drücke „Design speichern“ oder bring dein eigenes mit „Design importieren“.', imCopiar:'Prompt kopieren', imCopiado:'Kopiert!', imEditar:'Design bearbeiten', imDatos:'Name & Kategorie', imEliminar:'Löschen', imEliminado:'Design gelöscht', imCancelar:'Abbrechen', imConfTitulo:'Dieses Design löschen?', imConfTexto:'Es wird endgültig gelöscht.', imConfSi:'Ja, löschen', imNombreVacio:'Gib ihm einen Namen', imNoGuardo:'Speichern fehlgeschlagen', imNoBorro:'Löschen fehlgeschlagen', imNoCargo:'Dein Bereich konnte nicht geladen werden', imDisenoUno:'Design', imDisenoMuchos:'Designs', imBase:'Basiert auf: {name}' },
+    it: { misDisenos:'I miei design', imVideo:'Manuale d\'uso', imSalir:'Esci', imVolver:'← Torna alla libreria', imGuardar:'Salva design', imGuardarCambios:'Salva modifiche', imOk:'Salva', imGuardado:'Design salvato', imActualizado:'Design aggiornato', imNombre:'Nome', imCategoria:'Categoria (facoltativa)', imSinCat:'Senza categoria', imNuevaCat:'➕ Nuova categoria…', imNuevaCatNombre:'Nome della nuova categoria', imTodas:'Tutte', imVacio:'Non hai ancora salvato design. Personalizza uno stile e premi "Salva design", oppure porta il tuo con "Importa design".', imCopiar:'Copia prompt', imCopiado:'Copiato!', imEditar:'Modifica design', imDatos:'Nome e categoria', imEliminar:'Elimina', imEliminado:'Design eliminato', imCancelar:'Annulla', imConfTitulo:'Eliminare questo design?', imConfTexto:'Verrà eliminato definitivamente.', imConfSi:'Sì, elimina', imNombreVacio:'Dagli un nome', imNoGuardo:'Impossibile salvare', imNoBorro:'Impossibile eliminare', imNoCargo:'Impossibile caricare il tuo spazio', imDisenoUno:'design', imDisenoMuchos:'design', imBase:'Basato su: {name}' },
   };
+  // Importar diseño + Skill de diseño
+  const IM_I18N_IMP = {
+    es: { imImportar:'Importar diseño', imSkillBtn:'Skill de diseño', imImpIntro:'¿No tienes el código o la miniatura? Pídeselos a la {skill}: en Gemini escribe {at} y cuéntale qué presentación quieres.', imImpNombre:'Nombre del diseño', imImpMini:'Miniatura', imImpMiniElegir:'Toca aquí para elegir la imagen', imImpMiniCambiar:'Toca para cambiar la imagen', imImpMiniAyuda:'JPG, PNG o WebP de hasta 10 MB. La ajustamos al tamaño de las miniaturas de la biblioteca.', imImpMiniPesada:'La imagen es muy pesada ({mb} MB) y el máximo es 10 MB. Puedes pedirle a Gemini o a cualquier IA que genera imágenes que la cree con un tamaño menor a 10 MB.', imImpMiniTipo:'Ese archivo no es una imagen JPG, PNG o WebP.', imImpMiniLeer:'No pudimos leer esa imagen. Prueba con otra.', imImpCodigo:'Código del diseño', imImpCodigoPh:'Pega aquí el código que te entregó la skill', imImpCodOk:'Código listo', imImpCodNoJson:'No encontramos un código válido. Copia completo el bloque que te entregó la skill.', imImpCodFalta:'Al código le falta: {campos}. Pídele a la skill el código completo.', imImpCodColor:'El color {campo} no es válido. Debe ser un código como #1A2B3C.', imImpFaltaMini:'Sube la miniatura', imImpFaltaCodigo:'Pega el código del diseño', imImpBoton:'Importar', imImpGuardarCodigo:'Reemplazar', imImpGuardarMini:'Cambiar', imImpTrabajando:'Guardando…', imImportado:'Diseño importado', imReemplazar:'Reemplazar código', imCambiarMini:'Cambiar miniatura', imCodigoListo:'Código reemplazado', imMiniLista:'Miniatura cambiada', imImpSinServidor:'La importación aún no está habilitada en el servidor', imSkTitulo:'Skill de diseño', imSkSub:'Aquí tienes el archivo SKILL.md o los 3 campos listos para copiar y pegar.', imSkDescargar:'Descargar SKILL.md', imSkNombre:'Nombre', imSkDesc:'Descripción', imSkInstr:'Instrucciones', imSkCopiar:'Copiar', imSkCopiado:'Copiado', imSkNota:'Se copian completas, aunque aquí solo se vea el inicio.', imSkCerrar:'Cerrar', imSkDescargado:'SKILL.md descargado. En Gemini: Habilidades, Crear, Subir', imSkNoDisp:'La skill no está disponible en este momento' },
+    en: { imImportar:'Import design', imSkillBtn:'Design skill', imImpIntro:'Don’t have the code or the thumbnail? Ask the {skill} for them: in Gemini type {at} and tell it what presentation you want.', imImpNombre:'Design name', imImpMini:'Thumbnail', imImpMiniElegir:'Tap here to choose the image', imImpMiniCambiar:'Tap to change the image', imImpMiniAyuda:'JPG, PNG or WebP up to 10 MB. We resize it to match the library thumbnails.', imImpMiniPesada:'The image is too heavy ({mb} MB) and the limit is 10 MB. You can ask Gemini or any image AI to create it under 10 MB.', imImpMiniTipo:'That file is not a JPG, PNG or WebP image.', imImpMiniLeer:'We couldn’t read that image. Try another one.', imImpCodigo:'Design code', imImpCodigoPh:'Paste here the code the skill gave you', imImpCodOk:'Code ready', imImpCodNoJson:'We couldn’t find a valid code. Copy the whole block the skill gave you.', imImpCodFalta:'The code is missing: {campos}. Ask the skill for the complete code.', imImpCodColor:'The color {campo} is not valid. It must be a code like #1A2B3C.', imImpFaltaMini:'Upload the thumbnail', imImpFaltaCodigo:'Paste the design code', imImpBoton:'Import', imImpGuardarCodigo:'Replace', imImpGuardarMini:'Change', imImpTrabajando:'Saving…', imImportado:'Imported design', imReemplazar:'Replace code', imCambiarMini:'Change thumbnail', imCodigoListo:'Code replaced', imMiniLista:'Thumbnail changed', imImpSinServidor:'Importing is not enabled on the server yet', imSkTitulo:'Design skill', imSkSub:'Here is the SKILL.md file or the 3 fields ready to copy and paste.', imSkDescargar:'Download SKILL.md', imSkNombre:'Name', imSkDesc:'Description', imSkInstr:'Instructions', imSkCopiar:'Copy', imSkCopiado:'Copied', imSkNota:'They are copied in full, even if only the beginning shows here.', imSkCerrar:'Close', imSkDescargado:'SKILL.md downloaded. In Gemini: Skills, Create, Upload', imSkNoDisp:'The skill is not available right now' },
+    pt: { imImportar:'Importar design', imSkillBtn:'Skill de design', imImpIntro:'Não tem o código ou a miniatura? Peça à {skill}: no Gemini digite {at} e conte qual apresentação você quer.', imImpNombre:'Nome do design', imImpMini:'Miniatura', imImpMiniElegir:'Toque aqui para escolher a imagem', imImpMiniCambiar:'Toque para trocar a imagem', imImpMiniAyuda:'JPG, PNG ou WebP de até 10 MB. Ajustamos ao tamanho das miniaturas da biblioteca.', imImpMiniPesada:'A imagem é muito pesada ({mb} MB) e o máximo é 10 MB. Você pode pedir ao Gemini ou a qualquer IA que gera imagens que a crie com menos de 10 MB.', imImpMiniTipo:'Esse arquivo não é uma imagem JPG, PNG ou WebP.', imImpMiniLeer:'Não conseguimos ler essa imagem. Tente outra.', imImpCodigo:'Código do design', imImpCodigoPh:'Cole aqui o código que a skill entregou', imImpCodOk:'Código pronto', imImpCodNoJson:'Não encontramos um código válido. Copie o bloco completo que a skill entregou.', imImpCodFalta:'Falta no código: {campos}. Peça à skill o código completo.', imImpCodColor:'A cor {campo} não é válida. Deve ser um código como #1A2B3C.', imImpFaltaMini:'Envie a miniatura', imImpFaltaCodigo:'Cole o código do design', imImpBoton:'Importar', imImpGuardarCodigo:'Substituir', imImpGuardarMini:'Trocar', imImpTrabajando:'Salvando…', imImportado:'Design importado', imReemplazar:'Substituir código', imCambiarMini:'Trocar miniatura', imCodigoListo:'Código substituído', imMiniLista:'Miniatura trocada', imImpSinServidor:'A importação ainda não está habilitada no servidor', imSkTitulo:'Skill de design', imSkSub:'Aqui está o arquivo SKILL.md ou os 3 campos prontos para copiar e colar.', imSkDescargar:'Baixar SKILL.md', imSkNombre:'Nome', imSkDesc:'Descrição', imSkInstr:'Instruções', imSkCopiar:'Copiar', imSkCopiado:'Copiado', imSkNota:'São copiadas completas, mesmo que aqui apareça só o início.', imSkCerrar:'Fechar', imSkDescargado:'SKILL.md baixado. No Gemini: Habilidades, Criar, Enviar', imSkNoDisp:'A skill não está disponível no momento' },
+    fr: { imImportar:'Importer un design', imSkillBtn:'Skill de design', imImpIntro:'Pas de code ni de miniature ? Demandez-les à la {skill} : dans Gemini, tapez {at} et décrivez la présentation que vous voulez.', imImpNombre:'Nom du design', imImpMini:'Miniature', imImpMiniElegir:'Touchez ici pour choisir l’image', imImpMiniCambiar:'Touchez pour changer l’image', imImpMiniAyuda:'JPG, PNG ou WebP jusqu’à 10 Mo. Nous l’ajustons à la taille des miniatures de la bibliothèque.', imImpMiniPesada:'L’image est trop lourde ({mb} Mo) et le maximum est de 10 Mo. Vous pouvez demander à Gemini ou à toute IA d’images de la créer en moins de 10 Mo.', imImpMiniTipo:'Ce fichier n’est pas une image JPG, PNG ou WebP.', imImpMiniLeer:'Impossible de lire cette image. Essayez-en une autre.', imImpCodigo:'Code du design', imImpCodigoPh:'Collez ici le code fourni par la skill', imImpCodOk:'Code prêt', imImpCodNoJson:'Aucun code valide trouvé. Copiez le bloc complet fourni par la skill.', imImpCodFalta:'Il manque au code : {campos}. Demandez le code complet à la skill.', imImpCodColor:'La couleur {campo} n’est pas valide. Elle doit être un code comme #1A2B3C.', imImpFaltaMini:'Ajoutez la miniature', imImpFaltaCodigo:'Collez le code du design', imImpBoton:'Importer', imImpGuardarCodigo:'Remplacer', imImpGuardarMini:'Changer', imImpTrabajando:'Enregistrement…', imImportado:'Design importé', imReemplazar:'Remplacer le code', imCambiarMini:'Changer la miniature', imCodigoListo:'Code remplacé', imMiniLista:'Miniature changée', imImpSinServidor:'L’import n’est pas encore activé sur le serveur', imSkTitulo:'Skill de design', imSkSub:'Voici le fichier SKILL.md ou les 3 champs prêts à copier-coller.', imSkDescargar:'Télécharger SKILL.md', imSkNombre:'Nom', imSkDesc:'Description', imSkInstr:'Instructions', imSkCopiar:'Copier', imSkCopiado:'Copié', imSkNota:'Elles sont copiées en entier, même si seul le début s’affiche ici.', imSkCerrar:'Fermer', imSkDescargado:'SKILL.md téléchargé. Dans Gemini : Compétences, Créer, Importer', imSkNoDisp:'La skill n’est pas disponible pour le moment' },
+    de: { imImportar:'Design importieren', imSkillBtn:'Design-Skill', imImpIntro:'Kein Code oder Vorschaubild? Frag den {skill}: Tippe in Gemini {at} und beschreibe die Präsentation, die du willst.', imImpNombre:'Name des Designs', imImpMini:'Vorschaubild', imImpMiniElegir:'Hier tippen, um das Bild zu wählen', imImpMiniCambiar:'Tippen, um das Bild zu ändern', imImpMiniAyuda:'JPG, PNG oder WebP bis 10 MB. Wir passen es an die Größe der Bibliotheksvorschauen an.', imImpMiniPesada:'Das Bild ist zu groß ({mb} MB), das Maximum ist 10 MB. Du kannst Gemini oder jede Bild-KI bitten, es mit weniger als 10 MB zu erstellen.', imImpMiniTipo:'Diese Datei ist kein JPG-, PNG- oder WebP-Bild.', imImpMiniLeer:'Das Bild konnte nicht gelesen werden. Versuche ein anderes.', imImpCodigo:'Design-Code', imImpCodigoPh:'Füge hier den Code ein, den der Skill dir gegeben hat', imImpCodOk:'Code bereit', imImpCodNoJson:'Kein gültiger Code gefunden. Kopiere den ganzen Block, den der Skill dir gegeben hat.', imImpCodFalta:'Im Code fehlt: {campos}. Bitte den Skill um den vollständigen Code.', imImpCodColor:'Die Farbe {campo} ist ungültig. Sie muss ein Code wie #1A2B3C sein.', imImpFaltaMini:'Lade das Vorschaubild hoch', imImpFaltaCodigo:'Füge den Design-Code ein', imImpBoton:'Importieren', imImpGuardarCodigo:'Ersetzen', imImpGuardarMini:'Ändern', imImpTrabajando:'Speichern…', imImportado:'Importiertes Design', imReemplazar:'Code ersetzen', imCambiarMini:'Vorschaubild ändern', imCodigoListo:'Code ersetzt', imMiniLista:'Vorschaubild geändert', imImpSinServidor:'Der Import ist auf dem Server noch nicht aktiviert', imSkTitulo:'Design-Skill', imSkSub:'Hier ist die Datei SKILL.md oder die 3 Felder zum Kopieren und Einfügen.', imSkDescargar:'SKILL.md herunterladen', imSkNombre:'Name', imSkDesc:'Beschreibung', imSkInstr:'Anweisungen', imSkCopiar:'Kopieren', imSkCopiado:'Kopiert', imSkNota:'Sie werden vollständig kopiert, auch wenn hier nur der Anfang zu sehen ist.', imSkCerrar:'Schließen', imSkDescargado:'SKILL.md heruntergeladen. In Gemini: Skills, Erstellen, Hochladen', imSkNoDisp:'Der Skill ist gerade nicht verfügbar' },
+    it: { imImportar:'Importa design', imSkillBtn:'Skill di design', imImpIntro:'Non hai il codice o la miniatura? Chiedili alla {skill}: in Gemini scrivi {at} e descrivi la presentazione che vuoi.', imImpNombre:'Nome del design', imImpMini:'Miniatura', imImpMiniElegir:'Tocca qui per scegliere l’immagine', imImpMiniCambiar:'Tocca per cambiare l’immagine', imImpMiniAyuda:'JPG, PNG o WebP fino a 10 MB. La adattiamo alle dimensioni delle miniature della libreria.', imImpMiniPesada:'L’immagine è troppo pesante ({mb} MB) e il massimo è 10 MB. Puoi chiedere a Gemini o a qualsiasi IA di immagini di crearla sotto i 10 MB.', imImpMiniTipo:'Questo file non è un’immagine JPG, PNG o WebP.', imImpMiniLeer:'Non siamo riusciti a leggere questa immagine. Provane un’altra.', imImpCodigo:'Codice del design', imImpCodigoPh:'Incolla qui il codice che ti ha dato la skill', imImpCodOk:'Codice pronto', imImpCodNoJson:'Nessun codice valido trovato. Copia tutto il blocco che ti ha dato la skill.', imImpCodFalta:'Al codice manca: {campos}. Chiedi alla skill il codice completo.', imImpCodColor:'Il colore {campo} non è valido. Deve essere un codice come #1A2B3C.', imImpFaltaMini:'Carica la miniatura', imImpFaltaCodigo:'Incolla il codice del design', imImpBoton:'Importa', imImpGuardarCodigo:'Sostituisci', imImpGuardarMini:'Cambia', imImpTrabajando:'Salvataggio…', imImportado:'Design importato', imReemplazar:'Sostituisci codice', imCambiarMini:'Cambia miniatura', imCodigoListo:'Codice sostituito', imMiniLista:'Miniatura cambiata', imImpSinServidor:'L’importazione non è ancora attiva sul server', imSkTitulo:'Skill di design', imSkSub:'Ecco il file SKILL.md o i 3 campi pronti da copiare e incollare.', imSkDescargar:'Scarica SKILL.md', imSkNombre:'Nome', imSkDesc:'Descrizione', imSkInstr:'Istruzioni', imSkCopiar:'Copia', imSkCopiado:'Copiato', imSkNota:'Vengono copiate per intero, anche se qui si vede solo l’inizio.', imSkCerrar:'Chiudi', imSkDescargado:'SKILL.md scaricato. In Gemini: Skill, Crea, Carica', imSkNoDisp:'La skill non è disponibile al momento' },
+  };
+  for (const [lang, textos] of Object.entries(IM_I18N_IMP)) Object.assign(IM_I18N[lang], textos);
   for (const [lang, textos] of Object.entries(IM_I18N)) Object.assign(translations[lang] ?? translations.es, textos);
 
   let misDisenos = [];
@@ -860,11 +984,43 @@ setUiLanguage(savedLanguage);
     }
   }
 
+  // ── Diseños importados: la plantilla (variables, firma, blueprints) vive en la fila
+  // y el prompt se arma con el MISMO esqueleto de los 200 (idéntico en todos) ──
+  const BUCKET = 'disenos-usuarios';
+  const VARS_DISENO = ['PRIMARY_COLOR', 'SECONDARY_COLOR', 'BACKGROUND_COLOR', 'TITLE_FONT', 'BODY_FONT',
+    'VISUAL_STYLE', 'CHART_STYLE', 'IMAGE_STYLE', 'TEXT_DENSITY', 'LAYOUT_PATTERN'];
+  const ESQUELETO = (() => {
+    const p = items.find(x => x.prompt_template)?.prompt_template ?? '';
+    const e = p.replace(/(Reference-specific signature rules[^\n]*\n- )[\s\S]*?(\n\nReference slide blueprints)/, '$1@@FIRMA@@$2')
+      .replace(/(Reference slide blueprints[^\n]*\n- )[\s\S]*?(\n- Adapt the user)/, '$1@@BLUEPRINTS@@$2');
+    return e.includes('@@FIRMA@@') && e.includes('@@BLUEPRINTS@@') ? e : '';
+  })();
+  const plantillaPrompt = (pl) => ESQUELETO.replace('@@FIRMA@@', () => pl.firma).replace('@@BLUEPRINTS@@', () => pl.blueprints);
+  const promptCon = (pl, valores) => plantillaPrompt(pl).replace(/\{\{([A-Z_]+)\}\}/g, (_, k) => valores[k] ?? `{{${k}}}`);
+  const urlMini = new Map();   // ruta en Storage → URL firmada
+
+  function itemImportado(d) {
+    return {
+      id: 'im-' + d.id, __importado: true, nombre_es: d.nombre,
+      categorias: d.plantilla.categoria ? [d.plantilla.categoria] : [],
+      preview: urlMini.get(d.miniatura) ?? '', variables: { ...d.plantilla.variables },
+      prompt_template: plantillaPrompt(d.plantilla), keywords: [],
+    };
+  }
+
+  async function firmarMiniaturas() {
+    const rutas = [...new Set(misDisenos.map(d => d.miniatura).filter(r => r && !urlMini.has(r)))];
+    if (!rutas.length) return;
+    const { data } = await db.storage.from(BUCKET).createSignedUrls(rutas, 60 * 60 * 12);
+    (data ?? []).forEach(x => { if (x.signedUrl && x.path) urlMini.set(x.path, x.signedUrl); });
+  }
+
   async function cargarMis() {
     const { data, error } = await db.from('user_disenos').select('*')
       .eq('product_id', IM.productId).order('created_at', { ascending: false });
     if (error) { toast(t('imNoCargo')); return; }
     misDisenos = data ?? [];
+    await firmarMiniaturas();
     renderMis();
   }
 
@@ -874,7 +1030,9 @@ setUiLanguage(savedLanguage);
     return `
             <div class="im-menu">
               <button type="button" data-imaccion="editar" data-mid="${d.id}">${escapeHtml(t('imEditar'))}</button>
-              <button type="button" data-imaccion="datos" data-mid="${d.id}">${escapeHtml(t('imDatos'))}</button>
+              <button type="button" data-imaccion="datos" data-mid="${d.id}">${escapeHtml(t('imDatos'))}</button>${d.plantilla ? `
+              <button type="button" data-imaccion="codigo" data-mid="${d.id}">${escapeHtml(t('imReemplazar'))}</button>
+              <button type="button" data-imaccion="miniatura" data-mid="${d.id}">${escapeHtml(t('imCambiarMini'))}</button>` : ''}
               <button type="button" data-imaccion="eliminar" data-mid="${d.id}">${escapeHtml(t('imEliminar'))}</button>
             </div>`;
   }
@@ -891,15 +1049,17 @@ setUiLanguage(savedLanguage);
 
   function cardMis(d) {
     const it = itemDe(d);
+    const imp = !!d.plantilla;
+    const srcImp = imp ? (urlMini.get(d.miniatura) ?? '') : '';
     return `
       <article class="card im-card-mis" data-mid="${d.id}">
-        <div class="preview-wrap"><img loading="lazy" decoding="async" src="${escapeHtml(it?.preview_mini || it?.preview || '')}" onerror="this.onerror=null;this.src='${escapeHtml(it?.preview ?? '')}'" alt="${escapeHtml(d.nombre)}"></div>
+        <div class="preview-wrap">${imp ? (srcImp ? `<img loading="lazy" decoding="async" src="${escapeHtml(srcImp)}" alt="${escapeHtml(d.nombre)}">` : '') : `<img loading="lazy" decoding="async" src="${escapeHtml(it?.preview_mini || it?.preview || '')}" onerror="this.onerror=null;this.src='${escapeHtml(it?.preview ?? '')}'" alt="${escapeHtml(d.nombre)}">`}</div>
         <div class="card-body">
           <button class="im-menu-btn" type="button" data-immenu="${d.id}">⋮</button>
           ${menuMis === d.id ? menuMisHtml(d) : ''}
           <div class="badges">${d.categoria ? `<span class="badge">${escapeHtml(d.categoria)}</span>` : ''}</div>
           <h3>${escapeHtml(d.nombre)}</h3>
-          <p class="im-base">${it ? escapeHtml(format(t('imBase'), {name: itemName(it)})) : ''}</p>
+          <p class="im-base">${imp ? escapeHtml(t('imImportado')) : (it ? escapeHtml(format(t('imBase'), {name: itemName(it)})) : '')}</p>
           <button class="open-prompt" type="button" data-imcopy="${d.id}">${escapeHtml(t('imCopiar'))}</button>
         </div>
       </article>`;
@@ -947,9 +1107,17 @@ setUiLanguage(savedLanguage);
   };
 
   function editarDiseno(d) {
-    const it = itemDe(d);
-    if (!it) { toast(t('imNoCargo')); return; }
-    openPanel(it.id);
+    if (d.plantilla) {
+      if (!ESQUELETO) { toast(t('imNoCargo')); return; }
+      // El panel real busca el ítem en items: se presta un momento y se retira
+      const it = itemImportado(d);
+      items.push(it);
+      try { openPanel(it.id); } finally { items.splice(items.indexOf(it), 1); }
+    } else {
+      const it = itemDe(d);
+      if (!it) { toast(t('imNoCargo')); return; }
+      openPanel(it.id);
+    }
     activeValues = { ...defaultValues, ...(d.valores ?? {}) };
     isCustomizing = true;
     customization.hidden = false;
@@ -972,6 +1140,7 @@ setUiLanguage(savedLanguage);
       cargarMis();
       return;
     }
+    if (activeItem.__importado) { toast(t('imNoGuardo')); return; }
     abrirModalGuardar();
   });
 
@@ -1059,6 +1228,7 @@ setUiLanguage(savedLanguage);
     if (!await confirmar()) return;
     const { data, error } = await db.from('user_disenos').delete().eq('id', d.id).select('id');
     if (error || !data?.length) { toast(t('imNoBorro')); return; }
+    if (d.miniatura) { db.storage.from(BUCKET).remove([d.miniatura]); urlMini.delete(d.miniatura); }
     toast(t('imEliminado'));
     if (ctxGuardar?.id === d.id) { ctxGuardar = null; pintarBotonPanel(); }
     cargarMis();
@@ -1077,6 +1247,8 @@ setUiLanguage(savedLanguage);
       if (!d) return;
       if (acc.dataset.imaccion === 'editar') editarDiseno(d);
       if (acc.dataset.imaccion === 'datos') abrirModalDatos(d);
+      if (acc.dataset.imaccion === 'codigo') abrirImportar('codigo', d);
+      if (acc.dataset.imaccion === 'miniatura') abrirImportar('miniatura', d);
       if (acc.dataset.imaccion === 'eliminar') eliminarDiseno(d);
       return;
     }
@@ -1095,6 +1267,300 @@ setUiLanguage(savedLanguage);
 
   $('imMisBtn').addEventListener('click', () => setVistaMis($('im-mis').hidden));
   $('imMisVolver').addEventListener('click', () => setVistaMis(false));
+
+  // ── Skill de diseño: vive en premium_items (solo compradores), no en esta página ──
+  const slugSkill = (s) => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const arrobaSkill = () => '@' + (slugSkill(IM.skill?.nombre) || 'disenador-de-presentaciones');
+  function skillMd(sk) {
+    const desc = String(sk.descripcion ?? '').replace(/\s+/g, ' ').trim().replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    return '---\nname: ' + slugSkill(sk.nombre) + '\ndescription: "' + desc + '"\n---\n\n' + String(sk.instrucciones ?? '').trim() + '\n';
+  }
+  function descargarArchivo(nombre, contenido) {
+    const url = URL.createObjectURL(new Blob([contenido], { type: 'text/markdown;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = nombre; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+  function abrirSkill() {
+    const sk = IM.skill;
+    if (!sk) { toast(t('imSkNoDisp')); return; }
+    $('imSkTitulo').textContent = t('imSkTitulo');
+    $('imSkSub').textContent = t('imSkSub');
+    $('imSkDescargar').textContent = t('imSkDescargar');
+    $('imSkLblNombre').textContent = t('imSkNombre');
+    $('imSkLblDesc').textContent = t('imSkDesc');
+    $('imSkLblInstr').textContent = t('imSkInstr');
+    $('imSk').querySelectorAll('[data-imskcopia]').forEach(b => { b.textContent = t('imSkCopiar'); });
+    $('imSkNota').textContent = t('imSkNota');
+    $('imSkCerrar').textContent = t('imSkCerrar');
+    $('imSkNombre').textContent = sk.nombre;
+    $('imSkDesc').textContent = sk.descripcion;
+    $('imSkInstr').textContent = sk.instrucciones;
+    $('imSk').classList.add('abierto');
+  }
+  $('imSkillBtn').addEventListener('click', abrirSkill);
+  $('imSkDescargar').addEventListener('click', () => {
+    descargarArchivo('SKILL.md', skillMd(IM.skill));
+    toast(t('imSkDescargado'));
+  });
+  $('imSk').addEventListener('click', async (e) => {
+    if (e.target.id === 'imSk' || e.target.id === 'imSkCerrar') { $('imSk').classList.remove('abierto'); return; }
+    const b = e.target.closest('[data-imskcopia]');
+    if (!b) return;
+    const campos = { nombre: IM.skill.nombre, descripcion: IM.skill.descripcion, instrucciones: IM.skill.instrucciones };
+    await copiarTexto(campos[b.dataset.imskcopia] ?? '');
+    b.textContent = t('imSkCopiado');
+    setTimeout(() => { b.textContent = t('imSkCopiar'); }, 1600);
+  });
+
+  // ── Importar diseño: nombre + miniatura + código (los tres obligatorios) ──
+  // También sirve para "Reemplazar código" y "Cambiar miniatura" de un importado.
+  const MAX_MB = 10;
+  let ctxImp = null;      // { modo: 'nuevo' | 'codigo' | 'miniatura', fila }
+  let impMini = null;     // { blob, url } ya reducida
+  let impCodigo = null;   // { plantilla, nombre } validado
+  let nombreAuto = '';
+  let impOcupado = false;
+
+  function parsearSuave(txt) {
+    try { return JSON.parse(txt); } catch (_) {}
+    // Comas finales y saltos de línea dentro de los textos (pasa al copiar del chat)
+    const arreglado = txt.replace(/,\s*([}\]])/g, '$1').replace(/"(?:[^"\\]|\\.)*"/g, (str) => str.replace(/\r?\n/g, ' '));
+    try { return JSON.parse(arreglado); } catch (_) { return null; }
+  }
+  // Acepta la respuesta completa del chat: busca bloques ``` y objetos { } balanceados
+  function extraerCodigo(texto) {
+    const s = String(texto ?? '').replace(/[“”„″]/g, '"').replace(/[‘’]/g, "'");
+    const candidatos = [];
+    const bloques = /```(?:json)?\s*([\s\S]*?)```/gi;
+    let m;
+    while ((m = bloques.exec(s))) candidatos.push(m[1]);
+    for (let i = s.indexOf('{'); i !== -1; i = s.indexOf('{', i + 1)) {
+      let prof = 0, enTexto = false, escape = false;
+      for (let j = i; j < s.length; j++) {
+        const c = s[j];
+        if (enTexto) { if (escape) escape = false; else if (c === '\\') escape = true; else if (c === '"') enTexto = false; continue; }
+        if (c === '"') enTexto = true;
+        else if (c === '{') prof++;
+        else if (c === '}' && --prof === 0) { candidatos.push(s.slice(i, j + 1)); i = j; break; }
+      }
+    }
+    for (const c of candidatos) {
+      const o = parsearSuave(c.trim());
+      if (o && typeof o === 'object' && (o.variables || o.firma || o.signature)) return o;
+    }
+    return null;
+  }
+  function normalizarCodigo(o) {
+    const plano = (v) => (Array.isArray(v) ? v.join(' ') : String(v ?? ''))
+      .replace(/\{\{|\}\}/g, '').replace(/\s+/g, ' ').trim().replace(/^-\s*/, '');
+    const vin = {};
+    Object.entries(o.variables && typeof o.variables === 'object' ? o.variables : {})
+      .forEach(([k, v]) => { vin[String(k).toUpperCase()] = v; });
+    const variables = {};
+    const faltan = [];
+    VARS_DISENO.forEach(k => { const v = plano(vin[k]); if (v) variables[k] = v.slice(0, 80); else faltan.push(k); });
+    const firma = plano(o.firma ?? o.signature);
+    const blueprints = plano(o.blueprints ?? o.blueprint);
+    if (!firma) faltan.push('firma');
+    if (!blueprints) faltan.push('blueprints');
+    if (faltan.length) return { error: format(t('imImpCodFalta'), { campos: faltan.join(', ') }) };
+    for (const k of ['PRIMARY_COLOR', 'SECONDARY_COLOR', 'BACKGROUND_COLOR']) {
+      let c = variables[k].replace(/^#?/, '#');
+      if (/^#[0-9a-f]{3}$/i.test(c)) c = '#' + c.slice(1).split('').map(x => x + x).join('');
+      if (!/^#[0-9a-f]{6}$/i.test(c)) return { error: format(t('imImpCodColor'), { campo: k }) };
+      variables[k] = c.toUpperCase();
+    }
+    return {
+      nombre: plano(o.nombre ?? o.name).slice(0, 80),
+      plantilla: { formato: 'ia-masiva-200', version: 1, categoria: plano(o.categoria ?? o.category).slice(0, 60),
+        variables, firma: firma.slice(0, 2000), blueprints: blueprints.slice(0, 2500) },
+    };
+  }
+
+  function avisoImp(id, texto) {
+    $(id).textContent = texto ?? '';
+    $(id).hidden = !texto;
+  }
+  function pintarMini() {
+    $('imImpPrev').hidden = !impMini;
+    if (impMini) $('imImpPrev').src = impMini.url;
+    $('imImpDropTxt').textContent = t(impMini ? 'imImpMiniCambiar' : 'imImpMiniElegir');
+    $('imImpDrop').classList.toggle('con-imagen', !!impMini);
+  }
+
+  function abrirImportar(modo, fila) {
+    if (!ESQUELETO) { toast(t('imNoCargo')); return; }
+    ctxImp = { modo, fila: fila ?? null };
+    impMini = null; impCodigo = null; nombreAuto = ''; miniEnCurso = null;
+    $('imImpTitulo').textContent = t(modo === 'codigo' ? 'imReemplazar' : modo === 'miniatura' ? 'imCambiarMini' : 'imImportar');
+    $('imImpIntro').innerHTML = format(escapeHtml(t('imImpIntro')), {
+      skill: `<button type="button" class="im-link" id="imImpIrSkill">${escapeHtml(t('imSkillBtn'))}</button>`,
+      at: `<code>${escapeHtml(arrobaSkill())}</code>`,
+    });
+    $('imImpBNombre').hidden = modo !== 'nuevo';
+    $('imImpBMini').hidden = modo === 'codigo';
+    $('imImpBCodigo').hidden = modo === 'miniatura';
+    $('imImpLblNombre').textContent = t('imImpNombre');
+    $('imImpLblMini').textContent = t('imImpMini');
+    $('imImpLblCodigo').textContent = t('imImpCodigo');
+    $('imImpMiniAyuda').textContent = t('imImpMiniAyuda');
+    $('imImpCodigo').placeholder = t('imImpCodigoPh');
+    $('imImpCancelar').textContent = t('imCancelar');
+    $('imImpOk').textContent = t(modo === 'codigo' ? 'imImpGuardarCodigo' : modo === 'miniatura' ? 'imImpGuardarMini' : 'imImpBoton');
+    $('imImpNombre').value = '';
+    $('imImpCodigo').value = '';
+    $('imImpArchivo').value = '';
+    ['imImpMiniErr', 'imImpCodErr', 'imImpCodOk'].forEach(id => avisoImp(id, ''));
+    pintarMini();
+    $('imImp').classList.add('abierto');
+    (modo === 'nuevo' ? $('imImpNombre') : modo === 'codigo' ? $('imImpCodigo') : $('imImpDrop')).focus();
+  }
+  function cerrarImportar() {
+    if (impOcupado) return;
+    $('imImp').classList.remove('abierto');
+    ctxImp = null;
+  }
+
+  function leerImagen(file) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { res(img); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('imagen')); };
+      img.src = url;
+    });
+  }
+  // Se reduce aquí al tamaño de las miniaturas del catálogo (1400 px de ancho)
+  async function reducirMiniatura(file) {
+    const img = await leerImagen(file);
+    const esc = Math.min(1, 1400 / img.naturalWidth, 1400 / img.naturalHeight);
+    const w = Math.max(1, Math.round(img.naturalWidth * esc));
+    const h = Math.max(1, Math.round(img.naturalHeight * esc));
+    const lienzo = document.createElement('canvas');
+    lienzo.width = w; lienzo.height = h;
+    const cx = lienzo.getContext('2d');
+    cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, w, h);
+    cx.drawImage(img, 0, 0, w, h);
+    let calidad = 0.86, blob = null;
+    do {
+      blob = await new Promise(r => lienzo.toBlob(r, 'image/jpeg', calidad));
+      calidad -= 0.12;
+    } while (blob && blob.size > 700 * 1024 && calidad > 0.4);
+    if (!blob) throw new Error('imagen');
+    return { blob, url: URL.createObjectURL(blob) };
+  }
+
+  async function tomarArchivo(file) {
+    avisoImp('imImpMiniErr', '');
+    if (impMini) { URL.revokeObjectURL(impMini.url); impMini = null; }
+    pintarMini();
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { avisoImp('imImpMiniErr', t('imImpMiniTipo')); return; }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      const mb = (file.size / 1048576).toLocaleString(uiLanguage, { maximumFractionDigits: 1 });
+      avisoImp('imImpMiniErr', format(t('imImpMiniPesada'), { mb }));
+      return;
+    }
+    try { impMini = await reducirMiniatura(file); }
+    catch (_) { avisoImp('imImpMiniErr', t('imImpMiniLeer')); }
+    pintarMini();
+  }
+  // Si pulsan el botón mientras la imagen se procesa, se espera a que termine
+  let miniEnCurso = null;
+  $('imImpArchivo').addEventListener('change', (e) => { miniEnCurso = tomarArchivo(e.target.files?.[0]); e.target.value = ''; });
+  $('imImpDrop').addEventListener('dragover', (e) => { e.preventDefault(); $('imImpDrop').classList.add('encima'); });
+  $('imImpDrop').addEventListener('dragleave', () => $('imImpDrop').classList.remove('encima'));
+  $('imImpDrop').addEventListener('drop', (e) => {
+    e.preventDefault();
+    $('imImpDrop').classList.remove('encima');
+    miniEnCurso = tomarArchivo(e.dataTransfer?.files?.[0]);
+  });
+  $('imImpDrop').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('imImpArchivo').click(); } });
+
+  function revisarCodigo() {
+    impCodigo = null;
+    avisoImp('imImpCodErr', ''); avisoImp('imImpCodOk', '');
+    const txt = $('imImpCodigo').value.trim();
+    if (!txt) return;
+    const o = extraerCodigo(txt);
+    if (!o) { avisoImp('imImpCodErr', t('imImpCodNoJson')); return; }
+    const r = normalizarCodigo(o);
+    if (r.error) { avisoImp('imImpCodErr', r.error); return; }
+    impCodigo = r;
+    avisoImp('imImpCodOk', '✓ ' + t('imImpCodOk'));
+    // El nombre se llena solo con el que propone la skill (y se puede cambiar)
+    const campo = $('imImpNombre');
+    if (r.nombre && (!campo.value.trim() || campo.value === nombreAuto)) { campo.value = r.nombre; nombreAuto = r.nombre; }
+  }
+  let timerCodigo = null;
+  $('imImpCodigo').addEventListener('input', () => { clearTimeout(timerCodigo); timerCodigo = setTimeout(revisarCodigo, 250); });
+
+  async function subirMiniatura(blob) {
+    const ruta = `${IM.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const { error } = await db.storage.from(BUCKET).upload(ruta, blob, { contentType: 'image/jpeg', cacheControl: '3600', upsert: false });
+    if (error) throw error;
+    return ruta;
+  }
+  const errorServidor = (error) => /plantilla|miniatura|item_id|bucket/i.test(error?.message ?? '') ? t('imImpSinServidor') : t('imNoGuardo') + ': ' + (error?.message ?? '');
+
+  $('imImpOk').addEventListener('click', async () => {
+    if (impOcupado || !ctxImp) return;
+    if (miniEnCurso) await miniEnCurso;
+    clearTimeout(timerCodigo); revisarCodigo();
+    const { modo, fila } = ctxImp;
+    const nombre = $('imImpNombre').value.trim();
+    if (modo === 'nuevo' && !nombre) { toast(t('imNombreVacio')); $('imImpNombre').focus(); return; }
+    if (modo !== 'codigo' && !impMini) { if ($('imImpMiniErr').hidden) avisoImp('imImpMiniErr', t('imImpFaltaMini')); toast(t('imImpFaltaMini')); return; }
+    if (modo !== 'miniatura' && !impCodigo) { if ($('imImpCodErr').hidden) avisoImp('imImpCodErr', t('imImpFaltaCodigo')); toast(t('imImpFaltaCodigo')); return; }
+
+    impOcupado = true;
+    $('imImpOk').disabled = true;
+    $('imImpOk').textContent = t('imImpTrabajando');
+    let ruta = null;
+    try {
+      if (modo !== 'codigo') ruta = await subirMiniatura(impMini.blob);
+      let error;
+      if (modo === 'nuevo') {
+        const valores = { ...impCodigo.plantilla.variables, LANGUAGE: 'Spanish' };
+        ({ error } = await db.from('user_disenos').insert({
+          user_id: IM.userId, product_id: IM.productId, item_id: null,
+          nombre, categoria: null, plantilla: impCodigo.plantilla, miniatura: ruta,
+          valores, contenido: promptCon(impCodigo.plantilla, valores),
+        }));
+      } else if (modo === 'codigo') {
+        // Las variables vuelven a las del código nuevo; el idioma elegido se conserva
+        const valores = { ...impCodigo.plantilla.variables, LANGUAGE: fila.valores?.LANGUAGE ?? 'Spanish' };
+        ({ error } = await db.from('user_disenos').update({
+          plantilla: impCodigo.plantilla, valores, contenido: promptCon(impCodigo.plantilla, valores),
+          updated_at: new Date().toISOString(),
+        }).eq('id', fila.id));
+      } else {
+        ({ error } = await db.from('user_disenos').update({ miniatura: ruta, updated_at: new Date().toISOString() }).eq('id', fila.id));
+      }
+      if (error) throw error;
+      if (modo === 'miniatura' && fila.miniatura) { db.storage.from(BUCKET).remove([fila.miniatura]); urlMini.delete(fila.miniatura); }
+      if (modo === 'codigo' && ctxGuardar?.id === fila.id) { ctxGuardar = null; pintarBotonPanel(); }
+      impOcupado = false;
+      cerrarImportar();
+      toast(t(modo === 'codigo' ? 'imCodigoListo' : modo === 'miniatura' ? 'imMiniLista' : 'imImportado'));
+      if (modo === 'nuevo') catActiva = 'ALL';
+      cargarMis();
+    } catch (error) {
+      if (ruta) db.storage.from(BUCKET).remove([ruta]);
+      toast(errorServidor(error));
+    } finally {
+      impOcupado = false;
+      $('imImpOk').disabled = false;
+      if (ctxImp) $('imImpOk').textContent = t(modo === 'codigo' ? 'imImpGuardarCodigo' : modo === 'miniatura' ? 'imImpGuardarMini' : 'imImpBoton');
+    }
+  });
+  $('imImportarBtn').addEventListener('click', () => abrirImportar('nuevo'));
+  $('imImpCancelar').addEventListener('click', cerrarImportar);
+  $('imImp').addEventListener('click', (e) => {
+    if (e.target.id === 'imImp') { cerrarImportar(); return; }
+    if (e.target.closest('#imImpIrSkill')) abrirSkill();
+  });
   $('imBiblioBtn').addEventListener('click', () => {
     if (!$('im-mis').hidden) { setVistaMis(false); return; }
     // Ya en la biblioteca: bajar hasta ella dejando visibles las barras fijas
@@ -1120,6 +1586,7 @@ setUiLanguage(savedLanguage);
   }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="herramientas-im.js"></script>
   <script>
   (async () => {
     const { createClient } = supabase;
@@ -1158,12 +1625,18 @@ setUiLanguage(savedLanguage);
     if (filas) {
       traerCatalogo().then(frescas => {
         if (frescas?.length) guardarCache(frescas);
+        // Si la copia local no traía la skill, la del refresco queda disponible al momento
+        const sk = frescas?.find(f => f.data?.tipo === 'skill');
+        if (sk && window.__IM) window.__IM.skill = sk.data;
         else if (frescas) localStorage.removeItem(CACHE_KEY); // acceso revocado
       });
     } else {
       filas = await traerCatalogo() ?? [];
       if (filas.length) guardarCache(filas);
     }
+    // La skill de diseño viaja en una fila aparte (data.tipo = 'skill'): no es un diseño
+    const filaSkill = filas.find(f => f.data?.tipo === 'skill');
+    filas = filas.filter(f => f.data?.tipo !== 'skill');
 
     if (!filas.length) {
       document.getElementById('imCargando').classList.add('im-oculto');
@@ -1184,6 +1657,7 @@ setUiLanguage(savedLanguage);
       userId: session.user.id,
       productId: PRODUCT_ID,
       uuidByNum: new Map(filas.map(f => [f.item_num, f.id])),
+      skill: filaSkill ? filaSkill.data : null,
     };
 
     // Apertura registrada para tendencias reales; si falla no molesta a nadie
@@ -1191,6 +1665,17 @@ setUiLanguage(savedLanguage);
 
     document.getElementById('imCargando').classList.add('im-oculto');
     __initApp();
+    if (window.IMHerramientas) {
+      const selIdioma = document.getElementById('ui-language');
+      const btnHerr = document.getElementById('imHerrBtn');
+      const listaHerr = document.getElementById('imHerrLista');
+      const abrirHerr = (v) => { listaHerr.hidden = !v; btnHerr.setAttribute('aria-expanded', String(v)); };
+      btnHerr.addEventListener('click', (e) => { e.stopPropagation(); abrirHerr(listaHerr.hidden); });
+      document.addEventListener('click', (e) => { if (!e.target.closest('#imHerrWrap')) abrirHerr(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') abrirHerr(false); });
+      IMHerramientas.iniciar({ actual: '200', lista: listaHerr, etiqueta: document.getElementById('imHerrEtiqueta'), idioma: () => selIdioma?.value || 'es' })
+        .then(h => { if (h && selIdioma) selIdioma.addEventListener('change', () => setTimeout(h.repintar)); });
+    }
   })();
   </script>
 <script>
