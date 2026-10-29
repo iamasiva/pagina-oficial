@@ -1,11 +1,55 @@
 {
   "redirects": [
-    { "source": "/ig", "destination": "/?utm_source=instagram&utm_medium=bio&utm_campaign=perfil", "permanent": false },
-    { "source": "/tt", "destination": "/?utm_source=tiktok&utm_medium=bio&utm_campaign=perfil", "permanent": false },
-    { "source": "/yt", "destination": "/?utm_source=youtube&utm_medium=bio&utm_campaign=perfil", "permanent": false },
-    { "source": "/lt", "destination": "/?utm_source=linktree&utm_medium=bio&utm_campaign=perfil", "permanent": false }
+    {
+      "source": "/ig",
+      "destination": "/?utm_source=instagram&utm_medium=bio&utm_campaign=perfil",
+      "permanent": false
+    },
+    {
+      "source": "/tt",
+      "destination": "/?utm_source=tiktok&utm_medium=bio&utm_campaign=perfil",
+      "permanent": false
+    },
+    {
+      "source": "/yt",
+      "destination": "/?utm_source=youtube&utm_medium=bio&utm_campaign=perfil",
+      "permanent": false
+    },
+    {
+      "source": "/lt",
+      "destination": "/?utm_source=linktree&utm_medium=bio&utm_campaign=perfil",
+      "permanent": false
+    },
+    {
+      "source": "/bootcamp",
+      "destination": "/bootcamp.html",
+      "permanent": false
+    },
+    {
+      "source": "/bootcamp-ig",
+      "destination": "/bootcamp.html?utm_source=instagram&utm_medium=bio&utm_campaign=bootcamp-bio",
+      "permanent": false
+    },
+    {
+      "source": "/bootcamp-tt",
+      "destination": "/bootcamp.html?utm_source=tiktok&utm_medium=bio&utm_campaign=bootcamp-bio",
+      "permanent": false
+    },
+    {
+      "source": "/bootcamp-yt",
+      "destination": "/bootcamp.html?utm_source=youtube&utm_medium=bio&utm_campaign=bootcamp-bio",
+      "permanent": false
+    },
+    {
+      "source": "/bootcamp-fb",
+      "destination": "/bootcamp.html?utm_source=facebook&utm_medium=bio&utm_campaign=bootcamp-bio",
+      "permanent": false
+    }
   ],
   "rewrites": [
-    { "source": "/r/:slug", "destination": "/recurso.html" }
+    {
+      "source": "/r/:slug",
+      "destination": "/recurso.html"
+    }
   ]
 }
