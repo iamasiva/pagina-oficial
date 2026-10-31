@@ -47,6 +47,7 @@ ${cuerpo}
 
 const PIE_LISTA = 'Recibes este correo porque creaste tu cuenta en iamasiva.co o dejaste tu correo en uno de nuestros recursos gratuitos de IA.';
 const PIE_COMPRADOR = 'Este correo llega porque compraste el Bootcamp Gemini de 0 a 100.';
+const PIE_CLIENTE = 'Este correo llega porque compraste una de nuestras herramientas en iamasiva.co.';
 const GARANTIA = '<b>Garantía:</b> entra a la clase 1 completa y decide. Si al terminar sientes que esto no es para ti, nos escribes antes de la clase 2 y te devolvemos el 100% de tu dinero.';
 const EQUIPO = 'Nos vemos en la clase 1,<br><b>El equipo de IA MASIVA</b>';
 const SERGIO = (cierre) => `${cierre}<br><b>Sergio</b><br><span style="color:#52647C;">IA MASIVA</span>`;
@@ -145,6 +146,35 @@ const correos = {
       + boton(AREA, 'Ir a mi área del bootcamp')
       + p(`Si algo no funciona, <a href="${WHATSAPP}" style="color:#246BFD;">escríbenos por WhatsApp</a>. Nos vemos mañana.`)
       + firma(SERGIO('')),
+  }),
+
+  // Regalo del 31 de octubre a los clientes que ya habían comprado (no menciona
+  // las herramientas: no todos tienen las tres)
+  'bootcamp-regalo-clientes': correo({
+    titulo: 'Te regalamos el Bootcamp Gemini de 0 a 100',
+    preheader: 'Tres clases en vivo, el 3, 4 y 5 de noviembre. Ya está en tu cuenta, no tienes que pagar ni activar nada.',
+    pie: PIE_CLIENTE,
+    cuerpo: h1('Tu lugar en el bootcamp ya está activo. Es un regalo.')
+      + p('Hola. Cuando compraste una de nuestras herramientas confiaste en IA MASIVA, y queremos agradecértelo como se debe: te regalamos tu lugar en el <b>Bootcamp Gemini de 0 a 100</b>.')
+      + p('El bootcamp se vende por $97, pero para ti no tiene costo. No tienes que pagar ni activar nada: ya quedó en tu cuenta, con el mismo correo con el que compraste.')
+      + p('<b>Son tres clases en vivo conmigo:</b>')
+      + lista([
+        '<b>Clase 1 &middot; Gemini primeros pasos.</b> Martes 3 de noviembre.',
+        '<b>Clase 2 &middot; Proyectos grandes con Gemini.</b> Miércoles 4 de noviembre.',
+        '<b>Clase 3 &middot; Gemini para automatización y trabajo agéntico.</b> Jueves 5 de noviembre.',
+      ])
+      + p('Todas son a las 7:00 pm, hora de Bogotá, y duran alrededor de dos horas. Si una noche no puedes conectarte, la grabación queda en tu área.')
+      + p('También tienes los recursos del bootcamp: 42 formatos de respuesta, 61 instrucciones para imágenes y el mapa de las IA de Google desde el martes 3 de noviembre, y 25 agentes de IA con Gemini en la clase 3.')
+      + p('<b>Así entras el día de la clase:</b>')
+      + pasos([
+        'Entra a <a href="https://iamasiva.co" style="color:#246BFD;">iamasiva.co</a> con tu correo.',
+        'En tu área del bootcamp toca <b>Entrar a la clase</b>. El botón aparece cuando la sala está abierta, unos minutos antes de las 7:00 pm.',
+        'La clase se ve ahí mismo, con el chat al lado. Las preguntas se responden al final.',
+      ])
+      + boton(AREA, 'Entrar a mi área del bootcamp')
+      + p('Te recordamos antes de cada clase. Un favor: responde este correo con un "listo", así los recordatorios te llegan a la bandeja principal y no a Promociones.')
+      + p(`Si algo no funciona, <a href="${WHATSAPP}" style="color:#246BFD;">escríbenos por WhatsApp</a>.`)
+      + firma(SERGIO('Nos vemos el martes 3,')),
   }),
 };
 
