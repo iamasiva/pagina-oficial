@@ -176,6 +176,26 @@ const correos = {
       + p(`Si algo no funciona, <a href="${WHATSAPP}" style="color:#246BFD;">escríbenos por WhatsApp</a>.`)
       + firma(SERGIO('Nos vemos el martes 3,')),
   }),
+
+  // Recuperación de carrito (texto de Cata). El saludo sale del atributo NOMBRE del
+  // contacto en Brevo: al agregar a la persona, dejar ahí solo su primer nombre
+  'bootcamp-recuperacion-carrito': correo({
+    titulo: 'Tu inscripción al bootcamp quedó a medias',
+    preheader: 'El pago no se completó. Aquí puedes terminarlo, en tu moneda y con el método de tu país.',
+    pie: 'Este correo llega porque empezaste tu inscripción al Bootcamp Gemini de 0 a 100.',
+    cuerpo: p('Hola, {{ contact.NOMBRE }}:')
+      + p('Vi que empezaste a inscribirte al <b>Bootcamp Gemini de 0 a 100</b> y el pago no se completó. Pasa seguido: el banco pide autorizar la compra internacional, la tarjeta no pasa o simplemente se cerró la ventana.')
+      + boton(`https://iamasiva.co/pago.html?p=6c01d354-e05d-47be-a6d6-3075abcc16d3&utm_source=email&utm_medium=brevo&utm_campaign=bootcamp-recuperacion-carrito`, 'Terminar mi inscripción')
+      + p('<b>Por si te sirve:</b>')
+      + lista([
+        'Pagas en tu moneda, con tarjeta de cualquier país, PayPal o el método de tu país: PSE y Nequi en Colombia, OXXO y SPEI en México, Mercado Pago en Argentina.',
+        'Si te rechazaron la tarjeta, prueba con otro medio o pídele a tu banco que habilite las compras internacionales.',
+        'Tienes garantía: si al terminar la clase 1 sientes que no es para ti, nos escribes antes de la clase 2 y te devolvemos el 100%.',
+      ])
+      + p('La oferta de Black Friday termina el martes 3 de noviembre a las 6:00 pm, hora de Bogotá: $97 USD con las tres herramientas de regalo (todo vale $257 USD).')
+      + p(`Si tuviste algún problema con el pago, respóndeme este correo o <a href="${WHATSAPP}" style="color:#246BFD;">escríbenos por WhatsApp</a>.`)
+      + firma('<b>Sergio</b><br><span style="color:#52647C;">IA MASIVA</span>'),
+  }),
 };
 
 const recordatorioHora = (clase) => correo({
