@@ -2953,14 +2953,17 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
         ctxLibre = ctx;
         $('imLibreTitulo').textContent = ctx.modo === 'crear' ? 'Nuevo prompt' : 'Editar prompt';
         $('imLibreNombre').value = ctx.prompt?.nombre ?? '';
-        $('imLibreTexto').value = ctx.prompt?.contenido ?? '';
+        // Un prompt nuevo arranca con el @nombre de la skill: lo que sigue es la instrucción
+        const skill = ctx.modo === 'crear' ? misGemas.find(x => x.id === ctx.gemaId) : null;
+        ctxLibre.llamada = skill ? llamadaDeGuardada(skill) : '';
+        $('imLibreTexto').value = ctx.prompt?.contenido ?? (ctxLibre.llamada ? ctxLibre.llamada + ' ' : '');
         $('imModalLibre').classList.add('abierto');
         $('imLibreNombre').focus();
       }
       $('imLibreOk').addEventListener('click', async () => {
         const nombre = $('imLibreNombre').value.trim();
         const contenido = $('imLibreTexto').value.trim();
-        if (!nombre || !contenido) { showToast('Nombre y prompt son obligatorios'); (!nombre ? $('imLibreNombre') : $('imLibreTexto')).focus(); return; }
+        if (!nombre || !contenido || contenido === ctxLibre.llamada) { showToast('Nombre y prompt son obligatorios'); (!nombre ? $('imLibreNombre') : $('imLibreTexto')).focus(); return; }
         let fila, error;
         if (ctxLibre.modo === 'crear') {
           ({ data: fila, error } = await db.from('user_prompts')
