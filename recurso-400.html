@@ -976,7 +976,7 @@
               <button class="builder-choice-card" id="chooseInstallBtn" type="button">
                 <span class="tag">Solo una vez</span>
                 <b>Crea esta skill en Gemini</b>
-                <span>Los 3 campos de la Skill para crear skills, listos para copiar y pegar. Si ya la creaste, no necesitas volver aquí.</span>
+                <span>Los 3 campos de la Skill para crear skills, listos para copiar y pegar, o la skill para descargar. Si ya la creaste, no necesitas volver aquí.</span>
               </button>
               <button class="builder-choice-card builder-choice-gold" id="chooseGenerateBtn" type="button">
                 <span class="tag">Cada vez que necesites una skill</span>
@@ -990,7 +990,8 @@
             <div class="step-block">
               <div class="step-title"><h3>Crea esta skill en Gemini (solo una vez)</h3></div>
               <div class="step">
-                <p class="hint">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual. Pega estos tres campos tal cual. ¿Ya la creaste antes? <button class="ghost-btn" id="builderGoGenerateLink" type="button">Ve directo a generar el prompt →</button></p>
+                <p class="hint">En Gemini abre Configuración, luego Habilidades, toca Crear y elige Crear de forma manual. Pega estos tres campos tal cual. El atajo: descarga la skill (una carpeta con su SKILL.md) y en Habilidades usa Crear, Subir. ¿Ya la creaste antes? <button class="ghost-btn" id="builderGoGenerateLink" type="button">Ve directo a generar el prompt →</button></p>
+                <div class="actions" style="margin:0 0 14px;"><button class="secondary-btn" id="builderDescargarSkillBtn" type="button">Descargar skill</button></div>
 
                 <div class="gem-field">
                   <div class="gem-field-head">
@@ -2152,11 +2153,10 @@ Entrega el Nombre, la Descripción y las Instrucciones cada uno dentro de su pro
       els.copyConfigBtn.addEventListener("click", () => copyText(els.configOutput.value, els.copyConfigFeedback));
       document.getElementById("detailSkillChip").addEventListener("click", (e) => copyText(e.currentTarget.textContent.trim()));
       els.copyPromptBtn.addEventListener("click", () => copyText(els.promptOutput.value, els.copyPromptFeedback));
-      document.getElementById("descargarSkillBtn").addEventListener("click", () => {
-        if (!activeGem) return;
-        descargarSkillCarpeta({ nombre: activeGem.nombre, descripcion: descripcionSkill(activeGem), instrucciones: instruccionSkill(activeGem.configuracion) })
-          .then(() => showToast(AVISO_SKILL_DESCARGADA), (e) => showToast("No se pudo descargar: " + e.message));
-      });
+      const descargarDeCatalogo = (gem) => descargarSkillCarpeta({ nombre: gem.nombre, descripcion: descripcionSkill(gem), instrucciones: instruccionSkill(gem.configuracion) })
+        .then(() => showToast(AVISO_SKILL_DESCARGADA), (e) => showToast("No se pudo descargar: " + e.message));
+      document.getElementById("descargarSkillBtn").addEventListener("click", () => { if (activeGem) descargarDeCatalogo(activeGem); });
+      document.getElementById("builderDescargarSkillBtn").addEventListener("click", () => descargarDeCatalogo(GEM_BUILDER));
       document.querySelectorAll(".copy-mini[data-copy-target]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const target = document.getElementById(btn.getAttribute("data-copy-target"));
