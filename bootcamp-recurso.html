@@ -67,10 +67,11 @@
     const PORTADAS = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/';
     // Recursos del bootcamp: el slug es la dirección definitiva (bootcamp-recurso.html?r=slug).
     // El contenido llega cuando exista la guía con ese slug en la tabla guides.
+    // abreClase: para los compradores se abre el día de esa clase, no el primer día.
     const RECURSOS = {
       '42-formatos-de-respuesta':        { nombre: '42 formatos de respuesta',        clase: 1, portada: PORTADAS + 'bootcamp-portada-42-formatos-1793023500.jpg' },
       '61-instrucciones-para-imagenes':  { nombre: '61 instrucciones para imágenes',  clase: 1, portada: PORTADAS + 'bootcamp-portada-61-instrucciones-1793023500.jpg' },
-      '25-agentes-de-ia':                { nombre: '25 agentes de IA con Gemini', clase: 3, portada: PORTADAS + 'bootcamp-portada-25-agentes-1793050000.jpg' },
+      '25-agentes-de-ia':                { nombre: '25 agentes de IA con Gemini', clase: 3, abreClase: 3, portada: PORTADAS + 'bootcamp-portada-25-agentes-1793050000.jpg' },
       'mapa-de-las-ia-de-google':        { nombre: 'El mapa de las IA de Google',     clase: 1, portada: PORTADAS + 'bootcamp-portada-mapa-ia-google-1793023500.jpg' },
     };
     const $ = (id) => document.getElementById(id);
@@ -81,11 +82,11 @@
       if (!recurso) { location.replace('recurso-bootcamp.html'); return; }
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { location.replace('index.html'); return; }
-      const [perfil, compra, cfg, clase1, equipo] = await Promise.all([
+      const [perfil, compra, cfg, claseApertura, equipo] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
         sb.from('bootcamp_config').select('admin_only').eq('product_id', PRODUCT_ID).maybeSingle(),
-        sb.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCT_ID).eq('numero', 1).maybeSingle(),
+        sb.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCT_ID).eq('numero', recurso.abreClase || 1).maybeSingle(),
         sb.rpc('bootcamp_soy_equipo', { p_product: PRODUCT_ID }).then(r => r, () => ({ data: false })),
       ]);
       const esAdmin = !!perfil.data?.es_admin;
@@ -95,15 +96,16 @@
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
       if (esAdmin) $('chipAdmin').hidden = false;
       $('titulo').textContent = recurso.nombre; document.title = `${recurso.nombre} · Bootcamp · IA MASIVA`;
-      // Para los compradores, los recursos se habilitan el primer día del bootcamp (medianoche de Bogotá)
-      if (!esAdmin && !esEquipo && clase1.data?.inicio_utc) {
-        const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.data.inicio_utc));
+      // Para los compradores, los recursos se habilitan el primer día del bootcamp (medianoche de Bogotá),
+      // o el día de su clase si el recurso trae abreClase
+      if (!esAdmin && !esEquipo && claseApertura.data?.inicio_utc) {
+        const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(claseApertura.data.inicio_utc));
         const apertura = new Date(dia + 'T05:00:00Z');
         if (Date.now() < apertura.getTime()) {
           const f = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', weekday: 'long', day: 'numeric', month: 'long' }).format(apertura);
           $('cargando').classList.add('oculto');
           $('prontoImg').src = recurso.portada; $('prontoTitulo').textContent = recurso.nombre;
-          $('prontoTexto').textContent = `Los recursos del bootcamp se habilitan el primer día, el ${f}. Lo vas a encontrar aquí mismo, en esta dirección.`;
+          $('prontoTexto').textContent = `${recurso.abreClase ? `Este recurso se entrega en la clase ${recurso.abreClase}, el` : 'Los recursos del bootcamp se habilitan el primer día, el'} ${f}. Lo vas a encontrar aquí mismo, en esta dirección.`;
           $('pronto').classList.remove('oculto');
           document.body.removeAttribute('data-cargando');
           return;

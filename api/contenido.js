@@ -10,6 +10,8 @@ import { adminClient, userFromRequest } from './_lib.js';
 // compra propia) y su contenido vive en el bucket público "contenido", como las gratuitas.
 const PRODUCTO_BOOTCAMP = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
 const esRecursoBootcamp = (g) => (g.categorias || []).includes('Recurso del bootcamp');
+// Por defecto abren el día de la clase 1; estos se entregan el día de su clase.
+const CLASE_APERTURA = { '25-agentes-de-ia': 3 };
 
 export default async function handler(req, res) {
   try {
@@ -47,15 +49,16 @@ export default async function handler(req, res) {
       if (!compra) return res.status(403).json({ error: esRecursoBootcamp(guide) ? 'Este recurso es del Bootcamp Gemini de 0 a 100' : 'No has comprado este recurso' });
     }
 
-    // Recurso del bootcamp: se habilita el primer día del evento (medianoche de Bogotá
-    // del día de la clase 1) para los compradores; los admins y el equipo de ensayo
-    // siempre. URL pública tal cual (mismo bucket que las guías gratuitas).
+    // Recurso del bootcamp: se habilita a medianoche de Bogotá del día de su clase de
+    // apertura (la 1 si no dice otra cosa) para los compradores; los admins y el equipo
+    // de ensayo siempre. URL pública tal cual (mismo bucket que las guías gratuitas).
     if (esRecursoBootcamp(guide)) {
       if (!perfil?.es_admin && !esEquipo) {
-        const { data: clase1 } = await db.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCTO_BOOTCAMP).eq('numero', 1).maybeSingle();
-        if (clase1?.inicio_utc) {
-          const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase1.inicio_utc));
-          if (Date.now() < new Date(dia + 'T05:00:00Z').getTime()) return res.status(403).json({ error: 'Los recursos del bootcamp se habilitan el primer día del evento' });
+        const claseApertura = CLASE_APERTURA[guide.slug] || 1;
+        const { data: clase } = await db.from('bootcamp_clases').select('inicio_utc').eq('product_id', PRODUCTO_BOOTCAMP).eq('numero', claseApertura).maybeSingle();
+        if (clase?.inicio_utc) {
+          const dia = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(clase.inicio_utc));
+          if (Date.now() < new Date(dia + 'T05:00:00Z').getTime()) return res.status(403).json({ error: claseApertura === 1 ? 'Los recursos del bootcamp se habilitan el primer día del evento' : `Este recurso se entrega en la clase ${claseApertura}` });
         }
       }
       return res.status(200).json({ url: guide.contenido_url });
