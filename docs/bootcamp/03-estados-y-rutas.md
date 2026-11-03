@@ -9,6 +9,7 @@
 | `bootcamp-clase.html?n=1..3` | Igual que el home | Página de clase: estado, cuenta regresiva, reproductor (ticket del servidor), chat (fase 4), repetición en Hotmart |
 | `bootcamp-recurso.html?r=<slug>` | Igual que el home | Recurso de clase con dirección definitiva: `42-formatos-de-respuesta`, `61-instrucciones-para-imagenes`, `25-agentes-de-ia`, `mapa-de-las-ia-de-google`. Tras la puerta salta a `app.html?guia=<id>&volver=bootcamp`: el recurso se abre en el visor de IA MASIVA (barra con Favoritos, Cerrar y Comentarios) y "Cerrar" devuelve a `recurso-bootcamp.html`. Las guías de recursos llevan la categoría `Recurso del bootcamp`: no salen en el catálogo, sí en Favoritos; `api/contenido` las entrega a quien tiene compra APROBADA del bootcamp. Si aún no existe la guía, "se entrega en la clase N" |
 | `bootcamp-admin.html` | Admin | Consola: banderas del evento y estados de cada clase |
+| `bootcamp-preguntas.html?n=N` | Admin | Pantalla para compartir al final de la clase: solo las preguntas para Sergio (misma sala del chat), grandes, con "Marcar respondida", destacar y borrar; "Modo pantalla" esconde los botones secundarios |
 | `app.html` (catálogo) | Todos | La tarjeta del bootcamp es la guía premium enlazada por `products.guide_id` (despublicada hasta lanzar). Clic: comprado → `recurso-bootcamp.html`; sin compra → `bootcamp.html` (mapa `LANDING_PRODUCTO`) |
 | `pago.html` / `confirmacion.html` | Compradores | Mapa `PAGINAS` → `recurso-bootcamp.html` tras pagar |
 | `api/bootcamp-ticket?clase=N` | Sesión + compra o admin | Devuelve la URL del reproductor de Cloudflare con token firmado (fase 2) |
@@ -29,7 +30,7 @@ Puerta en el cliente (las tres páginas): sin sesión → `index.html`; con sesi
 | `lobby` | Sala abierta · "Entrar a sala" | Sala abierta, reproductor pide ticket (muestra "sin señal" hasta que haya emisión), chat de saludo | Enlace a IA MASIVA |
 | `live` | En vivo (punto rojo) · "Entrar en vivo" | Reproductor Cloudflare + chat / preguntas | Enlace a IA MASIVA |
 | `ended_pending_upload` | Grabación en preparación | Mensaje de preparación, recursos, soporte | Aviso |
-| `evergreen_ready` | Repetición disponible · "Ver repetición" (abre `hotmart_lesson_url`) | CTA "Ver la grabación en Hotmart" (fallback `hotmart_curso_url`) | MP4 en la lección |
+| `evergreen_ready` | Repetición disponible · "Ver repetición" (abre la página de clase si hay `grabacion_url`; si no, `hotmart_lesson_url`) | Con `grabacion_url` (YouTube no listado, `sql/bootcamp-grabacion.sql`, 3 nov 2026): la grabación embebida en la página con "Abrir en Hotmart" debajo; sin ella, CTA "Ver la grabación en Hotmart" (fallback `hotmart_curso_url`) | MP4 en la lección |
 | `rescheduled` | Fecha actualizada | Cuenta regresiva con la nueva fecha y `aviso` | Aviso |
 | `cancelled` | Cancelada | Aviso sin reproductor | Aviso |
 

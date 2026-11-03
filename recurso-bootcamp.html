@@ -221,7 +221,7 @@
     function pintarClases(clases) {
       $('clases').innerHTML = clases.map(c => {
         const d = new Date(c.inicio_utc);
-        const destino = c.estado === 'evergreen_ready' && c.hotmart_lesson_url ? c.hotmart_lesson_url : `bootcamp-clase.html?n=${c.numero}`;
+        const destino = c.estado === 'evergreen_ready' && !c.grabacion_url && c.hotmart_lesson_url ? c.hotmart_lesson_url : `bootcamp-clase.html?n=${c.numero}`;
         return tarjeta({ portada: PORTADA_CLASE[c.numero] || PORTADA_CLASE[1], alt: `Clase ${c.numero}: ${c.titulo}`, href: destino, badge: ESTADOS[c.estado] || ESTADOS.scheduled, pieB: `Clase ${c.numero} · ${c.titulo}`, pieS: `${cap(fmtFecha.format(d))} · ${hora(d)}`, externo: destino.startsWith('http') });
       }).join('');
     }
@@ -282,7 +282,7 @@
         tic(); reloj = setInterval(tic, 1000); return;
       }
       cajas.hidden = true;
-      if (clases.length && clases.every(c => c.estado === 'evergreen_ready')) { lbl.textContent = 'Bootcamp completo'; fecha.textContent = 'Las tres grabaciones están en tu área de Hotmart.'; cta.href = clases[0].hotmart_lesson_url || 'bootcamp-clase.html?n=1'; cta.firstChild.textContent = 'Ver las repeticiones '; return; }
+      if (clases.length && clases.every(c => c.estado === 'evergreen_ready')) { lbl.textContent = 'Bootcamp completo'; fecha.textContent = clases.every(c => c.grabacion_url) ? 'Las tres grabaciones están en sus tarjetas, y también en tu área de Hotmart.' : 'Las tres grabaciones están en tu área de Hotmart.'; cta.href = clases[0].grabacion_url ? 'bootcamp-clase.html?n=1' : (clases[0].hotmart_lesson_url || 'bootcamp-clase.html?n=1'); cta.firstChild.textContent = 'Ver las repeticiones '; return; }
       lbl.textContent = 'Bootcamp en curso'; fecha.textContent = 'Revisa el estado de cada clase en sus tarjetas.'; cta.href = 'bootcamp-clase.html?n=1'; cta.firstChild.textContent = 'Ver las clases ';
     }
 
@@ -293,7 +293,7 @@
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
         sb.from('bootcamp_config').select('admin_only, anuncio').eq('product_id', PRODUCT_ID).maybeSingle(),
-        sb.from('bootcamp_clases').select('numero, titulo, inicio_utc, duracion_min, estado, hotmart_lesson_url, aviso').eq('product_id', PRODUCT_ID).order('numero'),
+        sb.from('bootcamp_clases').select('*').eq('product_id', PRODUCT_ID).order('numero'),
         sb.from('purchases').select('product_id').eq('estado', 'APROBADA').in('product_id', HERRAMIENTAS.map(h => h.id)),
         sb.from('guides').select('slug').in('slug', RECURSOS.map(r => r.slug)).not('contenido_url', 'is', null),
         // Equipo de ensayo (lista privada en bootcamp_equipo, manejada desde la consola)

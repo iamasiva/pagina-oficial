@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <title>Preguntas para Sergio · Bootcamp · IA MASIVA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    /* Pantalla para COMPARTIR en la transmisión al final de la clase: solo las preguntas, grandes, sin el video.
+       Sergio las va marcando como respondidas y la lista se actualiza sola (es la misma sala del chat). */
+    :root { --black: #050505; --card: #0b1440; --line: rgba(255,255,255,0.1); --white: #fff; --gray: #D1D5DB; --muted: #9aa3b8; --blue: #2F6BFF; --cyan: #00E5FF; --ok: #34D399; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--black); color: var(--white); line-height: 1.35; }
+    body[data-cargando] .app { visibility: hidden; }
+    .app { display: flex; flex-direction: column; min-height: 100%; }
+    header { position: sticky; top: 0; z-index: 5; background: rgba(5,5,5,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 32px; }
+    .marca { display: flex; align-items: baseline; gap: 18px; }
+    .marca .logo { font-weight: 900; letter-spacing: 0.12em; font-size: 0.95rem; color: var(--gray); }
+    .marca h1 { margin: 0; font-size: 1.5rem; font-weight: 800; }
+    .marca h1 small { font-weight: 500; color: var(--muted); font-size: 1rem; margin-left: 10px; }
+    .cuenta { display: flex; align-items: center; gap: 10px; font-size: 1rem; color: var(--muted); }
+    .cuenta b { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; color: var(--white); font-size: 1.05rem; }
+    .cuenta b i { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); font-style: normal; }
+    .cuenta b.on i { background: var(--ok); box-shadow: 0 0 0 4px rgba(52,211,153,0.2); }
+    .cuenta b.pend i { background: var(--cyan); }
+    .herr { display: flex; gap: 8px; }
+    .herr button { background: transparent; border: 1px solid var(--line); color: var(--gray); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 0.88rem; cursor: pointer; }
+    .herr button:hover { color: var(--white); border-color: rgba(255,255,255,0.35); }
+    .herr button.activo { border-color: var(--cyan); color: var(--white); }
+    main { flex: 1; padding: 28px 32px 60px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    .vacio { color: var(--muted); font-size: 1.6rem; text-align: center; padding: 120px 0; }
+    .lista { display: grid; gap: 16px; }
+    .p { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px 26px; transition: opacity 0.25s, transform 0.25s; }
+    .p.ahora { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,229,255,0.18), 0 20px 50px rgba(0,0,0,0.4); }
+    .p.destacada { border-color: #FFD60A; }
+    .p .quien { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 1rem; color: var(--cyan); font-weight: 600; }
+    .p .quien .n { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 10px; border-radius: 999px; background: rgba(47,107,255,0.25); color: var(--white); font-weight: 800; font-size: 1rem; }
+    .p .quien .ahora-eti { color: var(--black); background: var(--cyan); border-radius: 999px; padding: 2px 10px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .p .quien .estrella { color: #FFD60A; }
+    .p .txt { font-size: 1.85rem; font-weight: 600; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+    .p .acc { display: flex; flex-direction: column; gap: 8px; }
+    .p .acc button { font: inherit; cursor: pointer; border-radius: 999px; padding: 14px 22px; font-weight: 700; font-size: 1.05rem; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .p .acc .ok { background: var(--blue); color: var(--white); border: 0; }
+    .p .acc .ok:hover { background: #4d80ff; }
+    .p .acc .sec { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 8px 14px; font-size: 0.85rem; font-weight: 500; }
+    .p .acc .sec:hover { color: var(--white); }
+    .p.resp { opacity: 0.45; transform: scale(0.985); }
+    .p.resp .txt { text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.4); font-size: 1.3rem; font-weight: 500; }
+    .p.resp .acc .ok { background: rgba(52,211,153,0.18); color: var(--ok); }
+    .sep { display: flex; align-items: center; gap: 14px; margin: 34px 0 14px; color: var(--muted); font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase; }
+    .sep::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+    .aviso { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--white); color: var(--black); border-radius: 999px; padding: 12px 22px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .aviso.ver { opacity: 1; }
+    body.limpio header .herr, body.limpio .p .acc .sec { display: none; }
+    @media (max-width: 760px) { header .wrap { padding: 12px 16px; flex-wrap: wrap; } main { padding: 16px; } .p { grid-template-columns: 1fr; } .p .txt { font-size: 1.35rem; } .marca h1 { font-size: 1.15rem; } }
+  </style>
+</head>
+<body data-cargando="1">
+  <div class="app">
+    <header><div class="wrap">
+      <div class="marca"><span class="logo">IA MASIVA</span><h1>Preguntas para Sergio <small id="clase"></small></h1></div>
+      <div class="cuenta"><b class="pend" id="pendientes"><i></i><span>0 pendientes</span></b><b id="estado"><i></i><span>Conectando...</span></b></div>
+      <div class="herr">
+        <button type="button" id="btnOcultar">Ocultar respondidas</button>
+        <button type="button" id="btnLimpio" title="Esconde los botones secundarios para compartir pantalla">Modo pantalla</button>
+        <a href="bootcamp-clase.html?n=1" id="lnkClase" style="color:var(--muted);font-size:0.88rem;align-self:center;text-decoration:none">Volver a la clase</a>
+      </div>
+    </div></header>
+    <main>
+      <div class="lista" id="lista"></div>
+      <div class="sep" id="sepResp" hidden>Respondidas <span id="nResp"></span></div>
+      <div class="lista" id="listaResp"></div>
+    </main>
+  </div>
+  <div class="aviso" id="aviso"></div>
+
+  <script>
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const numero = Math.min(9, Math.max(1, Number(new URLSearchParams(location.search).get('n')) || 1));
+    let session = null, ws = null, ping = null, intentos = 0, timer = null;
+    let preguntas = [], ocultar = false;
+
+    async function tokenActual() { try { const { data: { session: s } } = await sb.auth.getSession(); if (s) session = s; } catch (_) {} return session?.access_token || ''; }
+    function aviso(t) { const a = $('aviso'); a.textContent = t; a.classList.add('ver'); clearTimeout(aviso.t); aviso.t = setTimeout(() => a.classList.remove('ver'), 2500); }
+    function estado(texto, on) { const e = $('estado'); e.querySelector('span').textContent = texto; e.classList.toggle('on', !!on); }
+    function mandar(obj) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)); }
+
+    // Orden: primero las destacadas, luego por llegada. Las respondidas van abajo, tachadas.
+    function pintar() {
+      const pend = preguntas.filter(p => !p.respondida).sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.ts - b.ts);
+      const resp = preguntas.filter(p => p.respondida).sort((a, b) => b.ts - a.ts);
+      $('pendientes').querySelector('span').textContent = `${pend.length} pendiente${pend.length === 1 ? '' : 's'}`;
+      const tarjeta = (p, i, hecha) => `<div class="p${!hecha && i === 0 ? ' ahora' : ''}${p.destacada && !hecha ? ' destacada' : ''}${hecha ? ' resp' : ''}" data-id="${esc(p.id)}">
+          <div><div class="quien">${hecha ? '' : `<span class="n">${i + 1}</span>`}${!hecha && i === 0 ? '<span class="ahora-eti">Ahora</span>' : ''}${p.destacada && !hecha ? '<span class="estrella">★</span>' : ''}<span>${esc(p.a || 'Alumno')}</span></div>
+            <div class="txt">${esc(p.texto)}</div></div>
+          <div class="acc"><button class="ok" type="button" data-acc="respondida" ${hecha ? 'disabled' : ''}>${hecha ? '✓ Respondida' : '✓ Marcar respondida'}</button>
+            ${hecha ? '' : `<button class="sec" type="button" data-acc="destacar">${p.destacada ? 'Quitar estrella' : 'Destacar'}</button><button class="sec" type="button" data-acc="borrar">Borrar</button>`}</div>
+        </div>`;
+      $('lista').innerHTML = pend.length ? pend.map((p, i) => tarjeta(p, i, false)).join('') : '<div class="vacio">Sin preguntas pendientes. Las nuevas aparecen aquí solas.</div>';
+      $('sepResp').hidden = ocultar || !resp.length; $('nResp').textContent = resp.length ? `(${resp.length})` : '';
+      $('listaResp').innerHTML = ocultar ? '' : resp.map((p, i) => tarjeta(p, i, true)).join('');
+    }
+
+    async function conectar() {
+      if (ws) return;
+      clearTimeout(timer); estado('Conectando...', false);
+      try {
+        const r = await fetch(`/api/bootcamp-chat-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${await tokenActual()}` } });
+        const b = await r.json().catch(() => ({}));
+        if (!r.ok || !b.ws) throw new Error(b.error || 'Sala no disponible');
+        if (b.rol !== 'admin') throw new Error('Esta pantalla es solo para Sergio');
+        const s = new WebSocket(b.ws); ws = s;
+        s.onopen = () => { intentos = 0; estado('En la sala', true); clearInterval(ping); ping = setInterval(() => mandar({ t: 'ping' }), 25000); };
+        s.onmessage = (ev) => {
+          let m; try { m = JSON.parse(ev.data); } catch (_) { return; }
+          if (m.t === 'hola') { preguntas = m.preguntas || []; pintar(); }
+          else if (m.t === 'pregunta') { const i = preguntas.findIndex(p => p.id === m.p.id); if (i >= 0) preguntas[i] = m.p; else preguntas.push(m.p); pintar(); }
+          else if (m.t === 'borrar') { preguntas = preguntas.filter(p => p.id !== m.id); pintar(); }
+          else if (m.t === 'error') { aviso(m.texto); }
+        };
+        s.onclose = () => { ws = null; clearInterval(ping); estado('Desconectado', false); reintentar(); };
+        s.onerror = () => {};
+      } catch (e) {
+        ws = null; estado(e.message, false); reintentar();
+      }
+    }
+    function reintentar() { intentos = Math.min(intentos + 1, 6); clearTimeout(timer); timer = setTimeout(conectar, Math.min(5000 * 2 ** (intentos - 1), 60000)); }
+
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-acc]'); if (!b) return;
+      const id = b.closest('.p').dataset.id, acc = b.dataset.acc;
+      if (acc === 'borrar' && !confirm('¿Borrar esta pregunta para todos?')) return;
+      mandar({ t: acc, id });
+      if (acc === 'respondida') { const p = preguntas.find(x => x.id === id); if (p) { p.respondida = true; pintar(); } }   // se refleja ya; la sala confirma enseguida
+    });
+    $('btnOcultar').addEventListener('click', () => { ocultar = !ocultar; $('btnOcultar').textContent = ocultar ? 'Mostrar respondidas' : 'Ocultar respondidas'; $('btnOcultar').classList.toggle('activo', ocultar); pintar(); });
+    $('btnLimpio').addEventListener('click', () => { document.body.classList.toggle('limpio'); $('btnLimpio').classList.toggle('activo'); });
+
+    async function init() {
+      ({ data: { session } } = await sb.auth.getSession());
+      if (!session) { location.replace('index.html'); return; }
+      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
+      if (!perfil?.es_admin) { location.replace('recurso-bootcamp.html'); return; }
+      const { data: clase } = await sb.from('bootcamp_clases').select('numero, titulo').eq('product_id', '6c01d354-e05d-47be-a6d6-3075abcc16d3').eq('numero', numero).maybeSingle();
+      $('clase').textContent = clase ? `Clase ${clase.numero} · ${clase.titulo}` : `Clase ${numero}`;
+      $('lnkClase').href = `bootcamp-clase.html?n=${numero}`;
+      document.body.removeAttribute('data-cargando');
+      pintar();
+      conectar();
+    }
+    init().catch((e) => { document.body.removeAttribute('data-cargando'); estado('Error: ' + e.message, false); });
+  </script>
+</body>
+</html>

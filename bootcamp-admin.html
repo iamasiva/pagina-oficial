@@ -119,7 +119,8 @@
           <label>Inicio (hora de Bogotá)<input data-campo="inicio" type="datetime-local" value="${aLocal(c.inicio_utc)}" /></label>
           <label>Duración (min)<input data-campo="duracion_min" type="number" min="15" max="600" value="${c.duracion_min}" /></label>
           <label>Estado<select data-campo="estado">${ESTADOS.map(e => `<option value="${e}"${e === c.estado ? ' selected' : ''}>${e}</option>`).join('')}</select></label>
-          <label>Lección en Hotmart Club (repetición)<input data-campo="hotmart_lesson_url" type="url" value="${esc(c.hotmart_lesson_url ?? '')}" placeholder="https://hotmart.com/..." /></label>
+          <label>Grabación en YouTube (video no listado; se ve en la página de la clase)<input data-campo="grabacion_url" type="url" value="${esc(c.grabacion_url ?? '')}" placeholder="https://youtu.be/..." /></label>
+          <label>Lección en Hotmart Club (segunda copia)<input data-campo="hotmart_lesson_url" type="url" value="${esc(c.hotmart_lesson_url ?? '')}" placeholder="https://hotmart.com/..." /></label>
           <label>Aviso en la tarjeta (opcional)<input data-campo="aviso" value="${esc(c.aviso ?? '')}" /></label>
         </div>
         <div class="acciones">
@@ -138,10 +139,10 @@
 
     async function guardarClase(caja) {
       const v = (campo) => caja.querySelector(`[data-campo="${campo}"]`).value;
-      const cambios = { titulo: v('titulo').trim(), inicio_utc: aUtc(v('inicio')), duracion_min: Number(v('duracion_min')) || 120, estado: v('estado'), hotmart_lesson_url: v('hotmart_lesson_url').trim() || null, aviso: v('aviso').trim() || null, actualizado_en: new Date().toISOString() };
-      if (cambios.estado === 'evergreen_ready' && !cambios.hotmart_lesson_url && !$('cfgHotmart').value.trim()) { aviso('Pon el link de la lección en Hotmart (o el índice del curso) antes de marcar la repetición', true); return; }
+      const cambios = { titulo: v('titulo').trim(), inicio_utc: aUtc(v('inicio')), duracion_min: Number(v('duracion_min')) || 120, estado: v('estado'), grabacion_url: v('grabacion_url').trim() || null, hotmart_lesson_url: v('hotmart_lesson_url').trim() || null, aviso: v('aviso').trim() || null, actualizado_en: new Date().toISOString() };
+      if (cambios.estado === 'evergreen_ready' && !cambios.grabacion_url && !cambios.hotmart_lesson_url && !$('cfgHotmart').value.trim()) { aviso('Pon el link de YouTube de la grabación (o el de Hotmart) antes de marcar la repetición', true); return; }
       const { error } = await sb.from('bootcamp_clases').update(cambios).eq('product_id', PRODUCT_ID).eq('numero', Number(caja.dataset.n));
-      if (error) { aviso('No se guardó: ' + error.message, true); return; }
+      if (error) { aviso(/grabacion_url/.test(error.message) ? 'Falta la columna grabacion_url: corre sql/bootcamp-grabacion.sql en Supabase' : 'No se guardó: ' + error.message, true); return; }
       aviso(`Clase ${caja.dataset.n} guardada: ${ETIQUETA[cambios.estado]}`);
       await cargarClases();
     }
