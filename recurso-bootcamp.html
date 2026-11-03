@@ -286,6 +286,19 @@
       lbl.textContent = 'Bootcamp en curso'; fecha.textContent = 'Revisa el estado de cada clase en sus tarjetas.'; cta.href = 'bootcamp-clase.html?n=1'; cta.firstChild.textContent = 'Ver las clases ';
     }
 
+    // Compra o regalo registrado con el correo antes de tener cuenta (fila sin
+    // user_id): se engancha aquí mismo y se recarga, sin pasar por el catálogo.
+    // Un solo intento por pestaña para no entrar en bucle.
+    async function reclamarCompras(session) {
+      try {
+        if (sessionStorage.getItem('im_reclamo_bc')) return false;
+        sessionStorage.setItem('im_reclamo_bc', '1');
+        const r = await fetch('/api/reclamar', { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } });
+        const j = r.ok ? await r.json() : null;
+        return !!j?.reclamadas;
+      } catch (_) { return false; }
+    }
+
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       // Sin sesión (llegada desde el correo): la portada abre el login y, al entrar, vuelve aquí
@@ -305,6 +318,7 @@
       const tiene = !!compra.data;
       const config = cfg.data;
       // Puerta: comprador con el bootcamp abierto, admin o equipo de ensayo. Todo lo demás vuelve a la landing.
+      if (!esAdmin && !esEquipo && !tiene && await reclamarCompras(session)) { location.reload(); return; }
       if (!esAdmin && !esEquipo && (!tiene || !config || config.admin_only)) { location.replace(LANDING); return; }
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
       if (esAdmin) { $('chipAdmin').hidden = false; $('btnConsola').hidden = false; if (!config || config.admin_only) $('avisoAdmin').hidden = false; }

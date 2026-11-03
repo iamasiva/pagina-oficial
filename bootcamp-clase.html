@@ -476,6 +476,19 @@
       if (data && data.estado !== clase?.estado) { clase = data; pintar(); } else if (data) { clase = data; }
     }
 
+    // Compra o regalo registrado con el correo antes de tener cuenta (fila sin
+    // user_id): se engancha aquí mismo y se recarga, sin pasar por el catálogo.
+    // Un solo intento por pestaña para no entrar en bucle.
+    async function reclamarCompras(session) {
+      try {
+        if (sessionStorage.getItem('im_reclamo_bc')) return false;
+        sessionStorage.setItem('im_reclamo_bc', '1');
+        const r = await fetch('/api/reclamar', { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } });
+        const j = r.ok ? await r.json() : null;
+        return !!j?.reclamadas;
+      } catch (_) { return false; }
+    }
+
     async function init() {
       ({ data: { session } } = await sb.auth.getSession());
       // Sin sesión: la portada abre el login y, al entrar, devuelve a esta misma clase
@@ -490,6 +503,7 @@
       esAdmin = !!perfil.data?.es_admin; config = cfg.data; clase = fila.data;
       // Equipo de ensayo: entra sin compra y puede simular el estado (el servidor le da video y chat en cualquier estado)
       const esEquipo = !esAdmin && equipo?.data === true;
+      if (!esAdmin && !esEquipo && !compra.data && await reclamarCompras(session)) { location.reload(); return; }
       if (!esAdmin && !esEquipo && (!compra.data || !config || config.admin_only)) { location.replace(LANDING); return; }
       if (!clase) { location.replace('recurso-bootcamp.html'); return; }
       try { if (esAdmin) localStorage.setItem('im_es_admin', '1'); } catch (_) {}
