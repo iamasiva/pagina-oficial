@@ -1933,6 +1933,19 @@
 
     const isRecoveryFlow = window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery');
 
+    // Llegada desde un correo del bootcamp sin sesión: el área o la clase mandan
+    // aquí con ?entrar=...; se guarda el destino (solo páginas de esta lista), se
+    // abre el login y, al entrar con correo o con Google, se vuelve a ese destino
+    // en vez de al catálogo. sessionStorage sobrevive al viaje por Google.
+    const DESTINOS_ENTRAR = { bootcamp: 'recurso-bootcamp.html', clase1: 'bootcamp-clase.html?n=1', clase2: 'bootcamp-clase.html?n=2', clase3: 'bootcamp-clase.html?n=3' };
+    try {
+      const entrar = new URLSearchParams(location.search).get('entrar');
+      if (entrar && DESTINOS_ENTRAR[entrar]) sessionStorage.setItem('im_destino', DESTINOS_ENTRAR[entrar]);
+    } catch (_) {}
+    function destinoGuardado() {
+      try { const d = sessionStorage.getItem('im_destino'); return Object.values(DESTINOS_ENTRAR).includes(d) ? d : null; } catch (_) { return null; }
+    }
+
     sb.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         openModal('viewResetPass');
@@ -1946,6 +1959,8 @@
       if (session && !isRecoveryFlow) {
         document.getElementById('imSplash').classList.add('activa');
         entrarAlCatalogo(session);
+      } else if (!session && !isRecoveryFlow && destinoGuardado()) {
+        openModal('viewLogin');
       }
     });
 
@@ -1962,7 +1977,9 @@
       if (entrandoAlCatalogo) return;
       entrandoAlCatalogo = true;
       const registro = marcarRegistro(session?.user);
-      setTimeout(() => { window.location.replace('app.html'); }, registro ? 350 : 0);
+      const destino = destinoGuardado() || 'app.html';
+      try { sessionStorage.removeItem('im_destino'); } catch (_) {}
+      setTimeout(() => { window.location.replace(destino); }, registro ? 350 : 0);
     }
 
     // ── LOGOUT ────────────────────────────────────────────────────

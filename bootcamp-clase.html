@@ -478,7 +478,8 @@
 
     async function init() {
       ({ data: { session } } = await sb.auth.getSession());
-      if (!session) { location.replace('index.html'); return; }
+      // Sin sesión: la portada abre el login y, al entrar, devuelve a esta misma clase
+      if (!session) { location.replace(`index.html?entrar=clase${[1, 2, 3].includes(numero) ? numero : ''}`); return; }
       const [perfil, compra, cfg, fila, equipo] = await Promise.all([
         sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
         sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),

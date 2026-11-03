@@ -45,3 +45,7 @@ Simulación para el equipo: un admin puede abrir `bootcamp-clase.html?n=1&estado
 - Admin entra al home y a las tres clases; ve el chip "Vista previa admin" y el aviso de modo solo equipo.
 - Sin sesión: `recurso-bootcamp.html` y `bootcamp-clase.html` mandan a `index.html`. Con sesión sin compra: mandan a `bootcamp.html`. Con compra pero `admin_only = true`: mandan a `bootcamp.html`.
 - Catálogo, compras, packs y herramientas actuales: sin cambios (solo se agregó una clave a tres mapas).
+
+## Llegada sin sesión desde un correo
+
+`recurso-bootcamp.html` y `bootcamp-clase.html` mandan a quien no tiene sesión a `index.html?entrar=bootcamp` (o `?entrar=claseN`). La portada guarda el destino en `sessionStorage` (`im_destino`, solo valores de la lista `DESTINOS_ENTRAR`), abre el login de una vez y, al entrar con correo o con Google, devuelve a ese destino en vez de al catálogo. Antes caían en la portada sin ninguna pista.
