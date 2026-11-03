@@ -87,7 +87,7 @@ export class SalaChat {
     const u = await idPublico(claims.u, this.env.CHAT_TICKET_SECRET);
     servidor.serializeAttachment({ u, a: claims.a || 'Alumno', r: claims.r || 'alumno', ultimo: 0 });
     this.state.acceptWebSocket(servidor, [u]);
-    servidor.send(JSON.stringify({ t: 'hola', modo: e.modo, anuncio: e.anuncio, mensajes: e.mensajes.slice(-60), preguntas: e.preguntas.slice(-60), rol: claims.r || 'alumno', alias: claims.a || 'Alumno', conectados: this.state.getWebSockets().length }));
+    servidor.send(JSON.stringify({ t: 'hola', modo: e.modo, anuncio: e.anuncio, mensajes: e.mensajes.slice(-60), preguntas: e.preguntas, rol: claims.r || 'alumno', alias: claims.a || 'Alumno', conectados: this.state.getWebSockets().length }));
     return new Response(null, { status: 101, webSocket: cliente });
   }
 
