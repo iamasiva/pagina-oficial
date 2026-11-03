@@ -49,3 +49,7 @@ Simulación para el equipo: un admin puede abrir `bootcamp-clase.html?n=1&estado
 ## Llegada sin sesión desde un correo
 
 `recurso-bootcamp.html` y `bootcamp-clase.html` mandan a quien no tiene sesión a `index.html?entrar=bootcamp` (o `?entrar=claseN`). La portada guarda el destino en `sessionStorage` (`im_destino`, solo valores de la lista `DESTINOS_ENTRAR`), abre el login de una vez y, al entrar con correo o con Google, devuelve a ese destino en vez de al catálogo. Antes caían en la portada sin ninguna pista.
+
+## Paso automático a "en vivo"
+
+`GET /api/bootcamp-senal?clase=N` mira en el servidor si el Live Input de la clase ya emite (manifiesto firmado: 200 hay señal, 204 todavía no). Si la clase está en `lobby` y hay señal, la pasa a `live` (candado en el WHERE para que dos llamadas no choquen). La página de la clase lo llama al ver la primera señal con la sala abierta; además se puede vigilar desde afuera con `curl` cada 20 s. Con `&solo=1` solo informa. Terminar la clase sigue siendo manual (consola, botón Terminar). La firma y las rutas de Stream viven en `api/_stream.js`, compartidas con el ticket.
