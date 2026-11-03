@@ -42,11 +42,13 @@ export default async function handler(req, res) {
       db.from('purchases').select('id').eq('user_id', user.id).eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
       db.from('bootcamp_config').select('admin_only, chat_mode').eq('product_id', PRODUCT_ID).maybeSingle(),
       db.from('bootcamp_clases').select('numero, estado').eq('product_id', PRODUCT_ID).eq('numero', numero).maybeSingle(),
-      // Equipo de ensayo (bootcamp_equipo): entra al chat en cualquier estado, como alumno
-      db.from('bootcamp_equipo').select('email').eq('product_id', PRODUCT_ID).eq('email', String(user.email ?? '').toLowerCase()).maybeSingle(),
+      // Equipo de ensayo (bootcamp_equipo): entra al chat en cualquier estado, como alumno; con modera = true
+      // (sql/bootcamp-equipo-modera.sql) recibe el rol admin de la sala. select('*') por si la columna aún no existe.
+      db.from('bootcamp_equipo').select('*').eq('product_id', PRODUCT_ID).eq('email', String(user.email ?? '').toLowerCase()).maybeSingle(),
     ]);
     const esAdmin = !!perfil?.es_admin;
     const acceso = esAdmin || !!equipo;
+    const modera = esAdmin || equipo?.modera === true;
     if (!acceso) {
       if (!compra) return res.status(403).json({ error: 'El chat es para compradores del bootcamp' });
       if (!config || config.admin_only) return res.status(403).json({ error: 'El bootcamp todavía no está abierto' });
@@ -56,7 +58,7 @@ export default async function handler(req, res) {
     if (!clase) return res.status(404).json({ error: 'Clase no encontrada' });
 
     const ahora = Math.floor(Date.now() / 1000);
-    const claims = { u: user.id, n: numero, r: esAdmin ? 'admin' : 'alumno', a: alias(perfil, user), iat: ahora, exp: ahora + VIGENCIA_SEG, j: b64url(require_nonce()) };
+    const claims = { u: user.id, n: numero, r: modera ? 'admin' : 'alumno', a: alias(perfil, user), iat: ahora, exp: ahora + VIGENCIA_SEG, j: b64url(require_nonce()) };
     const cuerpo = b64url(JSON.stringify(claims));
     const firma = b64url(createHmac('sha256', secreto).update(cuerpo).digest());
     const ticket = `${cuerpo}.${firma}`;

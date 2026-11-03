@@ -116,7 +116,7 @@
         const r = await fetch(`/api/bootcamp-chat-ticket?clase=${numero}`, { headers: { Authorization: `Bearer ${await tokenActual()}` } });
         const b = await r.json().catch(() => ({}));
         if (!r.ok || !b.ws) throw new Error(b.error || 'Sala no disponible');
-        if (b.rol !== 'admin') throw new Error('Esta pantalla es solo para Sergio');
+        if (b.rol !== 'admin') throw new Error('Tu cuenta entra a la sala pero no modera: pídele a Sergio que te active (modera) en el equipo');
         const s = new WebSocket(b.ws); ws = s;
         s.onopen = () => { intentos = 0; estado('En la sala', true); clearInterval(ping); ping = setInterval(() => mandar({ t: 'ping' }), 25000); };
         s.onmessage = (ev) => {
@@ -147,8 +147,12 @@
     async function init() {
       ({ data: { session } } = await sb.auth.getSession());
       if (!session) { location.replace('index.html'); return; }
-      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
-      if (!perfil?.es_admin) { location.replace('recurso-bootcamp.html'); return; }
+      const [{ data: perfil }, equipo] = await Promise.all([
+        sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle(),
+        sb.rpc('bootcamp_soy_equipo', { p_product: '6c01d354-e05d-47be-a6d6-3075abcc16d3' }).then(r => r, () => ({ data: false })),
+      ]);
+      // Entran admins y equipo de ensayo; el ticket de la sala dice quién modera de verdad (modera = true en bootcamp_equipo)
+      if (!perfil?.es_admin && equipo?.data !== true) { location.replace('recurso-bootcamp.html'); return; }
       const { data: clase } = await sb.from('bootcamp_clases').select('numero, titulo').eq('product_id', '6c01d354-e05d-47be-a6d6-3075abcc16d3').eq('numero', numero).maybeSingle();
       $('clase').textContent = clase ? `Clase ${clase.numero} · ${clase.titulo}` : `Clase ${numero}`;
       $('lnkClase').href = `bootcamp-clase.html?n=${numero}`;
