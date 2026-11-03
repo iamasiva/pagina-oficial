@@ -2,31 +2,12 @@
 // Ticket de reproducción del directo (fase 2 del plan maestro). Quien tiene
 // sesión, compra aprobada del bootcamp (o es admin) y la clase está en sala o
 // en vivo, recibe la URL del reproductor de Cloudflare Stream con un token
-// firmado y corto. El UID del Live Input y la llave de firma solo viven aquí.
-//
-// Variables de entorno (Vercel): CF_STREAM_CUSTOMER_CODE (customer-xxxx),
-// CF_STREAM_KEY_ID y CF_STREAM_JWK (llave de firma creada en Stream > Keys),
-// CF_STREAM_LIVE_INPUT_1, _2, _3 (UID de cada Live Input).
-import { createPrivateKey, sign } from 'node:crypto';
+// firmado y corto. La firma y las rutas viven en _stream.js (compartidas con
+// el detector de señal bootcamp-senal.js).
 import { adminClient, userFromRequest } from './_lib.js';
+import { rutasDeClase, VIGENCIA_SEG } from './_stream.js';
 
 const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
-const VIGENCIA_SEG = 4 * 3600; // cubre una clase de 2 h con margen; el cliente puede pedir otro
-
-const b64url = (buf) => Buffer.from(buf).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-
-function firmarToken(uid) {
-  const kid = process.env.CF_STREAM_KEY_ID;
-  const jwk = process.env.CF_STREAM_JWK;
-  if (!kid || !jwk) throw new Error('Falta la llave de firma de Cloudflare Stream');
-  const ahora = Math.floor(Date.now() / 1000);
-  const header = { alg: 'RS256', kid };
-  const payload = { sub: uid, kid, exp: ahora + VIGENCIA_SEG, nbf: ahora - 60, accessRules: [{ type: 'any', action: 'allow' }] };
-  const datos = `${b64url(JSON.stringify(header))}.${b64url(JSON.stringify(payload))}`;
-  const llave = createPrivateKey({ key: JSON.parse(Buffer.from(jwk, 'base64').toString('utf8')), format: 'jwk' });
-  const firma = sign('RSA-SHA256', Buffer.from(datos), llave);
-  return `${datos}.${b64url(firma)}`;
-}
 
 export default async function handler(req, res) {
   try {
@@ -58,17 +39,12 @@ export default async function handler(req, res) {
     if (!config?.video_enabled) return res.status(409).json({ error: 'El video no está habilitado todavía' });
     if (!acceso && !['lobby', 'live'].includes(clase.estado)) return res.status(409).json({ error: 'La clase no está en vivo' });
 
-    const uid = String(process.env[`CF_STREAM_LIVE_INPUT_${numero}`] ?? '').trim();
-    // Acepta "customer-xxxx", "customer-xxxx.cloudflarestream.com" o la URL completa
-    const customer = String(process.env.CF_STREAM_CUSTOMER_CODE ?? '').trim()
-      .replace(/^https?:\/\//, '').replace(/\.cloudflarestream\.com.*$/i, '').replace(/\/.*$/, '');
-    if (!uid || !customer) return res.status(503).json({ error: 'La señal de esta clase no está configurada' });
-
-    const token = firmarToken(uid);
+    const rutas = rutasDeClase(numero);
+    if (!rutas) return res.status(503).json({ error: 'La señal de esta clase no está configurada' });
     return res.status(200).json({
-      iframe: `https://${customer}.cloudflarestream.com/${token}/iframe`,
+      iframe: rutas.iframe,
       // Con el manifiesto el navegador sabe si ya hay señal (200) o todavía no (204)
-      manifest: `https://${customer}.cloudflarestream.com/${token}/manifest/video.m3u8`,
+      manifest: rutas.manifest,
       expira_en: VIGENCIA_SEG,
     });
   } catch (err) {

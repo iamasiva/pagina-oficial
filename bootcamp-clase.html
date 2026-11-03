@@ -252,6 +252,8 @@
           mensajePlayer('Esperando la señal', 'La clase aparece aquí sola en cuanto empiece la transmisión. No hace falta recargar.');
           esperaSenal = setTimeout(montarReproductor, 15000);
         } else {
+          // Primera señal con la sala abierta: el servidor pasa la clase a "en vivo" sola
+          if (clase.estado === 'lobby' && !simulado) fetch(`/api/bootcamp-senal?clase=${numero}`).then(() => setTimeout(recargarClase, 1500)).catch(() => {});
           montarVideo(cuerpo);
         }
       } catch (e) {
