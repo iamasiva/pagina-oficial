@@ -1149,11 +1149,22 @@
       var FIN = Date.parse('2026-11-06T06:00:00Z'), CIERRE = Date.parse('2026-11-03T18:00:00-05:00'), CLASE1 = Date.parse('2026-11-04T00:00:00Z'), pista = null;
       try { pista = localStorage.getItem('im_hero_bc_home'); } catch (e) {}
       var bc = document.getElementById('heroBootcamp'), vid = document.getElementById('heroVideo'), esp = document.getElementById('heroEspera');
+      // Qué dice el contador: oferta abierta, cuenta a la próxima clase, o clase en curso (sin cajas)
+      window.estadoHeroBc = function (ahora) {
+        if (CIERRE > ahora) return { lbl: 'La oferta de Black Friday termina en', hasta: CIERRE };
+        for (var i = 0; i < 3; i++) {
+          var ini = CLASE1 + i * 864e5;
+          if (ahora < ini) return { lbl: 'La clase ' + (i + 1) + ' empieza en', hasta: ini };
+          if (ahora < ini + 3 * 36e5) return { lbl: 'Clase ' + (i + 1) + ' en vivo ahora', hasta: null };
+        }
+        return { lbl: 'El bootcamp está en curso', hasta: null };
+      };
       if (pista === '1' && Date.now() < FIN) {
         bc.hidden = false; vid.style.display = 'none';
-        var hasta = CIERRE > Date.now() ? CIERRE : CLASE1, d = Math.max(0, hasta - Date.now()), dd = function (n) { return String(n).padStart(2, '0'); };
-        document.getElementById('heroBcLbl').textContent = CIERRE > Date.now() ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
-        document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3));
+        var st = window.estadoHeroBc(Date.now()), d = Math.max(0, (st.hasta || 0) - Date.now()), dd = function (n) { return String(n).padStart(2, '0'); };
+        document.getElementById('heroBcLbl').textContent = st.lbl;
+        document.getElementById('heroBcTiles').style.display = st.hasta ? '' : 'none';
+        if (st.hasta) { document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3)); }
       } else if (pista !== '0') { vid.style.display = 'none'; esp.hidden = false; }
     })();
   </script>
@@ -2119,11 +2130,15 @@
           const heroBc = document.getElementById('heroBootcamp'), heroVideo = document.getElementById('heroVideo');
           if (heroBc) {
             heroBc.hidden = false; if (heroVideo) heroVideo.style.display = 'none'; mostrarEspera(false);
-            const lbl = document.getElementById('heroBcLbl');
-            const hasta = CIERRE_OFERTA > Date.now() ? CIERRE_OFERTA : INICIO_CLASE_1;
-            lbl.textContent = CIERRE_OFERTA > Date.now() ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en';
+            const lbl = document.getElementById('heroBcLbl'), tiles = document.getElementById('heroBcTiles');
             const dd = (n) => String(Math.max(0, n)).padStart(2, '0');
-            const tic = () => { const d = Math.max(0, hasta - Date.now()); document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3)); };
+            // El mismo criterio de la pintura instantánea: oferta, cuenta a la próxima clase o clase en curso
+            const tic = () => {
+              const st = window.estadoHeroBc ? window.estadoHeroBc(Date.now()) : { lbl: 'El bootcamp está en curso', hasta: null };
+              lbl.textContent = st.lbl; tiles.style.display = st.hasta ? '' : 'none';
+              if (!st.hasta) return;
+              const d = Math.max(0, st.hasta - Date.now()); document.getElementById('hbD').textContent = dd(Math.floor(d / 864e5)); document.getElementById('hbH').textContent = dd(Math.floor(d % 864e5 / 36e5)); document.getElementById('hbM').textContent = dd(Math.floor(d % 36e5 / 6e4)); document.getElementById('hbS').textContent = dd(Math.floor(d % 6e4 / 1e3));
+            };
             tic(); setInterval(tic, 1000);
           }
           const paqBc = document.getElementById('paqBootcamp');

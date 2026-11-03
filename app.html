@@ -2328,7 +2328,11 @@
           else st = { vigente: true, fin, lbl: `La clase ${proxima.numero} empieza en`, tiles: true, hasta: new Date(proxima.inicio_utc).getTime(), cta: `Ver clase ${proxima.numero}`, href: `bootcamp-clase.html?n=${proxima.numero}` };
         } else {
           const cierre = new Date(CIERRE_OFERTA_BOOTCAMP).getTime();
-          st = { vigente: true, fin, lbl: cierre > ahora ? 'La oferta de Black Friday termina en' : 'El bootcamp empieza en', tiles: true, hasta: cierre > ahora ? cierre : new Date(proxima.inicio_utc).getTime(), cta: 'Más información', href: 'bootcamp.html' };
+          // Sin el bootcamp: con una clase en sala o en vivo se dice eso (sin contador);
+          // si no, cuenta a la oferta o a la próxima clase
+          if (viva) st = { vigente: true, fin, lbl: `Clase ${viva.numero} en vivo ahora`, tiles: false, cta: 'Más información', href: 'bootcamp.html' };
+          else if (sala) st = { vigente: true, fin, lbl: `La clase ${sala.numero} está por empezar`, tiles: false, cta: 'Más información', href: 'bootcamp.html' };
+          else st = { vigente: true, fin, lbl: cierre > ahora ? 'La oferta de Black Friday termina en' : `La clase ${proxima.numero} empieza en`, tiles: true, hasta: cierre > ahora ? cierre : new Date(proxima.inicio_utc).getTime(), cta: 'Más información', href: 'bootcamp.html' };
         }
       }
       aplicarHeroBc(st);
