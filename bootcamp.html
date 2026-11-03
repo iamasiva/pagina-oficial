@@ -791,6 +791,9 @@
       if (FECHAS.cierre) {
         const fin = new Date(FECHAS.cierre).getTime();
         const caja = $('cuentaRegresiva');
+        // Se declara antes de tic: con la oferta ya cerrada, la primera llamada
+        // entra al cierre y tocaba la variable antes de existir (página en blanco)
+        let reloj = null;
         const tic = () => {
           const d = Math.max(0, fin - Date.now());
           const dias = Math.floor(d / 864e5), h = Math.floor(d % 864e5 / 36e5), m = Math.floor(d % 36e5 / 6e4), s = Math.floor(d % 6e4 / 1e3);
@@ -798,14 +801,14 @@
           $('cuentaTexto').textContent = (dias ? dias + 'd ' : '') + dd(h) + 'h ' + dd(m) + 'm ' + dd(s) + 's';
           $('cdDias').textContent = dd(dias); $('cdHoras').textContent = dd(h); $('cdMin').textContent = dd(m); $('cdSeg').textContent = dd(s);
           if (d <= 0) {
-            caja.style.display = 'none'; clearInterval(reloj);
+            caja.style.display = 'none'; if (reloj) clearInterval(reloj);
             $('heroCuenta').classList.add('cerrada');
             $('cuentaEti').lastChild.textContent = 'La oferta de Black Friday terminó';
           }
         };
         caja.style.display = 'flex';
         tic();
-        const reloj = setInterval(tic, 1000);
+        if (fin > Date.now()) reloj = setInterval(tic, 1000);
       }
     }
 
