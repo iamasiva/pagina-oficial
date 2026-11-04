@@ -44,3 +44,12 @@ Prueba con dos usuarios reales contra producción: Sergio como admin desde Chrom
 - Pendiente para el ensayo largo (fase 6): corte del WebSocket con el video emitiendo y reconexión automática, y chat en celular con teclado abierto.
 
 Después de las pruebas, la sala de la clase 1 se reinició con el botón "Reiniciar sala" (mensajes, preguntas, anuncio y modo a cero).
+
+## Comentarios en la repetición (4 nov 2026)
+
+Cuando la clase está en `ended_pending_upload` o `evergreen_ready`, el panel del chat de `bootcamp-clase.html` se convierte en una sección de **Comentarios** permanente (el chat en vivo no cambia; el botón "¿Tienes problemas?" sigue arriba).
+
+- Datos: tabla `bootcamp_comentarios` (`sql/bootcamp-comentarios.sql`): `product_id`, `numero`, `user_id`, `nombre` (alias como en el chat: "Sergio L."), `texto` (1 a 1.000 caracteres), `parent_id` (un solo nivel de respuestas), `es_equipo`, `borrado` (borrado lógico), `creado_en`. Solo `service_role` tiene GRANT; RLS sin políticas.
+- API `api/bootcamp-comentarios.js`: `GET ?clase=N` lista (responde `abierto`, `modera` y los comentarios con `mio`), `POST {clase, texto, parent_id?}` escribe, `DELETE ?id=` borra el propio (quien modera, cualquiera, con sus respuestas). Mismo control de acceso que el ticket del video (compra aprobada, admin o `bootcamp_equipo`); escribir solo con la clase terminada, salvo quien modera; pausa de 20 s entre comentarios de la misma persona (no aplica a quien modera). Mientras la tabla no existe responde 503 con un aviso amable.
+- Página: `montarComentarios()` renombra la pestaña a "Comentarios", oculta "Preguntas para Sergio", carga la lista y la refresca cada 60 s con la pestaña visible; `desmontarComentarios()` devuelve el chat si el estado vuelve a sala o en vivo. Las respuestas de quien modera (admin o `bootcamp_equipo.modera`) salen en dorado con la etiqueta IA MASIVA. "Responder" pone el indicador "Respondiendo a X" sobre la caja; "Borrar" pide confirmación.
+- Probado en producción el 4 nov (00:00 a 00:20) con dos usuarios desechables (borrados): escribir, pausa de 20 s (429), clase programada (409), texto vacío (400), responder como moderador, borrar el comentario de otro como moderador. Cero filas de prueba en la tabla.
