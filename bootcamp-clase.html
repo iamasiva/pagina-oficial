@@ -526,7 +526,7 @@
         const c = $('chatCuerpo'); c.className = 'chat-cuerpo vacio'; c.textContent = e.message;
       }
     }
-    function fechaCom(iso) { try { return fmtCom.format(new Date(iso)).replace(/\.\s?/g, ' ').replace(/\s+/g, ' ').trim(); } catch (_) { return ''; } }
+    function fechaCom(iso) { try { return fmtCom.format(new Date(iso)).replace(/\.\s?/g, '').replace(/\s+/g, ' ').trim(); } catch (_) { return ''; } }
     function unoCom(m, resp) {
       const ini = String(m.nombre || '?').trim().charAt(0).toUpperCase() || '?';
       const acc = [];
