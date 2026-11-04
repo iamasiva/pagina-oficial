@@ -82,7 +82,9 @@ export default async function handler(req, res) {
         .select('id, user_id, nombre, texto, parent_id, es_equipo, creado_en')
         .eq('product_id', PRODUCT_ID).eq('numero', numero).eq('borrado', false)
         .order('creado_en', { ascending: true }).limit(MAX_LISTA);
-      if (error) return res.status(error.code === '42P01' ? 503 : 500).json({ error: error.code === '42P01' ? 'Los comentarios estarán disponibles en un momento' : error.message });
+      // Tabla aún no creada (42P01 en Postgres, PGRST205 en la caché de PostgREST): aviso amable, no el error crudo
+      const sinTabla = error && (error.code === '42P01' || error.code === 'PGRST205' || /bootcamp_comentarios/.test(error.message || ''));
+      if (error) return res.status(sinTabla ? 503 : 500).json({ error: sinTabla ? 'Los comentarios estarán disponibles en un momento' : error.message });
       return res.status(200).json({ abierto, modera, nombre: alias(perfil, user), comentarios: (data || []).map(c => publico(c, user.id)) });
     }
 
