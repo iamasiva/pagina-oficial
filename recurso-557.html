@@ -1215,6 +1215,11 @@
           <h2 id="imMisTitulo">Tus configuraciones guardadas.</h2>
           <p id="imMisCopy">Cada configuración que generes puedes guardarla con nombre propio para volver a usarla cuando quieras.</p>
         </div></div>
+        <div class="im-toolbar">
+          <div class="im-toolbar-acciones">
+            <button id="imBtnNuevaCatCfg" class="secondary-btn" type="button"><span>Crear categoría</span></button>
+          </div>
+        </div>
         <div id="imMisList" class="config-list-rich"></div>
         <div id="imMisVacio" class="empty" style="display:none"></div>
       </section>
@@ -1318,6 +1323,19 @@
       <div class="im-modal-acciones">
         <button id="imModalCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
         <button id="imModalGuardar" class="primary-btn" type="button"><span>Guardar</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: crear categoría de Mis configuraciones -->
+  <div id="imModalCatCfg" class="im-modal">
+    <div class="im-modal-caja">
+      <h3 id="imCatCfgTitulo">Crear categoría</h3>
+      <label class="im-modal-label" id="imCatCfgLbl">Nombre de la categoría</label>
+      <input id="imCatCfgNombre" type="text" maxlength="60" placeholder="Ej: Mi pastelería" autocomplete="off" />
+      <div class="im-modal-acciones">
+        <button id="imCatCfgCancelar" class="secondary-btn" type="button"><span>Cancelar</span></button>
+        <button id="imCatCfgCrear" class="primary-btn" type="button"><span>Crear</span></button>
       </div>
     </div>
   </div>
@@ -2834,11 +2852,21 @@ ${clean}`;
       let misConfigs = [];
       let pendienteGuardar = null;
 
-      const catsDeConfigs = () => [...new Set(misConfigs.map(c => (c.categoria || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+      // Categorías creadas con el botón (tabla user_config_categorias): existen aunque estén vacías.
+      // Las configuraciones siguen guardando el nombre en user_configs.categoria.
+      let misCats = [];
+      const catsDeConfigs = () => [...new Set([...misCats, ...misConfigs.map(c => (c.categoria || '').trim()).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
+      const esErrorSinTablaCat = (error) => /user_config_categorias|schema cache|does not exist/i.test(error?.message || '');
+      // Una categoría nueva escrita al guardar también queda registrada (si ya existe, no pasa nada)
+      const registrarCategoriaCfg = (nombre) => db.from('user_config_categorias').insert({ user_id: IM.userId, product_id: IM.productId, nombre }).then(() => {}, () => {});
 
       async function cargarMisConfigs() {
-        const { data } = await db.from('user_configs').select('id,nombre,contenido,categoria,created_at').order('created_at', { ascending: false });
-        misConfigs = data ?? [];
+        const [res, resCats] = await Promise.all([
+          db.from('user_configs').select('id,nombre,contenido,categoria,created_at').order('created_at', { ascending: false }),
+          db.from('user_config_categorias').select('nombre').eq('product_id', IM.productId),
+        ]);
+        misConfigs = res.data ?? [];
+        misCats = resCats.error ? [] : (resCats.data ?? []).map(c => (c.nombre || '').trim()).filter(Boolean);
         renderMisConfigs();
         renderCuadernos();   // los chips de config de los cuadernos dependen de misConfigs
       }
@@ -2872,9 +2900,9 @@ ${clean}`;
 
       function renderMisConfigs() {
         const x = tt();
-        $('imMisVacio').style.display = misConfigs.length ? 'none' : 'block';
-        $('imMisVacio').textContent = x.misVacio;
         const cats = catsDeConfigs();
+        $('imMisVacio').style.display = (misConfigs.length || cats.length) ? 'none' : 'block';
+        $('imMisVacio').textContent = x.misVacio;
         if (misVista.t === 'cat' && !cats.includes(misVista.nombre)) misVista = { t: 'root' };
         let html = '';
         if (misVista.t === 'root') {
@@ -2885,11 +2913,14 @@ ${clean}`;
         } else {
           const visibles = misConfigs.filter(c => (c.categoria || '').trim() === misVista.nombre);
           html += `
-            <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:16px;">
               <button class="secondary-btn" type="button" data-misvolver="1" style="flex:none;"><span>← ${state.interfaceLanguage === 'en' ? 'Back' : 'Volver'}</span></button>
               <h2 class="im-mis-enc" style="margin:0;">${escapeHtml(misVista.nombre)}</h2>
+              <button class="secondary-btn im-btn-chico" type="button" data-misborrarcat="1" style="flex:none; margin-left:auto;"><span>${escapeHtml(x.misCatEliminarBtn)}</span></button>
             </div>`;
-          html += `<div class="im-fichas-grid">${visibles.map(fichaCfg).join('')}</div>`;
+          html += visibles.length
+            ? `<div class="im-fichas-grid">${visibles.map(fichaCfg).join('')}</div>`
+            : `<div class="empty">${escapeHtml(x.misCatVacia)}</div>`;
         }
         $('imMisList').innerHTML = html;
         if (cfgDetalleId !== null) {
@@ -2910,6 +2941,7 @@ ${clean}`;
 
       $('imMisList').addEventListener('click', (e) => {
         if (e.target.closest('[data-misvolver]')) { misVista = { t: 'root' }; renderMisConfigs(); return; }
+        if (e.target.closest('[data-misborrarcat]')) { if (misVista.t === 'cat') eliminarCategoriaCfg(misVista.nombre); return; }
         const chip = e.target.closest('[data-miscat]');
         if (chip) { misVista = { t: 'cat', nombre: chip.dataset.miscat }; renderMisConfigs(); window.scrollTo(0, 0); return; }
         const ficha = e.target.closest('[data-miscfg]');
@@ -2959,8 +2991,10 @@ ${clean}`;
         const nombre = $('imModalInput').value.trim();
         if (!nombre) { showToast(tt().nombreVacio); return; }
         let categoria = $('imModalCat').value;
-        if (categoria === '__nueva__') categoria = $('imModalCatNueva').value.trim();
+        const esNueva = categoria === '__nueva__';
+        if (esNueva) categoria = $('imModalCatNueva').value.trim();
         categoria = categoria || null;
+        if (esNueva && categoria) await registrarCategoriaCfg(categoria);
         await db.from('user_configs').insert({
           user_id: IM.userId, product_id: IM.productId,
           item_id: pendienteGuardar.itemUuid, nombre, contenido: pendienteGuardar.contenido, categoria,
@@ -2981,6 +3015,41 @@ ${clean}`;
       $('imModalCancelar').addEventListener('click', () => $('imModalNombre').classList.remove('abierto'));
       $('imModalNombre').addEventListener('click', (e) => { if (e.target.id === 'imModalNombre') e.target.classList.remove('abierto'); });
 
+      // ── Categorías de Mis configuraciones: crear con su botón; eliminar deja sus configuraciones sin categoría ──
+      function abrirNuevaCatCfg() {
+        $('imCatCfgNombre').value = '';
+        $('imModalCatCfg').classList.add('abierto');
+        $('imCatCfgNombre').focus();
+      }
+      async function crearCategoriaCfg() {
+        const x = tt();
+        const nombre = $('imCatCfgNombre').value.trim();
+        if (!nombre) { showToast(x.misCatNombreVacio); $('imCatCfgNombre').focus(); return; }
+        if (catsDeConfigs().some(c => c.toLowerCase() === nombre.toLowerCase())) { showToast(x.misCatExiste); return; }
+        const { error } = await db.from('user_config_categorias').insert({ user_id: IM.userId, product_id: IM.productId, nombre });
+        if (error) { showToast(esErrorSinTablaCat(error) ? x.misCatSinServidor : x.misCatNoGuardo); return; }
+        $('imModalCatCfg').classList.remove('abierto');
+        showToast(x.misCatCreada);
+        misVista = { t: 'cat', nombre };
+        await cargarMisConfigs();
+        window.scrollTo(0, 0);
+      }
+      async function eliminarCategoriaCfg(nombre) {
+        const x = tt();
+        if (!await confirmarC(x.misCatConfTexto.replace('{cat}', nombre), x.misCatConfTitulo, x.misCatConfSi)) return;
+        const { error } = await db.from('user_configs').update({ categoria: null, updated_at: new Date().toISOString() }).eq('categoria', nombre);
+        if (error) { showToast(x.misCatNoBorro); return; }
+        await db.from('user_config_categorias').delete().eq('product_id', IM.productId).eq('nombre', nombre);
+        misVista = { t: 'root' };
+        showToast(x.misCatEliminada);
+        cargarMisConfigs();
+      }
+      $('imBtnNuevaCatCfg').addEventListener('click', abrirNuevaCatCfg);
+      $('imCatCfgCrear').addEventListener('click', crearCategoriaCfg);
+      $('imCatCfgNombre').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); crearCategoriaCfg(); } });
+      $('imCatCfgCancelar').addEventListener('click', () => $('imModalCatCfg').classList.remove('abierto'));
+      $('imModalCatCfg').addEventListener('click', (e) => { if (e.target.id === 'imModalCatCfg') e.target.classList.remove('abierto'); });
+
       // ── Tus variantes: situaciones propias reutilizables en los 555 roles ──
       Object.assign(IM_TEXT.es, {
         tabVar: 'Mis variantes',
@@ -2999,6 +3068,11 @@ ${clean}`;
         cerrarDet: 'Cerrar',
         cfgCuadTitulo: 'Configuración del cuaderno',
         cfgN: 'configuraciones', cfgN1: 'configuración', misSinCat: 'Sin categoría',
+        misNuevaCatBtn: 'Crear categoría', misCatTitulo: 'Crear categoría', misCatLbl: 'Nombre de la categoría', misCatPh: 'Ej: Mi pastelería',
+        misCatCrear: 'Crear', misCatCreada: 'Categoría creada', misCatExiste: 'Esa categoría ya existe', misCatNombreVacio: 'Ponle un nombre a la categoría',
+        misCatVacia: 'Aún no hay configuraciones en esta categoría. Genera una y, al guardarla, elige esta categoría.',
+        misCatEliminarBtn: 'Eliminar categoría', misCatConfTitulo: '¿Eliminar la categoría?', misCatConfTexto: 'Las configuraciones de «{cat}» quedan sin categoría. No se borra ninguna configuración.', misCatConfSi: 'Sí, eliminar',
+        misCatEliminada: 'Categoría eliminada', misCatNoGuardo: 'No se pudo crear la categoría', misCatNoBorro: 'No se pudo eliminar la categoría', misCatSinServidor: 'Las categorías aún no están habilitadas en el servidor',
         hojaSinChats: 'Aún no guardas chats de este cuaderno.',
       });
       Object.assign(IM_TEXT.en, {
@@ -3018,6 +3092,11 @@ ${clean}`;
         cerrarDet: 'Close',
         cfgCuadTitulo: 'Notebook configuration',
         cfgN: 'configurations', cfgN1: 'configuration', misSinCat: 'Uncategorized',
+        misNuevaCatBtn: 'Create category', misCatTitulo: 'Create category', misCatLbl: 'Category name', misCatPh: 'E.g.: My bakery',
+        misCatCrear: 'Create', misCatCreada: 'Category created', misCatExiste: 'That category already exists', misCatNombreVacio: 'Give the category a name',
+        misCatVacia: 'No configurations in this category yet. Generate one and pick this category when you save it.',
+        misCatEliminarBtn: 'Delete category', misCatConfTitulo: 'Delete the category?', misCatConfTexto: 'Configurations in "{cat}" become uncategorized. No configuration is deleted.', misCatConfSi: 'Yes, delete',
+        misCatEliminada: 'Category deleted', misCatNoGuardo: 'Could not create the category', misCatNoBorro: 'Could not delete the category', misCatSinServidor: 'Categories are not enabled on the server yet',
         hojaSinChats: 'No chats saved for this notebook yet.',
       });
 
@@ -4494,6 +4573,12 @@ ${clean}`;
         renderVariantes();
         $('imModalTitulo').textContent = x.modalTitulo;
         $('imModalCatLabel').textContent = x.lblCatOpc;
+        $('imBtnNuevaCatCfg').querySelector('span').textContent = x.misNuevaCatBtn;
+        $('imCatCfgTitulo').textContent = x.misCatTitulo;
+        $('imCatCfgLbl').textContent = x.misCatLbl;
+        $('imCatCfgNombre').placeholder = x.misCatPh;
+        $('imCatCfgCancelar').querySelector('span').textContent = x.btnCancelar;
+        $('imCatCfgCrear').querySelector('span').textContent = x.misCatCrear;
         $('imSaveConfig').querySelector('span').textContent = x.btnGuardarCfg;
         $('imSaveCustom').querySelector('span').textContent = x.btnGuardarCfg;
         $('imModalCancelar').querySelector('span').textContent = x.btnCancelar;
