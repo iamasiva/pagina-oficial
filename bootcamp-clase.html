@@ -80,6 +80,14 @@
     .cm.pregunta { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px; }
     .cm.destacada { background: rgba(255,209,102,0.12); border: 1px solid rgba(255,209,102,0.4); }
     .cm.respondida { opacity: 0.5; }
+    .cm.com .acc { display: inline-flex; }
+    .cm .hora { color: var(--muted); font-size: 0.72rem; margin-left: 6px; font-style: normal; font-weight: 400; }
+    .cm .tag { font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: #ffd166; margin-left: 6px; font-style: normal; }
+    .cm .tx { white-space: pre-wrap; }
+    .resps { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; padding-left: 10px; border-left: 2px solid var(--line); }
+    .resps .av { width: 22px; height: 22px; font-size: 0.7rem; }
+    .respondiendo { display: flex; justify-content: space-between; gap: 8px; align-items: center; color: var(--muted); font-size: 0.78rem; padding: 6px 12px 0; }
+    .respondiendo:empty { display: none; }
     .chat-mod { border-top: 1px solid var(--line); padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.78rem; color: var(--muted); }
     .chat-mod select, .chat-mod input { background: #090c22; border: 1px solid var(--line); border-radius: 8px; color: var(--white); padding: 5px 8px; font: inherit; font-size: 0.8rem; }
     .chat-mod input { flex: 1; min-width: 120px; }
@@ -173,6 +181,7 @@
             <button class="btn sec chico" id="modLimpiar">Limpiar chat</button>
             <button class="btn sec chico" id="modReiniciar">Reiniciar sala</button>
           </div>
+          <div class="respondiendo" id="comRespondiendo"></div>
           <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" maxlength="280" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
         </aside>
       </div>
@@ -352,6 +361,7 @@
       const chatCuerpo = $('chatCuerpo');
       $('chatInput').disabled = true; $('chatEnviar').disabled = true;
       if (!['lobby', 'live'].includes(estado)) cerrarChat();
+      desmontarComentarios();
 
       if (estado === 'scheduled' || estado === 'rescheduled') {
         const tic = () => { mensajePlayer(estado === 'rescheduled' ? 'Nueva fecha confirmada' : 'La clase empieza en', '', `<div class="cuenta" id="cuenta">${textoCuenta(inicio - Date.now())}</div>`); };
@@ -367,18 +377,18 @@
         conectarChat();
       } else if (estado === 'ended_pending_upload') {
         mensajePlayer('Clase terminada', 'Estamos preparando la grabación. En cuanto esté lista, la ves aquí mismo y en tu área de Hotmart.');
-        chatCuerpo.textContent = 'El chat de esta clase cerró.';
+        montarComentarios();
       } else if (estado === 'evergreen_ready' && youtubeId(clase.grabacion_url)) {
         // La grabación embebida (YouTube no listado, como los videos de venta); Hotmart queda como segunda copia
         const destino = clase.hotmart_lesson_url || config?.hotmart_curso_url || '';
         montarGrabacion(youtubeId(clase.grabacion_url));
         $('bajoVideo').hidden = !destino; $('bajoVideoTexto').textContent = 'La grabación también está en tu área de Hotmart:';
         if (destino) { $('btnReconectar').hidden = true; $('btnEstable').hidden = true; $('lnkHotmart').hidden = false; $('lnkHotmart').href = destino; }
-        chatCuerpo.textContent = 'El chat de esta clase cerró.';
+        montarComentarios();
       } else if (estado === 'evergreen_ready') {
         const destino = clase.hotmart_lesson_url || config?.hotmart_curso_url || '';
         mensajePlayer('Repetición disponible', 'La grabación vive en tu área de miembros de Hotmart. Si te pide iniciar sesión, usa el mismo correo de tu compra.', destino ? `<a class="btn" href="${esc(destino)}" target="_blank" rel="noopener">Ver la grabación en Hotmart</a>` : '<span style="color:var(--muted)">El enlace de la lección se configura en el panel.</span>');
-        chatCuerpo.textContent = 'El chat de esta clase cerró.';
+        montarComentarios();
       } else if (estado === 'cancelled') {
         mensajePlayer('Clase cancelada', clase.aviso || 'Te escribimos con la nueva fecha.');
         aviso.textContent = clase.aviso || 'Esta clase fue cancelada. Te avisamos por correo con la nueva fecha.'; aviso.className = 'aviso alerta'; aviso.hidden = false;
@@ -399,6 +409,7 @@
     function avisoChat(t) { $('chatAviso').textContent = t; clearTimeout(avisoChat.t); avisoChat.t = setTimeout(() => { $('chatAviso').textContent = ''; }, 4000); }
     function modoTexto(m) { return { normal: '', slow_mode: 'Modo lento: un mensaje cada 30 s', questions_only: 'Solo preguntas para Sergio', read_only: 'Solo lectura', off: 'Chat cerrado' }[m] || ''; }
     function aplicarModo() {
+      if (com.activo) return;
       $('chatModoTxt').textContent = modoTexto(chat.modo);
       $('modChat').value = chat.modo;
       const esAdmin = chat.rol === 'admin';
@@ -410,6 +421,7 @@
     const PALETA_AV = ['#2F6BFF', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#06b6d4', '#eab308', '#ef4444'];
     function colorAv(nombre) { let h = 0; for (const ch of String(nombre || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PALETA_AV[h % PALETA_AV.length]; }
     function pintarChat() {
+      if (com.activo) return;
       const c = $('chatCuerpo'); const esAdmin = chat.rol === 'admin';
       const lista = chat.tab === 'preguntas' ? chat.preguntas : chat.mensajes;
       aplicarModo();
@@ -430,6 +442,7 @@
       if (abajo) c.scrollTop = c.scrollHeight;
     }
     function enviarChat() {
+      if (com.activo) { enviarComentario(); return; }
       const texto = $('chatInput').value.trim();
       if (!texto || !chat.abierto) return;
       mandar({ t: chat.tab === 'preguntas' ? 'pregunta' : 'msg', texto });
@@ -471,6 +484,97 @@
       chat.intentos = Math.min(chat.intentos + 1, 6);
       clearTimeout(chat.timer);
       chat.timer = setTimeout(conectarChat, Math.min(5000 * 2 ** (chat.intentos - 1), 60000));
+    }
+
+    // ── Comentarios de la repetición (api/bootcamp-comentarios, tabla bootcamp_comentarios).
+    // Cuando la clase terminó, el panel del chat se convierte en comentarios permanentes:
+    // hilos de un nivel, respuestas del equipo destacadas, el botón de soporte sigue arriba.
+    const com = { activo: false, lista: [], modera: false, abierto: false, respondiendoA: null, timer: null, enviando: false };
+    const fmtCom = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
+    function cuentaCom() { $('chatConexion').textContent = `${com.lista.length} comentario${com.lista.length === 1 ? '' : 's'}`; }
+    function montarComentarios() {
+      com.activo = true; com.respondiendoA = null; $('comRespondiendo').textContent = '';
+      const [tabChat, tabPreg] = document.querySelectorAll('.tabs button');
+      tabChat.textContent = 'Comentarios'; tabChat.classList.add('activa'); tabPreg.hidden = true; tabPreg.classList.remove('activa');
+      $('chatAnuncio').textContent = ''; $('chatModoTxt').textContent = ''; $('chatMod').hidden = true; $('chatAviso').textContent = '';
+      $('chatConexion').textContent = 'Comentarios de la clase';
+      const inp = $('chatInput'); inp.maxLength = 1000; inp.placeholder = 'Escribe un comentario o una pregunta'; inp.disabled = true; $('chatEnviar').disabled = true;
+      const c = $('chatCuerpo'); c.className = 'chat-cuerpo vacio'; c.textContent = 'Cargando comentarios...';
+      cargarComentarios(false);
+      clearInterval(com.timer); com.timer = setInterval(() => { if (document.visibilityState === 'visible') cargarComentarios(true); }, 60000);
+    }
+    function desmontarComentarios() {
+      if (!com.activo) return;
+      com.activo = false; clearInterval(com.timer); com.respondiendoA = null; $('comRespondiendo').textContent = '';
+      const [tabChat, tabPreg] = document.querySelectorAll('.tabs button');
+      tabChat.textContent = 'Chat'; tabPreg.hidden = false;
+      const inp = $('chatInput'); inp.maxLength = 280; inp.placeholder = 'Escribe un mensaje'; inp.value = '';
+    }
+    async function cargarComentarios(silencioso) {
+      try {
+        const r = await fetch(`/api/bootcamp-comentarios?clase=${numero}`, { headers: { Authorization: `Bearer ${await tokenActual()}` } });
+        const b = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(b.error || 'No se pudieron cargar los comentarios');
+        if (!com.activo) return;
+        com.lista = b.comentarios || []; com.modera = !!b.modera; com.abierto = !!b.abierto;
+        cuentaCom();
+        $('chatInput').disabled = !com.abierto; $('chatEnviar').disabled = !com.abierto;
+        if (!com.abierto) $('chatInput').placeholder = 'Los comentarios se abren al terminar la clase';
+        pintarComentarios();
+      } catch (e) {
+        if (silencioso || !com.activo) return;
+        const c = $('chatCuerpo'); c.className = 'chat-cuerpo vacio'; c.textContent = e.message;
+      }
+    }
+    function fechaCom(iso) { try { return fmtCom.format(new Date(iso)).replace(/\.\s?/g, ' ').replace(/\s+/g, ' ').trim(); } catch (_) { return ''; } }
+    function unoCom(m, resp) {
+      const ini = String(m.nombre || '?').trim().charAt(0).toUpperCase() || '?';
+      const acc = [];
+      if (com.abierto && !resp) acc.push(`<button data-com="responder" data-id="${m.id}">Responder</button>`);
+      if (m.mio || com.modera) acc.push(`<button data-com="borrar" data-id="${m.id}">Borrar</button>`);
+      return `<div class="cm com${m.es_equipo ? ' admin' : ''}"><span class="av" style="background:${colorAv(m.nombre)}">${esc(ini)}</span><div class="cm-cuerpo"><b>${esc(m.nombre)}</b>${m.es_equipo ? '<i class="tag">IA MASIVA</i>' : ''}<i class="hora">${fechaCom(m.creado_en)}</i><span class="acc">${acc.join('')}</span><div><span class="tx">${esc(m.texto)}</span></div>${resp ? '' : `<div class="resps" data-resps="${m.id}"></div>`}</div></div>`;
+    }
+    function pintarComentarios() {
+      const c = $('chatCuerpo');
+      const raices = com.lista.filter(m => !m.parent_id);
+      if (!raices.length) { c.className = 'chat-cuerpo vacio'; c.textContent = com.abierto ? 'Todavía no hay comentarios. ¿Qué te quedó de la clase? ¿Qué pregunta tienes?' : 'Todavía no hay comentarios.'; return; }
+      c.className = 'chat-cuerpo';
+      c.innerHTML = raices.map(m => unoCom(m, false)).join('');
+      com.lista.filter(m => m.parent_id).forEach(m => { const caja = c.querySelector(`[data-resps="${m.parent_id}"]`); if (caja) caja.insertAdjacentHTML('beforeend', unoCom(m, true)); });
+      c.querySelectorAll('.resps:empty').forEach(x => x.remove());
+      c.querySelectorAll('[data-com]').forEach(b => b.addEventListener('click', () => {
+        const m = com.lista.find(x => x.id === b.dataset.id); if (!m) return;
+        if (b.dataset.com === 'responder') {
+          com.respondiendoA = m.id;
+          $('comRespondiendo').innerHTML = `<span>Respondiendo a <b>${esc(m.nombre)}</b></span><button class="lnk" type="button" id="comCancelar">Cancelar</button>`;
+          $('comCancelar').addEventListener('click', () => { com.respondiendoA = null; $('comRespondiendo').textContent = ''; });
+          $('chatInput').focus();
+        } else if (b.dataset.com === 'borrar') borrarComentario(m);
+      }));
+    }
+    async function enviarComentario() {
+      const inp = $('chatInput'); const texto = inp.value.trim();
+      if (!texto || com.enviando || !com.abierto) return;
+      com.enviando = true; $('chatEnviar').disabled = true;
+      try {
+        const r = await fetch('/api/bootcamp-comentarios', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await tokenActual()}` }, body: JSON.stringify({ clase: numero, texto, parent_id: com.respondiendoA }) });
+        const b = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(b.error || 'No se pudo enviar');
+        com.lista.push(b.comentario); inp.value = ''; com.respondiendoA = null; $('comRespondiendo').textContent = '';
+        cuentaCom(); pintarComentarios();
+        const c = $('chatCuerpo'); c.scrollTop = c.scrollHeight;
+      } catch (e) { avisoChat(e.message); }
+      finally { com.enviando = false; $('chatEnviar').disabled = !com.abierto; }
+    }
+    async function borrarComentario(m) {
+      if (!confirm('¿Borrar este comentario?')) return;
+      try {
+        const r = await fetch(`/api/bootcamp-comentarios?id=${m.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${await tokenActual()}` } });
+        const b = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(b.error || 'No se pudo borrar');
+        com.lista = com.lista.filter(x => x.id !== m.id && x.parent_id !== m.id);
+        cuentaCom(); pintarComentarios();
+      } catch (e) { avisoChat(e.message); }
     }
 
     async function recargarClase() {
