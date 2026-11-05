@@ -100,7 +100,7 @@
       $('pendientes').querySelector('span').textContent = `${pend.length} pendiente${pend.length === 1 ? '' : 's'}`;
       const tarjeta = (p, i, hecha) => `<div class="p${!hecha && i === 0 ? ' ahora' : ''}${p.destacada && !hecha ? ' destacada' : ''}${hecha ? ' resp' : ''}" data-id="${esc(p.id)}">
           <div><div class="quien">${hecha ? '' : `<span class="n">${i + 1}</span>`}${!hecha && i === 0 ? '<span class="ahora-eti">Ahora</span>' : ''}${p.destacada && !hecha ? '<span class="estrella">★</span>' : ''}<span>${esc(p.a || 'Alumno')}</span></div>
-            <div class="txt">${esc(p.texto)}</div></div>
+            <div class="txt">${esc(p.texto)}${p.editado ? ' <small style="opacity:.6;font-size:.75rem">(editada)</small>' : ''}</div></div>
           <div class="acc"><button class="ok" type="button" data-acc="respondida" ${hecha ? 'disabled' : ''}>${hecha ? '✓ Respondida' : '✓ Marcar respondida'}</button>
             ${hecha ? '' : `<button class="sec" type="button" data-acc="destacar">${p.destacada ? 'Quitar estrella' : 'Destacar'}</button><button class="sec" type="button" data-acc="borrar">Borrar</button>`}</div>
         </div>`;

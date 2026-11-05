@@ -87,7 +87,7 @@ export class SalaChat {
     const u = await idPublico(claims.u, this.env.CHAT_TICKET_SECRET);
     servidor.serializeAttachment({ u, a: claims.a || 'Alumno', r: claims.r || 'alumno', ultimo: 0 });
     this.state.acceptWebSocket(servidor, [u]);
-    servidor.send(JSON.stringify({ t: 'hola', modo: e.modo, anuncio: e.anuncio, mensajes: e.mensajes.slice(-60), preguntas: e.preguntas, rol: claims.r || 'alumno', alias: claims.a || 'Alumno', conectados: this.state.getWebSockets().length }));
+    servidor.send(JSON.stringify({ t: 'hola', yo: u, modo: e.modo, anuncio: e.anuncio, mensajes: e.mensajes.slice(-60), preguntas: e.preguntas, rol: claims.r || 'alumno', alias: claims.a || 'Alumno', conectados: this.state.getWebSockets().length }));
     return new Response(null, { status: 101, webSocket: cliente });
   }
 
@@ -137,6 +137,30 @@ export class SalaChat {
         this.difundir({ t: 'hola', modo: e.modo, anuncio: '', mensajes: [], preguntas: [], rol: null, alias: null, conectados: this.state.getWebSockets().length });
         return;
       }
+    }
+
+    // Editar un mensaje o una pregunta propia (pedido de los alumnos en la clase 2). Un admin
+    // puede editar cualquiera. El cambio se reparte a toda la sala y queda marcado como editado.
+    if (m.t === 'editar' && m.id) {
+      const texto = String(m.texto || '').replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, MAX_TEXTO);
+      if (!texto) return;
+      const enMensajes = e.mensajes.find(x => x.id === m.id);
+      const item = enMensajes || e.preguntas.find(x => x.id === m.id);
+      if (!item) { ws.send(JSON.stringify({ t: 'error', texto: 'Ese mensaje ya no está.' })); return; }
+      if (!esAdmin) {
+        if (item.u !== quien.u) return;
+        if (e.modo === 'off' || e.modo === 'read_only') { ws.send(JSON.stringify({ t: 'error', texto: 'El chat está en solo lectura.' })); return; }
+        if ((e.silenciados[quien.u] || 0) > ahora) { ws.send(JSON.stringify({ t: 'error', texto: 'Estás en silencio por moderación.' })); return; }
+        if (item.respondida) { ws.send(JSON.stringify({ t: 'error', texto: 'Sergio ya respondió esa pregunta; escribe una nueva.' })); return; }
+        if (/https?:\/\/|www\./i.test(texto)) { ws.send(JSON.stringify({ t: 'error', texto: 'En el chat no se pueden compartir enlaces.' })); return; }
+        if (ahora - (quien.ultimaEdicion || 0) < 2000) { ws.send(JSON.stringify({ t: 'error', texto: 'Espera un momento antes de editar otra vez.' })); return; }
+        quien.ultimaEdicion = ahora; ws.serializeAttachment(quien);
+      }
+      if (item.texto === texto) return;
+      item.texto = texto; item.editado = true;
+      if (enMensajes) { await this.guardar('mensajes'); this.difundir({ t: 'editar', m: item }); }
+      else { await this.guardar('preguntas'); this.difundir({ t: 'pregunta', p: item }); }
+      return;
     }
 
     if (m.t !== 'msg' && m.t !== 'pregunta') return;

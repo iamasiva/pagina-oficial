@@ -80,6 +80,10 @@
     .cm.pregunta { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 8px; }
     .cm.destacada { background: rgba(255,209,102,0.12); border: 1px solid rgba(255,209,102,0.4); }
     .cm.respondida { opacity: 0.5; }
+    .cm.mio .acc { display: inline-flex; }
+    .cm .editado { color: var(--muted); font-size: 0.72rem; margin-left: 6px; white-space: nowrap; }
+    .chat-editando { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 10px; font-size: 0.78rem; color: var(--muted); }
+    .chat-editando button { background: transparent; border: 0; color: var(--white); text-decoration: underline; cursor: pointer; font-size: 0.78rem; padding: 0; }
     .cm.com .acc { display: inline-flex; }
     .cm .hora { color: var(--muted); font-size: 0.72rem; margin-left: 6px; font-style: normal; font-weight: 400; }
     .cm .tag { font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: #ffd166; margin-left: 6px; font-style: normal; }
@@ -182,6 +186,7 @@
             <button class="btn sec chico" id="modReiniciar">Reiniciar sala</button>
           </div>
           <div class="respondiendo" id="comRespondiendo"></div>
+          <div class="chat-editando" id="chatEditando" hidden><span>Editando tu mensaje</span><button type="button" id="chatEditCancelar">Cancelar</button></div>
           <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" maxlength="280" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
         </aside>
       </div>
@@ -398,7 +403,7 @@
     }
 
     // ── Chat en vivo (Worker + Durable Object). Nunca toca el video. ──
-    const chat = { ws: null, rol: 'alumno', alias: '', modo: 'normal', mensajes: [], preguntas: [], tab: 'chat', intentos: 0, timer: null, ping: null, abierto: false };
+    const chat = { ws: null, rol: 'alumno', alias: '', yo: '', modo: 'normal', mensajes: [], preguntas: [], tab: 'chat', intentos: 0, timer: null, ping: null, abierto: false, editando: null };
     function cerrarChat() {
       chat.abierto = false; clearTimeout(chat.timer); clearInterval(chat.ping);
       if (chat.ws) { try { chat.ws.close(); } catch (_) {} chat.ws = null; }
@@ -430,13 +435,17 @@
       c.className = 'chat-cuerpo';
       const abajo = c.scrollHeight - c.scrollTop - c.clientHeight < 60;
       c.innerHTML = lista.map(m => {
-        const acc = esAdmin ? `<span class="acc">${chat.tab === 'preguntas' ? `<button data-acc="destacar" data-id="${m.id}" title="Destacar">★</button><button data-acc="respondida" data-id="${m.id}" title="Respondida">✓</button>` : ''}<button data-acc="silenciar" data-u="${esc(m.u)}" title="Silenciar 10 min">🔇</button><button data-acc="borrar" data-id="${m.id}" title="Borrar">×</button></span>` : '';
+        // Lo propio se puede editar (lápiz); una pregunta ya respondida no, salvo para el admin
+        const mio = !!chat.yo && m.u === chat.yo;
+        const editar = mio && (esAdmin || !m.respondida) ? `<button data-acc="editar" data-id="${m.id}" title="Editar">✎</button>` : '';
+        const acc = esAdmin || editar ? `<span class="acc">${editar}${esAdmin ? `${chat.tab === 'preguntas' ? `<button data-acc="destacar" data-id="${m.id}" title="Destacar">★</button><button data-acc="respondida" data-id="${m.id}" title="Respondida">✓</button>` : ''}<button data-acc="silenciar" data-u="${esc(m.u)}" title="Silenciar 10 min">🔇</button><button data-acc="borrar" data-id="${m.id}" title="Borrar">×</button>` : ''}</span>` : '';
         const ini = String(m.a || '?').trim().charAt(0).toUpperCase() || '?';
-        return `<div class="cm${m.r === 'admin' ? ' admin' : ''}${chat.tab === 'preguntas' ? ' pregunta' : ''}${m.destacada ? ' destacada' : ''}${m.respondida ? ' respondida' : ''}"><span class="av" style="background:${colorAv(m.a)}">${esc(ini)}</span><div class="cm-cuerpo"><b>${esc(m.a)}</b><span>${esc(m.texto)}</span>${acc}</div></div>`;
+        return `<div class="cm${m.r === 'admin' ? ' admin' : ''}${chat.tab === 'preguntas' ? ' pregunta' : ''}${m.destacada ? ' destacada' : ''}${m.respondida ? ' respondida' : ''}${mio ? ' mio' : ''}"><span class="av" style="background:${colorAv(m.a)}">${esc(ini)}</span><div class="cm-cuerpo"><b>${esc(m.a)}</b><span>${esc(m.texto)}</span>${m.editado ? '<em class="editado">(editado)</em>' : ''}${acc}</div></div>`;
       }).join('');
       c.querySelectorAll('[data-acc]').forEach(b => b.addEventListener('click', () => {
         const acc = b.dataset.acc;
-        if (acc === 'silenciar') mandar({ t: 'silenciar', u: b.dataset.u, min: 10 });
+        if (acc === 'editar') empezarEdicion(b.dataset.id);
+        else if (acc === 'silenciar') mandar({ t: 'silenciar', u: b.dataset.u, min: 10 });
         else mandar({ t: acc, id: b.dataset.id });
       }));
       if (abajo) c.scrollTop = c.scrollHeight;
@@ -445,9 +454,26 @@
       if (com.activo) { enviarComentario(); return; }
       const texto = $('chatInput').value.trim();
       if (!texto || !chat.abierto) return;
+      if (chat.editando) { const id = chat.editando.id; cancelarEdicion(false); mandar({ t: 'editar', id, texto }); $('chatInput').value = ''; return; }
       mandar({ t: chat.tab === 'preguntas' ? 'pregunta' : 'msg', texto });
       $('chatInput').value = '';
     }
+    // Edición del propio mensaje o pregunta: el texto baja a la caja, Enviar pasa a Guardar, Esc o Cancelar lo deja como estaba.
+    function empezarEdicion(id) {
+      const m = (chat.tab === 'preguntas' ? chat.preguntas : chat.mensajes).find(x => x.id === id);
+      if (!m || !chat.abierto) return;
+      chat.editando = { id, tab: chat.tab };
+      const inp = $('chatInput'); inp.value = m.texto; inp.focus(); try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (_) {}
+      $('chatEditando').querySelector('span').textContent = chat.tab === 'preguntas' ? 'Editando tu pregunta' : 'Editando tu mensaje';
+      $('chatEditando').hidden = false; $('chatEnviar').textContent = 'Guardar';
+    }
+    function cancelarEdicion(limpiar = true) {
+      if (!chat.editando) return;
+      chat.editando = null; $('chatEditando').hidden = true; $('chatEnviar').textContent = 'Enviar';
+      if (limpiar) $('chatInput').value = '';
+    }
+    document.addEventListener('click', (ev) => { if (ev.target && ev.target.id === 'chatEditCancelar') cancelarEdicion(); });
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && chat.editando && ev.target && ev.target.id === 'chatInput') cancelarEdicion(); });
     async function conectarChat() {
       if (chat.abierto || chat.ws) return;
       clearTimeout(chat.timer);
@@ -462,11 +488,12 @@
         ws.onopen = () => { chat.abierto = true; chat.intentos = 0; $('chatConexion').textContent = `Conectado como ${chat.alias}`; $('chatMod').hidden = chat.rol !== 'admin'; clearInterval(chat.ping); chat.ping = setInterval(() => mandar({ t: 'ping' }), 25000); pintarChat(); };
         ws.onmessage = (ev) => {
           let m; try { m = JSON.parse(ev.data); } catch (_) { return; }
-          if (m.t === 'hola') { chat.modo = m.modo; chat.mensajes = m.mensajes || []; chat.preguntas = m.preguntas || []; $('chatAnuncio').textContent = m.anuncio || ''; $('modAnuncio').value = m.anuncio || ''; $('chatConexion').textContent = `Conectado como ${m.alias || chat.alias} · ${m.conectados} en sala`; pintarChat(); }
+          if (m.t === 'hola') { if (m.yo) chat.yo = m.yo; cancelarEdicion(); chat.modo = m.modo; chat.mensajes = m.mensajes || []; chat.preguntas = m.preguntas || []; $('chatAnuncio').textContent = m.anuncio || ''; $('modAnuncio').value = m.anuncio || ''; $('chatConexion').textContent = `Conectado como ${m.alias || chat.alias} · ${m.conectados} en sala`; pintarChat(); }
           else if (m.t === 'msg') { chat.mensajes.push(m.m); if (chat.mensajes.length > 200) chat.mensajes.shift(); if (chat.tab === 'chat') pintarChat(); }
           else if (m.t === 'pregunta') { const i = chat.preguntas.findIndex(p => p.id === m.p.id); if (i >= 0) chat.preguntas[i] = m.p; else chat.preguntas.push(m.p); if (chat.tab === 'preguntas') pintarChat(); }
-          else if (m.t === 'borrar') { chat.mensajes = chat.mensajes.filter(x => x.id !== m.id); chat.preguntas = chat.preguntas.filter(x => x.id !== m.id); pintarChat(); }
-          else if (m.t === 'limpiar') { chat.mensajes = []; pintarChat(); }
+          else if (m.t === 'editar') { const i = chat.mensajes.findIndex(x => x.id === m.m.id); if (i >= 0) chat.mensajes[i] = m.m; if (chat.tab === 'chat') pintarChat(); }
+          else if (m.t === 'borrar') { if (chat.editando && chat.editando.id === m.id) cancelarEdicion(); chat.mensajes = chat.mensajes.filter(x => x.id !== m.id); chat.preguntas = chat.preguntas.filter(x => x.id !== m.id); pintarChat(); }
+          else if (m.t === 'limpiar') { if (chat.editando && chat.editando.tab === 'chat') cancelarEdicion(); chat.mensajes = []; pintarChat(); }
           else if (m.t === 'modo') { chat.modo = m.modo; aplicarModo(); avisoChat(modoTexto(m.modo) || 'Chat en modo normal'); }
           else if (m.t === 'anuncio') { $('chatAnuncio').textContent = m.texto || ''; $('modAnuncio').value = m.texto || ''; }
           else if (m.t === 'error') { avisoChat(m.texto); }
@@ -620,7 +647,7 @@
         if (q && ETIQUETA[q]) { simulado = q; $('simEstado').value = q; }
         $('simEstado').addEventListener('change', (e) => { simulado = e.target.value; pintar(); });
       }
-      document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => { cancelarEdicion();
         document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('activa', x === b));
         chat.tab = b.dataset.tab; pintarChat();
       }));
