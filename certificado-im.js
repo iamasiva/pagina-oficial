@@ -106,7 +106,7 @@
     page.drawLine({ start: { x: (W - anchoLinea) / 2, y: H - 252 }, end: { x: (W + anchoLinea) / 2, y: H - 252 }, thickness: 1, color: rgb(...AZUL), opacity: 0.6 });
 
     // Cuerpo
-    const cuerpo = 'por haber completado satisfactoriamente el Bootcamp Gemini de 0 a 100 de IA MASIVA, un programa de formación de 6 horas en tres sesiones, en el que desarrolló las competencias para configurar Gemini a su medida, estructurar proyectos completos con NotebookLM y crear agentes y automatizaciones con inteligencia artificial.';
+    const cuerpo = 'por haber completado satisfactoriamente el Bootcamp Gemini de 0 a 100 de IA MASIVA, un programa de formación de 6 horas en tres sesiones, en el que desarrolló las competencias para trabajar de forma eficiente usando Gemini, estructurar proyectos y desarrollarlos con enfoque de escalabilidad y crear agentes y automatizaciones funcionales utilizando inteligencia artificial.';
     let y = H - 284;
     for (const l of lineas(cuerpo, f.regular, 11.5, 640)) { centrado(page, l, y, f.regular, 11.5, INK); y -= 17.5; }
 
