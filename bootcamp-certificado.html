@@ -56,22 +56,27 @@
     .vista .marco { position: absolute; inset: 3.3%; border: 1px solid var(--borde); }
     .vista .marco::after { content: ''; position: absolute; inset: 1.5%; border: 1px solid rgba(36,107,253,0.9); }
     .vista .v { position: absolute; z-index: 1; left: 0; right: 0; text-align: center; }
-    .vista .marca { position: absolute; z-index: 1; left: 7.6%; top: 11%; font-weight: 800; letter-spacing: 0.2em; font-size: 1.55cqw; }
-    .vista .prog { position: absolute; z-index: 1; right: 7.6%; top: 11.2%; font-weight: 500; letter-spacing: 0.23em; font-size: 1.12cqw; color: var(--azul); text-transform: uppercase; }
-    .vista .tit { top: 23.5%; font-weight: 500; letter-spacing: 0.3em; font-size: 1.3cqw; color: var(--ink2); }
-    .vista .otorga { top: 31%; font-size: 1.8cqw; }
-    .vista .nombre { top: 38.5%; font-weight: 700; color: var(--azul); font-size: 5.2cqw; line-height: 1.1; padding: 0 10%; white-space: nowrap; overflow: hidden; letter-spacing: -0.02em; }
+    .vista .marca { top: 11.5%; font-weight: 700; letter-spacing: 0.26em; font-size: 1.55cqw; }
+    .vista .prog { top: 15%; font-weight: 500; letter-spacing: 0.28em; font-size: 1cqw; color: var(--azul); }
+    .vista .tit { top: 21.5%; font-weight: 700; font-size: 3.3cqw; letter-spacing: 0.01em; }
+    .vista .otorga { top: 28.6%; font-size: 1.55cqw; }
+    .vista .nombre { top: 34.2%; font-weight: 700; color: var(--azul); font-size: 4.75cqw; line-height: 1.1; padding: 0 12%; white-space: nowrap; overflow: hidden; letter-spacing: -0.02em; }
     .vista .nombre span { display: inline-block; white-space: nowrap; }
-    .vista .linea { top: 46.6%; left: 15%; right: 15%; height: 1px; background: var(--azul); opacity: .55; }
-    .vista .texto { top: 51.5%; padding: 0 16%; font-size: 1.48cqw; line-height: 1.5; }
-    .vista .clases { top: 65%; font-weight: 500; font-size: 1.25cqw; color: var(--ink2); }
-    .vista .estrella { position: absolute; z-index: 1; left: 50%; bottom: 3.5%; width: 17%; transform: translateX(-50%); }
-    .vista .estrella img { width: 100%; height: auto; display: block; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); }
-    .vista .firma { position: absolute; z-index: 1; left: 10%; bottom: 15%; font-size: 1.1cqw; color: var(--ink2); padding-top: 1.6%; border-top: 1px solid rgba(82,100,124,0.6); width: 24%; }
-    .vista .firma b { display: block; color: var(--ink); font-size: 1.4cqw; font-weight: 700; }
-    .vista .emision { position: absolute; z-index: 1; right: 10%; bottom: 15%; text-align: right; font-size: 1.12cqw; color: var(--ink2); line-height: 1.6; }
-    .vista .emision b { display: block; color: var(--ink); font-weight: 500; font-size: 1.25cqw; }
-    .vista .emision i { font-style: normal; color: var(--azul2); }
+    .vista .linea { top: 42.4%; left: 18%; right: 18%; height: 1px; background: var(--azul); opacity: .6; }
+    .vista .texto { top: 46.2%; padding: 0 14%; font-size: 1.42cqw; line-height: 1.5; }
+    .vista .pildoras { top: 61.5%; display: flex; justify-content: center; gap: 1.4cqw; }
+    .vista .pildoras span { display: inline-block; padding: 0.55cqw 1.8cqw; border-radius: 999px; font-size: 1.12cqw; font-weight: 500; line-height: 1.6; }
+    .vista .pildoras .p1 { background: var(--azul); color: #fff; }
+    .vista .pildoras .p2 { background: var(--halo2); color: var(--azul2); }
+    .vista .firma { position: absolute; z-index: 1; left: 10%; bottom: 12.5%; width: 24%; font-size: 1cqw; color: var(--ink2); }
+    .vista .firma img { display: block; height: 8.5cqw; width: auto; margin: 0 0 -0.6cqw 1.5cqw; }
+    .vista .firma .raya { height: 1px; background: rgba(82,100,124,0.6); margin-bottom: 0.5cqw; }
+    .vista .firma b { display: block; color: var(--ink); font-size: 1.35cqw; font-weight: 700; }
+    .vista .estrella { position: absolute; z-index: 1; left: 50%; bottom: 10%; width: 14.8%; transform: translateX(-50%); }
+    .vista .estrella img { width: 100%; height: auto; display: block; border-radius: 50%; }
+    .vista .sesiones { position: absolute; z-index: 1; right: 10%; bottom: 13%; text-align: right; font-size: 1.12cqw; color: var(--ink); line-height: 1.5; }
+    .vista .sesiones small { display: block; font-size: 0.95cqw; letter-spacing: 0.2em; color: var(--ink2); font-weight: 500; margin-bottom: 0.3cqw; }
+    .vista .sesiones i { display: block; font-style: normal; color: var(--azul2); font-weight: 500; font-size: 1cqw; margin-top: 0.3cqw; }
     .vista.bloqueada { filter: blur(3px) saturate(.6); opacity: .55; }
 
     .lado { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
@@ -128,7 +133,7 @@
       <div class="wrap">
         <span class="bc-etq">Bootcamp Gemini de 0 a 100</span>
         <h1 class="bc-h1">Tu certificado</h1>
-        <p class="bc-linea">Tu certificado de participación, con tu nombre, listo para descargar en PDF y compartir donde quieras.</p>
+        <p class="bc-linea">Tu certificado de finalización del bootcamp, con tu nombre, listo para descargar en PDF y compartir donde quieras.</p>
       </div>
       <div class="hero-bc-fade"></div>
     </header>
@@ -138,17 +143,17 @@
         <div class="panel">
           <div class="vista" id="vista" aria-label="Vista previa del certificado">
             <div class="marco"></div>
-            <div class="marca">IA MASIVA</div>
-            <div class="prog">Bootcamp · Gemini de 0 a 100</div>
-            <div class="v tit">CERTIFICADO DE PARTICIPACIÓN</div>
-            <div class="v otorga">Este certificado se otorga a</div>
+            <div class="v marca">IA MASIVA</div>
+            <div class="v prog">BOOTCAMP GEMINI DE 0 A 100</div>
+            <div class="v tit">CERTIFICADO DE FINALIZACIÓN</div>
+            <div class="v otorga">Se otorga el presente certificado a</div>
             <div class="v nombre" id="vNombreCaja"><span id="vNombre">Tu nombre</span></div>
             <div class="v linea"></div>
-            <div class="v texto">por su participación en el Bootcamp Gemini de 0 a 100, un programa de tres clases para pasar de preguntarle cosas a Gemini a dirigirlo: configurarlo a su medida, trabajar proyectos completos y dejar agentes trabajando por usted.</div>
-            <div class="v clases">Gemini primeros pasos &nbsp;·&nbsp; Proyectos grandes con Gemini &nbsp;·&nbsp; Gemini para automatización y trabajo agéntico</div>
-            <div class="firma"><b>Sergio Lizcano</b>Fundador de IA MASIVA</div>
-            <div class="estrella"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" /></div>
-            <div class="emision"><b id="vFecha">Emitido hoy</b>Código de verificación <span id="vCodigo">········</span><br><i>iamasiva.co</i></div>
+            <div class="v texto">por haber completado satisfactoriamente el Bootcamp Gemini de 0 a 100 de IA MASIVA, un programa de formación de 6 horas en tres sesiones, en el que desarrolló las competencias para configurar Gemini a su medida, estructurar proyectos completos con NotebookLM y crear agentes y automatizaciones con inteligencia artificial.</div>
+            <div class="v pildoras"><span class="p1" id="vFecha">Emitido hoy</span><span class="p2">Código de verificación <span id="vCodigo">········</span></span></div>
+            <div class="firma"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-firma-sergio.png" alt="" /><div class="raya"></div><b>Sergio Lizcano</b>Fundador de IA MASIVA e instructor del bootcamp</div>
+            <div class="estrella"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella-circulo.jpg" alt="" /></div>
+            <div class="sesiones"><small>SESIONES DEL PROGRAMA</small>1 · Gemini primeros pasos<br>2 · Proyectos grandes con Gemini<br>3 · Gemini para automatización y trabajo agéntico<i>6 horas de formación · iamasiva.co</i></div>
           </div>
 
           <aside class="lado">
@@ -206,8 +211,8 @@
       $('nombreTxt').textContent = nombre;
       const caja = $('vNombreCaja'), v = $('vNombre'); v.textContent = nombre;
       // Como en el PDF: el nombre se encoge hasta caber en una línea (el 80 % del ancho, por el margen)
-      let t = 5.2; caja.style.fontSize = t + 'cqw';
-      const cabe = () => v.getBoundingClientRect().width <= caja.clientWidth * 0.8;
+      let t = 4.75; caja.style.fontSize = t + 'cqw';
+      const cabe = () => v.getBoundingClientRect().width <= caja.clientWidth * 0.76;
       while (t > 2.4 && !cabe()) { t -= 0.2; caja.style.fontSize = t + 'cqw'; }
     }
     window.addEventListener('resize', () => { if (nombre) pintarNombre(); });
