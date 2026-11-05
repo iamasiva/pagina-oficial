@@ -1,4 +1,4 @@
-# Carga masiva de guías gratuitas desde "Guías con Portada".
+# Carga masiva de guías gratuitas desde "trabajo/guias-con-portada".
 # Cada carpeta trae: guia-rediseno.html (la versión a subir), portada.png,
 # descripcion.md y categorias.md (## Herramientas / ## Áreas, con "(nueva)").
 # Sube portada optimizada (700px JPG) a 'portadas', el HTML a 'contenido',
@@ -7,7 +7,7 @@
 # menor a mayor valor (RANKING de abajo hacia arriba).
 import json, os, re, subprocess, sys, time, unicodedata, urllib.request
 
-BASE = "/Users/sergiolizcano/Desktop/PROYECTOS/PAGINA_OFICIAL_IAMASIVA/Guías con Portada"
+BASE = "/Users/sergiolizcano/Desktop/PROYECTOS/PAGINA_OFICIAL_IAMASIVA/trabajo/guias-con-portada"
 SUPA = "https://iyiygnfaxiejtlgkkivs.supabase.co"
 CRED = "/Users/sergiolizcano/Desktop/PROYECTOS/PAGINA_OFICIAL_IAMASIVA/credenciales_privadas.txt"
 KEY = next(l.split(':', 1)[1].strip() for l in open(CRED) if l.startswith('Service role key:'))

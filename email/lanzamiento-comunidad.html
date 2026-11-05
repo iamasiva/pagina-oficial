@@ -1,0 +1,71 @@
+<!-- Correo de LANZAMIENTO a la lista orgánica (Brevo, campaña de marketing).
+     Reconecta ("hace un tiempo quisiste aprender IA") + presenta la plataforma
+     gratuita + posiciona "la comunidad de IA más grande de Latinoamérica".
+     HTML de correo: tablas + estilos en línea + sin imágenes externas, para
+     que se vea igual en Gmail, Outlook, Apple Mail y no active alertas.
+     Botón -> https://iamasiva.co (con UTM para medir el tráfico del correo).
+     El pie usa {{ unsubscribe }} (Brevo lo reemplaza por el enlace real de baja). -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#050510;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td align="center">
+      <!-- Preheader: texto de vista previa (oculto en el cuerpo) -->
+      <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#050510;font-size:1px;line-height:1px;">
+        Un lugar para aprender inteligencia artificial, gratis. Queremos que seas de los primeros.
+      </div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;">
+        <!-- Cabecera -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0B1E6D,#050F3A);padding:30px 32px;">
+            <div style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:1px;">IA MASIVA</div>
+          </td>
+        </tr>
+        <!-- Cuerpo -->
+        <tr>
+          <td style="padding:36px 32px 8px;">
+            <h1 style="margin:0 0 16px;font-size:23px;line-height:1.3;color:#0B1E6D;">Hace un tiempo quisiste aprender IA.</h1>
+            <p style="margin:0 0 18px;font-size:15px;line-height:1.65;color:#404859;">
+              No lo olvidamos. La inteligencia artificial est&aacute; cambiando la forma en que se trabaja, y t&uacute; quisiste estar adelante.
+            </p>
+            <p style="margin:0 0 18px;font-size:15px;line-height:1.65;color:#404859;">
+              Por eso, durante este a&ntilde;o construimos algo para ti: <b>IA MASIVA</b>, un lugar donde reunimos todo lo que hemos ense&ntilde;ado, gratis y en un solo sitio. Gu&iacute;as pr&aacute;cticas y claras para que uses la IA de verdad, sin vueltas ni relleno.
+            </p>
+            <p style="margin:0 0 18px;font-size:15px;line-height:1.65;color:#404859;">
+              Y esto es apenas el comienzo. <b>Cada semana subimos nueva educaci&oacute;n y herramientas, siempre gratis.</b> Y si hay algo puntual que quieres aprender o en lo que necesitas ayuda, en el men&uacute; tienes la opci&oacute;n de <b>sugerir recursos</b>: nos cuentas qu&eacute; necesitas y nosotros nos encargamos de sub&iacute;rtelo.
+            </p>
+            <p style="margin:0 0 26px;font-size:15px;line-height:1.65;color:#404859;">
+              Esto es una comunidad para estar adelante en esta nueva era. Nuestro sue&ntilde;o es que sea la comunidad de inteligencia artificial m&aacute;s grande de Latinoam&eacute;rica, y queremos que seas de los primeros en entrar.
+            </p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 24px;">
+              <tr>
+                <td style="border-radius:10px;background:#2F6BFF;">
+                  <a href="https://iamasiva.co/?utm_source=email&amp;utm_medium=brevo&amp;utm_campaign=lanzamiento" target="_blank"
+                     style="display:inline-block;padding:15px 38px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px;">
+                    Entrar a IA MASIVA
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0 0 26px;font-size:14px;line-height:1.6;color:#8a93a6;text-align:center;">
+              Entra, explora y guarda lo que te sirva. Es gratis y es tuyo.
+            </p>
+            <p style="margin:0;font-size:15px;line-height:1.65;color:#404859;border-top:1px solid #edeff3;padding-top:20px;">
+              Nos vemos adentro. Vamos con todo,<br><b>El equipo de IA MASIVA</b>
+            </p>
+          </td>
+        </tr>
+        <!-- Pie -->
+        <tr>
+          <td style="padding:22px 32px 30px;">
+            <p style="margin:0 0 10px;font-size:12px;line-height:1.6;color:#aab2c0;">
+              IA MASIVA &middot; Aprende a usar inteligencia artificial<br>
+              Recibes este correo porque dejaste tu dato en uno de nuestros recursos gratuitos de IA.
+            </p>
+            <p style="margin:0;font-size:12px;line-height:1.6;color:#aab2c0;">
+              &iquest;Ya no quieres saber de nosotros? <a href="{{ unsubscribe }}" style="color:#7f8aa0;text-decoration:underline;">Puedes darte de baja aqu&iacute;</a>.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

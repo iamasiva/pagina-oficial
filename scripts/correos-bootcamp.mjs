@@ -1,5 +1,5 @@
 // Genera los correos de campaña del Bootcamp Gemini de 0 a 100 (email/bootcamp-*.html)
-// a partir de los textos aprobados en PLANES MEJORAS/correos-bootcamp.md.
+// a partir de los textos aprobados en trabajo/planes-mejoras/correos-bootcamp.md.
 // Plantilla de marca del bootcamp (la misma del correo de bienvenida): tablas,
 // estilos en línea, sin imágenes externas. El pie lleva {{ unsubscribe }} para Brevo.
 // Uso: node scripts/correos-bootcamp.mjs

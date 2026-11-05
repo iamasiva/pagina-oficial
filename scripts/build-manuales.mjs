@@ -7,7 +7,7 @@
 //   node scripts/build-manuales.mjs 999 --origen=/otra/carpeta   -> origen alternativo (pruebas)
 //        -> donde todavía no existe la captura, deja una caja punteada con su descripción
 //
-// Origen:  PLANES MEJORAS/manuales/manual-<n>.md   (no se publica, está fuera de git)
+// Origen:  trabajo/planes-mejoras/manuales/manual-<n>.md   (no se publica, está fuera de git)
 // Destino: manuales/<n>.json                       (se publica con el sitio)
 // Capturas: manuales/<n>/captura-<k>.(png|jpg|jpeg|webp); si el archivo existe, se incluye.
 //
@@ -22,7 +22,7 @@ import path from 'node:path';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const argOrigen = process.argv.find(a => a.startsWith('--origen='));
-const ORIGEN = argOrigen ? path.resolve(argOrigen.slice(9)) : path.join(ROOT, 'PLANES MEJORAS', 'manuales');
+const ORIGEN = argOrigen ? path.resolve(argOrigen.slice(9)) : path.join(ROOT, 'trabajo', 'planes-mejoras', 'manuales');
 const DESTINO = path.join(ROOT, 'manuales');
 const args = process.argv.slice(2);
 const opts = { placeholders: args.includes('--placeholders'), permitirRayas: args.includes('--permitir-rayas') };
