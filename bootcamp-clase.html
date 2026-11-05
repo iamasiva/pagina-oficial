@@ -46,7 +46,12 @@
     .btn-wa { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; font-size: 0.86rem; font-weight: 600; color: var(--gray); background: rgba(255,255,255,0.03); white-space: nowrap; }
     .btn-wa:hover { border-color: rgba(37,211,102,0.5); color: var(--white); }
     .sala { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr); gap: 14px; align-items: stretch; }
-    .video { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; align-self: start; }
+    .col-video { align-self: start; min-width: 0; }
+    .video { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .nav-clases { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+    .nav-clases .btn { flex: 1; max-width: 240px; font-size: 0.9rem; transition: border-color .15s, background .15s, opacity .15s; }
+    .nav-clases .btn.sec:hover:not([aria-disabled="true"]) { border-color: rgba(255,255,255,0.28); color: var(--white); background: rgba(255,255,255,0.04); }
+    .nav-clases .btn[aria-disabled="true"] { opacity: 0.35; pointer-events: none; cursor: default; }
     .player { position: relative; aspect-ratio: 16 / 9; background: #000; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--gray); }
     .player iframe, .player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
     .player .btn-play { position: absolute; inset: 0; margin: auto; width: 88px; height: 88px; border-radius: 50%; border: 0; background: rgba(47,107,255,0.92); color: #fff; font-size: 34px; cursor: pointer; box-shadow: 0 12px 30px rgba(0,0,0,0.4); z-index: 2; }
@@ -115,8 +120,11 @@
       .cabeza { margin-bottom: 10px; }
       .btn-wa { padding: 8px 12px; font-size: 0.8rem; }
       .sala { grid-template-columns: 1fr; gap: 10px; }
+      .col-video { display: contents; }
       /* El video se queda fijo arriba y el chat ocupa el resto de la pantalla, como un chat en vivo */
       .video { position: sticky; top: 60px; z-index: 5; }
+      .nav-clases { margin-top: 0; }
+      .nav-clases .btn { max-width: none; padding: 10px 12px; font-size: 0.85rem; }
       .chat { height: calc(100vh - 60px - 56.25vw - 110px); min-height: 380px; max-height: none; }
       .nav-der { gap: 6px; font-size: 0.8rem; white-space: nowrap; } .chip { padding: 4px 8px; font-size: 0.62rem; letter-spacing: 0.08em; } .chip.admin { display: none; } .nav-der a span { display: none; }
       .sim { position: static; margin: 0 0 10px; width: fit-content; }
@@ -155,14 +163,20 @@
       </div>
 
       <div class="sala">
-        <div class="video">
-          <div class="player" id="player"></div>
-          <div class="bajo-video" id="bajoVideo" hidden>
-            <span id="bajoVideoTexto">¿Se traba el video?</span>
-            <button class="lnk" id="btnReconectar" type="button">Reconectar</button>
-            <button class="lnk" id="btnEstable" type="button" title="Cambia al reproductor estándar de Cloudflare (más retraso, más tolerante)">Modo estable</button>
-            <a class="lnk" id="lnkHotmart" hidden target="_blank" rel="noopener">Abrir en Hotmart</a>
+        <div class="col-video">
+          <div class="video">
+            <div class="player" id="player"></div>
+            <div class="bajo-video" id="bajoVideo" hidden>
+              <span id="bajoVideoTexto">¿Se traba el video?</span>
+              <button class="lnk" id="btnReconectar" type="button">Reconectar</button>
+              <button class="lnk" id="btnEstable" type="button" title="Cambia al reproductor estándar de Cloudflare (más retraso, más tolerante)">Modo estable</button>
+              <a class="lnk" id="lnkHotmart" hidden target="_blank" rel="noopener">Abrir en Hotmart</a>
+            </div>
           </div>
+          <nav class="nav-clases" aria-label="Navegación entre clases">
+            <a class="btn sec" id="btnClaseAnt" href="bootcamp-clase.html?n=1">← Clase anterior</a>
+            <a class="btn sec" id="btnClaseSig" href="bootcamp-clase.html?n=2">Clase siguiente →</a>
+          </nav>
         </div>
         <aside class="chat" id="chat">
           <div class="tabs">
@@ -354,6 +368,11 @@
       $('etqClase').textContent = `Clase ${clase.numero} de 3`;
       $('titulo').textContent = clase.titulo;
       $('cuando').textContent = `${cap(fmtFecha.format(inicio))} · ${hora(inicio)} Bogotá · ${clase.duracion_min} min aprox.`;
+      const ant = $('btnClaseAnt'), sig = $('btnClaseSig');
+      if (clase.numero > 1) { ant.href = `bootcamp-clase.html?n=${clase.numero - 1}`; ant.removeAttribute('aria-disabled'); }
+      else { ant.removeAttribute('href'); ant.setAttribute('aria-disabled', 'true'); }
+      if (clase.numero < 3) { sig.href = `bootcamp-clase.html?n=${clase.numero + 1}`; sig.removeAttribute('aria-disabled'); }
+      else { sig.removeAttribute('href'); sig.setAttribute('aria-disabled', 'true'); }
       $('chipLive').hidden = estado !== 'live';
       $('bajoVideo').hidden = true; $('bajoVideoTexto').textContent = '¿Se traba el video?'; $('btnReconectar').hidden = false; $('btnEstable').hidden = false; $('lnkHotmart').hidden = true; soltarVideo();
       const aviso = $('aviso'); aviso.hidden = true; aviso.className = 'aviso';
