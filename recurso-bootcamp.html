@@ -86,6 +86,20 @@
     .badge.live { color: #fff; border-color: #ff3b5c; background: #c81e3c; }
     .badge.evergreen { color: #b8f6ff; border-color: #00E5FF; background: #06303a; }
     .card-pie { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 3px; }
+    /* Portada del certificado: blanco con halo azul y la estrella, como el hero */
+    .cover.cert { background: #fff; color: var(--ink); font-family: var(--bc); display: flex; flex-direction: column; justify-content: space-between; padding: 18px 16px; }
+    .cover.cert::before { content: ''; position: absolute; right: -30%; top: -22%; width: 90%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, var(--halo2), rgba(215,235,255,0) 72%); }
+    .cover.cert::after { content: ''; position: absolute; left: -35%; bottom: -25%; width: 80%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, var(--halo), rgba(232,243,255,0) 72%); }
+    .cover.cert .marca { position: relative; z-index: 1; font-family: var(--sans); font-weight: 800; letter-spacing: 0.14em; font-size: 11px; }
+    .cover.cert .cert-centro { position: relative; z-index: 1; text-align: center; }
+    .cover.cert .cert-centro img { width: 54%; height: auto; display: block; margin: 0 auto 6px; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); }
+    .cover.cert .cert-centro small { display: block; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink2); font-weight: 600; }
+    .cover.cert .cert-centro b { display: block; margin-top: 6px; font-weight: 600; font-size: 22px; line-height: 1; letter-spacing: -0.02em; color: var(--azul); }
+    .cover.cert .cert-centro span { display: block; margin-top: 8px; font-size: 11px; color: var(--ink); }
+    .cover.cert .cert-linea { position: relative; z-index: 1; height: 1px; background: var(--azul); opacity: .5; width: 60%; margin: 0 auto; }
+    .cover.cert .cert-firma { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end; font-size: 9px; color: var(--ink2); }
+    .cover.cert .cert-firma b { display: block; color: var(--ink); font-size: 10px; font-family: var(--sans); font-weight: 700; }
+    .card.bloqueada .cover.cert { filter: grayscale(.35); opacity: .85; }
     .card-pie b { font-size: 15px; font-weight: 600; }
     .card-pie span { color: var(--muted); font-size: 13px; }
     .soporte { margin-top: 36px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; color: var(--gray); font-size: 0.95rem; }
@@ -159,6 +173,9 @@
 
         <h2 class="fila-titulo">Recursos del bootcamp</h2>
         <div class="cards" id="recursos"></div>
+
+        <h2 class="fila-titulo">Tu certificado <small id="certNota">Se habilita al terminar la clase 3</small></h2>
+        <div class="cards" id="certificado"></div>
 
         <div class="soporte">
           <span>¿Algo no te abre o tienes dudas antes de una clase? Escríbenos y te ayudamos en el momento.</span>
@@ -253,6 +270,24 @@
       }).join('');
     }
 
+    // Certificado de participación: se descarga con el nombre del alumno en
+    // bootcamp-certificado.html cuando la clase 3 ya terminó (admin y equipo lo ven siempre).
+    function pintarCertificado(clases, esAdmin, esEquipo) {
+      const c3 = clases.find(c => c.numero === 3);
+      const terminado = !!c3 && ['ended_pending_upload', 'evergreen_ready'].includes(c3.estado);
+      const abierto = esAdmin || esEquipo || terminado;
+      $('certNota').textContent = abierto ? 'Con tu nombre, en PDF' : 'Se habilita al terminar la clase 3';
+      $('certificado').innerHTML = `<a class="card${abierto ? '' : ' bloqueada'}" href="${abierto ? 'bootcamp-certificado.html' : '#'}"${abierto ? '' : ' onclick="return false"'}>
+        <div class="cover cert"><span class="badge${abierto ? '' : ' gris'}">${abierto ? 'Nuevo' : 'Tras la clase 3'}</span>
+          <div class="marca">IA MASIVA</div>
+          <div class="cert-centro"><img src="${PORTADAS}bootcamp-estrella.jpg" alt="" loading="lazy" /><small>Certificado de participación</small><b>Gemini<br>de 0 a 100</b><span>Bootcamp · 3 clases</span></div>
+          <div class="cert-linea"></div>
+          <div class="cert-firma"><div><b>Sergio Lizcano</b>Fundador de IA MASIVA</div><div>iamasiva.co</div></div>
+        </div>
+        <div class="card-pie"><b>Descarga tu certificado</b><span>${abierto ? 'Con tu nombre, listo para compartir' : 'Disponible cuando termine la clase 3'}</span></div>
+      </a>`;
+    }
+
     let reloj = null;
     function pintarCuenta(clases) {
       clearInterval(reloj);
@@ -328,6 +363,7 @@
       pintarCuenta(lista);
       pintarClases(lista);
       pintarHerramientas(new Set((compras.data ?? []).map(c => c.product_id)), esAdmin, new Set((guias.data ?? []).map(g => g.slug)), lista, esEquipo);
+      pintarCertificado(lista, esAdmin, esEquipo);
       document.body.removeAttribute('data-cargando');
       // De vuelta de un recurso o una clase: el mismo punto de la página, sin viaje
       const regreso = window.IMRetorno ? IMRetorno.alVolver() : null;

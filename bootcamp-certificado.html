@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>Tu certificado · Bootcamp Gemini de 0 a 100 · IA MASIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="retorno-im.js"></script>
+  <script src="certificado-im.js"></script>
+  <style>
+    /* Certificado del bootcamp: cabecera con la identidad del bootcamp (blanco, halo azul)
+       y, debajo, la vista previa del certificado, el nombre editable y el botón de descarga. */
+    :root {
+      --black: #050505; --white: #fff; --gray: #D1D5DB; --muted: #9aa3b8; --card: #0b1440; --line: rgba(255,255,255,0.08);
+      --azul: #246BFD; --azul2: #124DC5; --ink: #192333; --ink2: #52647C; --halo: #E8F3FF; --halo2: #D7EBFF; --borde: #E7EDF4;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --bc: 'Google Sans Flex', 'Google Sans', Inter, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--sans); background: var(--black); color: var(--white); line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body[data-cargando] main, body[data-cargando] .nav { visibility: hidden; }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, p { margin: 0; }
+    button { font: inherit; }
+    .wrap { width: min(1180px, 100% - 40px); margin: 0 auto; }
+    .nav { position: sticky; top: 0; z-index: 20; background: rgba(5,5,5,0.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .nav-logo { font-weight: 900; letter-spacing: 0.12em; font-size: 1.05rem; }
+    .nav-der { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--gray); white-space: nowrap; }
+    .chip { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; border: 1px solid rgba(0,229,255,0.5); color: #00E5FF; }
+
+    .hero-bc { position: relative; overflow: hidden; background: #fff; color: var(--ink); font-family: var(--bc); padding: 44px 0 120px; }
+    .hero-bc-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(to bottom, rgba(5,5,5,0), var(--black)); z-index: 2; pointer-events: none; }
+    .hero-bc::before { content: ''; position: absolute; right: -10%; top: -40%; width: 50vw; max-width: 700px; aspect-ratio: 1; background: radial-gradient(closest-side, var(--halo2), rgba(215,235,255,0) 72%); pointer-events: none; }
+    .hero-bc::after { content: ''; position: absolute; left: -20%; bottom: -70%; width: 46vw; max-width: 600px; aspect-ratio: 1; background: radial-gradient(closest-side, var(--halo), rgba(232,243,255,0) 72%); pointer-events: none; }
+    .hero-bc .wrap { position: relative; z-index: 1; }
+    .bc-etq { font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--azul); }
+    .bc-h1 { margin-top: 12px; font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(40px, 6vw, 72px); }
+    .bc-linea { margin-top: 12px; font-size: clamp(16px, 2vw, 20px); font-weight: 500; color: var(--ink2); max-width: 640px; }
+
+    .cuerpo { padding: 0 0 64px; }
+    .panel { position: relative; z-index: 3; margin-top: -90px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr); gap: 22px; align-items: start; }
+
+    /* Vista previa: la misma composición del PDF, a escala */
+    .vista { background: #fff; color: var(--ink); border-radius: 18px; aspect-ratio: 842 / 595; position: relative; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.45); font-family: var(--sans); container-type: inline-size; }
+    .vista::before { content: ''; position: absolute; right: -8%; top: -30%; width: 55%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, var(--halo2), rgba(215,235,255,0) 72%); }
+    .vista::after { content: ''; position: absolute; left: -12%; bottom: -40%; width: 48%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, var(--halo), rgba(232,243,255,0) 72%); }
+    .vista .marco { position: absolute; inset: 3.3%; border: 1px solid var(--borde); }
+    .vista .marco::after { content: ''; position: absolute; inset: 1.5%; border: 1px solid rgba(36,107,253,0.9); }
+    .vista .v { position: absolute; z-index: 1; left: 0; right: 0; text-align: center; }
+    .vista .marca { position: absolute; z-index: 1; left: 7.6%; top: 11%; font-weight: 800; letter-spacing: 0.2em; font-size: 1.55cqw; }
+    .vista .prog { position: absolute; z-index: 1; right: 7.6%; top: 11.2%; font-weight: 500; letter-spacing: 0.23em; font-size: 1.12cqw; color: var(--azul); text-transform: uppercase; }
+    .vista .tit { top: 23.5%; font-weight: 500; letter-spacing: 0.3em; font-size: 1.3cqw; color: var(--ink2); }
+    .vista .otorga { top: 31%; font-size: 1.8cqw; }
+    .vista .nombre { top: 38.5%; font-weight: 700; color: var(--azul); font-size: 5.2cqw; line-height: 1.1; padding: 0 10%; white-space: nowrap; overflow: hidden; letter-spacing: -0.02em; }
+    .vista .nombre span { display: inline-block; white-space: nowrap; }
+    .vista .linea { top: 46.6%; left: 15%; right: 15%; height: 1px; background: var(--azul); opacity: .55; }
+    .vista .texto { top: 51.5%; padding: 0 16%; font-size: 1.48cqw; line-height: 1.5; }
+    .vista .clases { top: 65%; font-weight: 500; font-size: 1.25cqw; color: var(--ink2); }
+    .vista .estrella { position: absolute; z-index: 1; left: 50%; bottom: 3.5%; width: 17%; transform: translateX(-50%); }
+    .vista .estrella img { width: 100%; height: auto; display: block; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 78%); }
+    .vista .firma { position: absolute; z-index: 1; left: 10%; bottom: 15%; font-size: 1.1cqw; color: var(--ink2); padding-top: 1.6%; border-top: 1px solid rgba(82,100,124,0.6); width: 24%; }
+    .vista .firma b { display: block; color: var(--ink); font-size: 1.4cqw; font-weight: 700; }
+    .vista .emision { position: absolute; z-index: 1; right: 10%; bottom: 15%; text-align: right; font-size: 1.12cqw; color: var(--ink2); line-height: 1.6; }
+    .vista .emision b { display: block; color: var(--ink); font-weight: 500; font-size: 1.25cqw; }
+    .vista .emision i { font-style: normal; color: var(--azul2); }
+    .vista.bloqueada { filter: blur(3px) saturate(.6); opacity: .55; }
+
+    .lado { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+    .lado h2 { font-size: 1.15rem; font-weight: 700; }
+    .lado p { color: var(--muted); font-size: 0.92rem; }
+    .campo-lbl { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .nombre-fila { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+    .nombre-txt { flex: 1; min-width: 0; font-size: 1.15rem; font-weight: 600; overflow-wrap: anywhere; }
+    .lapiz { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+    .lapiz:hover { border-color: rgba(255,255,255,0.4); }
+    .lapiz svg { width: 17px; height: 17px; }
+    .editor { display: none; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .editor.activo { display: flex; }
+    .editor input { width: 100%; font-size: 1.05rem; padding: 11px 13px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: #060c2b; color: #fff; outline: none; }
+    .editor input:focus { border-color: var(--azul); }
+    .editor .acciones { display: flex; gap: 8px; }
+    .btn-sec { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 9px 14px; font-weight: 600; color: #fff; background: transparent; cursor: pointer; }
+    .btn-pri { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 9px 14px; font-weight: 600; color: #fff; background: var(--azul); cursor: pointer; }
+    .btn-pri:hover { background: var(--azul2); }
+    .bc-cta { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--azul); color: #fff; border: 0; border-radius: 999px; padding: 15px 24px; font-weight: 600; font-size: 1.02rem; cursor: pointer; box-shadow: 0 14px 34px rgba(36,107,253,0.35); transition: transform .15s, background .15s; }
+    .bc-cta:hover:not(:disabled) { transform: translateY(-1px); background: var(--azul2); }
+    .bc-cta:disabled { opacity: .55; cursor: default; box-shadow: none; }
+    .bc-cta svg { width: 18px; height: 18px; }
+    .estado { font-size: 0.88rem; color: var(--muted); min-height: 1.3em; }
+    .estado.ok { color: #b8f6ff; }
+    .estado.err { color: #ffb4c0; }
+    .aviso { background: rgba(36,107,253,0.12); border: 1px solid rgba(36,107,253,0.35); border-radius: 12px; padding: 12px 14px; font-size: 0.92rem; }
+    .aviso b { color: #fff; }
+    .nota { font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+    [hidden] { display: none !important; }
+    footer { padding: 24px 0 40px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); }
+
+    @media (max-width: 900px) {
+      .wrap { width: min(1180px, 100% - 32px); }
+      .hero-bc { padding: 28px 0 100px; }
+      .panel { grid-template-columns: 1fr; margin-top: -70px; }
+      .nav-der { gap: 6px; font-size: 0.82rem; } .chip { display: none; }
+    }
+  </style>
+</head>
+<body data-cargando="1">
+  <div class="nav">
+    <div class="wrap">
+      <a class="nav-logo" href="app.html">IA MASIVA</a>
+      <div class="nav-der">
+        <span class="chip" id="chipAdmin" hidden>Vista previa admin</span>
+        <a href="recurso-bootcamp.html" data-im-volver>← <span>Volver al bootcamp</span></a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <header class="hero-bc">
+      <div class="wrap">
+        <span class="bc-etq">Bootcamp Gemini de 0 a 100</span>
+        <h1 class="bc-h1">Tu certificado</h1>
+        <p class="bc-linea">Tu certificado de participación, con tu nombre, listo para descargar en PDF y compartir donde quieras.</p>
+      </div>
+      <div class="hero-bc-fade"></div>
+    </header>
+
+    <div class="cuerpo">
+      <div class="wrap">
+        <div class="panel">
+          <div class="vista" id="vista" aria-label="Vista previa del certificado">
+            <div class="marco"></div>
+            <div class="marca">IA MASIVA</div>
+            <div class="prog">Bootcamp · Gemini de 0 a 100</div>
+            <div class="v tit">CERTIFICADO DE PARTICIPACIÓN</div>
+            <div class="v otorga">Este certificado se otorga a</div>
+            <div class="v nombre" id="vNombreCaja"><span id="vNombre">Tu nombre</span></div>
+            <div class="v linea"></div>
+            <div class="v texto">por su participación en el Bootcamp Gemini de 0 a 100, un programa de tres clases para pasar de preguntarle cosas a Gemini a dirigirlo: configurarlo a su medida, trabajar proyectos completos y dejar agentes trabajando por usted.</div>
+            <div class="v clases">Gemini primeros pasos &nbsp;·&nbsp; Proyectos grandes con Gemini &nbsp;·&nbsp; Gemini para automatización y trabajo agéntico</div>
+            <div class="firma"><b>Sergio Lizcano</b>Fundador de IA MASIVA</div>
+            <div class="estrella"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-estrella.jpg" alt="" /></div>
+            <div class="emision"><b id="vFecha">Emitido hoy</b>Código de verificación <span id="vCodigo">········</span><br><i>iamasiva.co</i></div>
+          </div>
+
+          <aside class="lado">
+            <div>
+              <h2>Descarga tu certificado</h2>
+              <p>Sale con el nombre con el que estás registrado en IA MASIVA. Si quieres que aparezca distinto, cámbialo con el lápiz.</p>
+            </div>
+            <div class="aviso" id="avisoBloqueo" hidden><b>Todavía no está disponible.</b> El certificado se habilita cuando termine la clase 3. Vuelve después de la clase y lo descargas aquí mismo.</div>
+            <div id="bloqueNombre">
+              <div class="campo-lbl">Nombre en el certificado</div>
+              <div class="nombre-fila" id="nombreFila">
+                <div class="nombre-txt" id="nombreTxt">...</div>
+                <button class="lapiz" id="btnLapiz" type="button" title="Cambiar el nombre" aria-label="Cambiar el nombre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+              </div>
+              <form class="editor" id="editor" autocomplete="off">
+                <input id="inpNombre" type="text" maxlength="80" placeholder="Nombre y apellidos" />
+                <div class="acciones">
+                  <button class="btn-pri" type="submit">Guardar</button>
+                  <button class="btn-sec" type="button" id="btnCancelar">Cancelar</button>
+                </div>
+              </form>
+            </div>
+            <button class="bc-cta" id="btnDescargar" type="button" disabled>Descargar certificado <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
+            <div class="estado" id="estado"></div>
+            <div class="nota">Se descarga en PDF, tamaño carta horizontal. Lleva la fecha del día en que lo descargas y un código de verificación propio.</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer><div class="wrap">IA MASIVA · Bootcamp Gemini de 0 a 100</div></footer>
+
+  <script>
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+    const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+    const PRODUCT_ID = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+    const LANDING = 'bootcamp.html';
+    const $ = (id) => document.getElementById(id);
+    let usuario = null, nombre = '', abierto = false;
+
+    function limpiarNombre(t) {
+      return String(t || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    }
+    // Nombre de partida: el del perfil; si no hay, el de la cuenta de Google; si no, el correo
+    function nombreInicial(perfil, user) {
+      const m = user.user_metadata || {};
+      const candidatos = [perfil?.nombre, m.full_name, m.name, (user.email || '').split('@')[0].replace(/[._-]+/g, ' ')];
+      const n = limpiarNombre(candidatos.find(c => limpiarNombre(c).length >= 2));
+      // Solo se pone en mayúscula inicial si venía todo en minúsculas o todo en mayúsculas
+      if (n !== n.toLowerCase() && n !== n.toUpperCase()) return n;
+      return n.toLowerCase().split(' ').map(w => w.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-')).join(' ');
+    }
+    function pintarNombre() {
+      $('nombreTxt').textContent = nombre;
+      const caja = $('vNombreCaja'), v = $('vNombre'); v.textContent = nombre;
+      // Como en el PDF: el nombre se encoge hasta caber en una línea (el 80 % del ancho, por el margen)
+      let t = 5.2; caja.style.fontSize = t + 'cqw';
+      const cabe = () => v.getBoundingClientRect().width <= caja.clientWidth * 0.8;
+      while (t > 2.4 && !cabe()) { t -= 0.2; caja.style.fontSize = t + 'cqw'; }
+    }
+    window.addEventListener('resize', () => { if (nombre) pintarNombre(); });
+    function estado(txt, cls) { const e = $('estado'); e.textContent = txt || ''; e.className = 'estado' + (cls ? ' ' + cls : ''); }
+
+    function abrirEditor(abrir) {
+      $('editor').classList.toggle('activo', abrir);
+      $('nombreFila').hidden = abrir;
+      if (abrir) { $('inpNombre').value = nombre; $('inpNombre').focus(); $('inpNombre').select(); }
+    }
+    async function guardarNombre(nuevo) {
+      nuevo = limpiarNombre(nuevo);
+      if (nuevo.length < 2) { estado('Escribe el nombre como quieres que salga en el certificado.', 'err'); return; }
+      nombre = nuevo; pintarNombre(); abrirEditor(false); estado('Nombre actualizado.', 'ok');
+      try { localStorage.setItem('im_cert_nombre', nombre); } catch (_) {}
+      // Se guarda también en el perfil para que quede para la próxima vez; si no se puede, no pasa nada
+      try { await sb.from('profiles').update({ nombre }).eq('id', usuario.id); } catch (_) {}
+    }
+
+    async function descargar() {
+      const btn = $('btnDescargar');
+      btn.disabled = true; estado('Preparando tu certificado...');
+      try {
+        await IMCertificado.descargar({ nombre, codigo: IMCertificado.codigoDe(usuario.id), fecha: IMCertificado.fechaLarga() });
+        estado('Listo: tu certificado se descargó en PDF.', 'ok');
+      } catch (e) {
+        estado('No se pudo generar el certificado. Revisa tu conexión e inténtalo de nuevo.', 'err');
+      } finally { btn.disabled = !abierto; }
+    }
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { location.replace('index.html?entrar=bootcamp'); return; }
+      usuario = session.user;
+      const [perfil, compra, cfg, clase3, equipo] = await Promise.all([
+        sb.from('profiles').select('es_admin, nombre').eq('id', usuario.id).maybeSingle(),
+        sb.from('purchases').select('id').eq('product_id', PRODUCT_ID).eq('estado', 'APROBADA').limit(1).maybeSingle(),
+        sb.from('bootcamp_config').select('admin_only').eq('product_id', PRODUCT_ID).maybeSingle(),
+        sb.from('bootcamp_clases').select('estado').eq('product_id', PRODUCT_ID).eq('numero', 3).maybeSingle(),
+        sb.rpc('bootcamp_soy_equipo', { p_product: PRODUCT_ID }),
+      ]);
+      const esAdmin = !!perfil.data?.es_admin;
+      const esEquipo = !esAdmin && equipo?.data === true;
+      const tiene = !!compra.data;
+      const config = cfg.data;
+      // Misma puerta que el área del bootcamp: comprador con el bootcamp abierto, admin o equipo
+      if (!esAdmin && !esEquipo && (!tiene || !config || config.admin_only)) { location.replace(LANDING); return; }
+      if (esAdmin) $('chipAdmin').hidden = false;
+
+      let guardado = null; try { guardado = localStorage.getItem('im_cert_nombre'); } catch (_) {}
+      nombre = limpiarNombre(perfil.data?.nombre) || limpiarNombre(guardado) || nombreInicial(perfil.data, usuario);
+      pintarNombre();
+      $('vFecha').textContent = 'Emitido el ' + IMCertificado.fechaLarga();
+      $('vCodigo').textContent = IMCertificado.codigoDe(usuario.id);
+
+      // Se habilita cuando la clase 3 ya terminó; el equipo y los admins lo ven siempre
+      const terminado = ['ended_pending_upload', 'evergreen_ready'].includes(clase3.data?.estado);
+      abierto = esAdmin || esEquipo || terminado;
+      $('avisoBloqueo').hidden = abierto;
+      $('bloqueNombre').hidden = !abierto;
+      $('vista').classList.toggle('bloqueada', !abierto);
+      $('btnDescargar').disabled = !abierto;
+
+      $('btnLapiz').addEventListener('click', () => abrirEditor(true));
+      $('btnCancelar').addEventListener('click', () => abrirEditor(false));
+      $('editor').addEventListener('submit', (e) => { e.preventDefault(); guardarNombre($('inpNombre').value); });
+      $('btnDescargar').addEventListener('click', descargar);
+      document.body.removeAttribute('data-cargando');
+    }
+    init().catch(() => location.replace(LANDING));
+  </script>
+</body>
+</html>
