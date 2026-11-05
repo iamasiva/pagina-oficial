@@ -9,10 +9,10 @@ Cuando una clase termina queda en `ended_pending_upload` (tarjeta "Grabación en
 3. **Publicar** con el script (lee la clave de servicio de `~/.config/iamasiva/supabase.env`, que vive solo en el Mac de Sergio):
 
    ```bash
-   python3 scripts/bootcamp-publicar-repeticion.py 2 https://youtu.be/XXXXXXXXXXX
+   python3 scripts/bootcamp-publicar-repeticion.py 2
    ```
 
-   El script comprueba que YouTube ya sirve el video (si está privado o no existe, no cambia nada), guarda `grabacion_url` y pasa la clase a `evergreen_ready`. Con `--probar` solo muestra el estado actual.
+   El enlace se lee de `trabajo/bootcamp-repeticiones.json` (`{"2": "https://youtu.be/..."}`), un archivo local que no va al repo; también se puede pasar como segundo argumento. El script nunca imprime el enlace, solo el título del video, para poder correrlo con la pantalla compartida. Comprueba que YouTube ya sirve el video (si está privado o no existe, no cambia nada), guarda `grabacion_url` y pasa la clase a `evergreen_ready`. Con `--probar` solo muestra el estado actual.
 
 4. **Comprobar**: `bootcamp-clase.html?n=2` muestra el reproductor de YouTube con el panel de Comentarios, y la tarjeta de la clase en `recurso-bootcamp.html` dice "Repetición disponible". Cuando las tres clases están en `evergreen_ready`, el home del bootcamp dice "Bootcamp completo".
 
