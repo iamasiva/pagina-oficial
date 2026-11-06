@@ -25,14 +25,14 @@
 
 - [x] Landing bootcamp.html evergreen (6 nov: $97, sin fechas ni Black Friday, garantía de 7 días de Hotmart).
 - [x] Home: tarjeta del bootcamp como primera oferta, sin fechas. App: primera lámina del carrusel con el hero del bootcamp (6 nov). Popup de producto.html ofrece el bootcamp en piezas y pack.
-- [ ] Hotmart: oferta sin fecha de fin, texto del producto sin fechas.
-- [ ] Instagram y ManyChat: bio y automatizaciones en modo evergreen.
-- [ ] Correo de cierre a compradores (lista #16) y correo de oferta a los pendientes.
-- [ ] YouTube: capítulos, comentarios apagados, lista no listada.
-- [ ] Cloudflare: borrar grabaciones y Live Inputs de Stream, cancelar Stream, revisar plan de Workers.
+- [x] Hotmart: precio base $97 sin fecha de fin, descripciones evergreen; 8 ofertas de precio fijo para completar desde las herramientas (6 nov).
+- [x] Instagram y ManyChat: bio y automatizaciones en modo evergreen (Sergio, 6 nov).
+- [ ] Correo de cierre a compradores: borrador #22 en Brevo, PENDIENTE de reescribir el domingo 8 nov como agradecimiento + formulario de mejora (Google Forms). El correo a pendientes se descartó: solo 5 sin compra.
+- [ ] YouTube: comentarios apagados (hecho 6 nov); faltan los capítulos en las descripciones (archivos capitulos-youtube.txt de las clases 2 y 3) y la lista no listada.
+- [x] Cloudflare: grabaciones borradas, Stream cancelado (vence 26 nov), Workers en Free (6 nov).
 - [x] Brevo: cambio de plan ya programado para la facturación del 25 de noviembre.
 - [x] StreamYard: autorrenovación apagada (plan Core hasta el 26 nov); bajar el original de la clase 3 antes de esa fecha si se quiere el máster.
-- [ ] Seguridad: rotar la clave de servicio de Supabase; borrar el token de Cloudflare de Stream.
+- [x] Seguridad: clave de servicio rotada el 6 nov (ia_masiva_26 en el archivo local y en Vercel; la vieja "default" la borra Sergio).
 - [ ] Chat del bootcamp en "cerrado" (hecho el 6 nov).
 
 ## Para el próximo bootcamp
