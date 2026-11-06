@@ -84,6 +84,7 @@
       </div>
       <p class="cop" id="prodCop"></p>
       <p class="nota-bundle oculto" id="notaBundle"></p>
+      <p class="nota-bundle oculto" id="notaSesion"></p>
       <button class="btn oculto" id="btnRegalo">ACEPTAR REGALO</button>
       <label class="consent" id="cajaConsent">
         <input type="checkbox" id="chkConsent" />
@@ -359,6 +360,12 @@
         }
       });
 
+      // Sin sesión no se puede descontar lo ya pagado (6 nov 2026, caso de quien compró
+      // el pack y luego el bootcamp completo): se invita a entrar y el login vuelve aquí.
+      if (!session && conBonos) {
+        const ns = document.getElementById('notaSesion');
+        if (ns) { ns.innerHTML = '¿Ya tienes alguna herramienta de IA MASIVA? <a href="index.html?entrar=pagobootcamp">Inicia sesión</a> para obtener el descuento.'; ns.classList.remove('oculto'); }
+      }
       mostrar('checkout');
 
       // Meta Pixel: llegó a la página de pago con el valor real
