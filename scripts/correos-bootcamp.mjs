@@ -18,7 +18,7 @@ const pasos = (items) => `<table role="presentation" cellpadding="0" cellspacing
 const caja = (t) => `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:4px 0 20px;background:#E8F3FF;border-radius:14px;"><tr><td style="padding:14px 16px;font-size:14px;line-height:1.55;color:#192333;">${t}</td></tr></table>`;
 const firma = (lineas) => `<p style="margin:0;font-size:15px;line-height:1.65;color:#192333;border-top:1px solid #E7EDF4;padding-top:20px;">${lineas}</p>`;
 
-function correo({ titulo, preheader, cuerpo, pie, cabeceraFecha = '3, 4 y 5 de noviembre &middot; 7:00 pm, hora de Bogotá' }) {
+function correo({ titulo, preheader, cuerpo, pie, cabeceraFecha = '3, 4 y 5 de noviembre &middot; 7:00 pm, hora de Bogotá', cabeceraEtiqueta = 'Bootcamp en vivo &middot; 3 clases' }) {
   return `<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${titulo}</title></head>
 <body style="margin:0;padding:0;background:#F7F8FA;">
@@ -28,7 +28,7 @@ function correo({ titulo, preheader, cuerpo, pie, cabeceraFecha = '3, 4 y 5 de n
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #E7EDF4;">
       <tr><td style="padding:28px 32px 0;">
         <div style="font-size:14px;font-weight:800;letter-spacing:3px;color:#192333;">IA MASIVA</div>
-        <div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#246BFD;">Bootcamp en vivo &middot; 3 clases</div>
+        <div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#246BFD;">${cabeceraEtiqueta}</div>
         <div style="margin-top:6px;font-size:34px;line-height:1.05;font-weight:700;letter-spacing:-1px;color:#192333;">Gemini<br><span style="color:#246BFD;">de 0 a 100</span></div>
         <div style="margin-top:10px;font-size:15px;color:#52647C;">${cabeceraFecha}</div>
       </td></tr>
@@ -214,6 +214,29 @@ const recordatorioHora = (clase) => correo({
 correos['bootcamp-recordatorio-2-una-hora-clase-1'] = recordatorioHora({ n: 1, titulo: 'Gemini primeros pasos', dia: 'Martes 3 de noviembre' });
 correos['bootcamp-recordatorio-2-una-hora-clase-2'] = recordatorioHora({ n: 2, titulo: 'Proyectos grandes con Gemini', dia: 'Miércoles 4 de noviembre', anterior: true });
 correos['bootcamp-recordatorio-2-una-hora-clase-3'] = recordatorioHora({ n: 3, titulo: 'Gemini para automatización y trabajo agéntico', dia: 'Jueves 5 de noviembre', anterior: true });
+
+// Cierre del bootcamp (6 nov 2026): a la lista #16 de compradores
+correos['bootcamp-cierre-compradores'] = correo({
+  titulo: 'Tu bootcamp quedó completo: 3 clases grabadas, certificado y 25 agentes',
+  preheader: 'Las tres repeticiones, tu certificado y el recurso de 25 agentes ya están en tu área del bootcamp.',
+  pie: PIE_COMPRADOR,
+  cabeceraEtiqueta: 'Bootcamp Gemini &middot; cierre',
+  cabeceraFecha: '3 clases grabadas &middot; certificado &middot; 25 agentes de IA',
+  cuerpo: h1('Gracias por acompañarnos. Todo quedó en tu cuenta.')
+    + p('El bootcamp terminó anoche con la clase 3. Ya está todo listo en tu área del bootcamp en iamasiva.co, para que lo repases a tu ritmo:')
+    + lista([
+      '<b>Las repeticiones de las 3 clases</b>, con una sección de comentarios debajo de cada una por si te queda alguna duda.',
+      '<b>Tu certificado de finalización</b> en PDF, con tu nombre, listo para compartir o sumar a tu hoja de vida.',
+      '<b>El recurso 25 agentes de IA con Gemini</b>, con el equipo completo que crea carruseles, listo para instalar en Antigravity.',
+      '<b>Los recursos de las clases:</b> 42 formatos de respuesta, 61 instrucciones para imágenes y el mapa de las IA de Google.',
+      '<b>Tus tres herramientas para siempre:</b> 557 Configuraciones, 400 Skills y 200 Diseños, con todas sus actualizaciones.',
+    ])
+    + boton(AREA + '?utm_source=email&utm_medium=brevo&utm_campaign=bootcamp-cierre-compradores', 'Entrar a mi área del bootcamp')
+    + p('Las clases también quedaron en tu área de Hotmart, por si prefieres verlas desde ahí.')
+    + caja('<b>Un favor:</b> si el bootcamp te sirvió, cuéntanos en los comentarios de la clase 3 qué fue lo que más te aportó. Nos ayuda a mejorar el siguiente.')
+    + p('Si algo no te carga o tienes una duda, respóndenos este correo o escríbenos por <a href="' + WHATSAPP + '" style="color:#246BFD;">WhatsApp</a>.')
+    + firma('Sergio Lizcano<br>IA MASIVA'),
+});
 
 mkdirSync('email', { recursive: true });
 for (const [nombre, html] of Object.entries(correos)) {

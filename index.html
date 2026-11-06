@@ -1272,7 +1272,7 @@
   <section class="paquetes-section" id="paquetes" style="display: none;">
     <h2 class="section-title">Paquetes y ofertas</h2>
     <p class="paquetes-sub">Precios de lanzamiento por tiempo limitado. Tuyos para siempre, con todo lo que les sigamos sumando.</p>
-    <div class="paq-bc" id="paqBootcamp" hidden><div><span class="bc-etq">Bootcamp en vivo · 3, 4 y 5 de noviembre</span><h3>Gemini <span>de 0 a 100</span></h3><p>Tres noches en vivo para pasar de preguntarle cosas a Gemini a dirigirlo: lo configuras a tu medida, trabajas proyectos completos y dejas agentes trabajando por ti.</p><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Bootcamp en vivo, 3 clases, queda grabado</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Pack Gemini 3x gratis: 557 Configuraciones, 400 Skills y 200 Diseños</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Recursos exclusivos y certificado de participación</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Garantía: si la clase 1 no te gusta, reembolso del 100%</li></ul><div class="precio"><s>$257</s><b>$97</b><span class="pct">-62% BLACK FRIDAY</span></div><a class="bc-cta" href="bootcamp.html">Ver el bootcamp <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div><div class="lado"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-mockup-1793044000.jpg" alt="Bootcamp Gemini de 0 a 100" loading="lazy" /></div></div>
+    <div class="paq-bc" id="paqBootcamp" hidden><div><span class="bc-etq">Bootcamp grabado · 3 clases · acceso inmediato</span><h3>Gemini <span>de 0 a 100</span></h3><p>Tres clases para pasar de preguntarle cosas a Gemini a dirigirlo: lo configuras a tu medida, trabajas proyectos completos y dejas agentes trabajando por ti. Las ves a tu ritmo.</p><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>3 clases grabadas, 6 horas, acceso de por vida</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Pack Gemini 3x gratis: 557 Configuraciones, 400 Skills y 200 Diseños</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Recursos exclusivos, 25 agentes de IA y certificado</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Garantía de 7 días: reembolso del 100%</li></ul><div class="precio"><s>$257</s><b>$97</b><span class="pct">-62%</span></div><a class="bc-cta" href="bootcamp.html">Ver el bootcamp <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div><div class="lado"><img src="https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/bootcamp-mockup-1793044000.jpg" alt="Bootcamp Gemini de 0 a 100" loading="lazy" /></div></div>
     <div class="paquetes-grid" id="paquetesGrid"></div>
   </section>
 
@@ -2125,6 +2125,11 @@
         // se conserva y vuelve solo cuando esto se apaga.
         const CIERRE_OFERTA = Date.parse('2026-11-03T18:00:00-05:00'), INICIO_CLASE_1 = Date.parse('2026-11-04T00:00:00Z'), FIN_EVENTO = Date.parse('2026-11-06T06:00:00Z');
         const conBootcamp = bootcampActivo && Date.now() < FIN_EVENTO;
+        // Evergreen (6 nov 2026): la tarjeta del bootcamp es la primera oferta mientras el producto esté activo
+        if (bootcampActivo) {
+          const paqBc = document.getElementById('paqBootcamp');
+          if (paqBc) { paqBc.hidden = false; const sec = document.getElementById('paquetes'); if (sec) sec.style.display = ''; const div = document.getElementById('paquetesDivisor'); if (div) div.style.display = ''; }
+        }
         try { localStorage.setItem('im_hero_bc_home', conBootcamp ? '1' : '0'); } catch (_) {}
         if (conBootcamp) {
           const heroBc = document.getElementById('heroBootcamp'), heroVideo = document.getElementById('heroVideo');
@@ -2141,8 +2146,6 @@
             };
             tic(); setInterval(tic, 1000);
           }
-          const paqBc = document.getElementById('paqBootcamp');
-          if (paqBc) { paqBc.hidden = false; const sec = document.getElementById('paquetes'); if (sec) sec.style.display = ''; const div = document.getElementById('paquetesDivisor'); if (div) div.style.display = ''; }
           const tabs = document.getElementById('faqTabs');
           if (tabs) {
             tabs.hidden = false; document.getElementById('faqBootcamp').hidden = false; document.getElementById('faqSitio').hidden = true;

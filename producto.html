@@ -427,11 +427,11 @@
   <div class="promo-overlay" id="promoOverlay">
     <div class="promo-caja">
       <button class="promo-cerrar" id="promoCerrar" aria-label="Cerrar">&times;</button>
-      <h3 class="promo-titulo">Tenemos una <span>promoción especial</span> para ti</h3>
+      <h3 class="promo-titulo">¡Lleva el <span>paquete completo</span>!</h3>
       <p class="promo-intro" id="promoIntro"></p>
       <ul class="promo-lista" id="promoLista"></ul>
-      <p class="promo-precio">Lleva los 3 productos por <s id="promoAncla"></s> <b id="promoPrecio"></b></p>
-      <button class="cta promo-cta" id="promoTomar">TOMAR PROMOCIÓN</button>
+      <p class="promo-precio">Todo por <s id="promoAncla"></s> <b id="promoPrecio"></b></p>
+      <button class="cta promo-cta" id="promoTomar">VER EL BOOTCAMP</button>
       <button class="promo-no" id="promoNo">Continuar con mi compra</button>
     </div>
   </div>
@@ -1126,30 +1126,24 @@
         $('pAhorro').textContent = `Ahorras $${(sumaFaltantes - Math.max(completado, 0)) / 100} USD.`;
       }
 
-      // Popup de promoción: en una pieza suelta se ofrece el pack que la
-      // contiene, presentando lo que falta. Cerrar el popup = quedarse en la
-      // landing; los dos botones sí continúan el proceso.
-      const bundleActivo = esBundle ? null
-        : (productos ?? []).find(p => PACKS[p.id]?.includes(producto.id)) ?? null;
+      // Popup hacia el bootcamp (6 nov 2026): en cualquier herramienta, sea una pieza
+      // o el pack, se ofrece el Bootcamp Gemini de 0 a 100, que trae las tres
+      // herramientas de regalo. No sale si ya compró esto, si ya tiene el bootcamp o
+      // si el bootcamp no está activo. Cerrar el popup = quedarse en la landing;
+      // "Ver el bootcamp" va a su landing y "Continuar" sigue a la compra.
+      const PRODUCTO_BOOTCAMP = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
+      const VALOR_BOOTCAMP_SOLO = 15700;   // el mismo valor de referencia de bootcamp.html (OFERTA.bootcamp)
+      const bootcamp = (productos ?? []).find(p => p.id === PRODUCTO_BOOTCAMP) ?? null;
       let promoLista = false;
-      // Al dueño de piezas no se le ofrece lo que ya tiene, y el precio del
-      // popup baja a lo que le falta para completar el pack. Si ya tiene todas
-      // las demás piezas, no hay nada que ofrecer y no hay popup.
-      const compsBundle = bundleActivo ? (PACKS[bundleActivo.id] || []) : [];
-      const otros = compsBundle.filter(id => id !== producto.id && !poseidos.has(id));
-      if (!comprado && bundleActivo && otros.length) {
-        $('promoIntro').innerHTML = `Además de <b>${producto.nombre}</b>, adquiere:`;
-        $('promoLista').innerHTML = otros.map(id => `<li>${nombreDe(id)}</li>`).join('');
-        const efectivoBundle = bundleActivo.precio_promo_usd_centavos ?? bundleActivo.precio_usd_centavos;
-        const completadoPopup = completarPack(efectivoBundle, compsBundle);
-        const ancla = completadoPopup != null
-          ? efectivoBundle
-          : (bundleActivo.precio_promo_usd_centavos ? bundleActivo.precio_usd_centavos : null);
-        $('promoAncla').textContent = ancla ? `$${ancla / 100}` : '';
-        $('promoPrecio').textContent = completadoPopup != null && completadoPopup <= 0
-          ? 'GRATIS'
-          : `$${(completadoPopup ?? efectivoBundle) / 100} USD`;
-        $('promoTomar').addEventListener('click', () => { location.href = `pago.html?p=${bundleActivo.id}`; });
+      if (!comprado && bootcamp && !poseidos.has(PRODUCTO_BOOTCAMP)) {
+        const piezas = [...new Set(Object.values(PACKS).flat())].map(id => (productos ?? []).find(p => p.id === id)).filter(Boolean);
+        $('promoIntro').innerHTML = 'El pack de herramientas más todo lo que debes saber de Gemini:';
+        $('promoLista').innerHTML = ['3 clases grabadas del Bootcamp Gemini de 0 a 100', ...piezas.map(p => `${p.nombre} <small>(de regalo)</small>`), 'Recursos del bootcamp y certificado'].map(t => `<li>${t}</li>`).join('');
+        const precioBootcamp = bootcamp.precio_promo_usd_centavos ?? bootcamp.precio_usd_centavos;
+        const ancla = VALOR_BOOTCAMP_SOLO + piezas.reduce((a, p) => a + efectivoC(p), 0);
+        $('promoAncla').textContent = ancla > precioBootcamp ? `$${ancla / 100}` : '';
+        $('promoPrecio').textContent = `$${precioBootcamp / 100} USD`;
+        $('promoTomar').addEventListener('click', () => { location.href = 'bootcamp.html'; });
         $('promoNo').addEventListener('click', () => { location.href = destino; });
         $('promoCerrar').addEventListener('click', () => $('promoOverlay').classList.remove('activa'));
         $('promoOverlay').addEventListener('click', e => { if (e.target.id === 'promoOverlay') $('promoOverlay').classList.remove('activa'); });
