@@ -44,3 +44,13 @@ Arnés: copia local del webhook real con `_lib.js` sustituido solo en `bonosDelP
 ## GATE 3
 
 Cumplido en código y pruebas locales. Queda la prueba real de punta a punta cuando exista el producto en Hotmart: una compra de prueba desde `bootcamp.html` y otra desde el link directo de Hotmart.
+
+## Crédito por piezas hacia el bootcamp (6 nov 2026)
+
+- Pedido de Sergio: el popup que antes ofrecía "completar el pack" ahora ofrece el bootcamp, y quien ya pagó por el 557, el 400, el 200 o el Pack Gemini 3x paga solo lo que falta para llegar a los $97.
+- Regla (api/_lib.js `piezasConCredito`): las piezas que dan crédito son los bonos del producto (`producto_bonos`) más los packs cuyos componentes están todos entre ellas. Cuenta solo dinero real (gateway wompi u hotmart); los bonos y las piezas incluidas en un pack no suman. No convierte al bootcamp en pack: tener las tres piezas no es tener el bootcamp.
+- /api/checkout: si el producto no es pack y el usuario tiene crédito, cobra `precio - invertido` y busca una oferta de precio fijo en `products.hotmart_ofertas` del bootcamp (monto exacto o hasta 3 USD; sin oferta, Wompi con el monto exacto). Si el crédito cubre el precio, 409 y el regalo se reclama en pago.html (/api/completar-pack generalizado: habilita el bootcamp y los bonos que falten).
+- pago.html: `BONOS_CREDITO` (constante, porque `producto_bonos` no se lee con la clave pública) y la nota "Ya tienes X y te lo descontamos. Llevas el bootcamp con Y por $Z".
+- producto.html: el popup "¡Lleva el paquete completo!" descuenta lo pagado y lleva a `pago.html?p=<bootcamp>`.
+- Probado en producción el 6 nov con usuarios desechables (borrados): 200 pagado a $17 → pendiente de $80 por Wompi (sin ofertas de Hotmart todavía).
+- Pendiente: ofertas de precio fijo del bootcamp en Hotmart para las diferencias (80, 73, 68, 56, 50, 44, 33 y 27 USD) y guardarlas en `products.hotmart_ofertas`.
