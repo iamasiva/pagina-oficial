@@ -53,4 +53,4 @@ Cumplido en código y pruebas locales. Queda la prueba real de punta a punta cua
 - pago.html: `BONOS_CREDITO` (constante, porque `producto_bonos` no se lee con la clave pública) y la nota "Ya tienes X y te lo descontamos. Llevas el bootcamp con Y por $Z".
 - producto.html: el popup "¡Lleva el paquete completo!" descuenta lo pagado y lleva a `pago.html?p=<bootcamp>`.
 - Probado en producción el 6 nov con usuarios desechables (borrados): 200 pagado a $17 → pendiente de $80 por Wompi (sin ofertas de Hotmart todavía).
-- Pendiente: ofertas de precio fijo del bootcamp en Hotmart para las diferencias (80, 73, 68, 56, 50, 44, 33 y 27 USD) y guardarlas en `products.hotmart_ofertas`.
+- Ofertas de precio fijo del bootcamp creadas en Hotmart el 6 nov 2026 (Completar bootcamp 80, 73, 68, 56, 50, 44, 33 y 27, pago al contado en USD, conversión automática) y guardadas en `products.hotmart_ofertas` del bootcamp. Probado en producción con usuarios desechables (borrados): 200 pagado a $17 → oferta de $80 por Hotmart; 200 + pack ($64) → oferta de $33 por Hotmart.
