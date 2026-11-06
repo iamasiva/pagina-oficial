@@ -50,6 +50,24 @@ export async function bonosDelProducto(db, productId) {
   return (data ?? []).map((r) => r.bono_id);
 }
 
+// Crédito por bonos (6 nov 2026): un producto que regala piezas (producto_bonos,
+// p. ej. el bootcamp regala las tres herramientas) se puede comprar pagando solo
+// lo que falta cuando la persona ya pagó por alguna de esas piezas, o por un pack
+// que las contiene (Pack Gemini 3x). Devuelve los ids que dan crédito: las piezas
+// regaladas más los packs cuyos componentes están todos entre ellas. [] si el
+// producto no regala nada. No convierte al producto en pack: tener todas las
+// piezas no significa tener el producto.
+export async function piezasConCredito(db, productId) {
+  const bonos = await bonosDelProducto(db, productId);
+  if (!bonos.length) return [];
+  const ids = new Set(bonos);
+  const packs = await mapaDePacks(db);
+  for (const [bundleId, comps] of Object.entries(packs)) {
+    if (comps.length && comps.every((c) => ids.has(c))) ids.add(bundleId);
+  }
+  return [...ids];
+}
+
 // Todos los packs con sus componentes, como { bundleId: [comp1, comp2, ...] }.
 // Una sola consulta: sirve para saber qué productos son packs y qué traen.
 export async function mapaDePacks(db) {

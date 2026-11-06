@@ -4,7 +4,7 @@
 // Gateway 'bono' (referencia 'regalo-pack__...') para que las métricas de
 // ventas no las cuenten. La condición del regalo se valida AQUÍ, nunca en el
 // navegador.
-import { adminClient, userFromRequest, componentesDelPack } from './_lib.js';
+import { adminClient, userFromRequest, componentesDelPack, bonosDelProducto, piezasConCredito } from './_lib.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -21,8 +21,12 @@ export default async function handler(req, res) {
 
     const db = adminClient();
 
-    // La tabla dice qué trae el pack; si no trae nada, no es un pack.
-    const componentes = await componentesDelPack(db, bundleId);
+    // La tabla dice qué trae el pack; si no trae nada, puede ser un producto con
+    // bonos (crédito por bonos, 6 nov 2026): se regala el producto entero y sus
+    // bonos cuando lo ya pagado por las piezas cubre su precio.
+    let componentes = await componentesDelPack(db, bundleId);
+    const esPack = componentes.length > 0;
+    if (!esPack) componentes = await piezasConCredito(db, bundleId);
     if (!componentes.length) return res.status(400).json({ error: 'Ese producto no es un pack' });
 
     const { data: previas } = await db.from('purchases')
@@ -32,11 +36,15 @@ export default async function handler(req, res) {
       .eq('estado', 'APROBADA');
     const propios = [...new Set((previas ?? []).map(p => p.product_id))];
     if (!propios.length) return res.status(400).json({ error: 'El regalo es para quien ya tiene piezas del pack' });
-    if (propios.length >= componentes.length) return res.status(409).json({ error: 'Ya tienes todos los recursos del pack' });
+    if (esPack && propios.length >= componentes.length) return res.status(409).json({ error: 'Ya tienes todos los recursos del pack' });
+    if (!esPack) {
+      const { data: yaTiene } = await db.from('purchases').select('id').eq('user_id', user.id).eq('product_id', bundleId).eq('estado', 'APROBADA').limit(1).maybeSingle();
+      if (yaTiene) return res.status(409).json({ error: 'Ya tienes este producto' });
+    }
 
     const { data: prods } = await db.from('products')
       .select('id, guide_id, precio_usd_centavos, precio_promo_usd_centavos')
-      .in('id', [...componentes, bundleId]);
+      .in('id', [...new Set([...componentes, bundleId, ...(esPack ? [] : await bonosDelProducto(db, bundleId))])]);
     const efectivo = (p) => p.precio_promo_usd_centavos ?? p.precio_usd_centavos;
     const pack = (prods ?? []).find(p => p.id === bundleId);
     if (!pack) return res.status(500).json({ error: 'Pack no disponible' });
@@ -56,7 +64,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Tu inversión aún no cubre el valor del pack' });
     }
 
-    const faltantes = componentes.filter(id => !propios.includes(id));
+    // Pack: se habilitan las piezas que faltan. Producto con bonos: se habilita el
+    // producto y los bonos que aún no tenga (el bono se entrega igual que al comprar).
+    const bonos = esPack ? [] : await bonosDelProducto(db, bundleId);
+    const faltantes = esPack
+      ? componentes.filter(id => !propios.includes(id))
+      : [bundleId, ...bonos.filter(id => !propios.includes(id))];
     const ahora = new Date().toISOString();
     for (const id of faltantes) {
       const prod = prods.find(x => x.id === id);

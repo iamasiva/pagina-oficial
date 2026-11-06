@@ -185,11 +185,24 @@
         .select('componente_id, orden').eq('bundle_id', productId).order('orden');
       const componentesPack = (comps ?? []).map(c => c.componente_id);
       const nombreDe = (id) => (productos ?? []).find(p => p.id === id)?.nombre ?? '';
+      // Crédito por bonos (6 nov 2026): el bootcamp regala las tres herramientas; quien ya
+      // pagó por alguna, o por el pack que las contiene, paga solo lo que falta. No es un
+      // pack: tener las piezas no es tener el producto. La cifra real la decide
+      // /api/checkout con la misma regla; aquí solo se muestra.
+      const BONOS_CREDITO = { '6c01d354-e05d-47be-a6d6-3075abcc16d3': ['656f61d7-37b2-4e9c-8cf3-67065484493c', '0f0d6926-5328-4e3e-89a4-92b36ef13996', '2c296299-d9a4-4409-bc99-67b4999e47f8'] };
+      const bonosCredito = componentesPack.length ? [] : (BONOS_CREDITO[productId] || []);
+      let piezasCredito = [], porPackGlobal = {};
+      if (bonosCredito.length) {
+        const { data: todosPacks } = await sb.from('bundle_componentes').select('bundle_id, componente_id');
+        for (const r of todosPacks ?? []) (porPackGlobal[r.bundle_id] ??= []).push(r.componente_id);
+        piezasCredito = [...bonosCredito, ...Object.keys(porPackGlobal).filter(b => porPackGlobal[b].every(c => bonosCredito.includes(c)))];
+      }
+      const conBonos = piezasCredito.length > 0;
       let propios = [];
       let pagadoPorPieza = {};   // dinero REAL pagado por pieza (wompi u hotmart)
-      if (session && componentesPack.length) {
+      if (session && (componentesPack.length || conBonos)) {
         const { data } = await sb.from('purchases').select('product_id, monto_usd_centavos, gateway')
-          .in('product_id', componentesPack).eq('estado', 'APROBADA');
+          .in('product_id', componentesPack.length ? componentesPack : piezasCredito).eq('estado', 'APROBADA');
         propios = [...new Set((data ?? []).map(x => x.product_id))];
         for (const c of data ?? []) {
           if (c.gateway === 'wompi' || c.gateway === 'hotmart') pagadoPorPieza[c.product_id] = (pagadoPorPieza[c.product_id] || 0) + (c.monto_usd_centavos || 0);
@@ -231,7 +244,7 @@
         let cobro = precioEfectivo(p);
         let esRegalo = false;
         let ofertaPack = null;
-        const completa = componentesPack.length && propios.length > 0;
+        const completa = (componentesPack.length || conBonos) && propios.length > 0;
         if (completa) {
           const invertido = propios.reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
           cobro = precioEfectivo(p) - invertido;
@@ -241,16 +254,18 @@
             ofertaPack = ofertaPorMonto(p.hotmart_ofertas, cobro);
             if (ofertaPack) cobro = ofertaPack.centavos;
           }
-          const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0];
-          const tienes = enLista(propios.map(nombreDe).filter(Boolean));
-          const faltan = enLista(componentesPack.filter(id => !propios.includes(id)).map(nombreDe));
+          const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : (l[0] || '');
+          // Si tiene un pack, se nombra el pack y no sus piezas
+          const piezasDePacks = new Set(propios.filter(id => porPackGlobal[id]).flatMap(id => porPackGlobal[id]));
+          const tienes = enLista(propios.filter(id => !piezasDePacks.has(id)).map(nombreDe).filter(Boolean));
+          const faltan = enLista((componentesPack.length ? componentesPack : bonosCredito).filter(id => !propios.includes(id)).map(nombreDe).filter(Boolean));
           if (esRegalo) {
             cobro = 0;
             $('prodPrecio').innerHTML = `<span class="tachado">$${precioEfectivo(p) / 100}</span>GRATIS`;
-            $('notaBundle').textContent = `Ya tienes ${tienes}: tu inversión ya cubre el pack completo. Te regalamos ${faltan}.`;
+            $('notaBundle').textContent = conBonos ? `Ya tienes ${tienes}: tu inversión ya cubre ${p.nombre}. Te lo regalamos.` : `Ya tienes ${tienes}: tu inversión ya cubre el pack completo. Te regalamos ${faltan}.`;
           } else {
             $('prodPrecio').innerHTML = `<span class="tachado">$${precioEfectivo(p) / 100}</span>$${cobro / 100} USD`;
-            $('notaBundle').textContent = `Ya tienes ${tienes}. Lleva ${faltan} por $${cobro / 100} USD y completa tu pack.`;
+            $('notaBundle').textContent = conBonos ? `Ya tienes ${tienes} y te lo descontamos. Llevas ${p.nombre}${faltan ? ' con ' + faltan : ''} por $${cobro / 100} USD.` : `Ya tienes ${tienes}. Lleva ${faltan} por $${cobro / 100} USD y completa tu pack.`;
           }
           $('notaBundle').classList.remove('oculto');
         } else {
@@ -270,9 +285,7 @@
         const usaHotmart = !!p.hotmart_url && (!completa || !!ofertaPack);
         if (usaHotmart) {
           $('prodCop').textContent = esRegalo ? '' : 'Pagas en dólares o en tu moneda local: Hotmart te muestra el precio en tu país antes de confirmar.';
-          $('infoConsent').textContent = p.id === '6c01d354-e05d-47be-a6d6-3075abcc16d3'
-            ? 'Entrega inmediata: tu acceso al bootcamp se activa apenas se apruebe el pago. Y si al terminar la clase 1 sientes que no es para ti, pides el reembolso antes de la clase 2 y te devolvemos el 100%.'
-            : 'Entrega inmediata: tu acceso se activa apenas se apruebe el pago. Y si no es lo que esperabas, tienes 7 días para pedir el reembolso desde Hotmart.';
+          $('infoConsent').textContent = 'Entrega inmediata: tu acceso se activa apenas se apruebe el pago. Y si no es lo que esperabas, tienes 7 días para pedir el reembolso desde Hotmart.';
           $('cajaConsent').querySelector('span').innerHTML = 'Aceptar los <a href="terminos.html" target="_blank" rel="noopener">términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.';
           $('lineaSeguro').textContent = '🔒 Pago seguro con Hotmart. Tarjetas de cualquier país, PayPal y métodos locales según tu país (PSE y Nequi en Colombia, OXXO y SPEI en México, Mercado Pago en Argentina). Nunca vemos los datos de tu tarjeta.';
         } else {

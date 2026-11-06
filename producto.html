@@ -1081,7 +1081,8 @@
       if (session) {
         const [{ data: compra }, { data: prPack }] = await Promise.all([
           sb.from('purchases').select('id').eq('product_id', producto.id).eq('estado', 'APROBADA').maybeSingle(),
-          sb.from('purchases').select('product_id, monto_usd_centavos, gateway').in('product_id', unionComponentes.length ? unionComponentes : ['-']).eq('estado', 'APROBADA'),
+          // También los packs y el bootcamp: lo pagado por un pack da crédito para el bootcamp
+          sb.from('purchases').select('product_id, monto_usd_centavos, gateway').in('product_id', [...unionComponentes, ...Object.keys(PACKS), '6c01d354-e05d-47be-a6d6-3075abcc16d3']).eq('estado', 'APROBADA'),
         ]);
         comprado = !!compra;
         for (const c of prPack ?? []) {
@@ -1137,13 +1138,21 @@
       let promoLista = false;
       if (!comprado && bootcamp && !poseidos.has(PRODUCTO_BOOTCAMP)) {
         const piezas = [...new Set(Object.values(PACKS).flat())].map(id => (productos ?? []).find(p => p.id === id)).filter(Boolean);
-        $('promoIntro').innerHTML = 'El pack de herramientas más todo lo que debes saber de Gemini:';
-        $('promoLista').innerHTML = ['3 clases grabadas del Bootcamp Gemini de 0 a 100', ...piezas.map(p => `${p.nombre} <small>(de regalo)</small>`), 'Recursos del bootcamp y certificado'].map(t => `<li>${t}</li>`).join('');
         const precioBootcamp = bootcamp.precio_promo_usd_centavos ?? bootcamp.precio_usd_centavos;
-        const ancla = VALOR_BOOTCAMP_SOLO + piezas.reduce((a, p) => a + efectivoC(p), 0);
-        $('promoAncla').textContent = ancla > precioBootcamp ? `$${ancla / 100}` : '';
-        $('promoPrecio').textContent = `$${precioBootcamp / 100} USD`;
-        $('promoTomar').addEventListener('click', () => { location.href = 'bootcamp.html'; });
+        // Crédito por lo ya pagado (piezas sueltas o el pack): paga solo lo que falta para
+        // llegar al bootcamp. La cifra real la decide /api/checkout con la misma regla.
+        const invertido = [...piezas.map(p => p.id), ...Object.keys(PACKS)].reduce((s, id) => s + (pagadoPorPieza[id] || 0), 0);
+        const cobro = Math.max(precioBootcamp - invertido, 0);
+        const propias = piezas.filter(p => poseidos.has(p.id));
+        const enLista = (l) => l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : (l[0] || '');
+        $('promoIntro').innerHTML = propias.length
+          ? `Ya tienes <b>${propias.length === piezas.length ? 'las tres herramientas' : enLista(propias.map(p => p.nombre))}</b> y te lo descontamos. Lleva el bootcamp con todo lo demás:`
+          : 'El pack de herramientas más todo lo que debes saber de Gemini:';
+        $('promoLista').innerHTML = ['3 clases grabadas del Bootcamp Gemini de 0 a 100', ...piezas.filter(p => !poseidos.has(p.id)).map(p => `${p.nombre} <small>(de regalo)</small>`), 'Recursos del bootcamp y certificado'].map(t => `<li>${t}</li>`).join('');
+        const ancla = propias.length ? precioBootcamp : VALOR_BOOTCAMP_SOLO + piezas.reduce((a, p) => a + efectivoC(p), 0);
+        $('promoAncla').textContent = ancla > cobro ? `$${ancla / 100}` : '';
+        $('promoPrecio').textContent = cobro === 0 ? 'GRATIS' : `$${cobro / 100} USD`;
+        $('promoTomar').addEventListener('click', () => { location.href = `pago.html?p=${PRODUCTO_BOOTCAMP}`; });
         $('promoNo').addEventListener('click', () => { location.href = destino; });
         $('promoCerrar').addEventListener('click', () => $('promoOverlay').classList.remove('activa'));
         $('promoOverlay').addEventListener('click', e => { if (e.target.id === 'promoOverlay') $('promoOverlay').classList.remove('activa'); });

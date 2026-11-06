@@ -6,7 +6,7 @@
 // exacto: sin colchón ni redondeo), firma la transacción y devuelve la URL
 // del checkout de Wompi. La firma usa un secreto que solo existe aquí.
 import crypto from 'node:crypto';
-import { adminClient, userFromRequest, trmDelDia, componentesDelPack, ofertaPorMonto } from './_lib.js';
+import { adminClient, userFromRequest, trmDelDia, componentesDelPack, ofertaPorMonto, piezasConCredito } from './_lib.js';
 
 export default async function handler(req, res) {
   try {
@@ -80,6 +80,32 @@ export default async function handler(req, res) {
         }
         precioEfectivo = restante;
         completandoPack = true;
+      }
+    }
+
+    // Crédito por bonos (6 nov 2026): el bootcamp regala las tres herramientas.
+    // Quien ya pagó por alguna, o por el pack que las contiene, paga solo lo que
+    // falta para llegar al precio del bootcamp. Mismo criterio del pack: cuenta
+    // el DINERO REALMENTE PAGADO (wompi u hotmart), nunca los bonos ni las
+    // piezas incluidas en un pack. La cifra se decide aquí, no en el navegador.
+    if (!componentesPack.length && user) {
+      const conCredito = await piezasConCredito(db, productId);
+      if (conCredito.length) {
+        const { data: pagos } = await db.from('purchases')
+          .select('monto_usd_centavos')
+          .eq('user_id', user.id)
+          .in('product_id', conCredito)
+          .eq('estado', 'APROBADA')
+          .in('gateway', ['wompi', 'hotmart']);
+        const yaInvertido = (pagos ?? []).reduce((s, p) => s + (p.monto_usd_centavos ?? 0), 0);
+        if (yaInvertido > 0) {
+          const restante = precioEfectivo - yaInvertido;
+          if (restante <= 0) {
+            return res.status(409).json({ error: 'Tu inversión ya cubre este producto: acéptalo como regalo en la página de pago' });
+          }
+          precioEfectivo = restante;
+          completandoPack = true;
+        }
       }
     }
 
