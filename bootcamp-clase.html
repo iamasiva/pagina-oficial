@@ -459,8 +459,9 @@
       const slug = `ejercicios-clase-${n}`;
       if (dada && !(slug in ejerciciosListos)) {
         try {
-          const { data } = await sb.from('guides').select('slug').eq('slug', slug).not('contenido_url', 'is', null).maybeSingle();
-          ejerciciosListos[slug] = !!data;
+          // Despublicada: solo la ve el admin (para revisarla); publicada: todos los alumnos
+          const { data } = await sb.from('guides').select('slug, publicada').eq('slug', slug).not('contenido_url', 'is', null).maybeSingle();
+          ejerciciosListos[slug] = !!data && (!!data.publicada || esAdmin);
         } catch (_) { ejerciciosListos[slug] = false; }
       }
       be.hidden = !(dada && ejerciciosListos[slug]);
