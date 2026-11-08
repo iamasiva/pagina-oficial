@@ -73,7 +73,14 @@
       '61-instrucciones-para-imagenes':  { nombre: '61 instrucciones para imágenes',  clase: 1, portada: PORTADAS + 'bootcamp-portada-61-instrucciones-1793023500.jpg' },
       '25-agentes-de-ia':                { nombre: '25 agentes de IA con Gemini', clase: 3, abreClase: 3, portada: PORTADAS + 'bootcamp-portada-25-agentes-1793050000.jpg' },
       'mapa-de-las-ia-de-google':        { nombre: 'El mapa de las IA de Google',     clase: 1, portada: PORTADAS + 'bootcamp-portada-mapa-ia-google-1793023500.jpg' },
+      // Ejercicios: se abren desde el botón de cada clase (bootcamp-clase.html), no van en la fila de recursos
+      'ejercicios-clase-1':              { nombre: 'Ejercicios de la clase 1', clase: 1, portada: PORTADAS + 'bootcamp-portada-clase-1-1793023500.jpg' },
+      'ejercicios-clase-2':              { nombre: 'Ejercicios de la clase 2', clase: 2, portada: PORTADAS + 'bootcamp-portada-clase-2-1793023500.jpg' },
+      'ejercicios-clase-3':              { nombre: 'Ejercicios de la clase 3', clase: 3, portada: PORTADAS + 'bootcamp-portada-clase-3-1793023500.jpg' },
     };
+    // A dónde vuelve "Cerrar": al bootcamp, o a la clase desde la que se abrió (volver=clase-N)
+    const volverParam = String(new URLSearchParams(location.search).get('volver') || '');
+    const VOLVER = /^clase-[1-3]$/.test(volverParam) ? volverParam : 'bootcamp';
     const $ = (id) => document.getElementById(id);
 
     async function init() {
@@ -124,7 +131,7 @@
       // El recurso se abre en el visor de IA MASIVA (misma barra, Favoritos y
       // Comentarios que los recursos gratuitos); "Cerrar" devuelve al bootcamp.
       if (localStorage.getItem('im_es_admin') !== '1') { try { await sb.from('aperturas').insert({ user_id: session.user.id, guide_id: guia.id, product_id: PRODUCT_ID }); } catch (_) {} }
-      location.replace(`app.html?guia=${encodeURIComponent(guia.id)}&volver=bootcamp`);
+      location.replace(`app.html?guia=${encodeURIComponent(guia.id)}&volver=${VOLVER}`);
     }
     init().catch(() => location.replace(LANDING));
   })();

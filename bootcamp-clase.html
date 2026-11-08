@@ -62,6 +62,16 @@
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue-elec); color: #fff; border: 0; border-radius: 10px; padding: 11px 16px; font: inherit; font-weight: 700; cursor: pointer; }
     .btn.sec { background: transparent; border: 1px solid var(--line); color: var(--gray); }
     .btn.chico { padding: 8px 12px; font-size: 0.85rem; }
+    /* Columna derecha: mide lo mismo que el video y los botones de clase; el chat
+       (o los comentarios) se encoge para dejar debajo los botones de material */
+    .col-lado { position: relative; min-width: 0; min-height: 460px; }
+    .lado-in { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; }
+    .lado-in > .chat { flex: 1; }
+    .acciones-clase { display: flex; flex-direction: column; gap: 8px; flex: none; }
+    .acciones-clase[hidden], .acciones-clase .btn[hidden] { display: none; }
+    .acciones-clase .btn { width: 100%; padding: 12px 14px; font-size: 0.92rem; }
+    .acciones-clase .btn svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .acciones-clase .btn.sec:hover { border-color: rgba(255,255,255,0.28); color: var(--white); background: rgba(255,255,255,0.04); }
     /* Chat: columna completa, estilo chat en vivo */
     .chat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; display: flex; flex-direction: column; min-height: 0; max-height: calc(100vh - 130px); }
     .tabs { display: flex; border-bottom: 1px solid var(--line); }
@@ -130,6 +140,12 @@
       .nav-clases { margin-top: 0; }
       .nav-clases .btn { max-width: none; padding: 10px 12px; font-size: 0.85rem; }
       .chat { height: calc(100vh - 60px - 56.25vw - 110px); min-height: 380px; max-height: none; }
+      /* En el celular los botones de material van justo bajo el video, uno al lado del otro */
+      .col-lado, .lado-in { display: contents; }
+      .video { order: 1; } .acciones-clase { order: 2; } .nav-clases { order: 3; } .chat { order: 4; }
+      .acciones-clase { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+      .acciones-clase .btn { padding: 10px 8px; font-size: 0.82rem; gap: 6px; }
+      .sala:has(#accionesClase:not([hidden])) .chat { height: calc(100vh - 60px - 56.25vw - 166px); }
       .nav-der { gap: 6px; font-size: 0.8rem; white-space: nowrap; } .chip { padding: 4px 8px; font-size: 0.62rem; letter-spacing: 0.08em; } .chip.admin { display: none; } .nav-der a span { display: none; }
       .sim { position: static; margin: 0 0 10px; width: fit-content; }
     }
@@ -182,6 +198,7 @@
             <a class="btn sec" id="btnClaseSig" href="bootcamp-clase.html?n=2">Clase siguiente →</a>
           </nav>
         </div>
+        <div class="col-lado"><div class="lado-in">
         <aside class="chat" id="chat">
           <div class="tabs">
             <button class="activa" data-tab="chat">Chat</button>
@@ -203,6 +220,12 @@
           <div class="chat-editando" id="chatEditando" hidden><span>Editando tu mensaje</span><button type="button" id="chatEditCancelar">Cancelar</button></div>
           <div class="chat-pie"><input id="chatInput" type="text" placeholder="Escribe un mensaje" autocomplete="off" maxlength="280" disabled /><button class="btn chico" id="chatEnviar" disabled>Enviar</button></div>
         </aside>
+        <!-- Material de la clase: ejercicios (recurso con progreso en la cuenta) y transcripción en PDF -->
+        <div class="acciones-clase" id="accionesClase" hidden>
+          <a class="btn" id="btnEjercicios" hidden href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Ejercicios de la clase</span></a>
+          <a class="btn sec" id="btnTranscripcion" hidden href="#" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg><span>Descargar transcripción</span></a>
+        </div>
+        </div></div>
       </div>
 
       <div class="aviso" id="aviso" hidden></div>
@@ -419,6 +442,31 @@
         chatCuerpo.textContent = 'Sin chat.';
       }
       if (config?.anuncio && estado !== 'cancelled') { aviso.textContent = config.anuncio; aviso.hidden = false; }
+      pintarAcciones(estado);
+    }
+
+    // Material de la clase ya dada: "Ejercicios de la clase N" (recurso del visor con
+    // progreso guardado en la cuenta; Cerrar vuelve aquí) y la transcripción en PDF.
+    // Cada botón aparece solo cuando su material existe.
+    const ejerciciosListos = {};
+    async function pintarAcciones(estado) {
+      const n = clase.numero;
+      const dada = ['ended_pending_upload', 'evergreen_ready'].includes(estado);
+      const bt = $('btnTranscripcion'), be = $('btnEjercicios');
+      const pdf = dada ? String(clase.transcripcion_url || '') : '';
+      bt.hidden = !pdf;
+      if (pdf) bt.href = `${pdf}${pdf.includes('?') ? '&' : '?'}download=${encodeURIComponent(`Transcripción clase ${n} - Bootcamp Gemini de 0 a 100.pdf`)}`;
+      const slug = `ejercicios-clase-${n}`;
+      if (dada && !(slug in ejerciciosListos)) {
+        try {
+          const { data } = await sb.from('guides').select('slug').eq('slug', slug).not('contenido_url', 'is', null).maybeSingle();
+          ejerciciosListos[slug] = !!data;
+        } catch (_) { ejerciciosListos[slug] = false; }
+      }
+      be.hidden = !(dada && ejerciciosListos[slug]);
+      be.href = `bootcamp-recurso.html?r=${slug}&volver=clase-${n}`;
+      be.querySelector('span').textContent = `Ejercicios de la clase ${n}`;
+      $('accionesClase').hidden = bt.hidden && be.hidden;
     }
 
     // ── Chat en vivo (Worker + Durable Object). Nunca toca el video. ──

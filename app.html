@@ -3029,7 +3029,10 @@
       // detrás de la cortina; "Cerrar" devuelve al bootcamp donde estaba
       const guiaParam = new URLSearchParams(location.search).get('guia');
       if (guiaParam) {
-        volverA = new URLSearchParams(location.search).get('volver') === 'bootcamp' ? 'recurso-bootcamp.html' : null;
+        // volver=bootcamp → home del bootcamp; volver=clase-N → la página de esa clase (ejercicios)
+        const volverParam = String(new URLSearchParams(location.search).get('volver') || '');
+        const claseVolver = volverParam.match(/^clase-([1-3])$/);
+        volverA = volverParam === 'bootcamp' ? 'recurso-bootcamp.html' : claseVolver ? `bootcamp-clase.html?n=${claseVolver[1]}` : null;
         try { await openGuide(guiaParam, false, true); } catch (_) {}
         // Si no se pudo abrir, de vuelta al bootcamp (no al inicio del catálogo)
         if (volverA && !document.getElementById('guideOverlay').classList.contains('active')) { closeGuideViewer(); return; }
