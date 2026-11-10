@@ -26,6 +26,11 @@
       "permanent": false
     },
     {
+      "source": "/encuesta",
+      "destination": "/encuesta-bootcamp.html",
+      "permanent": false
+    },
+    {
       "source": "/bootcamp-ig",
       "destination": "/bootcamp.html?utm_source=instagram&utm_medium=bio&utm_campaign=bootcamp-bio",
       "permanent": false

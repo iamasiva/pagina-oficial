@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Resultados de la encuesta · Bootcamp · IA MASIVA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root { --azul: #246bfd; --halo: #e8f3ff; --ink: #192333; --muted: #52647c; --linea: #e3e9f2; --casi: #f5f7fb; --ok: #0f9d58; --mal: #c5221f; --fuente: 'Google Sans Flex', 'Google Sans', 'Segoe UI', Roboto, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--fuente); color: var(--ink); background: var(--casi); line-height: 1.5; }
+    [hidden] { display: none !important; }
+    .wrap { width: min(980px, 100% - 32px); margin: 0 auto; padding: 28px 0 56px; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    h1 { margin: 6px 0 0; font-size: 30px; letter-spacing: -.02em; }
+    .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--azul); }
+    .btn { border: 1px solid var(--linea); background: #fff; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 600; font-size: 14px; color: var(--ink); cursor: pointer; text-decoration: none; }
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+    .kpi { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 14px 16px; }
+    .kpi b { display: block; font-size: 28px; line-height: 1.1; }
+    .kpi span { font-size: 13px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+    .caja { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 16px 18px; }
+    .caja h2 { margin: 0 0 12px; font-size: 16px; }
+    .barra { display: grid; grid-template-columns: 150px 1fr 34px; gap: 10px; align-items: center; font-size: 13.5px; margin: 6px 0; }
+    .barra .v { height: 10px; border-radius: 99px; background: var(--halo); overflow: hidden; }
+    .barra .v i { display: block; height: 100%; background: var(--azul); border-radius: 99px; }
+    .barra .n { text-align: right; color: var(--muted); }
+    .nps-col { display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; align-items: end; height: 120px; }
+    .nps-col div { background: var(--halo); border-radius: 6px 6px 0 0; position: relative; min-height: 2px; }
+    .nps-col div.det { background: #fde2e1; } .nps-col div.pro { background: #d6f0e1; }
+    .nps-num { display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; text-align: center; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .textos { margin-top: 12px; }
+    .textos .caja { margin-top: 12px; }
+    .item { border-top: 1px solid var(--linea); padding: 10px 0; font-size: 14.5px; }
+    .item:first-of-type { border-top: 0; }
+    .item small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: #e6f6ee; color: var(--ok); margin-left: 6px; }
+    .aviso { margin-top: 24px; background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; }
+    @media (max-width: 760px) { .kpis { grid-template-columns: 1fr 1fr; } .grid { grid-template-columns: 1fr; } .barra { grid-template-columns: 110px 1fr 30px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div><div class="eyebrow">Bootcamp Gemini de 0 a 100</div><h1>Resultados de la encuesta</h1></div>
+      <div><a class="btn" href="encuesta-bootcamp.html" target="_blank" rel="noopener">Ver la encuesta</a> <button class="btn" id="csv" hidden>Descargar CSV</button></div>
+    </div>
+    <div class="aviso" id="aviso">Cargando...</div>
+    <div id="panel" hidden>
+      <div class="kpis">
+        <div class="kpi"><b id="kTotal">0</b><span>respuestas</span></div>
+        <div class="kpi"><b id="kNps">0</b><span>NPS (promotores menos detractores)</span></div>
+        <div class="kpi"><b id="kProm">0</b><span>promedio de recomendación</span></div>
+        <div class="kpi"><b id="kTest">0</b><span>testimonios autorizados</span></div>
+      </div>
+      <div class="grid">
+        <div class="caja"><h2>Recomendación (0 a 10)</h2><div class="nps-col" id="npsCol"></div><div class="nps-num"></div></div>
+        <div class="caja"><h2>Clase que más aportó</h2><div id="gClase"></div></div>
+        <div class="caja"><h2>Qué quieren aprender después</h2><div id="gTemas"></div></div>
+        <div class="caja"><h2>Cómo se enteraron</h2><div id="gCanal"></div></div>
+      </div>
+      <div class="textos">
+        <div class="caja"><h2>Testimonios</h2><div id="tTestimonios"></div></div>
+        <div class="caja"><h2>Lo más valioso</h2><div id="tValioso"></div></div>
+        <div class="caja"><h2>Qué mejorarían</h2><div id="tMejorar"></div></div>
+        <div class="caja"><h2>Otros temas que pidieron</h2><div id="tOtros"></div></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (async () => {
+      const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aXlnbmZheGllanRsZ2traXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTU2ODksImV4cCI6MjA5MjA5MTY4OX0.jfDgQK31XdmY4yd0hMjEgu6b408mGuUSld2-njAujQc';
+      const sb = supabase.createClient('https://api.iamasiva.co', SUPABASE_ANON);
+      const $ = (id) => document.getElementById(id);
+      const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const fecha = new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      document.querySelector('.nps-num').innerHTML = Array.from({ length: 11 }, (_, i) => `<span>${i}</span>`).join('');
+
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { $('aviso').innerHTML = 'Inicia sesión con tu cuenta de administrador en <a href="index.html">iamasiva.co</a> y vuelve a abrir esta página.'; return; }
+      const { data: perfil } = await sb.from('profiles').select('es_admin').eq('id', session.user.id).maybeSingle();
+      if (!perfil?.es_admin) { $('aviso').textContent = 'Esta página es solo para el equipo administrador.'; return; }
+      const { data: filas, error } = await sb.from('encuesta_bootcamp').select('*').order('creado_en', { ascending: false });
+      if (error) { $('aviso').textContent = 'No se pudieron leer las respuestas: ' + error.message; return; }
+      if (!filas.length) { $('aviso').textContent = 'Todavía no hay respuestas.'; return; }
+      $('aviso').hidden = true; $('panel').hidden = false; $('csv').hidden = false;
+
+      const n = filas.length;
+      const notas = filas.map((f) => f.recomendacion);
+      const prom = notas.filter((x) => x >= 9).length, det = notas.filter((x) => x <= 6).length;
+      $('kTotal').textContent = n;
+      $('kNps').textContent = Math.round(((prom - det) / n) * 100);
+      $('kProm').textContent = (notas.reduce((a, b) => a + b, 0) / n).toFixed(1);
+      $('kTest').textContent = filas.filter((f) => f.testimonio && f.autoriza_publicar).length;
+
+      const cuenta = Array(11).fill(0); notas.forEach((x) => cuenta[x]++);
+      const max = Math.max(...cuenta, 1);
+      $('npsCol').innerHTML = cuenta.map((c, i) => `<div class="${i <= 6 ? 'det' : i >= 9 ? 'pro' : ''}" style="height:${Math.max(2, (c / max) * 100)}%" title="${i}: ${c}"></div>`).join('');
+
+      function barras(id, conteo) {
+        const pares = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+        const tope = Math.max(...pares.map((p) => p[1]), 1);
+        $(id).innerHTML = pares.length ? pares.map(([k, v]) => `<div class="barra"><span>${esc(k)}</span><div class="v"><i style="width:${(v / tope) * 100}%"></i></div><span class="n">${v}</span></div>`).join('') : '<small style="color:var(--muted)">Sin respuestas</small>';
+      }
+      const contar = (lista) => lista.reduce((o, k) => { if (k) o[k] = (o[k] || 0) + 1; return o; }, {});
+      barras('gClase', contar(filas.map((f) => f.clase_favorita ? 'Clase ' + f.clase_favorita : null)));
+      barras('gTemas', contar(filas.flatMap((f) => f.proximo_temas || [])));
+      barras('gCanal', contar(filas.map((f) => f.como_se_entero)));
+
+      const lista = (id, items) => { $(id).innerHTML = items.length ? items.join('') : '<small style="color:var(--muted)">Sin respuestas</small>'; };
+      const pie = (f) => `<small>${esc(fecha.format(new Date(f.creado_en)))} · recomendación ${f.recomendacion}${f.nombre ? ' · ' + esc(f.nombre) : ''}</small>`;
+      lista('tTestimonios', filas.filter((f) => f.testimonio).map((f) => `<div class="item">${esc(f.testimonio)}${f.autoriza_publicar ? '<span class="tag">Autorizado</span>' : ''}${pie(f)}</div>`));
+      lista('tValioso', filas.filter((f) => f.valioso).map((f) => `<div class="item">${esc(f.valioso)}${pie(f)}</div>`));
+      lista('tMejorar', filas.filter((f) => f.mejorar).map((f) => `<div class="item">${esc(f.mejorar)}${pie(f)}</div>`));
+      lista('tOtros', filas.filter((f) => f.proximo_otro).map((f) => `<div class="item">${esc(f.proximo_otro)}${pie(f)}</div>`));
+
+      $('csv').addEventListener('click', () => {
+        const cols = ['creado_en', 'recomendacion', 'valioso', 'mejorar', 'clase_favorita', 'proximo_temas', 'proximo_otro', 'como_se_entero', 'testimonio', 'autoriza_publicar', 'nombre', 'origen'];
+        const celda = (v) => `"${String(Array.isArray(v) ? v.join(' | ') : v ?? '').replace(/"/g, '""')}"`;
+        const csv = [cols.join(','), ...filas.map((f) => cols.map((c) => celda(f[c])).join(','))].join('\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+        a.download = 'encuesta-bootcamp.csv'; a.click();
+      });
+    })();
+  </script>
+</body>
+</html>
