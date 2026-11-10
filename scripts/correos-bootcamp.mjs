@@ -216,27 +216,33 @@ correos['bootcamp-recordatorio-2-una-hora-clase-2'] = recordatorioHora({ n: 2, t
 correos['bootcamp-recordatorio-2-una-hora-clase-3'] = recordatorioHora({ n: 3, titulo: 'Gemini para automatización y trabajo agéntico', dia: 'Jueves 5 de noviembre', anterior: true });
 
 // Cierre del bootcamp (6 nov 2026): a la lista #16 de compradores
+// Cierre (9 nov 2026): ejercicios, transcripciones y encuesta. Texto de Sergio.
+// Saludo sin nombre: la mitad de la lista #16 no tiene NOMBRE en Brevo.
+const CIERRE_UTM = 'utm_source=email&utm_medium=brevo&utm_campaign=bootcamp-cierre-compradores';
 correos['bootcamp-cierre-compradores'] = correo({
-  titulo: 'Tu bootcamp quedó completo: 3 clases grabadas, certificado y 25 agentes',
-  preheader: 'Las tres repeticiones, tu certificado y el recurso de 25 agentes ya están en tu área del bootcamp.',
-  pie: PIE_COMPRADOR,
-  cabeceraEtiqueta: 'Bootcamp Gemini &middot; cierre',
-  cabeceraFecha: '3 clases grabadas &middot; certificado &middot; 25 agentes de IA',
-  cuerpo: h1('Gracias por acompañarnos. Todo quedó en tu cuenta.')
-    + p('El bootcamp terminó anoche con la clase 3. Ya está todo listo en tu área del bootcamp en iamasiva.co, para que lo repases a tu ritmo:')
+  titulo: 'Ya están los ejercicios de las clases del Bootcamp Gemini',
+  preheader: 'Uno por cada parte práctica de las clases, con el material listo y tu progreso guardado.',
+  pie: 'Este correo llega porque eres estudiante del Bootcamp Gemini de 0 a 100.',
+  cabeceraEtiqueta: 'Bootcamp Gemini &middot; ejercicios',
+  cabeceraFecha: 'Ejercicios &middot; transcripciones &middot; encuesta',
+  cuerpo: p('¡Hola!')
+    + p('Como lo acordamos en clase, ya dejamos disponibles los ejercicios de las tres clases del <b>Bootcamp Gemini de 0 a 100</b>.')
+    + p('Cada parte práctica de las clases se volvió un ejercicio:')
     + lista([
-      '<b>Las repeticiones de las 3 clases</b>, con una sección de comentarios debajo de cada una por si te queda alguna duda.',
-      '<b>Tu certificado de finalización</b> en PDF, con tu nombre, listo para compartir o sumar a tu hoja de vida.',
-      '<b>El recurso 25 agentes de IA con Gemini</b>, con el equipo completo que crea carruseles, listo para instalar en Antigravity.',
-      '<b>Los recursos de las clases:</b> 42 formatos de respuesta, 61 instrucciones para imágenes y el mapa de las IA de Google.',
-      '<b>Tus tres herramientas para siempre:</b> 557 Configuraciones, 400 Skills y 200 Diseños, con todas sus actualizaciones.',
+      '<b>Casos nuevos</b>, distintos a los de la clase, para practicar cada técnica: imágenes con método, cuadernos, formatos de respuesta, Antigravity, skills, plugins y hasta tu propia página web.',
+      '<b>El material para arrancar ya viene incluido:</b> imágenes, documentos, cotizaciones y archivos listos para descargar.',
+      '<b>Tu progreso queda guardado en tu cuenta:</b> vas marcando cada ejercicio que terminas y lo ves igual en el celular y en el computador.',
     ])
-    + boton(AREA + '?utm_source=email&utm_medium=brevo&utm_campaign=bootcamp-cierre-compradores', 'Entrar a mi área del bootcamp')
-    + p('Las clases también quedaron en tu área de Hotmart, por si prefieres verlas desde ahí.')
-    + caja('<b>Un favor:</b> si el bootcamp te sirvió, cuéntanos en los comentarios de la clase 3 qué fue lo que más te aportó. Nos ayuda a mejorar el siguiente.')
-    + p('Si algo no te carga o tienes una duda, respóndenos este correo o escríbenos por <a href="' + WHATSAPP + '" style="color:#246BFD;">WhatsApp</a>.')
+    + p('Los encuentras debajo del video de cada clase, en el botón <b>“Ejercicios de la clase”</b>.')
+    + boton(`https://iamasiva.co/index.html?entrar=clase1&${CIERRE_UTM}`, 'Ir a los ejercicios')
+    + p('<b>También te dejamos las transcripciones.</b> Justo debajo está el botón <b>“Descargar transcripción”</b>: cada clase completa en PDF, con lo que se veía en pantalla explicado entre corchetes.')
+    + p('Súbela como fuente a un cuaderno de Gemini y pregúntale por cualquier parte de la clase. Si prefieres trabajar en otra IA, adjúntasela y tendrá toda la información de la clase.')
+    + caja('<b>Un favor:</b> cuéntanos cómo te fue en el bootcamp. Son 6 preguntas y te toma menos de 3 minutos. Con lo que nos digas preparamos el próximo.<br><a href="https://iamasiva.co/encuesta-bootcamp.html?' + CIERRE_UTM + '" target="_blank" style="color:#246BFD;font-weight:700;">Responder la encuesta &rarr;</a>')
+    + p('Muchas gracias por haber sido parte del Bootcamp Gemini de 0 a 100. Fue un gusto acompañarte en estas tres clases y ver todo lo que fueron construyendo.')
+    + p('Quedamos a tu disposición para lo que necesites. Te deseamos muchos éxitos con todo lo que vas a crear, y esperamos verte en una próxima ocasión.')
     + firma('Sergio Lizcano<br>IA MASIVA'),
 });
+
 
 mkdirSync('email', { recursive: true });
 for (const [nombre, html] of Object.entries(correos)) {
