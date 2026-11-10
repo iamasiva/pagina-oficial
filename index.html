@@ -1948,7 +1948,8 @@
     // aquí con ?entrar=...; se guarda el destino (solo páginas de esta lista), se
     // abre el login y, al entrar con correo o con Google, se vuelve a ese destino
     // en vez de al catálogo. sessionStorage sobrevive al viaje por Google.
-    const DESTINOS_ENTRAR = { bootcamp: 'recurso-bootcamp.html', clase1: 'bootcamp-clase.html?n=1', clase2: 'bootcamp-clase.html?n=2', clase3: 'bootcamp-clase.html?n=3', pagobootcamp: 'pago.html?p=6c01d354-e05d-47be-a6d6-3075abcc16d3' };
+    // ejerciciosN: enlace para las lecciones de Hotmart; tras iniciar sesión abre los ejercicios de esa clase (Cerrar vuelve a la clase)
+    const DESTINOS_ENTRAR = { bootcamp: 'recurso-bootcamp.html', clase1: 'bootcamp-clase.html?n=1', clase2: 'bootcamp-clase.html?n=2', clase3: 'bootcamp-clase.html?n=3', pagobootcamp: 'pago.html?p=6c01d354-e05d-47be-a6d6-3075abcc16d3', ejercicios1: 'bootcamp-recurso.html?r=ejercicios-clase-1&volver=clase-1', ejercicios2: 'bootcamp-recurso.html?r=ejercicios-clase-2&volver=clase-2', ejercicios3: 'bootcamp-recurso.html?r=ejercicios-clase-3&volver=clase-3' };
     try {
       const entrar = new URLSearchParams(location.search).get('entrar');
       if (entrar && DESTINOS_ENTRAR[entrar]) sessionStorage.setItem('im_destino', DESTINOS_ENTRAR[entrar]);
