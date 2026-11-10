@@ -5,6 +5,7 @@
 import crypto from 'node:crypto';
 import { adminClient, componentesDelPack } from './_lib.js';
 import { enviarEventoMeta } from './_meta.js';
+import { agregarCompradorBrevo, PRODUCTO_BOOTCAMP } from './_correo-bootcamp.js';
 
 // Resuelve rutas tipo "transaction.id" dentro del objeto data del evento.
 function valorPorRuta(obj, ruta) {
@@ -120,6 +121,13 @@ export default async function handler(req, res) {
               gateway_transaction_id: tx.id,
               consintio_acceso: compra.consintio_acceso,
             });
+          }
+          // Bootcamp pagado por Wompi (solo o dentro de un pack): a la lista
+          // "Compradores bootcamp" de Brevo, como en el webhook de Hotmart.
+          // agregarCompradorBrevo nunca lanza error, así que no rompe el webhook.
+          if (compra.product_id === PRODUCTO_BOOTCAMP || componentes.includes(PRODUCTO_BOOTCAMP)) {
+            const correo = String(tx.customer_email || compra.email_comprador || '').trim().toLowerCase() || null;
+            console.log('wompi-webhook:', await agregarCompradorBrevo({ correo }));
           }
         }
       }

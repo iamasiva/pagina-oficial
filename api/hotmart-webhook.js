@@ -280,6 +280,10 @@ async function otorgar({ db, evento, d, compra, transaccion, correo }) {
   if (producto.id === PRODUCTO_BOOTCAMP) {
     correoInfo = ', ' + await enviarBienvenidaBootcamp({ correo, nombre: d.buyer?.name, invitado: !userId });
     correoInfo += ', ' + await agregarCompradorBrevo({ correo });
+  } else if (componentes.includes(PRODUCTO_BOOTCAMP) || bonos.includes(PRODUCTO_BOOTCAMP)) {
+    // El bootcamp llegó dentro de un pack o como bono de otro producto: sin el
+    // correo de bienvenida, pero sí a la lista de compradores de Brevo.
+    correoInfo = ', ' + await agregarCompradorBrevo({ correo });
   }
   return `aprobada${userId ? '' : ' (invitado, se reclama al registrarse)'}${componentes.length ? `, pack con ${piezas} piezas nuevas` : ''}${bonos.length ? `, ${regalos} bono(s) nuevo(s) de ${bonos.length}` : ''}${aviso}${correoInfo}`;
 }

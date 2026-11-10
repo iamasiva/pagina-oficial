@@ -10,6 +10,7 @@
 // fila por cada pieza, igual que deja la compra real. Así las herramientas
 // abren y en "Tus compras" aparecen las piezas.
 import { adminClient, userFromRequest, mapaDePacks } from './_lib.js';
+import { agregarCompradorBrevo, PRODUCTO_BOOTCAMP } from './_correo-bootcamp.js';
 
 const CORREO_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -56,6 +57,7 @@ export default async function handler(req, res) {
       const aOtorgar = [...new Map(conPiezas.map(p => [p.id, p])).values()];
 
       let otorgados = 0, saltados = 0;
+      const conBootcamp = []; // correos que quedan con el bootcamp (nuevo o ya lo tenían)
       for (const correo of correos) {
         const { data: dueno } = await db.from('profiles').select('id').ilike('email', correo).maybeSingle();
         for (const p of aOtorgar) {
@@ -63,12 +65,12 @@ export default async function handler(req, res) {
           if (dueno) {
             const { data: ya } = await db.from('purchases').select('id')
               .eq('user_id', dueno.id).eq('product_id', p.id).eq('estado', 'APROBADA').maybeSingle();
-            if (ya) { saltados++; continue; }
+            if (ya) { saltados++; if (p.id === PRODUCTO_BOOTCAMP) conBootcamp.push(correo); continue; }
           } else {
             const { data: ya } = await db.from('purchases').select('id')
               .is('user_id', null).eq('product_id', p.id).eq('gateway', 'bono')
               .ilike('email_comprador', correo).maybeSingle();
-            if (ya) { saltados++; continue; }
+            if (ya) { saltados++; if (p.id === PRODUCTO_BOOTCAMP) conBootcamp.push(correo); continue; }
           }
           const { error } = await db.from('purchases').insert({
             user_id: dueno?.id ?? null,
@@ -83,10 +85,19 @@ export default async function handler(req, res) {
             monto_usd_centavos: 0,
             purchased_at: new Date().toISOString(),
           });
-          if (error) saltados++; else otorgados++;
+          if (error) saltados++; else { otorgados++; if (p.id === PRODUCTO_BOOTCAMP) conBootcamp.push(correo); }
         }
       }
-      return res.status(200).json({ otorgados, saltados });
+      // Bootcamp regalado (solo o dentro de un pack): a la lista "Compradores
+      // bootcamp" de Brevo, como una compra por Hotmart, para que reciba los
+      // correos de alumnos. De 5 en 5; agregarCompradorBrevo nunca lanza error.
+      let listaBrevo = 0;
+      for (let i = 0; i < conBootcamp.length; i += 5) {
+        const res5 = await Promise.all(conBootcamp.slice(i, i + 5).map(correo => agregarCompradorBrevo({ correo })));
+        listaBrevo += res5.filter(r => r.includes('agregado a #')).length;
+        res5.filter(r => !r.includes('agregado a #')).forEach(r => console.log('bonos:', r));
+      }
+      return res.status(200).json({ otorgados, saltados, ...(conBootcamp.length ? { lista_brevo: listaBrevo } : {}) });
     }
 
     if (accion === 'retirar') {

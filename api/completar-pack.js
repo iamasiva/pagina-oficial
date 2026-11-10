@@ -5,6 +5,7 @@
 // ventas no las cuenten. La condición del regalo se valida AQUÍ, nunca en el
 // navegador.
 import { adminClient, userFromRequest, componentesDelPack, bonosDelProducto, piezasConCredito } from './_lib.js';
+import { agregarCompradorBrevo, PRODUCTO_BOOTCAMP } from './_correo-bootcamp.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -88,6 +89,15 @@ export default async function handler(req, res) {
         purchased_at: ahora,
       });
       if (error) throw new Error(error.message);
+    }
+
+    // Si lo regalado incluye el bootcamp (el producto o un pack que lo trae),
+    // la persona entra a la lista "Compradores bootcamp" de Brevo igual que con
+    // una compra por Hotmart, para que le lleguen los correos de alumnos.
+    // agregarCompradorBrevo nunca lanza error: un fallo de Brevo no frena la entrega.
+    if (faltantes.includes(PRODUCTO_BOOTCAMP)) {
+      const correo = String(user.email ?? '').trim().toLowerCase() || null;
+      console.log('completar-pack:', await agregarCompradorBrevo({ correo }));
     }
 
     return res.status(200).json({ ok: true, habilitados: faltantes });
