@@ -66,4 +66,4 @@ Los recursos del bootcamp son solo para quien lo tiene (compra APROBADA, admin o
 - En las vitrinas no aparecen: el catálogo con sesión y la fila de Tendencias de la página principal excluyen la categoría "Recurso del bootcamp", y `/r/<slug>` y `ver-recurso.html` no sirven nada premium.
 - Probado en producción con usuarios desechables (borrados): comprador recibe el archivo, usuario sin compra 403, visitante 401; un visitante y un usuario con cuenta gratis listan 0 archivos.
 
-Pendiente conocido: `bootcamp_clases.grabacion_url` (el enlace no listado de YouTube de cada repetición) lo puede leer por la API cualquier usuario con sesión, tenga o no el bootcamp.
+Decisión de Sergio (10 nov 2026): las repeticiones siguen como videos no listados de YouTube y `bootcamp_clases.grabacion_url` queda legible para cualquier usuario con sesión. Es intencional: era la única forma gratuita de alojar los videos, se confía en que los estudiantes no comparten el enlace, y quien llegara a ver una clase no tiene los recursos, los ejercicios, el soporte ni el Pack Gemini 3x. No es un pendiente.
