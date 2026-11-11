@@ -2012,7 +2012,8 @@
         const conteo = new Map((t.error ? [] : t.data ?? []).map(f => [f.guide_id, f.aperturas]));
         const productoDeGuia = new Map((p.error ? [] : p.data ?? []).filter(x => x.guide_id).map(x => [x.guide_id, x.id]));
         const esc = (s) => String(s ?? '').replace(/</g, '&lt;');
-        const orden = [...g.data]
+        // Los recursos del bootcamp (ejercicios de cada clase) viven dentro del bootcamp: no van en la vitrina pública
+        const orden = g.data.filter(x => !(x.categorias || []).includes('Recurso del bootcamp'))
           .sort((a, b) => (conteo.get(b.id) || 0) - (conteo.get(a.id) || 0) || new Date(b.created_at) - new Date(a.created_at))
           .slice(0, 10);
         const pista = document.getElementById('cardsTrack');
