@@ -453,9 +453,10 @@
       const n = clase.numero;
       const dada = ['ended_pending_upload', 'evergreen_ready'].includes(estado);
       const bt = $('btnTranscripcion'), be = $('btnEjercicios');
-      const pdf = dada ? String(clase.transcripcion_url || '') : '';
-      bt.hidden = !pdf;
-      if (pdf) bt.href = `${pdf}${pdf.includes('?') ? '&' : '?'}download=${encodeURIComponent(`Transcripción clase ${n} - Bootcamp Gemini de 0 a 100.pdf`)}`;
+      // La transcripción vive en almacenamiento privado: el botón le pide al servidor un
+      // enlace temporal (descargarTranscripcion), que solo se entrega a quien tiene el bootcamp
+      bt.hidden = !(dada && clase.transcripcion_url);
+      bt.href = '#';
       const slug = `ejercicios-clase-${n}`;
       if (dada && !(slug in ejerciciosListos)) {
         try {
@@ -469,6 +470,26 @@
       be.querySelector('span').textContent = `Ejercicios de la clase ${n}`;
       $('accionesClase').hidden = bt.hidden && be.hidden;
     }
+    // Pide al servidor el enlace temporal del PDF y lo descarga sin salir de la clase
+    async function descargarTranscripcion(e) {
+      e.preventDefault();
+      const bt = $('btnTranscripcion'), span = bt.querySelector('span');
+      if (bt.dataset.cargando) return;
+      bt.dataset.cargando = '1'; span.textContent = 'Preparando la descarga...';
+      try {
+        const { data: { session: s } } = await sb.auth.getSession();
+        if (!s) throw new Error('Tu sesión venció. Vuelve a iniciar sesión para descargar la transcripción.');
+        const r = await fetch(`/api/contenido?transcripcion=${clase.numero}`, { headers: { Authorization: `Bearer ${s.access_token}` } });
+        const cuerpo = await r.json().catch(() => ({}));
+        if (!r.ok || !cuerpo.url) throw new Error(cuerpo.error || 'No se pudo preparar la descarga. Intenta de nuevo.');
+        location.href = cuerpo.url;
+      } catch (err) {
+        alert(err.message || 'No se pudo descargar la transcripción. Intenta de nuevo.');
+      } finally {
+        delete bt.dataset.cargando; span.textContent = 'Descargar transcripción';
+      }
+    }
+    $('btnTranscripcion').addEventListener('click', descargarTranscripcion);
 
     // ── Chat en vivo (Worker + Durable Object). Nunca toca el video. ──
     const chat = { ws: null, rol: 'alumno', alias: '', yo: '', modo: 'normal', mensajes: [], preguntas: [], tab: 'chat', intentos: 0, timer: null, ping: null, abierto: false, editando: null };

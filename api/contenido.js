@@ -1,17 +1,24 @@
 // GET /api/contenido?guide=<uuid>
+// GET /api/contenido?transcripcion=<n>   (PDF de la transcripción de una clase del bootcamp)
 // Entrega verificada del contenido. Las guías gratis devuelven su URL pública
 // de siempre. Las premium exigen compra APROBADA (o ser admin) y se sirven
-// con una URL firmada temporal desde el bucket privado — la verificación es
+// con una URL firmada temporal desde el bucket privado: la verificación es
 // 100% server-side, tal como exige el plan.
 import { adminClient, userFromRequest } from './_lib.js';
 
-// Recursos del Bootcamp Gemini de 0 a 100: guías premium despublicadas marcadas con la
-// categoría "Recurso del bootcamp". Las desbloquea la compra APROBADA del bootcamp (no una
-// compra propia) y su contenido vive en el bucket público "contenido", como las gratuitas.
+// Recursos del Bootcamp Gemini de 0 a 100: guías premium marcadas con la categoría
+// "Recurso del bootcamp" (ejercicios de cada clase, 42 formatos, 61 instrucciones, mapa,
+// 25 agentes). Las desbloquea la compra APROBADA del bootcamp (no una compra propia).
+// Desde el 10 nov 2026 su archivo vive en el bucket PRIVADO "contenido-premium"
+// (contenido_url guarda la ruta) y se entrega con URL firmada; si una fila todavía guarda
+// una URL pública completa, se entrega tal cual.
 const PRODUCTO_BOOTCAMP = '6c01d354-e05d-47be-a6d6-3075abcc16d3';
 const esRecursoBootcamp = (g) => (g.categorias || []).includes('Recurso del bootcamp');
 // Por defecto abren el día de la clase 1; estos se entregan el día de su clase.
 const CLASE_APERTURA = { '25-agentes-de-ia': 3 };
+const BUCKET_PRIVADO = 'contenido-premium';
+const SEGUNDOS_ENLACE = 600; // el visor descarga el archivo al instante; el enlace no sirve para compartir
+const esUrl = (v) => /^https?:\/\//i.test(String(v || ''));
 
 export default async function handler(req, res) {
   try {
@@ -19,6 +26,37 @@ export default async function handler(req, res) {
 
     const user = await userFromRequest(req);
     if (!user) return res.status(401).json({ error: 'Inicia sesión' });
+
+    // Transcripción de una clase del bootcamp (PDF). Solo para quien tiene el bootcamp
+    // (compra APROBADA), el equipo de ensayo o un admin. El archivo vive en el bucket
+    // privado y se entrega con una URL firmada de pocos minutos, con nombre de descarga.
+    if (req.query.transcripcion !== undefined) {
+      const n = Number(req.query.transcripcion);
+      if (!Number.isInteger(n) || n < 1 || n > 20) return res.status(400).json({ error: 'Clase no válida' });
+      const dbT = adminClient();
+      const { data: clase } = await dbT.from('bootcamp_clases').select('numero, transcripcion_url').eq('product_id', PRODUCTO_BOOTCAMP).eq('numero', n).maybeSingle();
+      if (!clase?.transcripcion_url) return res.status(404).json({ error: 'Esta clase todavía no tiene transcripción' });
+      const { data: perfilT } = await dbT.from('profiles').select('es_admin, email').eq('id', user.id).single();
+      let permitido = !!perfilT?.es_admin;
+      if (!permitido) {
+        const correo = String(user.email || perfilT?.email || '').trim().toLowerCase();
+        if (correo) {
+          const { data: eq } = await dbT.from('bootcamp_equipo').select('email').eq('product_id', PRODUCTO_BOOTCAMP).eq('email', correo).limit(1).maybeSingle();
+          permitido = !!eq;
+        }
+      }
+      if (!permitido) {
+        const { data: compra } = await dbT.from('purchases').select('id').eq('user_id', user.id).eq('product_id', PRODUCTO_BOOTCAMP).eq('estado', 'APROBADA').limit(1).maybeSingle();
+        permitido = !!compra;
+      }
+      if (!permitido) return res.status(403).json({ error: 'La transcripción es para estudiantes del Bootcamp Gemini de 0 a 100' });
+      const nombre = `Transcripción clase ${n} - Bootcamp Gemini de 0 a 100.pdf`;
+      const ruta = clase.transcripcion_url;
+      if (esUrl(ruta)) return res.status(200).json({ url: `${ruta}${ruta.includes('?') ? '&' : '?'}download=${encodeURIComponent(nombre)}` });
+      const { data: firmadaT, error: errorT } = await dbT.storage.from(BUCKET_PRIVADO).createSignedUrl(ruta, SEGUNDOS_ENLACE, { download: nombre });
+      if (errorT) throw new Error(errorT.message);
+      return res.status(200).json({ url: firmadaT.signedUrl });
+    }
 
     const guideId = req.query.guide;
     if (!guideId) return res.status(400).json({ error: 'Falta la guía' });
@@ -51,7 +89,8 @@ export default async function handler(req, res) {
 
     // Recurso del bootcamp: se habilita a medianoche de Bogotá del día de su clase de
     // apertura (la 1 si no dice otra cosa) para los compradores; los admins y el equipo
-    // de ensayo siempre. URL pública tal cual (mismo bucket que las guías gratuitas).
+    // de ensayo siempre. Después se entrega como cualquier premium: URL firmada del bucket
+    // privado (o la URL pública tal cual si la fila todavía guarda una).
     if (esRecursoBootcamp(guide)) {
       if (!perfil?.es_admin && !esEquipo) {
         const claseApertura = CLASE_APERTURA[guide.slug] || 1;
@@ -61,14 +100,14 @@ export default async function handler(req, res) {
           if (Date.now() < new Date(dia + 'T05:00:00Z').getTime()) return res.status(403).json({ error: claseApertura === 1 ? 'Los recursos del bootcamp se habilitan el primer día del evento' : `Este recurso se entrega en la clase ${claseApertura}` });
         }
       }
-      return res.status(200).json({ url: guide.contenido_url });
+      if (esUrl(guide.contenido_url)) return res.status(200).json({ url: guide.contenido_url });
     }
 
     // Para guías premium, contenido_url guarda la RUTA dentro del bucket privado
     // "contenido-premium" (no una URL pública).
     const { data: firmada, error } = await db.storage
-      .from('contenido-premium')
-      .createSignedUrl(guide.contenido_url, 3600);
+      .from(BUCKET_PRIVADO)
+      .createSignedUrl(guide.contenido_url, SEGUNDOS_ENLACE);
     if (error) throw new Error(error.message);
 
     return res.status(200).json({ url: firmada.signedUrl });
