@@ -54,3 +54,16 @@ Cumplido en código y pruebas locales. Queda la prueba real de punta a punta cua
 - producto.html: el popup "¡Lleva el paquete completo!" descuenta lo pagado y lleva a `pago.html?p=<bootcamp>`.
 - Probado en producción el 6 nov con usuarios desechables (borrados): 200 pagado a $17 → pendiente de $80 por Wompi (sin ofertas de Hotmart todavía).
 - Ofertas de precio fijo del bootcamp creadas en Hotmart el 6 nov 2026 (Completar bootcamp 80, 73, 68, 56, 50, 44, 33 y 27, pago al contado en USD, conversión automática) y guardadas en `products.hotmart_ofertas` del bootcamp. Probado en producción con usuarios desechables (borrados): 200 pagado a $17 → oferta de $80 por Hotmart; 200 + pack ($64) → oferta de $33 por Hotmart.
+
+## Dónde viven los archivos del bootcamp (10 nov 2026)
+
+Los recursos del bootcamp son solo para quien lo tiene (compra APROBADA, admin o equipo de ensayo). Desde el 10 nov 2026 sus archivos ya no están en el bucket público:
+
+- Los 7 HTML (42 formatos, 61 instrucciones, mapa de las IA de Google, 25 agentes y ejercicios de las clases 1, 2 y 3) y los 3 PDF de transcripción viven en el bucket privado `contenido-premium`, en la raíz. `guides.contenido_url` y `bootcamp_clases.transcripcion_url` guardan la RUTA (el nombre del archivo), no una URL.
+- `/api/contenido?guide=<id>` verifica el acceso y entrega una URL firmada de 10 minutos; el visor de app.html la descarga al instante. `/api/contenido?transcripcion=<n>` hace lo mismo con el PDF, como descarga. Sin sesión responde 401 y sin el bootcamp 403.
+- Para volver a subir un recurso: subirlo a `contenido-premium` con nombre nuevo (`<timestamp>_<slug>.html`) y poner ese nombre en `contenido_url`. El formulario de administración ya lo hace cuando la guía está marcada como premium.
+- El bucket público `contenido` ya no deja listar sus archivos a visitantes (`sql/storage-contenido-sin-listado.sql`): solo un admin con sesión. Ahí siguen, a propósito, los archivos que los recursos enlazan por dentro (los ZIP de los 25 agentes, el PDF del mapa, la skill del 61 y los materiales de los ejercicios en `ejercicios-bootcamp/`): abren por enlace directo y su nombre no se puede adivinar.
+- En las vitrinas no aparecen: el catálogo con sesión y la fila de Tendencias de la página principal excluyen la categoría "Recurso del bootcamp", y `/r/<slug>` y `ver-recurso.html` no sirven nada premium.
+- Probado en producción con usuarios desechables (borrados): comprador recibe el archivo, usuario sin compra 403, visitante 401; un visitante y un usuario con cuenta gratis listan 0 archivos.
+
+Pendiente conocido: `bootcamp_clases.grabacion_url` (el enlace no listado de YouTube de cada repetición) lo puede leer por la API cualquier usuario con sesión, tenga o no el bootcamp.
