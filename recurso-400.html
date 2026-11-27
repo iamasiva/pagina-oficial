@@ -496,10 +496,12 @@
     .im-modal-caja input:focus, .im-modal-caja select:focus, .im-modal-caja textarea:not(.code-output):focus { border-color: var(--accent); }
     .im-modal-label { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
     /* Asistentes como skills de Gemini: aviso en cada caja y ventana con los 3 campos */
-    .im-skill-aviso { margin-top: 14px; padding: 12px 14px; border-radius: 10px; border: 1px solid color-mix(in srgb, #e9a23b 45%, transparent); background: color-mix(in srgb, #e9a23b 12%, var(--surface)); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; max-width: 640px; flex-basis: 100%; }
+    .im-skill-aviso { margin-top: 0; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; max-width: 640px; flex-basis: 100%; }
     .im-skill-aviso p { margin: 0; font-size: 14px; color: var(--ink); line-height: 1.5; max-width: none; }
     .im-skill-aviso code, .im-modal-skill code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; color: var(--accent); }
-    .im-skill-aviso button { min-height: 38px; height: 38px; padding: 0 14px; font-size: 0.86rem; cursor: pointer; }
+    .im-skill-aviso button { min-height: 42px; height: 42px; padding: 0 18px; font-size: 0.9rem; cursor: pointer; border: 0; }
+    .im-skill-aviso .im-skill-como { font-size: 13px; color: var(--muted); }
+    .im-skill-aviso .im-skill-como a { color: var(--accent); font-weight: 700; }
     .im-modal-caja.im-modal-skill { max-width: 580px; max-height: calc(100% - 36px); overflow: auto; }
     .im-modal-skill h3 { margin: 10px 0 4px; }
     .im-skill-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; }
@@ -1066,12 +1068,11 @@
             <p>Cuéntale al Bibliotecario del 400 lo que quieres lograr y te responde con el nombre exacto de la skill que te sirve (o te describe la que deberías crear con la Skill para crear skills si no existe). Pega ese nombre en el buscador de la biblioteca y listo.</p>
           </div></div>
           <div class="busq-caja">
-            <a class="primary-btn" href="https://gemini.google.com/gem/1kQIJy4nNb3xBfatu48c4sx11ztMtIR_g?usp=sharing" target="_blank" rel="noopener">Abrir el Bibliotecario en Gemini</a>
-            <p class="busq-nota">Se abre en una pestaña nueva con tu cuenta de Google.</p>
             <div class="im-skill-aviso" id="imSkillAvisoBusq">
-            <p>El Bibliotecario ya está listo como skill de Gemini: la creas una sola vez y la llamas con <code>@bibliotecario-del-400</code> en cualquier chat. La gema de arriba sigue funcionando mientras Google la mantenga.</p>
-            <button class="im-mini-btn" type="button" data-skill="bibliotecario-del-400"><span>Crea la skill</span></button>
-          </div>
+              <p>El Bibliotecario es una skill de Gemini: la creas una sola vez y la llamas con <code>@bibliotecario-del-400</code> en cualquier chat.</p>
+              <button class="primary-btn" type="button" data-skill="bibliotecario-del-400"><span>Crea la skill</span></button>
+              <p class="im-skill-como">¿Primera vez creando una skill? <a href="ver-recurso.html?r=skills-de-gemini" target="_blank" rel="noopener">Mira el paso a paso</a>.</p>
+            </div>
           </div>
         </section>
 
