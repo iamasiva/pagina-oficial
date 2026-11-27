@@ -8,7 +8,7 @@ select 'Gemini desde cero',
   'Abrir una IA por primera vez intimida: nadie te dice por dónde empezar ni qué es cada botón. Aquí entras a Gemini, tienes tu primera conversación útil y aprendes dónde está cada cosa, paso a paso y con animaciones.',
   0, true, false, false,
   '{"Gemini","Formación"}',
-  'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/contenido/1795802194000_gemini-desde-cero.html',
+  'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/contenido/1795808829000_gemini-desde-cero.html',
   'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/1795800127000_gemini-desde-cero.jpg',
   'gemini-desde-cero'
 where not exists (select 1 from public.guides where slug = 'gemini-desde-cero');
