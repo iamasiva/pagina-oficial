@@ -2,12 +2,14 @@
 -- Recurso gratuito del video "No le pidas resúmenes a Claude, pídele una clase" (palabra clave: CLASE).
 -- Archivos ya subidos a Storage. Entra DESPUBLICADA (regla de siempre): no sale en el catálogo,
 -- pero /r/clases-interactivas-claude y el visor funcionan por enlace directo, así que ManyChat ya sirve.
+-- Versión del 26 nov con las animaciones de instalación (app de Claude y terminal en Mac y Windows),
+-- la de llenar, copiar y pegar el prompt, y la sección "Ahora crea las tuyas a tu medida".
 insert into public.guides (titulo, descripcion, precio, es_gratis, es_premium, publicada, categorias, contenido_url, portada_url, slug)
 select 'Clases interactivas con voz en Claude Code',
   'Un resumen se olvida en una semana; una clase que te explica, se detiene y te pone a resolver, se queda. Instala lo necesario para que Claude Code te arme clases con animaciones y voz natural gratis, en Mac o Windows.',
   0, true, false, false,
   '{"Claude","Formación","Creación de contenido"}',
-  'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/contenido/1795743992000_clases-interactivas-claude.html',
+  'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/contenido/1795744751000_clases-interactivas-claude.html',
   'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/1795743992000_clases-interactivas-claude.jpg',
   'clases-interactivas-claude'
 where not exists (select 1 from public.guides where slug = 'clases-interactivas-claude');
