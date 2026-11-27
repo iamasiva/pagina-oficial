@@ -7,7 +7,7 @@
 update public.guides set
   titulo = 'Crea tu propio asistente con las skills de Gemini',
   descripcion = 'Si cada vez que abres Gemini le explicas lo mismo, estás repitiendo trabajo. Una skill guarda tus instrucciones una sola vez. Aquí creas la primera paso a paso, con animaciones, y la pruebas en un chat. Las Gems ahora son skills.',
-  contenido_url = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/contenido/1795793899000_skills-de-gemini.html',
+  contenido_url = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/contenido/1795802206000_skills-de-gemini.html',
   portada_url = 'https://iyiygnfaxiejtlgkkivs.supabase.co/storage/v1/object/public/portadas/1795796622000_skills-de-gemini.jpg',
   slug = 'skills-de-gemini'
 where id = '69e1d0ce-01f7-4432-b988-9edb78f663b2';
